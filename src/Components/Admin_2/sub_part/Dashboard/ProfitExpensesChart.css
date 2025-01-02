@@ -1,0 +1,92 @@
+
+
+.chart_container_Dashboard {
+    width: 940px;  
+    max-width: 940px;
+    background: red;    
+    border-radius:var(--admin_box_radius);
+    box-shadow: var(--admin_box_shadow);
+    padding: 20px 20px;
+    background: var(--admin_ui_coloer);
+    height: fit-content;
+    transition: box-shadow 0.3s ease;
+    position: relative;
+    padding-top: var(--admin_title_padding_top);
+    margin-bottom: 40px;
+  }
+  
+  .chart_container_Dashboard:hover {
+    box-shadow: var(--admin_box_shadow_hover);
+  
+  }
+  
+  .chart_container_Dashboard .chart-title {
+    position: absolute;
+    top: 0px;
+    left: 0;
+    padding: var(--admin_title_padding);
+    font-size: var(--admin_title_font_size);
+    font-weight: var(--admin_title_font_weight);
+  }
+  
+  .chart_container_Dashboard .chart-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 20px;
+  }
+  
+  .chart_container_Dashboard .chart_con{
+    display: flex;
+    
+  }
+  .chart_container_Dashboard .chart_con .chart{
+    display: flex;
+    flex: 1.2;
+  }
+  .chart_container_Dashboard .chart_con .chart_data{
+    display: flex;
+    flex: 0.9;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+  .chart_container_Dashboard .chart_con .chart_data .chart_info{
+    height: fit-content;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+  }
+  .chart_container_Dashboard .chart_con .chart_data .chart_info .icon{
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    padding: 8px;
+  }
+
+
+  .chart_container_Dashboard .chart_con .chart_data .chart_info .icon img{
+    height: 100%;
+    width: 100%;
+  }
+  .chart_container_Dashboard .chart_con .chart_data .chart_info .data .amount{
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  .chart_container_Dashboard .chart_con .chart_data .chart_info .data .info{
+    font-size: 0.9rem;
+  }
+
+  .chart_container_Dashboard .chart_con .chart-button-container button{
+    margin-top: 30px;
+    padding: 7px 15px;
+    border-radius: 20px;
+    outline: 0;
+    border: 0;
+    cursor: pointer;
+    background: #0b8bdc;
+    color: white;
+    font-size: 1.1rem;
+}

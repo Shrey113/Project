@@ -1,0 +1,427 @@
+:root {
+  --color_1: #0d1117;
+  --color_2: #1f6feb;
+  --color_3: #f2a365;
+  --color_4: #e6edf3;
+  --color_5: #8b949e;
+  --color_error: #d72638;
+  --input_font_size: 1rem;
+}
+
+.Main_Container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  position: relative;
+  background-color: #e6edf3;
+}
+
+/* swiper buttons */
+
+.swiper-pagination {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+}
+
+.swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background-color: #ffffff;
+  opacity: 0.8;
+  border-radius: 50%;
+  margin: 0 5px;
+  transition: opacity 0.3s, background-color 0.3s;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #f69d37;
+  opacity: 1;
+}
+
+.Main_Container .Register_Page,
+.Main_Container .Login_Page {
+  transition: transform 0.6s ease, z-index 0.6s ease, opacity 0.6s ease;
+}
+.Main_Container .Register_Page,
+.Main_Container .Login_Page {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 80%;
+  width: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.Main_Container .Register_Page.active,
+.Login_Page.active {
+  z-index: 2;
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+.Main_Container .Register_Page:not(.active),
+.Main_Container .Login_Page:not(.active) {
+  opacity: 0;
+  transform: translateY(-40%, -40%);
+  z-index: 0;
+}
+
+.Register_Page .otp-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  height: 200px;
+  width: 280px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: center;
+  gap: 30px;
+  border-radius: 8px;
+}
+.Register_Page .otp-modal img:hover {
+  cursor: pointer;
+}
+.Register_Page .otp-modal .input_and_submit_button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+}
+.Register_Page .otp-modal .input_and_submit_button input {
+  font-size: 16px;
+  padding: 5px;
+  border: 0;
+  outline: 0;
+  width: 230px;
+  border-bottom: 3px solid rgb(91, 91, 238);
+}
+.Register_Page .otp-modal .input_and_submit_button input:focus {
+  border: 0;
+  outline: 0;
+  border-bottom: 3px solid rgb(107, 140, 249);
+}
+.Register_Page .otp-modal .input_and_submit_button button {
+  border: 0;
+  outline: 0;
+  font-size: 15px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-weight: 600;
+  background-color: rgb(126, 175, 249);
+}
+.Register_Page .otp-modal .input_and_submit_button button:hover {
+  cursor: pointer;
+}
+.Register_Page .otp-modal .error {
+  color: red;
+  margin-top: -20px;
+}
+
+.Main_Container .Register_Page .register_form {
+  height: 95%;
+  width: 50%;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+.Main_Container .Register_Page .all_fields img {
+  height: 95%;
+  width: 50%;
+  object-fit: cover;
+  border-radius: 5px;
+}
+.Main_Container .Register_Page .all_fields h1,
+.Main_Container .Login_Page .all_fields h1 {
+  color: var(--color_2);
+}
+.Main_Container .Register_Page .all_fields {
+  height: fit-content;
+  width: 45%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-direction: column;
+  position: relative;
+  gap: 25px;
+}
+
+.Main_Container .Login_Page .login_form {
+  height: 95%;
+  width: 50%;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+
+.Main_Container .Login_Page .forgot_password_container {
+  width: 90%;
+  display: flex;
+  justify-content: flex-end;
+}
+.Main_Container .Login_Page p.forgot_password {
+  color: var(--color_3);
+}
+.Main_Container .Login_Page p.forgot_password:hover {
+  cursor: pointer;
+  color: var(--color_2);
+}
+.Main_Container .Login_Page .all_fields {
+  height: fit-content;
+  width: 45%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  position: relative;
+  gap: 25px;
+}
+.Main_Container .Login_Page .all_fields img {
+  height: 95%;
+  width: 50%;
+  object-fit: cover;
+}
+.Main_Container .Login_Page .all_fields p span,
+.Main_Container .Register_Page .all_fields p span {
+  color: var(--color_3);
+  cursor: pointer;
+}
+.Main_Container .Login_Page .all_fields p span:hover,
+.Main_Container .Register_Page .all_fields p span:hover {
+  color: var(--color_2);
+}
+.all_fields #custom_button {
+  outline: none;
+  cursor: pointer;
+  border: none;
+  padding: 0.9rem 2rem;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  position: relative;
+  display: inline-block;
+  letter-spacing: 0.05rem;
+  font-weight: 700;
+  font-size: 17px;
+  border-radius: 500px;
+  overflow: hidden;
+  background: var(--color_2);
+  color: #e6edf3;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#custom_button span {
+  position: relative;
+  z-index: 10;
+  transition: color 0.4s ease;
+}
+
+#custom_button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.289);
+}
+
+#custom_button:hover span {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* form styles input */
+.Login_register_input_group {
+  position: relative;
+  margin-bottom: 12px;
+  background-color: transparent;
+  width: fit-content;
+}
+
+.Login_register_input_group input[type="text"],
+.Login_register_input_group input[type="password"],
+.Login_register_input_group input[type="email"] {
+  font-size: 1.2rem;
+  padding: 10px 10px 10px 5px;
+  display: block;
+  width: 300px;
+  border: none;
+  border-bottom: 1px solid #757575;
+  background: transparent;
+}
+
+.Login_register_input_group input:focus {
+  outline: none;
+}
+
+/* form styles input-lable*/
+.Login_register_input_group label {
+  color: #434343;
+  font-size: 1.2rem;
+  font-weight: normal;
+  position: absolute;
+  pointer-events: none;
+  left: 5px;
+  top: 10px;
+  transition: 0.2s ease all;
+}
+
+.Login_register_input_group input[type="text"]:focus ~ label,
+.Login_register_input_group input[type="password"]:focus ~ label,
+.Login_register_input_group input[type="email"]:focus ~ label,
+.Login_register_input_group input[type="text"]:valid ~ label,
+.Login_register_input_group input[type="password"]:valid ~ label,
+.Login_register_input_group input[type="email"]:valid ~ label {
+  top: -20px;
+  font-size: 18px;
+  color: #5264ae;
+}
+
+.Login_register_input_group .bar {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.all_error_for_input {
+  color: red;
+}
+.Login_register_input_group .bar:before,
+.Login_register_input_group .bar:after {
+  content: "";
+  position: absolute;
+  height: 2px;
+  width: 0;
+  bottom: 0px;
+  background: #5264ae;
+  transition: 0.2s ease all;
+}
+
+.Login_register_input_group .bar:before {
+  left: 50%;
+}
+
+.Login_register_input_group .bar:after {
+  right: 50%;
+}
+
+.Login_register_input_group input:focus ~ .bar:before,
+.Login_register_input_group input:focus ~ .bar:after {
+  width: 50%;
+}
+
+.Login_register_input_group .label_custom_check_box {
+  display: contents;
+  pointer-events: fill;
+  cursor: pointer;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/*  */
+.Login_register_input_group .show_password_button {
+  border: 0;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 30px;
+  width: 60px;
+  background-color: transparent;
+}
+.Login_register_input_group .show_password_button img {
+  width: 100%;
+  object-fit: cover;
+}
+
+@media only screen and (max-width: 768px) {
+  .Main_Container .Register_Page,
+  .Main_Container .Login_Page {
+    width: 95%;
+    height: 98%;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 20px;
+  }
+
+  .Main_Container .Register_Page .all_fields,
+  .Main_Container .Login_Page .all_fields {
+    width: 100%;
+    gap: 15px;
+  }
+
+  .Main_Container .Register_Page .register_form,
+  .Main_Container .Login_Page .login_form {
+    width: 100%;
+    height: auto;
+  }
+
+  .swiper-pagination {
+    bottom: 20px;
+  }
+
+  .swiper-pagination-bullet {
+    width: 6px;
+    height: 6px;
+  }
+  .forgot_password {
+    width: 250px;
+  }
+
+  #custom_button {
+    padding: 0.7rem 1.5rem;
+    font-size: 15px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .Main_Container .Register_Page,
+  .Main_Container .Login_Page {
+    height: 100%;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .Main_Container .Register_Page .all_fields,
+  .Main_Container .Login_Page .all_fields {
+    gap: 15px;
+  }
+
+  .swiper-pagination {
+    bottom: 10px;
+  }
+
+  .swiper-pagination-bullet {
+    width: 5px;
+    height: 5px;
+  }
+  .forgot_password {
+    width: 150px;
+  }
+
+  #custom_button {
+    padding: 0.5rem 1rem;
+    font-size: 13px;
+  }
+}
+@media only screen and (max-width: 380px) {
+  .forgot_password {
+    width: 130px;
+  }
+}

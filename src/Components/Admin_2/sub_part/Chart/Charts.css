@@ -1,0 +1,20 @@
+
+.Chart_id{
+    display: flex;
+    flex-direction: column;
+    gap: 45px;
+}
+.Chart_id .section_1{
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0px;
+    border-radius: 20px;
+    margin-top: -110px;
+}
+
+.Chart_id .section_2{
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0px;
+    border-radius: 20px;
+}
