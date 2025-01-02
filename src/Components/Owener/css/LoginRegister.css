@@ -1,0 +1,451 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  user-select: none;
+  /* font-family: monospace; */
+    
+}
+:root{
+  --color_1:#000C20;
+  --color_2:#01316F;
+  --color_3:#6FAFDB;
+  --color_4:#E2E2B7;
+  --input_font_size:.9rem;
+}
+
+.full_blur_bg_1 {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  background: rgba(177, 177, 177, 0.036);
+  backdrop-filter: blur(4px);
+}
+
+.user_login_con {
+  height: fit-content;
+  max-height: 700px;
+  height: 85vh;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 996;
+  background: white;
+  border-radius: 10px;
+  padding: 10px 20px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+
+.login_part,
+.register_part {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 25px;
+  padding: 20px 0px;
+}
+
+.register_part {
+  /* background: rebeccapurple; */
+  gap: 25px;
+  justify-content: flex-start;
+  overflow-y: scroll;
+}
+
+
+.register_part::-webkit-scrollbar {
+  background: #00000000;
+  width: 2px;
+}
+
+.register_part span:has(label) {
+  width: 95%;
+}
+
+.user_login_con .forgot_password{
+  color:var(--color_3);
+  cursor: pointer;
+  align-self: flex-end;
+  /* margin-right: 20px; */
+  /* this is fix for -20 */
+  /* margin-top: -20px; */
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+
+
+/* title */
+.login_part .title,
+.register_part .title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 40px;
+  color: var(--color_2);
+}
+
+.register_part .title {
+  margin-bottom: 15px;
+}
+
+
+
+
+.other_login {
+  width: 50px;
+  cursor: pointer;
+}
+
+#go_to_register,
+#go_to_login {
+  color: var(--color_3);
+  cursor: pointer;
+
+  &:hover {
+    color: rgb(91, 91, 255);
+  }
+}
+
+
+
+
+.switch_con {
+  padding: 12px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 50%;
+  color: white;
+  flex-direction: column;
+
+  transform: translate(0%);
+  
+  overflow: hidden;
+  z-index: 0;
+  cursor: pointer;
+
+  transition: all 1.2s;
+  will-change: transform;
+  /* background: rgb(255, 255, 255); */
+}
+
+
+.travel_login_img {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.travel_login_img img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+
+.Custom_support{
+  color:black;
+  font-size: 1.15rem;
+}
+.Custom_support span{
+  color: blue;
+  cursor: pointer;
+}
+
+.all_error_for_input {
+  color: red;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* form styles input */
+.Login_register_input_group_Owener {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.Login_register_input_group_Owener input[type="text"],
+.Login_register_input_group_Owener input[type="password"],
+.Login_register_input_group_Owener input[type="email"] {
+  font-size: var(--input_font_size);
+  padding: 10px 10px 10px 5px;
+  display: block;
+  width: 300px;
+  border: none;
+  border-bottom: 1px solid #757575;
+}
+
+.Login_register_input_group_Owener input:focus {
+  outline: none;
+}
+
+
+
+/* form styles input-lable*/
+.Login_register_input_group_Owener label {
+  color: #434343;
+  font-size: var(--input_font_size);
+  font-weight: normal;
+  position: absolute;
+  pointer-events: none;
+  left: 5px;
+  top: 10px;
+  transition: 0.2s ease all;
+  will-change: top;
+}
+
+.Login_register_input_group_Owener input[type="text"]:focus~label,
+.Login_register_input_group_Owener input[type="password"]:focus~label,
+.Login_register_input_group_Owener input[type="email"]:focus~label,
+ 
+.Login_register_input_group_Owener input[type="text"]:valid~label,
+.Login_register_input_group_Owener input[type="password"]:valid~label,
+.Login_register_input_group_Owener input[type="email"]:valid~label {
+  will-change: top;
+  top: -20px;
+  font-size: var(--input_font_size);
+  color: var(--color_3);
+}
+
+.Login_register_input_group_Owener .bar {
+  position: relative;
+  display: block;
+  width: 300px;
+}
+
+.Login_register_input_group_Owener .bar:before,
+.Login_register_input_group_Owener .bar:after {
+  content: '';
+  position: absolute;
+  height: 2px;
+  width: 0;
+  /* bottom: 1px; */
+  background: var(--color_3);
+  transition: 0.2s ease all;
+  will-change: width;
+}
+
+.Login_register_input_group_Owener .bar:before {
+  left: 50%;
+}
+
+.Login_register_input_group_Owener .bar:after {
+  right: 50%;
+}
+
+.Login_register_input_group_Owener input:focus~.bar:before,
+.Login_register_input_group_Owener input:focus~.bar:after {
+  will-change: width;
+  width: 50%;
+}
+#terms_and_conditions{
+  margin-right: 10px;
+  background: rebeccapurple;
+}
+.Login_register_input_group_Owener .label_custom_check_box {
+  display: contents;
+  pointer-events: fill;
+  cursor: pointer;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/*  */
+.Login_register_input_group_Owener .show_password_button{
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 5px;
+  display: flex;
+  align-items: center;
+}
+
+/* button-0 s */
+.button_con_register_part{
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+#custom_button {
+  outline: none;
+  cursor: pointer;
+  border: none;
+  padding: 0.9rem 2rem;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  position: relative;
+  display: inline-block;
+  letter-spacing: 0.05rem;
+  font-weight: 700;
+  font-size: 17px;
+  border-radius: 500px;
+  overflow: hidden;
+  background: var(--color_2);
+  color: ghostwhite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#custom_button span {
+  position: relative;
+  z-index: 10;
+  transition: color 0.4s ease;
+}
+
+
+
+#custom_button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.289);
+}
+
+
+#custom_button:hover span {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+
+
+.swiper-pagination {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+  
+}
+
+.swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  opacity: 0.6;
+  border-radius: 50%;
+  margin: 0 5px;
+  transition: opacity 0.3s, background-color 0.3s;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: var(--color_2);
+  opacity: 1;
+}
+
+
+
+
+/* Responsive -- dv -1  */
+/* Responsive -- dv -1  */
+/* Responsive -- dv -1  */
+
+@media only screen and (max-width: 750px) {
+  .Login_register_input_group_Owener .bar {
+    width: 260px;
+  }
+
+  .Login_register_input_group_Owener input[type="text"],
+  .Login_register_input_group_Owener input[type="password"],
+  .Login_register_input_group_Owener input[type="email"] {
+    width: 260px;
+  }
+
+}
+
+@media only screen and (max-width: 660px) {
+  .user_login_con {
+    height:  100vh;
+    max-height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    transform:none;
+   
+  }
+  .switch_con{
+    display: none;
+  }
+
+.Login_register_input_group_Owener .bar {
+  width: 350px;
+}
+
+.Login_register_input_group_Owener input[type="text"],
+.Login_register_input_group_Owener input[type="password"],
+.Login_register_input_group_Owener input[type="email"] {
+  width: 350px;
+}
+.button_con_register_part #custom_button {
+  padding: 12px 30px;
+  font-size: 18px;
+}
+
+}
+
+@media only screen and (max-width: 450px) {
+
+  .login_part{
+  gap: 25px;
+}
+  .register_part {
+  gap: 15px;
+}
+
+.login_part .title,
+.register_part .title {
+  font-size: 2rem;
+}
+
+.Login_register_input_group_Owener .bar {
+  width: 280px;
+}
+
+.Login_register_input_group_Owener input[type="text"],
+.Login_register_input_group_Owener input[type="password"],
+.Login_register_input_group_Owener input[type="email"] {
+  width: 280px;
+}
+
+}

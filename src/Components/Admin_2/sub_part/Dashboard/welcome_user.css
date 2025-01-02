@@ -1,0 +1,54 @@
+
+.welcome_message_con{
+
+    height: 500px;
+    width: 400px;
+    border-radius: var(--admin_box_radius);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    overflow-y: auto;
+    box-shadow:var(--admin_box_shadow) ;
+    background: var(--admin_ui_coloer);
+    transition: box-shadow 0.3s ease;
+    z-index: 1;
+  }
+  .welcome_message_con:hover{
+    box-shadow: var(--admin_box_shadow_hover);
+  }
+
+  .welcome_message_con h2{
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: var(--admin_title_padding);
+    font-size: var(--admin_title_font_size);
+    font-weight: var(--admin_title_font_weight);
+     background: white;
+  }
+
+  .welcome_message_con::-webkit-scrollbar{
+    width: 5px;
+    background: transparent;
+  }
+
+  .welcome_message_con::-webkit-scrollbar-thumb{
+    background: transparent;
+  }
+  .welcome_message_con:hover::-webkit-scrollbar-thumb{
+    background: rgba(68, 68, 68, 0.538);
+  }
+  
+  
+
+.set_me_set{
+  height: 70%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.3rem;
+  /* background: rebeccapurple; */
+
+}

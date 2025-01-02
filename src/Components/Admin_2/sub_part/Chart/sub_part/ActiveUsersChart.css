@@ -1,0 +1,94 @@
+
+
+ .active-users-chart {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    /* margin: 20px; */
+    flex: 1;
+    background: white;
+    border-radius: 15px;
+    padding: 60px 30px;
+    height: fit-content;
+    position: relative;
+    max-width: var(--chart_1_width);
+    height: 500px;
+    transition: box-shadow 0.3s ease;
+    box-shadow: var(--admin_box_shadow);
+    padding-top:100px;
+  }
+
+  .active-users-chart:hover {
+    box-shadow: var(--admin_box_shadow_hover);
+    }
+    
+  
+ 
+  .active-users-chart .chart-title {
+
+ 
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: var(--admin_title_padding);
+    font-size: var(--admin_title_font_size);
+    font-weight: var(--admin_title_font_weight);
+  }
+  
+  
+
+  
+ 
+  .active-users-chart .toggle-button:active {
+    transform: scale(1);
+  }
+  
+ 
+  .active-users-chart .chart-container_ActiveUsersChart {
+    margin-top: 30px;
+    width: 100%;
+  }
+  
+ 
+  .active-users-chart .recharts-bar-rectangles .recharts-bar-rectangle {
+    transition: all 0.3s ease;
+  }
+  
+ 
+  .active-users-chart .slider_con {
+    margin: 10px 0;
+    padding: 10px 20px;
+    background: #f0f8ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 4px;
+    display: flex;
+    gap: 20px;
+    border-radius: 10px;
+
+  }
+  .active-users-chart button{
+    background: transparent;
+    outline: 0;
+    border: 0;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 10px;
+    z-index: 1;
+  }
+  
+  .active-users-chart button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  .active-users-chart button.active {
+
+    background-color: white;
+    color: var(--ui_color);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  

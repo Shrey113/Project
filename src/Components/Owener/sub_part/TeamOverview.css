@@ -1,0 +1,387 @@
+/* TeamOverview.css */
+:root{
+    --all_page_box_shaod:0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.team-overview {
+    padding: 20px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+    width: 100%;
+
+}
+
+/* Team Member List */
+.team-overview .team-member-list {
+    margin-top: 20px;
+    border-collapse: collapse;
+    width: 100%;
+    background: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--all_page_box_shaod);
+}
+.team-overview .team-member-list .title_bar{
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.team-overview .team-member-list .title_bar button{
+    outline: 0;
+    border: 0;
+    background: transparent;
+
+    height: 45px;
+    width: 45px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 5px;
+    &:hover{
+        background: rgba(201, 201, 201, 0.241);
+    }
+}
+.team-overview .team-member-list .title_bar button img{
+    height: 100%;
+    width: 100%;
+}
+.team-overview .team-member-list table {
+    width: 100%;
+    background: transparent;
+    border-spacing: 0;
+}
+
+.team-overview .team-member-list th, 
+.team-overview .team-member-list td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.team-overview .team-member-list th {
+    font-weight: bold;
+    color: #333;
+}
+
+.team-overview .team-member-list td button{
+    outline: 0;
+    border: 0;
+    background: transparent;
+    height: 37px;
+    width: 37px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 5px;
+    &:hover{
+        background: rgba(201, 201, 201, 0.241);
+    }
+}
+
+
+.team-overview .team-member-list td button img{
+    height: 100%;
+    width: 100%;
+}
+.team-overview .team-member-list td .profile_con{
+   display: flex;
+   align-items: center;
+   gap: 10px;
+}
+.team-overview .team-member-list td .profile_con .profile_img{
+   height: 40px;
+   width: 40px;
+   border-radius: 15px;
+   overflow: hidden;
+}
+.team-overview .team-member-list td .profile_con .profile_img img{
+    height: 100%;
+    width: 100%;
+   
+}
+
+.team-overview .team-member-list tr:hover {
+    background: #f1f1f1;
+}
+
+/* PopUp */
+/* PopUp */
+/* PopUp */
+/* PopUp */
+/* PopUp */
+/* PopUp */
+#TeamOverview_pop_menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.142);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#TeamOverview_pop_menu .popup-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow:var(--all_page_box_shaod) ;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+#TeamOverview_pop_menu .popup-content h3 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #333;
+}
+#TeamOverview_pop_menu .popup-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+#TeamOverview_pop_menu .popup-content form label {
+    display: block;
+    text-align: left;
+    font-weight: bold;
+    color: #555;
+}
+
+#TeamOverview_pop_menu .popup-content form input, 
+#TeamOverview_pop_menu .popup-content form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#TeamOverview_pop_menu .popup-actions button {
+    padding: 8px 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#TeamOverview_pop_menu .popup-actions button:first-child {
+    background: #6c757d;
+    color: white;
+}
+
+#TeamOverview_pop_menu .popup-actions button:first-child:hover {
+    background: #5a6268;
+}
+
+#TeamOverview_pop_menu .popup-actions button:last-child {
+    background: #007BFF;
+    color: white;
+}
+
+#TeamOverview_pop_menu .popup-actions button:last-child:hover {
+    background: #0056b3;
+}
+#TeamOverview_pop_menu .profile-pic-selection {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    /* background: rebeccapurple; */
+}
+#TeamOverview_pop_menu .pro_title{
+    margin-top: 15px;
+}
+#TeamOverview_pop_menu .profile-pic-selection img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    cursor: pointer;
+    outline: 3px solid transparent;
+    transition: outline 0.3s ease;
+}
+
+#TeamOverview_pop_menu .profile-pic-selection img.selected {
+    outline: 3px solid #007bff;
+}
+
+#TeamOverview_pop_menu .member-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
+    height: 100%;
+    width: 100%;
+  }
+  
+  #TeamOverview_pop_menu .member-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  #TeamOverview_pop_menu .member-table td {
+    padding: 8px;
+    vertical-align: middle;
+  }
+  
+  #TeamOverview_pop_menu .member-table .label {
+    font-weight: bold;
+    text-align: left;
+    width: 150px;
+  }
+  
+  #TeamOverview_pop_menu .member-table td:not(.label) {
+    text-align: left;
+    color: #555;
+  }
+  
+  #TeamOverview_pop_menu .member-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  #TeamOverview_pop_menu .member-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  #TeamOverview_pop_menu .member-table td, .member-table th {
+    border-bottom: 1px solid #ddd;
+  }
+  
+  #TeamOverview_pop_menu .error {
+    color: red;
+    font-size: 0.85rem;
+}
+
+
+
+/* TeamCard.css */
+.all_card_con{
+    display: flex;
+    padding: 15px;
+    gap: 30px;
+    width: 100%;
+    /* background: rebeccapurple; */
+}
+.card_for_a_owner_team {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow:var(--all_page_box_shaod) ;
+    padding: 20px;
+    width: 350px;
+    max-width: 350px;
+    
+    /* text-align: center; */
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+  }
+  
+  .card_for_a_owner_team .icon {
+    height: 50px;
+    width: 50px;
+ 
+  }
+  .card_for_a_owner_team .icon  img{
+    height: 100%;
+    width: 100%;
+  }
+  
+  .card_for_a_owner_team .title {
+    font-size: 18px;
+    margin: 10px 0;
+  }
+  
+  .card_for_a_owner_team .description {
+    font-size: 2.5rem;
+    color: #555;
+  }
+  
+  .card_for_a_owner_team .avatars {
+    display: flex;
+    margin-top: 15px;
+    background: rebeccapurple;
+    position: relative;
+    margin-bottom: 50px;
+  }
+  
+  .card_for_a_owner_team .avatars img {
+    border-radius: 50%;
+    margin: 0 5px;
+    width: 50px;
+    height:50px;
+    position: absolute;
+  }
+
+  
+  .card_for_a_owner_team .avatars img:nth-child(1) {
+    margin-left: 0;
+  }
+  
+  .card_for_a_owner_team .avatars img:nth-child(2) {
+    margin-left: 25px; 
+  }
+  
+  .card_for_a_owner_team .avatars img:nth-child(3) {
+    margin-left: 50px;
+  }
+  
+  .card_for_a_owner_team .avatars img:nth-child(4) {
+    margin-left: 75px;
+  }
+ 
+
+
+  
+
+
+  /* Responsive TeamOverview.css */
+
+@media (max-width: 768px) {
+  .team-overview {
+      padding: 15px;
+  }
+
+  .team-overview .team-member-list {
+      margin-top: 15px;
+      border-radius: 6px;
+      box-shadow: none;
+  }
+
+  .team-overview .team-member-list .title_bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+  }
+
+  .team-overview .team-member-list th, 
+  .team-overview .team-member-list td {
+      padding: 10px;
+  }
+
+  .team-overview .team-member-list td .profile_con {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+
+  #TeamOverview_pop_menu .popup-content {
+      padding: 15px;
+      max-width: 90%;
+  }
+
+  .all_card_con {
+      flex-direction: column;
+      gap: 20px;
+  }
+
+  .card_for_a_owner_team {
+      width: 100%;
+      max-width: 100%;
+      padding: 15px;
+  }
+}
