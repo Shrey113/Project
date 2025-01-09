@@ -79,10 +79,9 @@ function ForgetPassword({page_close_function,last_enter_email,user_name}) {
         if (response.ok) {
           return response.json();
         } else {
-          console.log("server say : Not-ok\n\nmessage : 'server response was not ok(Not a 200).' ");
+          console.error("server say : Not-ok\n\nmessage : 'server response was not ok(Not a 200).' ");
         }
       }).then(data => {
-        console.log(data);
         set_show_loder(false);
         if (data.status === 'success') {
           change_page_with_animation(2)
@@ -111,10 +110,10 @@ function ForgetPassword({page_close_function,last_enter_email,user_name}) {
       if (response.ok) {
         return response.json();
       } else {
-        console.log("server say : Not-ok\n\nmessage : 'server response was not ok(Not a 200).' ");
+        console.error("server say : Not-ok\n\nmessage : 'server response was not ok(Not a 200).' ");
       }
     }).then(data => {
-      console.log(data);
+
 
       if (data.status === 'verify-pass') {
         change_page_with_animation(3)        
@@ -162,7 +161,7 @@ function ForgetPassword({page_close_function,last_enter_email,user_name}) {
           console.log("server say : Not-ok\n\nmessage : 'server response was not ok (Not a 200).' ");
         }
       }).then(data => {
-        console.log(data);
+
         if (data.status === 'password-updated') {
           window.alert("Your password will be reset")
           if(data.user_key){

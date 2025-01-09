@@ -108,7 +108,6 @@ function LoginRegisterClient() {
     }
     setTermsError("");
     if (is_valid) {
-      console.log("Submitting login request");
 
       try {
         const response = await fetch(`${Server_url}/client/login`, {
@@ -122,7 +121,7 @@ function LoginRegisterClient() {
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Login successful:", data);
+
 
           // Perform actions after successful login
           set_login_password_error("");
@@ -204,7 +203,6 @@ function LoginRegisterClient() {
       set_register_confirm_password_error("");
     }
     if (is_valid) {
-      console.log("Registering user...");
       const Data = {
         user_name: register_username,
         user_email: register_email,
@@ -222,7 +220,6 @@ function LoginRegisterClient() {
         const data = await response.json();
 
         if (response.ok) {
-          console.log("Client added successfully", data);
           setOtp("");
           setShowOtpModal(true);
           // Send OTP email to the user
@@ -234,7 +231,7 @@ function LoginRegisterClient() {
             body: JSON.stringify({ email: register_email, type: "client" }),
           });
         } else {
-          console.log("Error adding client: ", data.error);
+
           if (data.error === "Email already exists") {
             set_register_email_error(data.error);
           } else if (data.error === "Username already exists") {
@@ -273,7 +270,7 @@ function LoginRegisterClient() {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("OTP verified successfully");
+  
         setShowOtpModal(false);
 
         // process of going to home page

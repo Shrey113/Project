@@ -21,6 +21,7 @@ const JWT_SECRET_KEY = 'Jwt_key_for_photography_website';
 // Socket.IO setup
 const http = require('http');
 const { Server } = require('socket.io');
+const { emit } = require('process');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -29,22 +30,28 @@ const io = new Server(server, {
   },
 });
 
-// Handle Socket.IO connections
+
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  // Listen for custom events
   socket.on('message', (msg) => {
     console.log('Message received:', msg);
-    io.emit('message', msg); // Broadcast the message to all clients
+    io.emit('message', msg); 
   });
 
-  // Handle disconnection
   socket.on('disconnect', () => {
     console.log('A user disconnected:', socket.id);
   });
 });
 
+
+function broadcastMessage(message) {
+  io.emit('message', message);
+}
+
+setInterval(() => {
+  broadcastMessage('This is a broadcast message sent after 5 seconds for test @shrey');
+}, 5000);
 
 const db = mysql.createConnection({
   host: 'localhost', 
@@ -131,6 +138,30 @@ app.post("/send_otp_email", async (req, res) => {
     console.error("Error sending OTP email:", error);
     res.status(500).json({ error: "Failed to send OTP email" });
   }
+});
+
+app.post('/get_admin_data', (req, res) => {
+  const { email } = req.body; // Extract email from request body
+
+  if (!email) {
+    return res.status(400).send({ error: 'Email is required' });
+  }
+
+  const query = 'SELECT access_type FROM admins WHERE admin_email = ?';
+
+  db.query(query, [email], (err, results) => {
+    if (err) {
+      console.error('Error fetching admin data:', err);
+      return res.status(500).send({ error: 'Database query failed' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send({ error: 'Admin not found' });
+    }
+
+    const accessType = results[0].access_type;
+    res.status(200).send({ email, access_type: accessType });
+  });
 });
 
 app.post("/get_user_data_from_jwt", async (req, res) => {
@@ -418,6 +449,205 @@ app.post('/update-status', (req, res) => {
 // client paths
 
 
+app.post("/check_email_owner", (req, res) => {
+  const { user_email } = req.body;
+  const query =
+    "SELECT * FROM trevita_project_1.owner_main_invoice WHERE user_email = ?";
+
+  db.query(query, [user_email], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    if (result.length > 0) {
+      return res.json(result);
+    } else {
+      const insertQuery =
+        "INSERT INTO trevita_project_1.owner_main_invoice (user_email, max_invoice_id) VALUES (?, 0)";
+      db.query(insertQuery, [user_email], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.log("insertErr", insertErr);
+          return res.status(200).json({ error: insertErr.message });
+        }
+        console.log("insertResult", insertResult);
+        return res.json([
+          {
+            user_email: user_email,
+            max_id: 0,
+            message: "new record created",
+          },
+        ]);
+      });
+    }
+  });
+});
+
+app.post("/generate-invoice", (req, res) => {
+  const { user_email } = req.body;
+
+  // Query to get the maximum invoice ID
+  const query =
+    "SELECT  max_invoice_id FROM owner_main_invoice WHERE user_email = ?";
+
+  db.query(query, [user_email], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Database query failed" });
+    }
+    let maxInvoiceId = results[0]?.max_invoice_id || 0;
+
+    const newInvoiceId = parseInt(maxInvoiceId) + 1;
+
+    // Send the response
+    res.json({ invoice_id: newInvoiceId });
+  });
+});
+
+app.post("/invoice-items", (req, res) => {
+  const { invoice_id, user_email } = req.body;
+  const query =
+    "SELECT * FROM trevita_project_1.invoice_items WHERE invoice_id = ? AND user_email = ?";
+  db.query(query, [invoice_id, user_email], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(result);
+  });
+});
+
+app.post("/add-invoice", (req, res) => {
+  const {
+    invoice_id,
+    invoice_to,
+    invoice_to_address,
+    invoice_to_email,
+    date,
+    sub_total,
+    gst,
+    total,
+    user_email,
+    items,
+  } = req.body;
+
+  if (!date) {
+    return res.status(400).json({ error: "Date is required." });
+  }
+
+  // Insert the invoice into the invoices table
+  const queryInvoice = `INSERT INTO invoices (
+    invoice_id, user_email, date, sub_total, gst, total, invoice_to,as_draft
+  ) VALUES (?, ?, ?, ?, ?, ?, ?,0);`;
+
+  db.query(
+    queryInvoice,
+    [invoice_id, user_email, date, sub_total, gst, total, invoice_to],
+    (err, result) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: err.message });
+      }
+
+      // Once the invoice is inserted, insert the items into the items table
+      if (items && items.length > 0) {
+        let completedItems = 0;
+
+        items.forEach((all_items) => {
+          const { item, quantity, price, amount } = all_items;
+
+          const queryItem = `INSERT INTO invoice_items (
+            invoice_id,user_email, item, quantity, price, amount, invoice_to_address, invoice_to_email
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`;
+
+          db.query(
+            queryItem,
+            [
+              invoice_id,
+              user_email,
+              item,
+              quantity,
+              price,
+              amount,
+              invoice_to_address,
+              invoice_to_email,
+            ],
+            (err, itemResult) => {
+              if (err) {
+                console.error("Error inserting item:", err);
+                return res.status(500).json({
+                  error: "Error inserting item",
+                  details: err.message,
+                });
+              }
+
+              completedItems++;
+
+              // Only proceed when all items have been inserted
+              if (completedItems === items.length) {
+                // Update the invoice ID counter
+                db.query(
+                  "UPDATE owner_main_invoice SET max_invoice_id = max_invoice_id + 1 WHERE user_email = ?",
+                  [user_email],
+                  (err, updateResult) => {
+                    if (err) {
+                      console.error(err);
+                      return res.status(500).json({
+                        error: "Error updating invoice ID",
+                        details: err.message,
+                      });
+                    }
+
+                    // Send the final response after everything is complete
+                    res.json({
+                      message: "Invoice and items added successfully",
+                      invoice_id,
+                      date: date,
+                      invoiceResult: result,
+                    });
+                  }
+                );
+              }
+            }
+          );
+        });
+      } else {
+        // If no items are provided, just send the invoice response
+        res.json({
+          message: "Invoice added successfully",
+          invoice_id,
+          date: date,
+          result,
+        });
+      }
+    }
+  );
+});
+
+app.post("/invoices", (req, res) => {
+  const { user_email } = req.body;
+
+  // Query for invoices without drafts
+  const queryWithoutDraft =
+    "SELECT * FROM trevita_project_1.invoices WHERE user_email = ? AND as_draft = 0 ORDER BY id";
+
+  // Query for invoices with drafts
+  const queryWithDraft =
+    "SELECT * FROM trevita_project_1.invoices WHERE user_email = ? AND as_draft = 1 ORDER BY id";
+
+  // Execute both queries
+  db.query(queryWithoutDraft, [user_email], (err1, withoutDraft) => {
+    if (err1)
+      return res.status(500).json({ error: "Database error 1", details: err1 });
+
+    db.query(queryWithDraft, [user_email], (err2, withDraft) => {
+      if (err2)
+        return res
+          .status(500)
+          .json({ error: "Database error 2", details: err2 });
+
+      // Send a single JSON response combining both results
+      res.status(200).json({
+        without_draft: withoutDraft,
+        with_draft: withDraft,
+      });
+    });
+  });
+});
 
 
 app.post("/check-user-jwt", (req, res) => {
@@ -548,7 +778,7 @@ app.post("/get_client_data_from_jwt", async (req, res) => {
           return res.status(500).json({ error: "Database error" });
         }
         if (result.length === 0) {
-          return res.status(404).json({ message: "User not found" });
+          return res.status(200).json({ message: "User not found" });
         }
         res.status(200).json({ message: "User found", user: result[0] });
       }
@@ -716,6 +946,9 @@ app.post("/api/update-profile", (req, res) => {
     res.status(500).json({ message: "Failed to update data" });
   }
 });
+
+
+
 
 
 // praharsh  End ----

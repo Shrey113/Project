@@ -15,14 +15,14 @@ import AddingAdmin from './AddingAdmin';
 
 import { Server_url } from '../../../../../redux/AllData';
 
-function AdminDataList() {
+function AdminDataList({admin_email,accessType}) {
 
   const [all_admin_data, set_all_admin_data] = useState(false);
   const [show_question, set_show_question] = useState(false);
   const [show_question_data, set_show_question_data] = useState({
     message:'',onYesClick:()=>{},onNoClick:()=>{},closeButton:()=>{}
   });
- function go_for_re_fetch_data(){
+ function go_for_re_fetch_data(admin_email){
   fetch(`${Server_url}/Admin/get_all_admin`)
   .then(response => {
       if (!response.ok) {
@@ -32,7 +32,7 @@ function AdminDataList() {
   })
   .then(data => {
     set_all_admin_data(data)
-      console.log('Admin data:', data);
+      data.filter(match => match === admin_email).forEach(match => console.log(match));
   })
   .catch(error => {
       console.error('There was a problem with the fetch operation:', error);
@@ -40,8 +40,8 @@ function AdminDataList() {
  }
 
   useEffect(()=>{
-    go_for_re_fetch_data();
-  },[])
+    go_for_re_fetch_data(admin_email);
+  },[admin_email])
   const [add_new_admin_pop, set_add_new_admin_pop] = useState(false);
   const [update_admin_pop, set_update_admin_pop] = useState(false);
   const [more_option_pop,set_more_option_pop] = useState(null);
@@ -148,12 +148,15 @@ function AdminDataList() {
       {/* Title Bar */}
       <div className="title_bar_sub">
         Admin Manager Table
+
+        {accessType === 'Full' &&
         <span>
           <img src={add_icon} alt="Add Icon" 
           onClick={()=>{
             set_add_new_admin_pop(true);
             }} style={{ cursor: 'pointer' }} />
         </span>
+        }
       </div>
 
       <table className="user_table">
@@ -162,7 +165,8 @@ function AdminDataList() {
             <th>No</th>
             <th>Admin Name</th>
             <th>Admin email</th>
-            <th>Access type</th>
+            {accessType === 'Full' && (  <th>Access type</th>)}
+          
             <th></th>
           </tr>
         </thead>
@@ -193,6 +197,8 @@ function AdminDataList() {
                 </div>
               </td>
               <td>{row.admin_email}</td>
+
+              {accessType === 'Full' && <>
               <td>
               <div
                   className={`set_type ${
@@ -247,6 +253,8 @@ function AdminDataList() {
                 </div>}
 
               </td>
+
+              </>}
 
             </tr>
           ))}

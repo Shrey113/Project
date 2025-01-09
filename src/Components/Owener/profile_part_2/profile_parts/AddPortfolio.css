@@ -1,0 +1,238 @@
+
+
+.AddPortfolio{
+  /* max-width: var(--right_side_box_width); */
+  padding: var(--owner_profile_padding);
+  background: white;
+  border-radius: var(--owner_profile_border-radius);
+  box-shadow: var(--owner_profile_box_shadow);
+  /* margin-top: 20px; */
+  width: 100%;
+  max-width: 100%;
+  /* background: rebeccapurple; */
+
+}
+
+
+
+.AddPortfolio .media-stats {
+
+  display: flex;
+  justify-content: space-between;
+}
+.AddPortfolio .media-stats  span {
+  font-size: var(--owner_profile_title_font_size);
+  font-weight: var(--Heading_weight);
+  font-family: var(--Heading);
+  margin-bottom: 15px;
+}
+.AddPortfolio .media-stats  p {
+  color:#1E90FF;
+  cursor: pointer;
+  &:hover{
+    color:#55a9fc;
+  }
+}
+
+
+.AddPortfolio .add-btn_ {
+  padding: 4px 10px;
+  font-size: 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--body_data);
+  font-weight: var(--body_data_weight);
+}
+
+.AddPortfolio .add-btn_:hover {
+  background-color: #0056b3;
+}
+
+
+.AddPortfolio .gallery-grid{
+    /* max-width: 900px; */
+    max-width: 100%;
+    margin: 20px auto;
+    columns: 3;
+    column-gap: 20px;
+    /* background: rebeccapurple; */
+}
+.AddPortfolio .gallery-item{
+    width: 100%;
+    max-width: 100%;
+    background: rgba(128, 128, 128, 0.329);
+    position: relative;
+    margin-bottom: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    overflow: hidden;
+
+}
+.AddPortfolio .gallery-item img{
+    width: 100%;
+    max-width: 100%;
+    /* max-height: 600px;  */
+    /* height: 100%; */
+    transition: transform 0.3s ease;
+    object-fit: contain;
+}
+.AddPortfolio .gallery-item:hover img {
+    transform: scale(1.01);
+  }
+
+  .AddPortfolio .gallery-item .gallery-item-info{
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 8px;
+    display: flex;
+    gap: 1px;
+    flex-direction: column ;
+    
+  }
+  
+  .AddPortfolio .gallery-item .gallery-item-info span:nth-child(1){
+    font-size: 0.9rem;
+    font-family: var(--body_data);
+    font-weight: var(--body_data_weight);
+  }
+  .AddPortfolio .gallery-item .gallery-item-info span:nth-child(2){
+    font-size: 0.8rem;
+    font-family: var(--body_data);
+    font-weight: var(--body_data_weight);
+  }
+  .AddPortfolio .gallery-item:hover .gallery-item-info{
+    opacity: 1;
+  }
+
+
+
+.AddPortfolio .gallery-grid .add_more_page {
+  display: flex; 
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center; 
+  align-items: center; 
+  background: #fff; 
+  border: 2px dashed #1E90FF; 
+  border-radius: 8px; 
+  height: 100%; 
+  width: 100%; 
+  cursor: pointer; 
+  transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out;
+
+  color: #1E90FF;
+  /* transition: all 0.1s ease-in-out; */
+  opacity: 0.8;
+
+}
+.AddPortfolio .gallery-grid .add_more_page:hover{
+  opacity: 1;
+}
+
+.AddPortfolio .gallery-grid .add_more_page img {
+  max-width: 40px; 
+  max-height: 40px; 
+  object-fit: contain; 
+  
+}
+
+
+.AddPortfolio .hr_line{
+    width: 100%;
+    height: 1px;
+    background: #ddd;
+    margin: 20px 0;
+  }
+
+
+
+.AddPortfolio .video {
+  position: relative;
+}
+
+.AddPortfolio .video-views, .video-title {
+  position: absolute;
+  left: 12px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.AddPortfolio .video-views {
+  bottom: 32px;
+  font-size: 0.9em;
+  opacity: 0;
+}
+
+.AddPortfolio .video-title {
+  bottom: 12px;
+  font-weight: 500;
+}
+
+.AddPortfolio .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.AddPortfolio .stat-item {
+  padding: 10px;
+}
+
+.AddPortfolio .stat-value {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+}
+
+.AddPortfolio .stat-label {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.AddPortfolio .profile-description {
+  margin-bottom: 25px;
+  line-height: 1.6;
+  color: #444;
+}
+
+.AddPortfolio .physical-attributes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  text-align: center;
+}
+
+.AddPortfolio .attribute {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.AddPortfolio .attribute-value {
+  font-weight: bold;
+  color: #333;
+}
+
+.AddPortfolio .attribute-label {
+  font-size: 0.9em;
+  color: #666;
+
+}
+

@@ -150,10 +150,9 @@ db.query(query, [notification_type, notification_message, notification_title], (
       if (storedOtp && storedOtp === user_send_otp) {
         
 
-        let Pending ="Pending"
   
-      const insertQuery = 'INSERT INTO owner (user_name, user_email, user_password, business_name, business_address, mobile_number, GST_number,user_Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-      db.query(insertQuery, [user_name, user_email, user_password, business_name, business_address, mobile_number, GST_number,Pending], (err, result) => {
+      const insertQuery = 'INSERT INTO owner (user_name, user_email, user_password, business_name, business_address, mobile_number, GST_number) VALUES ( ?, ?, ?, ?, ?, ?, ?)';
+      db.query(insertQuery, [user_name, user_email, user_password, business_name, business_address, mobile_number, GST_number], (err, result) => {
             if (err) {
                 console.log(err);
                 return res.status(500).json({ error: 'Database error' });
@@ -231,51 +230,285 @@ db.query(query, [notification_type, notification_message, notification_title], (
       });
     });
   });
-  router.put('/update-owner', (req, res) => {
-    const email = req.body.user_email; // Find by this email
-  
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required to update the record.' });
-    }
-  
-    // Initialize an empty object for the data to be updated
-    const updateData = {};
-  
-    // Only add fields to updateData if they are provided in the request body
-    if (req.body.client_id) updateData.client_id = req.body.client_id;
-    if (req.body.user_name) updateData.user_name = req.body.user_name;
-    if (req.body.user_email) updateData.user_email = req.body.user_email;
-    if (req.body.user_password) updateData.user_password = req.body.user_password;
-    if (req.body.business_name) updateData.business_name = req.body.business_name;
-    if (req.body.business_address) updateData.business_address = req.body.business_address;
-    if (req.body.mobile_number) updateData.mobile_number = req.body.mobile_number;
-    if (req.body.gst_number) updateData.gst_number = req.body.gst_number;
-    if (req.body.user_Status) updateData.user_Status = req.body.user_Status;
-    if (req.body.admin_message) updateData.admin_message = req.body.admin_message;
-    if (req.body.set_status_by_admin) updateData.set_status_by_admin = req.body.set_status_by_admin;
-  
-    // Check if there is any data to update
-    if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({ error: 'No data provided to update.' });
-    }
-  
-    const query = 'UPDATE owner SET ? WHERE user_email = ?';
-  
-    db.query(query, [updateData, email], (err, result) => {
-      if (err) {
-        console.error('Error updating data:', err);
-        return res.status(500).json({ error: 'An error occurred while updating the record.' });
-      }
-  
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: 'No user found with the provided email.' });
-      }
-  
-      res.status(200).json({ message: 'Record updated successfully.', result });
-    });
-  });
+
+
+
+
   
   
   
 
+// profile part 2-------------
+
+router.get('/get-all-owners', (req, res) => {
+  const query = `
+  SELECT 
+    user_name,
+    user_email, 
+    business_name,
+    business_address,
+    mobile_number,
+    gst_number,
+    user_Status,
+    set_status_by_admin
+  FROM owner
+`;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching owners:', err);
+      return res.status(500).json({ error: 'An error occurred while fetching owners.' });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+
+
+
+
+router.post('/get-owners', (req, res) => {
+  const { user_email } = req.body;
+
+  if (!user_email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  // Corrected SQL query without trailing comma
+  const query = `
+    SELECT 
+      user_name,
+      user_email,
+      business_name, 
+      business_address,
+      mobile_number,
+      gst_number
+    FROM owner 
+    WHERE user_email = ?
+  `;
+
+  db.query(query, [user_email], (err, results) => {
+    if (err) {
+      console.error('Error fetching owner data:', err);
+      return res.status(500).json({ error: 'An error occurred while fetching owner data.' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'No owner found with this email' });
+    }
+
+    res.status(200).json({ owners: results[0] });
+  });
+});
+
+
+  
+router.put('/update-owner', (req, res) => {
+  const email = req.body.user_email; // Find by this email
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required to update the record.' });
+  }
+
+  // Initialize an empty object for the data to be updated
+  const updateData = {};
+
+  // Only add fields to updateData if they are provided in the request body
+  if (req.body.client_id) updateData.client_id = req.body.client_id;
+  if (req.body.user_name) updateData.user_name = req.body.user_name;
+  if (req.body.user_email) updateData.user_email = req.body.user_email;
+  if (req.body.user_password) updateData.user_password = req.body.user_password;
+  if (req.body.business_name) updateData.business_name = req.body.business_name;
+  if (req.body.business_address) updateData.business_address = req.body.business_address;
+  if (req.body.mobile_number) updateData.mobile_number = req.body.mobile_number;
+  if (req.body.gst_number) updateData.gst_number = req.body.gst_number;
+  if (req.body.user_Status) updateData.user_Status = req.body.user_Status;
+  if (req.body.admin_message) updateData.admin_message = req.body.admin_message;
+  if (req.body.set_status_by_admin) updateData.set_status_by_admin = req.body.set_status_by_admin;
+
+  // Check if there is any data to update
+  if (Object.keys(updateData).length === 0) {
+    return res.status(400).json({ error: 'No data provided to update.' });
+  }
+
+  const query = 'UPDATE owner SET ? WHERE user_email = ?';
+
+  db.query(query, [updateData, email], (err, result) => {
+    if (err) {
+      console.error('Error updating data:', err);
+      return res.status(500).json({ error: 'An error occurred while updating the record.' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'No user found with the provided email.' });
+    }
+
+    res.status(200).json({ message: 'Record updated successfully.', result });
+  });
+});
+
+router.post('/update-owner', (req, res) => {
+  const { user_email,
+     user_name,
+      first_name,
+     last_name,
+     gender,
+      social_media } = req.body;
+
+
+  const query = `UPDATE owner SET user_name = ?, first_name = ?, last_name = ?, gender = ?, social_media = ? WHERE user_email = ?`;
+  db.query(query, [user_name, first_name, last_name, gender, social_media, user_email], (err, result) => {
+    if (err) {
+      console.error('Error updating owner:', err);
+      return res.status(500).json({ error: 'An error occurred while updating the owner.' });
+    }
+    res.status(200).json({ message: 'Owner updated successfully.' });
+  });
+});
+
+router.post('/update-business', (req, res) => {
+  const { business_name, business_email, gst_number, business_address, website, services, user_email } = req.body;
+
+  if (!business_name || !business_email || !gst_number || !business_address || !website || !services || !user_email) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const query = `
+    UPDATE owner
+    SET business_name = ?, business_email = ?, gst_number = ?, business_address = ?, website = ?, services = ?
+    WHERE user_email = ?
+  `;
+
+  const servicesJson = JSON.stringify(services);
+
+  db.query(query, [business_name, business_email, gst_number, business_address, website, servicesJson, user_email], (err, result) => {
+    if (err) {
+      console.error('Error updating business data:', err);
+      return res.status(500).json({ error: 'Error updating business data' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Business not found or no changes made' });
+    }
+
+    res.status(200).json({ message: 'Business updated successfully' });
+  });
+});
+
+
+router.post('/add-equipment', (req, res) => {
+  const equipmentItems = req.body; 
+
+  if (!Array.isArray(equipmentItems)) {
+    return res.status(400).json({ message: 'Expected an array of equipment items' });
+  }
+
+  const query = `
+    INSERT INTO equipment (user_email, name, equipment_company, equipment_type, equipment_description, equipment_price_per_day)
+    VALUES (?, ?, ?, ?, ?, ?)`;
+
+  equipmentItems.forEach((item) => {
+    const { user_email, name, equipment_company, equipment_type, equipment_description, equipment_price_per_day } = item;
+
+    db.query(query, [user_email, name, equipment_company, equipment_type, equipment_description, equipment_price_per_day], (err, result) => {
+      if (err) {
+        console.error('Error adding equipment:', err);
+        return res.status(500).json({ message: 'Error adding equipment' });
+      }
+    });
+  });
+
+  res.status(200).json({ message: 'Equipment added successfully' });
+});
+
+
+
+router.post('/equipment', (req, res) => {
+  const { user_email } = req.body;
+
+  const query = 'SELECT * FROM equipment WHERE user_email = ?';
+
+  db.query(query, [user_email], (err, result) => {
+    if (err) {
+      console.error('Error fetching equipment:', err);
+      return res.status(500).json({ message: 'Error fetching equipment' });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: 'No equipment found' });
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+router.post('/remove-equipment', (req, res) => {
+  const { user_email, user_equipment_id } = req.body;
+
+  if (!user_email || !user_equipment_id) {
+    console.log("missing user_email or equipment_id",user_email,user_equipment_id);
+    return res.status(400).json({ message: 'Missing user_email or equipment_id' });
+  }
+
+  const query = 'DELETE FROM equipment WHERE user_email = ? AND user_equipment_id = ?';
+
+  db.query(query, [user_email, user_equipment_id], (err, result) => {
+    if (err) {
+      console.error('Error removing equipment:', err);
+      return res.status(500).json({ message: 'Error removing equipment' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'No matching equipment found for removal' });
+    }
+
+    res.status(200).json({ message: 'Equipment removed successfully' });
+  });
+});
+
+
+
+
+
+
+
+
+
+router.post('/add-one-equipment', (req, res) => {
+  const {
+    user_email,
+    user_equipment_id,
+    name,
+    equipment_company,
+    equipment_type,
+    equipment_description,
+    equipment_price_per_day,
+  } = req.body;
+
+  // Validate required fields
+  if (!user_email || !user_equipment_id || !name || !equipment_company || !equipment_type || !equipment_price_per_day) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  const query = `
+    INSERT INTO equipment (user_email, user_equipment_id, name, equipment_company, equipment_type, equipment_description, equipment_price_per_day)
+    VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+  db.query(
+    query,
+    [user_email, user_equipment_id, name, equipment_company, equipment_type, equipment_description, equipment_price_per_day],
+    (err, result) => {
+      if (err) {
+        console.error('Error adding equipment:', err);
+        return res.status(500).json({ message: 'Error adding equipment' });
+      }
+      res.status(200).json({ message: 'Equipment added successfully', equipmentId: result.insertId });
+    }
+  );
+});
+
+
+
 module.exports = router;
+

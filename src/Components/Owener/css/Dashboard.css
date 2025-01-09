@@ -1,16 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Raleway:wght@100..900&display=swap');
+
+
+:root{
+  --color_1_owner:#fffefe;
+  --color_2_owner:#ecf1ee;
+  --color_3_owner:#b2bfba;
+  --color_4_owner:#b7795f;
+  --color_5_owner:#262626;
+
+  --Heading :"Raleway", serif;
+  --Heading_weight:600;
+
+  --sub_heading :"Raleway", serif;
+  --sub_heading_weight:500;
+
+  --body_data :"Lato", serif;
+  --body_data_weight:400;
+
+  --body_button :"Lato", serif;
+  --body_button_weight:500;
+  
+    --owner_home_page_bg:var(--color_2_owner);
+    --owner_home_page_ui:var(--color_1_owner);
+    --owner_home_page_ui_color:var(--color_4_owner);
+    --owner_home_page_hover_coloer:#bcbcbc28;
+    --owner_home_page_sidebar_time:0.3s;
+    --owner_home_page_ui_box_shadow:rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    --owner_profile_border-radius: 12px;
+    --owner_profile_box_shadow: 0 2px 8px rgba(0,0,0,0.1);
+    --owner_profile_title_font_size: 24px;
+    --owner_profile_title_padding: 20px;
+    --owner_profile_padding: 30px;
+
+  /* Color System */
+  --primary-color: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary-color: #64748b;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --background-light: #ffffff;
+  --background-gray: #f8fafc;
+  --text-dark: #1e293b;
+  --text-light: #64748b;
+  --border-color: #e2e8f0;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+}
+
 
 .Dashboard_main_con {
-    height: 100vh;
-    width: 100vw;
-    background: var(--admin_bg_coloer);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+    height: 100%;
+    min-height: 100vh;
+    width: 100%;
+    overflow-y: hidden;
+    /* background: var(--admin_bg_coloer); */
+    /* display: flex;
+    flex-direction: column; */
+    /* justify-content: center;
+    align-items: center; */
+  
     font-family: 'Arial', sans-serif;
     color: #333;
-    padding: 1em;
+    /* padding: 1em; */
     box-sizing: border-box;
 }
 
@@ -26,6 +84,7 @@
     border-radius: var(--admin_box_radius);
     padding: 20px;
     width: 500px;
+      text-align: center;
 }
 
 .Dashboard_main_con .status-icon {

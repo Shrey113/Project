@@ -24,17 +24,19 @@ import socket from './redux/socket.js'
 
 function App() {
   useEffect(() => {
-    // Listen for messages from the server
-    socket.on('message', (msg) => {
-        console.log(msg);
-        
-    });
 
-    // Cleanup on unmount
-    return () => {
-      socket.off('message');
+    const handleMessage = (msg) => {
+        console.log(msg);
     };
-  }, []);
+
+    socket.on('message', handleMessage);
+
+   
+    return () => {
+        socket.off('message', handleMessage);
+    };
+}, []); 
+
 
 
   const [authStatus, setAuthStatus] = useState({ Admin:null,owner: null, client: null });
@@ -70,6 +72,7 @@ function App() {
   }, []);
 
   useEffect(() => {
+
     const authenticateUser = async () => {
       const ownerToken = window.localStorage.getItem(localstorage_key_for_jwt_user_side_key);
       const clientToken = window.localStorage.getItem(localstorage_key_for_client);
@@ -86,19 +89,26 @@ function App() {
           const data = await response.json();
           
           if (data.user) {
-            dispatch({ type: "SET_USER_Owner", payload: {
-              client_id: 1,
-              user_name: data.user.user_name || null,
-              user_email: data.user.user_email || null,
-              user_password: data.user.user_password || null,
-              business_name: data.user.business_name || null,
-              business_address: data.user.business_address || null,
-              mobile_number: data.user.mobile_number || null,
-              gst_number: data.user.gst_number || null,
-              user_Status: data.user.user_Status || null,
-              admin_message: data.user.admin_message || null,
-              set_status_by_admin: data.user.set_status_by_admin || null,
-            }});
+              dispatch({ type: "SET_USER_Owner", payload: {
+          client_id: data.user.client_id || null,
+          user_name: data.user.user_name || null,
+          user_email: data.user.user_email || null,
+          user_password: data.user.user_password || null,
+          business_name: data.user.business_name || null,
+          business_address: data.user.business_address || null,
+          mobile_number: data.user.mobile_number || null,
+          gst_number: data.user.gst_number || null,
+          user_Status: data.user.user_Status || null,
+          admin_message: data.user.admin_message || null,
+          set_status_by_admin: data.user.set_status_by_admin || null,
+          first_name: data.user.first_name || null,
+          last_name: data.user.last_name || null,
+          gender: data.user.gender || null,
+          social_media: data.user.social_media || null,
+          website: data.user.website || null,
+          services: data.user.services || null,
+          business_email: data.user.business_email || null,
+        }});
             setAuthStatus((prev) => ({ ...prev, owner: true }));
           } else {
             setAuthStatus((prev) => ({ ...prev, owner: false }));
@@ -139,6 +149,7 @@ function App() {
         setAuthStatus({ owner: false, client: false });
       }
     };
+    
 
     authenticateUser();
   }, [dispatch]);

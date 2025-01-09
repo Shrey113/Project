@@ -99,8 +99,7 @@ function AddServicesData() {
           <div
             key={index}
             className={`business-card ${selectedTypes.includes(index) ? 'selected' : ''}`}
-            onClick={() => handleTypeSelection(index)}
-          >
+            onClick={() => handleTypeSelection(index)}>
             <div className="icon">{type.icon}</div>
             <h3 className="business-title">{type.title}</h3>
             <p className="business-description">{type.description}</p>

@@ -6,24 +6,32 @@ import reject from './sub_img/remove.png';
 import info from './sub_img/letter-i.png';
 import PopupMenu from '../../Dashboard/question/PopupMenu';
 
+
+
 import { Server_url } from '../../../../../redux/AllData';
+import CheckUserPage from './CheckUserPage';
  
 function OwnerManager({admin_email}) {
   const [pendingUsers, setPendingUsers] = useState([]);
   const [selected_user, set_selected_user] = useState([]);
+  const [selected_email, set_selected_email] = useState('');
   
   const [error, setError] = useState(null);
 
    const [showPopup, setShowPopup] = useState(false);
-
    const [showConfirm, setShowConfirm] = useState({
     isOpen: false,
     email: null,
     handleClose: () => {}
   });
 
+
+
      const [rejectedUsers, setRejectedUsers] = useState([]);
      const [allOwners, setAllOwners] = useState([]);
+
+
+
      const [activeList, setActiveList] = useState('pending');
 
      const [currentPage, setCurrentPage] = useState(1);
@@ -31,6 +39,40 @@ function OwnerManager({admin_email}) {
 
      const indexOfLastItem = currentPage * itemsPerPage;
      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+     
+     const [showOneOwnerData, setshowOneOwnerData] = useState({
+      isShow: false,                         
+      client_id: '',          
+      user_name: '',          
+      user_email: '',        
+      user_password: '',  
+      business_name: '',  
+      business_email: '', 
+      business_address: '',
+      mobile_number: '',   
+      gst_number: '',         
+      user_status: '',       
+      admin_message: '',   
+      set_status_by_admin: '',
+      bus_log: '',               
+      profile_pic: '',       
+      location: ''              
+    });
+
+  function closeOneOwnerData() {
+    setshowOneOwnerData(prevState => ({
+      ...prevState, 
+      isShow: false   
+    }));
+    get_admin_data();
+  }
+  function OnOneOwnerData() {
+    setshowOneOwnerData(prevState => ({
+      ...prevState, 
+      isShow: true   
+    }));
+  }
      
      const getCurrentItems = () => {
        if (activeList === 'pending') {
@@ -82,7 +124,7 @@ const fetchOwnerByEmail = (email) => {
       return response.json();
     })
     .then(data => {
-      console.log('Owner Data:', data); // Handle the owner data here
+      console.log('Owner Data:', data);
       setShowPopup(true)
       set_selected_user(data)
     })
@@ -109,6 +151,11 @@ function get_admin_data(){
   }
 
 function updateUserStatus(email, status, message = null, set_status_by_admin = null) {
+  if(status === "Accept"){
+    set_selected_email(email);
+    OnOneOwnerData();
+    return;
+  }
   fetch(`${Server_url}/update-status`, {
       method: 'POST',
       headers: {
@@ -322,11 +369,11 @@ function getAllOwners() {
                   <div className="more_option_pop">
                     {user.user_Status === "Pending" && (
                       <>
-                        <div className="icon_img">
+                        <div className="icon_img" onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)}>
                           <img 
                             src={accept} 
                             alt="Accept" 
-                            onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)}
+                            
                           />
                         </div>
                         <div className="icon_img">
@@ -382,11 +429,11 @@ function getAllOwners() {
                   <div className="more_option_pop">
                     {user.user_Status === "Pending" && (
                       <>
-                        <div className="icon_img">
+                        <div className="icon_img" onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)}>
                           <img 
                             src={accept} 
                             alt="Accept" 
-                            onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)}
+                            
                           />
                         </div>
                         <div className="icon_img">
@@ -442,11 +489,11 @@ function getAllOwners() {
                     <div className="more_option_pop">
                       {user.user_Status === "Pending" && (
                         <>
-                          <div className="icon_img">
+                          <div className="icon_img"                               onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)} >
                             <img 
                               src={accept} 
                               alt="Accept" 
-                              onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)}
+
                             />
                           </div>
                           <div className="icon_img">
@@ -579,6 +626,7 @@ function getAllOwners() {
                                     <th>GST Number</th>
                                     <td>{selected_user.gst_number}</td>
                                 </tr>
+                                
                             </tbody>
                            
                         </table>
@@ -600,6 +648,13 @@ function getAllOwners() {
           }}
         />
       )}
+
+
+      {
+        showOneOwnerData.isShow && (
+          <CheckUserPage closeOneOwnerData={closeOneOwnerData} email={selected_email} admin_email={admin_email}/>
+        )
+      }
 
     </div>
   );

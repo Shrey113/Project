@@ -4,18 +4,18 @@ import './UserDateList.css';
 
 import accept from './sub_img/correct.png';
 import reject from './sub_img/remove.png';
-import info from './sub_img/letter-i.png';
+// import info from './sub_img/letter-i.png';
 import back from './sub_img/back.png';
 
 
 
 import { Server_url } from '../../../../redux/AllData';
-function UserDataList() {
+function UserDataList({setActiveRow}) {
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 3;
   
   const [pendingUsers, setPendingUsers] = useState([]);
-  const [selected_user, set_selected_user] = useState([]);
+  const [selected_user] = useState([]);
   
   const [error, setError] = useState(null);
 
@@ -28,30 +28,30 @@ function UserDataList() {
   const totalPages = Math.ceil(pendingUsers.length / usersPerPage);
   // const totalPages = 2;
 
-const fetchOwnerByEmail = (email) => {
-  return fetch(`${Server_url}/Admin/owner`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email }) 
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Owner not found or server error');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Owner Data:', data); // Handle the owner data here
-      setShowPopup(true)
-      set_selected_user(data)
-    })
-    .catch(error => {
-      console.error('Error:', error); // Handle any errors
-      throw error; // Optional: rethrow to handle in the calling code
-    });
-};
+// const fetchOwnerByEmail = (email) => {
+//   return fetch(`${Server_url}/Admin/owner`, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({ email }) 
+//   })
+//     .then(response => {
+//       if (!response.ok) {
+//         throw new Error('Owner not found or server error');
+//       }
+//       return response.json();
+//     })
+//     .then(data => {
+//       console.log('Owner Data:', data); // Handle the owner data here
+//       setShowPopup(true)
+//       set_selected_user(data)
+//     })
+//     .catch(error => {
+//       console.error('Error:', error); // Handle any errors
+//       throw error; // Optional: rethrow to handle in the calling code
+//     });
+// };
 
 function get_admin_data(){
   fetch(`${Server_url}/Admin/pending-users`)
@@ -128,7 +128,7 @@ function get_admin_data(){
     })
     .then(data => {
       if(data.message === 'Status updated'){
-        console.log('Response:', data);
+  
         get_admin_data();
         if(showPopup){
           setShowPopup(false)
@@ -155,19 +155,21 @@ function get_admin_data(){
       <table className="user_table">
         <thead>
           <tr>
+          <th>Name</th>
             <th>Email</th>
             <th>business name</th>
-            <th>Action</th>
+            {/* <th>Action</th> */}
           </tr>
         </thead>
-        <tbody>
+        <tbody onClick={  ()=>{currentUsers.length > 0 && setActiveRow(1)}} >
           {currentUsers.length > 0 ? (
             currentUsers.map(user => (
               <tr key={user.client_id}>
                 {error}
+                <td>{user.user_name}</td>
                 <td>{user.user_email}</td>
                 <td>{user.business_name}</td>
-                <td>
+                {/* <td>
                   <div className="more_option_pop">
                     <div className="icon_img" onClick={()=>{updateUserStatus(user.user_email,"Accept")}}>
                       <img src={accept} alt="Accept" />
@@ -179,7 +181,7 @@ function get_admin_data(){
                       <img src={info} alt="Info" />
                     </div>
                   </div>
-                </td>
+                </td> */}
               </tr>
             ))
           ) : (

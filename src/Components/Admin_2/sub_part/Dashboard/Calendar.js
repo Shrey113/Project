@@ -16,6 +16,8 @@ import clock_icon from './sub_img/clock.png'
 
 function Calendar() {
 
+  const is_need_to_show = false;
+
 
 
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -51,6 +53,8 @@ function Calendar() {
 
   return (
     <div className="body_test">
+
+      {is_need_to_show ?  
     <div className='Calendar_con'>
       <div className="title_bar_sub">
         <div className="month">October 2023</div>
@@ -87,6 +91,13 @@ function Calendar() {
           <ItemData main_img={technology_icon}/>
       </div>
     </div>
+
+:<>
+<div className="Fill">
+
+<div class="loader"></div>
+</div>
+</>}
     </div>
   )
 }

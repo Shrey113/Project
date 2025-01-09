@@ -19,7 +19,7 @@ function WelcomeUser({ setActiveRow }) {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch(`${Server_url}:4000/notifications_for_test`);
+      const response = await fetch(`${Server_url}/notifications_for_test`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -57,6 +57,7 @@ function WelcomeUser({ setActiveRow }) {
       console.log("Ok socket connected");
       
       socket.on('new_notification',(data)=>{
+        console.log(data,"ssssssssssss");
         fetchNotifications(); 
       })
       return(()=>{
@@ -69,8 +70,7 @@ function WelcomeUser({ setActiveRow }) {
 },[]);
 
   useEffect(() => {
-  
-    fetchNotifications();  // Call the fetch function
+    fetchNotifications();
   }, []);
 
   // Function to format time in 12-hour format (HH:MM AM/PM)

@@ -343,6 +343,16 @@ router.get('/pending-users', (req, res) => {
         res.json(results);
     });
 });
+router.get('/pending1-users', (req, res) => {
+    const query = 'SELECT * FROM owner WHERE user_Status = "Pending1"';
+    
+    db.query(query, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
+});
 
 router.post('/owner', (req, res) => {
     const { email } = req.body;

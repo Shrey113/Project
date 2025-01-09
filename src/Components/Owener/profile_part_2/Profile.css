@@ -1,0 +1,88 @@
+
+.profile-container {
+    display: flex;
+    /* justify-content: space-evenly; */
+    gap: 20px;
+    padding-left: 20px;
+    height: 100vh;
+   
+    margin-left: 10px;
+    /* background: rebeccapurple; */
+  }
+  
+  .profile-container .sidebar {
+    width: 300px;
+    background-color: var(--owner_home_page_ui);
+    padding: 20px;
+    border-right: 1px solid #ddd;
+    height: fit-content;
+    margin-top: 20px;
+    border-radius: var(--owner_profile_border-radius);
+    box-shadow: var(--owner_profile_box_shadow);
+  }
+  
+  .profile-container .sidebar-item {
+    font-family: var(--sub_heading);
+    font-weight: var(--sub_heading_weight);
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: var(--owner_profile_border-radius);
+
+  }
+  
+  .profile-container .sidebar-item:hover {
+    background-color: var(--owner_home_page_hover_coloer);
+  }
+  
+  .profile-container .sidebar-item.active {
+    position: relative;
+    background-color: var(--owner_home_page_ui_color);
+    color: white;
+    font-weight: bold;
+  }
+  
+  /* .profile-container .sidebar-item.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 5px;
+    background-color: #0056b3;
+  } */
+  
+  .profile-container .content {
+    flex: 1;
+    /* background: red; */
+    padding-right: 20px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+    
+  .profile-container .content .wrap_content{
+    /* padding-right: 20px; */
+    /* background: rebeccapurple; */
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+   .profile-container .content::-webkit-scrollbar{
+    width: 5px;
+    background: transparent;
+  }
+   .profile-container .content::-webkit-scrollbar-thumb{
+    width: 5px;
+    background:transparent;
+    border-radius: 10px;
+  }
+   .profile-container .content:hover::-webkit-scrollbar-thumb{
+    background:rgba(0, 0, 0, 0.604);
+    border-radius: 10px;
+  }
+
+
+  

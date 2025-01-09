@@ -121,7 +121,7 @@ function AdminProfile({admin_email}) {
           return;
         }
 
-        console.log(data);
+
         
         const mapped_data = {
           full_name: data.admin_name || '',
@@ -382,7 +382,7 @@ const handleSubmitPassword = (e) => {
 
   // Only proceed if there are no errors
   if (!newPasswordError && !confirmError && passwordData.oldPassword) {
-    console.log('Password data:', passwordData);
+  
     
     setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
     setShowChangePassword(false);

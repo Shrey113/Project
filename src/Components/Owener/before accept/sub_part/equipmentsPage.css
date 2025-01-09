@@ -1,0 +1,360 @@
+#EquipmentsPage {
+  max-width: var(--right_side_box_width);
+  padding: var(--owner_profile_padding);
+  width: 100%;
+  max-width: 100%;
+}
+
+
+#EquipmentsPage .equipment-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 30px;
+
+}
+
+#EquipmentsPage .equipment-header h2 {
+font-size: var(--owner_profile_title_font_size);
+color: #333;
+font-family: var(--Heading);
+font-weight: var(--Heading_weight);
+}
+
+#EquipmentsPage .add-btn {
+padding: 8px 20px;
+background-color: #007bff;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+transition: background-color 0.3s;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+#EquipmentsPage .add-btn:hover {
+background-color: #0056b3;
+}
+
+#EquipmentsPage .Equipment_con {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+gap: 20px;
+padding: 10px;
+
+/* background: rebeccapurple; */
+}
+
+#EquipmentsPage .equipment-card {
+background: white;
+border-radius: 10px;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+overflow: hidden;
+transition: transform 0.3s, box-shadow 0.3s;
+margin: 0 auto;
+position: relative;
+max-width: 400px;
+height: 380px;
+display: flex;
+flex-direction: column;
+justify-content: space-evenly;
+width: 100%;
+}
+
+#EquipmentsPage .equipment-card:hover {
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#EquipmentsPage .equipment-img {
+width: 80px;
+/* height: 100px; */
+margin-top: 20px;
+margin-left: 20px;
+overflow: hidden;
+/* background: #4141411d; */
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+#EquipmentsPage .equipment-img img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+#EquipmentsPage .equipment-info {
+padding: 20px;
+}
+
+#EquipmentsPage .equipment-info h3 {
+margin: 0 0 10px 0;
+font-size: 20px;
+color: #333;
+font-family: var(--sub_heading);
+font-weight: var(--sub_heading_weight);
+}
+
+#EquipmentsPage .equipment-info p {
+margin: 8px 0;
+color: #666;
+font-family: var(--body_data);
+font-weight: var(--body_data_weight);
+}
+
+#EquipmentsPage .equipment-info .company {
+font-weight: 500;
+color: #444;
+font-family: var(--body_data);
+font-weight: var(--body_data_weight);
+}
+
+#EquipmentsPage .equipment-info  .price {
+color: #2ecc71;
+font-weight: bold;
+margin: 5px 0;
+font-family: var(--body_data);
+font-weight: var(--body_data_weight);
+}
+#EquipmentsPage .equipment-info .type {
+color: #007bff;
+font-size: 14px;
+font-family: var(--body_data);
+font-weight: var(--body_data_weight);
+}
+
+
+#EquipmentsPage .equipment-info .description {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 12px;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--body_data);
+  font-weight: var(--body_data_weight);
+}
+
+
+
+#EquipmentsPage .modal-overlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: rgba(0, 0, 0, 0.5);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 1000;
+}
+
+#EquipmentsPage .modal-content {
+background-color: white;
+padding: 2rem;
+border-radius: 8px;
+width: 90%;
+max-width: 500px;
+}
+
+#EquipmentsPage .form-group {
+margin-bottom: 1rem;
+}
+
+#EquipmentsPage .form-group label {
+display: block;
+margin-bottom: 0.5rem;
+font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+#EquipmentsPage .form-group textarea {
+width: 100%;
+padding: 0.5rem;
+border: 1px solid #ccc;
+border-radius: 4px;
+}
+
+#EquipmentsPage .form-group textarea {
+height: 100px;
+resize: vertical;
+}
+
+#EquipmentsPage .modal-buttons {
+display: flex;
+justify-content: flex-end;
+gap: 1rem;
+margin-top: 1rem;
+}
+
+#EquipmentsPage .modal-buttons button {
+padding: 0.5rem 1rem;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+}
+
+#EquipmentsPage .modal-buttons button[type="button"] {
+background-color: #ccc;
+}
+
+#EquipmentsPage .modal-buttons button[type="submit"] {
+background-color: #007bff;
+color: white;
+}
+
+#EquipmentsPage .type-selector {
+display: flex;
+gap: 1rem;
+flex-wrap: wrap;
+margin-top: 0.5rem;
+}
+
+#EquipmentsPage .type-option {
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0.5rem;
+border: 2px solid #ccc;
+border-radius: 8px;
+cursor: pointer;
+transition: all 0.3s ease;
+width: 80px;
+}
+
+#EquipmentsPage .type-option:hover {
+border-color: #007bff;
+background-color: #f8f9fa;
+}
+
+#EquipmentsPage .type-option.selected {
+border-color: #007bff;
+background-color: #e7f1ff;
+}
+
+#EquipmentsPage .type-option img {
+width: 40px;
+height: 40px;
+object-fit: contain;
+margin-bottom: 0.5rem;
+}
+
+#EquipmentsPage .type-option span {
+font-size: 0.9rem;
+text-align: center;
+}
+
+#EquipmentsPage  .remove-btn {
+position: absolute;
+top: 10px;
+right: 10px;
+}
+
+#EquipmentsPage  .remove-btn button {
+background-color: #ff4444;
+color: white;
+border: none;
+padding: 5px 10px;
+border-radius: 4px;
+cursor: pointer;
+}
+
+#EquipmentsPage  .remove-btn button:hover {
+background-color: #cc0000;
+}
+
+#EquipmentsPage  .add-form {
+  height: 380px;
+  border: 2px dashed #ccc;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* background: rebeccapurple; */
+  position: relative;
+  display: flex;
+  justify-content: space-evenly;
+}
+#EquipmentsPage  .equipment_new_info{
+  padding: 0px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#EquipmentsPage  .equipment_new_info span{
+  display: flex;
+  gap: 10px;
+}
+
+.add-form input,
+.add-form select,
+#EquipmentsPage  .add-form textarea {
+  width: 100%;
+  /* margin-bottom: 10px; */
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  
+}
+
+#EquipmentsPage  .add-form span {
+  display: flex;
+  justify-content: space-between;
+}
+
+#EquipmentsPage  .add-form textarea {
+  height: 80px;
+  resize: vertical;
+}
+
+#EquipmentsPage  .add-form .save-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+#EquipmentsPage  .add-form .save-btn:hover {
+  background-color: #45a049;
+
+}
+
+#EquipmentsPage  .equipment-card .remove-btn {
+opacity: 0;
+transition: opacity 0.3s ease;
+}
+
+#EquipmentsPage  .equipment-card:hover .remove-btn {
+opacity: 1;
+}
+
+.next-btn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.next-btn:hover {
+    background-color: #0056b3;
+}
+
+.validation-message {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background-color: #ffe6e6;
+}

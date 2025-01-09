@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import './css/HomePage.css';
 
@@ -6,8 +6,8 @@ import './css/HomePage.css';
 // import user_option from './img/user.png';
 import user4 from './img/user4.jpg';
 import app_icon from './img/app-store.png';
-import toggle_button_icon from './img/burger-menu.png';
-import toggle_close_button_icon from './img/close.png';
+// import toggle_button_icon from './img/burger-menu.png';
+// import toggle_close_button_icon from './img/close.png';
 
 
 import dashboard_icon from './img/active/dashboard.png';
@@ -27,28 +27,32 @@ import Packages_icon from './img/active/photo.png'
 import Packages_no_active_icon from './img/no_active/photo.png'
 // import OwnerProfile from './sub_part/OwnerProfile';
 import OwnerHome from './sub_part/OwnerHome';
-import Profile from './sub_part/Profile';
 import TeamOverview from './sub_part/TeamOverview';
+
+
+// import Profile from './sub_part/Profile';
+import Profile from './profile_part_2/Profile';
+import InvoiceForm from './sub_part/Invoic_part/Invoic';
 
 
 function HomePage() {
   const user = useSelector((state) => state.user);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen] = useState(true);
   const sidebarRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-        setIsSidebarOpen(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+  //       setIsSidebarOpen(false);
+  //     }
+  //   };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  //   document.addEventListener('mousedown', handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener('mousedown', handleClickOutside);
+  //   };
+  // }, []);
 
   const menuItems = [
     { name: 'Dashboard', icon:dashboard_icon  ,active_icon:dashboard_no_active_icon},
@@ -67,7 +71,7 @@ function HomePage() {
       
       <div className="side_bar" ref={sidebarRef} style={{width: isSidebarOpen ? '340px' : '70px'}}>
 
-        <div className="toggle_button_con" onClick={()=>{setIsSidebarOpen(!isSidebarOpen)}}>
+        {/* <div className="toggle_button_con" onClick={()=>{setIsSidebarOpen(!isSidebarOpen)}}>
           {isSidebarOpen ?
           <img src={toggle_close_button_icon} alt="" />
           :
@@ -75,7 +79,7 @@ function HomePage() {
           
         }
           
-        </div>
+        </div> */}
         <div className="side_bar_title">
           <div className="title_bar_img">
             <img src={app_icon} alt="" />
@@ -138,7 +142,9 @@ function HomePage() {
 
           {activeIndex === 0 && <OwnerHome/>}
           {activeIndex === 2 && <TeamOverview/>}
+          {activeIndex === 3 && <InvoiceForm/>}
           {activeIndex === menuItems.length + 1 && <Profile/>}
+          {/* {activeIndex === menuItems.length + 1 && <Profile/>} */}
         
 
 

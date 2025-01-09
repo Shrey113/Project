@@ -56,7 +56,6 @@ function VerifyOpt({ user_name,
         if (!response.ok) { throw new Error('Network response was not ok'); }
         return response.json();
       }).then((data) => {
-        console.log(data);
         if (data.message === "OTP verified successfully") {
           console.log("OTP verification passed");
           set_show_loder(true);

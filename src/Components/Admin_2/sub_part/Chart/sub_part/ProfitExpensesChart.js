@@ -27,14 +27,13 @@ const data = [
 
 const ProfitExpensesChart = () => {
   const [status_counts, set_status_counts] = useState({});
-  const [loading, set_loading] = useState(true);
-  const [error, setError] = useState(null);
+
 
 
   useEffect(() => {
     const fetchStatusCounts = async () => {
         try {
-            set_loading(true);
+
             const response = await fetch(`${Server_url}/chart/status-count`); // Replace with your endpoint URL
 
             if (!response.ok) {
@@ -43,7 +42,7 @@ const ProfitExpensesChart = () => {
 
             const data = await response.json();
 
-            console.log(data);
+    
             
 
             // Transform the data to match the desired structure
@@ -54,16 +53,16 @@ const ProfitExpensesChart = () => {
             };
 
             set_status_counts(transformedData);
+            console.log(status_counts);
+            
         } catch (err) {
             console.error('Error fetching status counts:', err);
-            setError(err.message);
-        } finally {
-            set_loading(false);
-        }
+          
+        } 
     };
 
     fetchStatusCounts();
-}, []);
+}, [status_counts]);
 
 
 

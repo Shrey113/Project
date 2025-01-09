@@ -192,41 +192,38 @@ function LoginRegisterOwener() {
 
   const handle_login_submit = async (event) => {
     event.preventDefault();
-    console.log("Step 1: Form submit event triggered");
+
   
     let is_valid = true;
   
     // Check if it's an admin login
     if (login_email.startsWith("^admin")) {
-      console.log("Step 2: Admin login detected");
+      
       const temp = login_email.replace("^admin", "");
       try {
         await loginAdmin(temp, login_password);
-        console.log("Step 3: Admin login successful");
+        
       } catch (error) {
         console.error("Step 3: Admin login failed:", error);
       }
       return;
-    } else {
-      console.log("Step 2: Regular user login detected");
-    }
-  
+    } 
     // Validate email
     if (validate_email(login_email)) {
-      console.log("Step 4: Email validation passed");
+    
       set_login_email_error("");
     } else {
-      console.log("Step 4: Email validation failed");
+
       set_login_email_error("Invalid email");
       is_valid = false;
     }
   
     if (!is_valid) {
-      console.log("Step 5: Validation failed, stopping submission");
+    
       return;
     }
   
-    console.log("Step 5: Validation passed, proceeding to login");
+    
   
     try {
       const response = await fetch(`${Server_url}/owner/login`, {
@@ -243,18 +240,17 @@ function LoginRegisterOwener() {
         return;
       }
   
-      console.log("Step 6: Server responded OK, parsing data");
+     
   
       const data = await response.json();
-      console.log("Step 7: Server response data parsed:", data);
+   
   
       // Handle login result
       if (data.status === "login-fail") {
-        console.log("Step 8: Login failed, setting error messages");
         set_login_password_error(data.error);
         set_login_email_error(data.error);
       } else if (data.user_key) {
-        console.log("Step 8: Login successful, storing user key and reloading page");
+
         localStorage.setItem(localstorage_key_for_jwt_user_side_key, data.user_key);
         window.location.reload(); // Replace with better navigation logic if using a framework
       }
@@ -318,7 +314,6 @@ function LoginRegisterOwener() {
 
   if(is_valid_page_1){
     toggle_is_page_1register(false)
-    console.log("sss - 1");
   }
 }
  
@@ -388,7 +383,7 @@ function LoginRegisterOwener() {
         });
         if (response.ok) {
           const data = await response.json();
-          console.log(data);
+     
 
           if (data.error === "Email already exists") {
             toggle_is_page_1register(true);
@@ -434,7 +429,6 @@ function LoginRegisterOwener() {
           }
         } else {
           const errorData = await response.text();
-          console.log("Error adding client, status code:", response.status);
           console.error("Error response:", errorData);
         }
       } catch (error) {
