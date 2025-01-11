@@ -348,6 +348,67 @@ router.put('/update-owner', (req, res) => {
   });
 });
 
+
+router.post('/update-status', (req, res) => {
+  const { user_email, user_Status, message, set_status_by_admin } = req.body;
+
+  // Validate required fields
+  if (!user_email || !user_Status) {
+    return res.status(400).json({ message: 'Missing required fields: user_email or user_Status' });
+  }
+
+  // Set default values for optional fields if they're undefined
+  const safeMessage = message || null; // If message is undefined, set it as null
+  const safeAdminEmail = set_status_by_admin || null; // If admin email is undefined, set it as null
+
+  // Retrieve admin information if an admin email is provided
+  if (safeAdminEmail) {
+    const getAdminIdQuery = 'SELECT admin_id FROM admins WHERE admin_email = ?';
+    db.execute(getAdminIdQuery, [safeAdminEmail], (err, adminResult) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Database error when fetching admin' });
+      }
+
+      if (adminResult.length === 0) {
+        return res.status(400).json({ message: 'Admin not found' });
+      }
+
+      const admin_id = adminResult[0].admin_id;
+
+      // Update the user's status in the 'users' table
+      const updateStatusQuery = `
+        UPDATE owner
+        SET user_Status = ?, admin_message = ?, set_status_by_admin = ?
+        WHERE user_email = ?
+      `;
+      db.execute(updateStatusQuery, [user_Status, safeMessage, admin_id, user_email], (err, result) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({ message: 'Database error while updating user status' });
+        }
+
+        return res.json({ message: 'Status updated' });
+      });
+    });
+  } else {
+    // If no admin email is provided, update the status without an admin_id
+    const updateStatusQuery = `
+      UPDATE owner
+      SET user_Status = ?, admin_message = ?, set_status_by_admin = NULL
+      WHERE user_email = ?
+    `;
+    db.execute(updateStatusQuery, [user_Status, safeMessage, user_email], (err, result) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Database error while updating user status' });
+      }
+
+      return res.json({ message: 'Status updated' });
+    });
+  }
+});
+
 router.post('/update-owner', (req, res) => {
   const { user_email,
      user_name,

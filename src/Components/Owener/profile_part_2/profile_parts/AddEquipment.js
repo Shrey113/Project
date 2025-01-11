@@ -1,4 +1,5 @@
-import React,{useState} from 'react'
+import React,{useState,useEffect} from 'react'
+import { useSelector } from 'react-redux';
 import './AddEquipment.css'
 
 import camera_icon from './test_img_equipment/camera.png'
@@ -6,68 +7,62 @@ import drone_icon from './test_img_equipment/drone.png'
 import tripod_icon from './test_img_equipment/Tripod.png'
 import lens_icon from './test_img_equipment/lens.png'
 
+import { Server_url } from '../../../../redux/AllData';
+
 function AddEquipment() {
+
+  function getImgByType(type){
+    if(type === 'Camera') return camera_icon;
+    if(type === 'Drone') return drone_icon;
+    if(type === 'Tripod') return tripod_icon;
+    if(type === 'Lens') return lens_icon;
+  }
+  const user = useSelector(state => state.user);
+
+
+
+
     const [newEquipment, setNewEquipment] = useState({
         name: '',
-        company: '',
+        equipment_company: '',
         type: 'Camera',
         description: '',
         image: camera_icon,
         pricePerDay: ''
     });
     
+      const [equipmentItems, setEquipmentItems] = useState([]);
 
-    const equipmentList = [
-        {
-          id: 1,
-          name: "Canon EOS R5",
-          company: "Canon Inc.",
-          type: "Camera",
-          image: camera_icon,
-          description: "Full-frame mirrorless camera with 45MP resolution, 8K video recording, and advanced autofocus capabilities.",
-          pricePerDay: 150
-        },
-        {
-          id: 2,
-          name: "Nikon Z9",
-          company: "Nikon Corporation",
-          type: "Drone",
-          image: drone_icon,
-          description: "Professional mirrorless camera with 45.7MP sensor, 8K video, and high-speed performance for photographers and filmmakers.",
-          pricePerDay: 200
-        },
-        {
-          id: 3,
-          name: "Sony FE 24-70mm f/2.8 GM",
-          company: "Sony",
-          type: "Lens",
-          image: camera_icon,
-          description: "Versatile zoom lens offering outstanding optical performance, ideal for portraits, landscapes, and event photography.",
-          pricePerDay: 100
-        },
-        {
-          id: 4,
-          name: "Manfrotto Befree Advanced Tripod",
-          company: "Manfrotto",
-          type: "Tripod",
-          image: tripod_icon,
-          description: "Compact and lightweight travel tripod with advanced features for stability and ease of use.",
-          pricePerDay: 50
-        },
-        {
-          id: 5,
-          name: "DJI Air 2S",
-          company: "DJI",
-          type: "Drone",
-          image: drone_icon,
-          description: "High-performance drone with a 1-inch sensor, 5.4K video recording, and intelligent flight modes for stunning aerial shots.",
-          pricePerDay: 150
-        }
-      ];
 
-      const [equipmentItems, setEquipmentItems] = useState(equipmentList);
+      function getEquipmentItems(get_email){
+        fetch(`${Server_url}/owner/equipment`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ user_email: get_email }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          if(data.message === 'No equipment found'){
+            setEquipmentItems([]);
+          }else{
+            const reversedData = data.reverse();
+
+            setEquipmentItems(reversedData);
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
+      useEffect(() => {
+        getEquipmentItems(user.user_email)
+      }, [user.user_email]);
+
+
+
       
-
+    
   const equipmentTypes = [
     { type: "Camera", icon: camera_icon },
     { type: "Drone", icon: drone_icon },
@@ -88,54 +83,117 @@ function AddEquipment() {
     }));
   };
 
-//   const handleTypeSelect = (selectedType) => {
-//     setNewEquipment(prev => ({
-//       ...prev,
-//       type: selectedType.type,
-//       image: selectedType.icon
-//     }));
-//   };
 
-  const handleRemove = (id) => {
-    setEquipmentItems(prevItems => prevItems.filter(item => item.id !== id));
+
+  const handleRemove = (id,server_id) => {
+
+
+    fetch(`${Server_url}/owner/remove-equipment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user_email: user.user_email, user_equipment_id: server_id }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if(data.message === 'Equipment removed successfully'){
+        getEquipmentItems(user.user_email)
+        // alert('Equipment removed successfully');
+      }
+    })
+    .catch(error => console.error('Error:', error));
   };
 
-  const handleAddEquipment = () => {
-    const newId = equipmentItems.length > 0 
-        ? equipmentItems[equipmentItems.length - 1].id + 1 
-        : 1;
-    const equipmentToAdd = {
-        ...newEquipment,
-        id: newId,
-    };
+
+
+
+  async function addOneEquipment() {
+
+    const equipmentItem = {
+      user_equipment_id: equipmentItems.length + 1,
+      name: newEquipment.name,
+      equipment_company: newEquipment.equipment_company,
+      equipment_type: newEquipment.type,
+      equipment_description: newEquipment.description,
+      equipment_price_per_day: newEquipment.pricePerDay
+    }
+  
     
-    setEquipmentItems(prev => [...prev, equipmentToAdd]);
-  };
+    try {
+      const response = await fetch(`${Server_url}/owner/add-one-equipment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_email: user.user_email,
+          ...equipmentItem
+        }),
+      });
 
-  const [isAdding, setIsAdding] = useState(false);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add equipment');
+      }
+
+      const result = await response.json();
+
+      if(result.message === 'Equipment added successfully'){
+        setNewEquipment({
+          name: '',
+          equipment_company: '',
+          type: 'Camera',
+          description: '',
+          image: camera_icon,
+          pricePerDay: ''
+        });
+        getEquipmentItems(user.user_email);
+        setShowAddForm(false);
+      }else{
+        alert('Failed to add equipment');
+      }
+    
+      return result;
+    } catch (error) {
+      console.error('Error adding equipment:', error.message);
+      throw error;
+    }
+  }
+  
+  
+
+  const [showAddForm, setShowAddForm] = useState(false);
+
+
 
   return (
     <div id='AddEquipment'>
       {/* Header Section */}
       <div className="equipment-header">
-        <h2>Equipment</h2>
-        <span className="add-btn" onClick={() => setIsAdding(!isAdding)}>
-          {isAdding ? '- Cancel' : '+ Add'}
-        </span>
+        <h2>Add Equipment</h2>
+        <button 
+          className="add-equipment-btn" 
+          onClick={() => setShowAddForm(true)}
+        >
+          Add New Equipment
+        </button>
       </div>
 
+
+
       <div className="Equipment_con">
-        {/* Add Equipment Form Card */}
-        {isAdding && (
+        {showAddForm && (
           <div className="equipment-card add-form">
             <div className="equipment-img">
               <img src={newEquipment.image} alt="Equipment Type" />
+         
             </div>
             <div className="equipment_new_info">
               <input type="text" name="name" placeholder="Equipment Name" value={newEquipment.name} onChange={handleInputChange} />
 
               <span>
-              <input type="text" name="company" placeholder="Company" value={newEquipment.company} onChange={handleInputChange} />
+              <input type="text" name="equipment_company" placeholder="Company" value={newEquipment.equipment_company} onChange={handleInputChange} />
               <select name="type" value={newEquipment.type} onChange={handleInputChange} >
                 {equipmentTypes.map((type) => (
                   <option key={type.type} value={type.type}>
@@ -147,7 +205,7 @@ function AddEquipment() {
               <input 
                 type="number" 
                 name="pricePerDay" 
-                placeholder="Price per day $" 
+                placeholder="Price per day Rs." 
                 value={newEquipment.pricePerDay} 
                 onChange={handleInputChange} 
               />
@@ -158,24 +216,28 @@ function AddEquipment() {
                 value={newEquipment.description}
                 onChange={handleInputChange}
               />
-         
+
+              <div className="button_con">
               <button 
                 className="save-btn"
                 onClick={() => {
-                  handleAddEquipment();
-                  setIsAdding(false);
-                  setNewEquipment({
-                    name: 'New Equipment',
-                    company: 'Default Company',
-                    type: 'Camera',
-                    description: 'Default description',
-                    image: camera_icon,
-                    pricePerDay: ''
-                  });
+                  addOneEquipment();
+
                 }}
               >
                 Save Equipment
               </button>
+
+
+              <button 
+                className="close-btn"
+                onClick={() => setShowAddForm(false)}
+              >
+                ×
+              </button>
+              </div>
+         
+           
             </div>
           </div>
         )}
@@ -183,17 +245,17 @@ function AddEquipment() {
         {equipmentItems.map((equipment) => (
           <div className="equipment-card" key={equipment.id}>
             <div className="equipment-img">
-              <img src={equipment.image} alt={equipment.name} />
+              <img src={getImgByType(equipment.equipment_type)} alt={equipment.name} />
             </div>
             <div className="equipment-info">
               <h3>{equipment.name}</h3>
-              <p className="company">{equipment.type} • {equipment.company}</p>
-              <p className="price">${equipment.pricePerDay}/day</p>
-              <p className="description">{equipment.description}</p>
+              <p className="company">{equipment.equipment_type} • {equipment.equipment_company}</p>
+              <p className="price">Rs.{equipment.equipment_price_per_day}/day</p>
+              <p className="description">{equipment.equipment_description}</p>
             </div>
 
             <div className="remove-btn">
-              <button onClick={() => handleRemove(equipment.id)}>Remove</button>
+              <button onClick={() => handleRemove(equipment.id,equipment.user_equipment_id)}>Remove</button>
             </div>
           </div>
         ))}

@@ -86,6 +86,10 @@ const BottomRightMenu = () => {
             <button onClick={() => handleNavigate("BeforeLogin")}>BeforeLogin</button>
             <button onClick={() => handleOpenInNewTab("BeforeLogin")}>Go</button>
           </div>
+
+          <div className="menu-item">
+            <button onClick={() => toggleVisibility()}>close</button>
+          </div>
         </div>
       )}
     </div>

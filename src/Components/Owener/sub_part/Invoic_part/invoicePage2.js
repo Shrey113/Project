@@ -4,14 +4,14 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useSelector } from "react-redux";
 import { Server_url } from "../../../../redux/AllData";
+import { useLocation } from "react-router-dom";
+// import "./Invoice.css";
+// import "./Sub_component/DraftInvoices.css";
+// import "./Sub_component/EditInvoiceModal.css";
 
-function InvoicePage2({
-  fetchInvoices,
-  invoices,
-  setInvoices,
-  generateInvoice,
-  invoice_id,
-}) {
+function InvoicePage2() {
+  const location = useLocation();
+
   const [emailError, setEmailError] = useState("");
   const user = useSelector((state) => state.user);
   const [logoPreview, setLogoPreview] = useState(null);
@@ -21,17 +21,145 @@ function InvoicePage2({
   const inputRef = useRef(null);
   const addressRef = useRef(null);
   const emailRef = useRef(null);
-  const [invoice, setInvoice] = useState({
-    invoice_id: invoice_id,
-    invoice_to: "",
-    invoice_to_address: "",
-    invoice_to_email: "",
-    date: "",
-    sub_total: 0,
-    gst: 0,
-    total: 0,
-    user_email: user.user_email,
-    items: [{ item: "", quantity: 0, price: 0, amount: 0 }],
+
+  const [draftInvoices, setDraftInvoices] = useState([]);
+  const [draftCount, setDraftCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [invoices, setInvoices] = useState([]);
+  const [error, setError] = useState(null);
+  const [invoice_id, setInvoice_id] = useState(null);
+
+  const generateInvoice = async () => {
+    try {
+      const response = await fetch(`${Server_url}/generate-invoice`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_email: user.user_email }),
+      });
+      const data = await response.json();
+      setInvoice_id(data.invoice_id);
+    } catch (error) {
+      console.error("Error fetching new invoice ID:", error);
+      alert("Failed to create a new invoice. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    generateInvoice();
+  }, []);
+  const fetchInvoicesWithDraft = async (user_email) => {
+    try {
+      // setLoading(true);
+      const response = await fetch(`${Server_url}/invoices/with-draft`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_email: user_email }),
+      });
+      const data = await response.json();
+      const with_draft = Array.isArray(data.with_draft)
+        ? [...data.with_draft].sort((a, b) => a.invoice_id - b.invoice_id)
+        : [];
+      setDraftInvoices(with_draft);
+      setDraftCount(with_draft.length);
+      console.log("Fetched draft invoices:", with_draft);
+    } catch (error) {
+      console.error("Error fetching invoices with draft:", error);
+      // setError("Failed to load invoices. Please try again later.");
+      setDraftInvoices([]);
+    }
+  };
+
+  const fetchInvoicesWithoutDraft = async (user_email) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${Server_url}/invoices/without-draft`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_email: user_email }),
+      });
+      const data = await response.json();
+      const without_draft = Array.isArray(data.without_draft)
+        ? [...data.without_draft].sort((a, b) => a.invoice_id - b.invoice_id)
+        : [];
+      setInvoices(without_draft);
+      console.log("Fetched invoices without draft:", without_draft);
+    } catch (error) {
+      console.error("Error fetching invoices without draft:", error);
+      setError("Failed to load invoices. Please try again later.");
+      setInvoices([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const [invoice, setInvoice] = useState(() => {
+    if (location.state?.draftData) {
+      const draftData = location.state.draftData;
+      console.log("Draft Data:", draftData);
+      const formatDateTime = (isoString) => {
+        const date = new Date(isoString);
+
+        const options = {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        };
+
+        const formattedDate = new Intl.DateTimeFormat("en-IN", options).format(
+          date
+        );
+
+        // Return the full date in the format '7 Jan 2025'
+        return {
+          date: formattedDate,
+          time: date.toLocaleTimeString(),
+        };
+      };
+      const formattedItems =
+        Array.isArray(draftData.items) && draftData.items.length > 0
+          ? draftData.items.map((item) => ({
+              item: item.item || "",
+              quantity: Number(item.quantity) || 0,
+              price: Number(item.price) || 0,
+              amount: Number(item.amount) || 0,
+            }))
+          : [{ item: "", quantity: 0, price: 0, amount: 0 }];
+      return {
+        invoice_id: setInvoice_id(draftData.invoice_id),
+        invoice_to: draftData.invoice_to || "",
+        invoice_to_address: draftData.invoice_to_address || "",
+        invoice_to_email: draftData.invoice_to_email || "",
+        date: formatDateTime(draftData.date).date || new Date().toISOString(),
+        sub_total: Number(draftData.sub_total) || 0,
+        gst: Number(draftData.gst) || 0,
+        total: Number(draftData.total) || 0,
+        user_email: draftData.user_email || user.user_email,
+        items: formattedItems,
+      };
+    }
+
+    return {
+      invoice_id: invoice_id,
+      invoice_to: "",
+      invoice_to_address: "",
+      invoice_to_email: "",
+      date: new Date().toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+      sub_total: 0,
+      gst: 0,
+      total: 0,
+      user_email: user.user_email,
+      items: [{ item: "", quantity: 0, price: 0, amount: 0 }],
+    };
   });
 
   useEffect(() => {
@@ -40,20 +168,6 @@ function InvoicePage2({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  // useEffect(() => {
-  //   const fetchDraftInvoices = async () => {
-  //     const response = await fetch(`${Server_url}/draft-invoices`, {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-  //     const data = await response.json();
-  //     console.log(data);
-  //   };
-  //   fetchDraftInvoices();
-  // }, []);
 
   const handleClickOutside = (event) => {
     if (inputRef.current && !inputRef.current.contains(event.target)) {
@@ -67,35 +181,33 @@ function InvoicePage2({
     }
   };
 
+  const getInvoiceId = async (user_email) => {
+    try {
+      const response = await fetch(`${Server_url}/generate-invoice`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_email }),
+      });
+      const data = await response.json();
+
+      setInvoice((prev) => ({
+        ...prev,
+        invoice_id: data.invoice_id,
+      }));
+    } catch (error) {
+      console.error("Error fetching invoice ID:", error);
+    }
+  };
   //   for getting invoice id
   useEffect(() => {
-    const getInvoiceId = async () => {
-      try {
-        const response = await fetch(`${Server_url}/generate-invoice`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ user_email: user.user_email }),
-        });
-        const data = await response.json();
-
-        setInvoice((prev) => ({
-          ...prev,
-          invoice_id: data.invoice_id,
-        }));
-      } catch (error) {
-        console.error("Error fetching invoice ID:", error);
-      }
-    };
-
-    getInvoiceId();
+    getInvoiceId(user.user_email);
   }, [user.user_email]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Check if the field belongs to items table
     if (
       name.startsWith("item_") ||
       name.startsWith("quantity_") ||
@@ -137,7 +249,6 @@ function InvoicePage2({
   };
 
   const handleNewInvoice = async () => {
-    // Reset the invoice state with a new ID and empty fields
     setInvoice({
       invoice_to: "",
       invoice_to_address: "",
@@ -159,9 +270,26 @@ function InvoicePage2({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!invoice.invoice_to || invoice.items[0].item === "") {
+    if (
+      !invoice.invoice_to ||
+      invoice.items[0].item === "" ||
+      invoice.invoice_to_address === "" ||
+      invoice.invoice_to_email === ""
+    ) {
       alert("Please fill in all required fields");
       return;
+    }
+
+    for (const item of invoice.items) {
+      if (
+        !item.item ||
+        !item.amount ||
+        isNaN(item.amount) ||
+        item.amount <= 0
+      ) {
+        alert("Please ensure all items have a name and a valid amount.");
+        return;
+      }
     }
 
     const button = e.target;
@@ -195,8 +323,9 @@ function InvoicePage2({
       console.log(data);
 
       generateInvoice();
-      fetchInvoices();
+      fetchInvoicesWithoutDraft(user.user_email);
       handleNewInvoice();
+      fetchInvoicesWithDraft(user.user_email);
       alert("Invoice generated successfully!");
       generatePDF();
     } catch (error) {
@@ -226,7 +355,7 @@ function InvoicePage2({
   const addRow = () => {
     setInvoice({
       ...invoice,
-      items: [...invoice.items, { item: "", quantity: 1, price: 0, amount: 0 }],
+      items: [...invoice.items, { item: "", quantity: 0, price: 0, amount: 0 }],
     });
   };
   // Handle remove row
@@ -377,416 +506,455 @@ function InvoicePage2({
     doc.text("Thank you for your business!", 14, finalY + 40);
   };
 
+  const handleSaveDraft = async () => {
+    if (!invoice.invoice_id || !user.user_email || !invoice.invoice_to) {
+      alert("Cannot save draft without invoice ID or user email.");
+      return;
+    }
+
+    try {
+      const date = new Date().toISOString();
+
+      const draftInvoice = {
+        ...invoice,
+        date,
+        user_email: user.user_email,
+        as_draft: 1,
+      };
+
+      const response = await fetch(`${Server_url}/save-draft`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(draftInvoice),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error saving draft.");
+      }
+
+      const data = await response.json();
+      if (
+        data.message === "Invoice items with draft added successfully" ||
+        data.message === "Invoice with draft added successfully"
+      ) {
+        alert("Draft saved successfully!");
+        handleNewInvoice();
+        generateInvoice();
+        fetchInvoicesWithDraft(user.user_email);
+      }
+      console.log(data);
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("Error saving draft. Please try again.");
+    }
+  };
+
   return (
-    <div className="invoice_form">
-      <div className="company_logo_invoice">
-        <div className="preview_image">
-          <input
-            type="file"
-            name="company_logo"
-            accept="image/*"
-            onChange={handleLogoChange}
-            style={{ display: "none" }}
-            id="input_image"
-          />
-          <div
-            className="companyLogo"
-            onClick={() => document.getElementById("input_image").click()}
-            style={{
-              backgroundImage: logoPreview ? `url(${logoPreview})` : "none",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              width: "100%",
-              height: "100%",
-              cursor: "pointer",
-              objectFit: "cover",
-            }}
-          >
-            {!logoPreview && <span>Click to upload</span>}
+    <div className="invoice_and_table_container">
+      <div className="invoice_form">
+        <div className="company_logo_invoice">
+          <div className="preview_image">
+            <input
+              type="file"
+              name="company_logo"
+              accept="image/*"
+              onChange={handleLogoChange}
+              style={{ display: "none" }}
+              id="input_image"
+            />
+            <div
+              className="companyLogo"
+              onClick={() => document.getElementById("input_image").click()}
+              style={{
+                backgroundImage: logoPreview ? `url(${logoPreview})` : "none",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                width: "100%",
+                height: "100%",
+                cursor: "pointer",
+                objectFit: "cover",
+              }}
+            >
+              {!logoPreview && <span>Click to upload</span>}
+            </div>
+          </div>
+          <div className="invoice_and_gst_no">
+            <div className="invoice_id">
+              <strong>INVOICE No :</strong> {invoice_id}
+            </div>
+            <div className="invoice_id">
+              {" "}
+              <strong>GST No :</strong> {user.gst_number}
+            </div>
           </div>
         </div>
-        <div className="invoice_and_gst_no">
-          <div className="invoice_id">
-            <strong>INVOICE No :</strong> {invoice_id}
-          </div>
-          <div className="invoice_id">
-            {" "}
-            <strong>GST No :</strong> {user.gst_number}
-          </div>
-        </div>
-      </div>
-      <h1>INVOICE</h1>
-      <div className="bill_details">
-        <div className="bill_to">
-          <div className="date">
-            <strong>Date</strong> :{" "}
-            {new Date().toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })}
-          </div>
-          <div className="recipient_name">
-            <div className="recipient-input" ref={inputRef}>
-              <strong>Bill to:</strong>
-              {toggle_recipient_input ? (
-                <>
-                  <input
-                    type="text"
-                    value={invoice.invoice_to}
-                    onChange={handleChange}
-                    name="invoice_to"
-                    placeholder="Enter Recipient Name"
-                    style={{
-                      padding: "5px",
-                      border: "none",
-                      outline: "1px solid #ddd",
-                      fontSize: "14px",
-                      borderRadius: "4px",
-                    }}
-                  />
-                  <button
-                    onClick={handleConfirmRecipient}
-                    style={{
-                      border: "none",
-                      backgroundColor: "transparent",
-                      cursor: "pointer",
-                      fontSize: "14px",
-                    }}
-                  >
-                    {" "}
-                    ✔{" "}
-                  </button>
-                </>
-              ) : (
-                <p onClick={handle_toggle_input}>
-                  {invoice.invoice_to || "Enter Recipient Name"}
-                </p>
-              )}
+        <h1>INVOICE</h1>
+        <div className="bill_details">
+          <div className="bill_to">
+            <div className="date">
+              <strong>Date</strong> : {invoice.date}
             </div>
-
-            <div className="recipient-input" ref={addressRef}>
-              {toggleAddressInput ? (
-                <>
-                  <textarea
-                    value={invoice.invoice_to_address}
-                    onChange={handleChange}
-                    placeholder="Enter Address"
-                    name="invoice_to_address"
-                    style={{
-                      padding: "4px",
-                      border: "none",
-                      outline: "1px solid #ddd",
-                      fontSize: "14px",
-                      borderRadius: "4px",
-                      width: "200px",
-                      height: "60px",
-                      resize: "none",
-                    }}
-                  />
-                  <button
-                    onClick={handleToggleAddressInput}
-                    style={{
-                      border: "none",
-                      backgroundColor: "transparent",
-                      cursor: "pointer",
-                      fontSize: "14px",
-                    }}
-                  >
-                    ✔
-                  </button>
-                </>
-              ) : (
-                <p
-                  onClick={handleToggleAddressInput}
-                  style={{ maxWidth: "300px", width: "200px" }}
-                >
-                  {invoice.invoice_to_address || "Enter Address"}
-                </p>
-              )}
-            </div>
-
-            <div className="recipient-input" ref={emailRef}>
-              {toggleEmailInput ? (
-                <>
-                  <input
-                    type="email"
-                    value={invoice.invoice_to_email}
-                    onChange={handleChange}
-                    placeholder="Enter Email ID"
-                    name="invoice_to_email"
-                    onBlur={handleBlur}
-                    style={{
-                      padding: "5px",
-                      border: "none",
-                      outline: "1px solid #ddd",
-                      fontSize: "14px",
-                      borderRadius: "4px",
-                    }}
-                  />
-                  <button
-                    onClick={handleToggleEmailInput}
-                    style={{
-                      border: "none",
-                      backgroundColor: "transparent",
-                      cursor: "pointer",
-                      fontSize: "14px",
-                    }}
-                  >
-                    ✔
-                  </button>
-                  {emailError && ( // Display error message
-                    <p
+            <div className="recipient_name">
+              <div className="recipient-input" ref={inputRef}>
+                <strong>Bill to:</strong>
+                {toggle_recipient_input ? (
+                  <>
+                    <input
+                      type="text"
+                      value={invoice.invoice_to}
+                      onChange={handleChange}
+                      name="invoice_to"
+                      placeholder="Enter Recipient Name"
                       style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "5px",
+                        padding: "5px",
+                        border: "none",
+                        outline: "1px solid #ddd",
+                        fontSize: "14px",
+                        borderRadius: "4px",
+                      }}
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleConfirmRecipient}
+                      style={{
+                        border: "none",
+                        backgroundColor: "transparent",
+                        cursor: "pointer",
+                        fontSize: "14px",
                       }}
                     >
-                      {emailError}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p onClick={handleToggleEmailInput}>
-                  {invoice.invoice_to_email || "Enter Email ID"}
-                </p>
-              )}
+                      {" "}
+                      ✔{" "}
+                    </button>
+                  </>
+                ) : (
+                  <p onClick={handle_toggle_input}>
+                    {invoice.invoice_to || "Enter Recipient Name"}
+                  </p>
+                )}
+              </div>
+
+              <div className="recipient-input" ref={addressRef}>
+                {toggleAddressInput ? (
+                  <>
+                    <textarea
+                      value={invoice.invoice_to_address}
+                      onChange={handleChange}
+                      placeholder="Enter Address"
+                      name="invoice_to_address"
+                      style={{
+                        padding: "4px",
+                        border: "none",
+                        outline: "1px solid #ddd",
+                        fontSize: "14px",
+                        borderRadius: "4px",
+                        width: "200px",
+                        height: "60px",
+                        resize: "none",
+                      }}
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleToggleAddressInput}
+                      style={{
+                        border: "none",
+                        backgroundColor: "transparent",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                      }}
+                    >
+                      ✔
+                    </button>
+                  </>
+                ) : (
+                  <p
+                    onClick={handleToggleAddressInput}
+                    style={{ maxWidth: "300px", width: "200px" }}
+                  >
+                    {invoice.invoice_to_address || "Enter Address"}
+                  </p>
+                )}
+              </div>
+
+              <div className="recipient-input" ref={emailRef}>
+                {toggleEmailInput ? (
+                  <>
+                    <input
+                      type="email"
+                      value={invoice.invoice_to_email}
+                      onChange={handleChange}
+                      placeholder="Enter Email ID"
+                      name="invoice_to_email"
+                      onBlur={handleBlur}
+                      style={{
+                        padding: "5px",
+                        border: "none",
+                        outline: "1px solid #ddd",
+                        fontSize: "14px",
+                        borderRadius: "4px",
+                      }}
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleToggleEmailInput}
+                      style={{
+                        border: "none",
+                        backgroundColor: "transparent",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                      }}
+                    >
+                      ✔
+                    </button>
+                    {emailError && ( // Display error message
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "12px",
+                          marginTop: "5px",
+                        }}
+                      >
+                        {emailError}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p onClick={handleToggleEmailInput}>
+                    {invoice.invoice_to_email || "Enter Email ID"}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="bill_from">
+            <div className="recipient_name">
+              <strong>From:</strong>
+              <p>{user.user_name}</p>
+              <p>{user.business_address}</p>
+              <p>{user.user_email}</p>
             </div>
           </div>
         </div>
-        <div className="bill_from">
-          <div className="recipient_name">
-            <strong>From:</strong>
-            <p>{user.user_name}</p>
-            <p>{user.business_address}</p>
-            <p>{user.user_email}</p>
+
+        <table className="invoice_generator">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Amount</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invoice.items &&
+              invoice.items.length > 0 &&
+              invoice.items.map((item, index) => (
+                <tr key={index}>
+                  <td className="name_of_item">
+                    <input
+                      type="text"
+                      name={`item_${index}`}
+                      value={item.item}
+                      onChange={handleChange}
+                      placeholder="Enter name"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      name={`quantity_${index}`}
+                      value={item.quantity}
+                      onChange={(e) => {
+                        handleChange(e);
+                        // updateAmount(index);
+                      }}
+                      min="0"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      name={`price_${index}`}
+                      value={item.price}
+                      onChange={(e) => {
+                        handleChange(e);
+                        // updateAmount(index);
+                      }}
+                      min="0"
+                    />
+                  </td>
+                  <td className="total_amount">{item.amount}</td>
+                  <td>
+                    {index > 0 && (
+                      <button type="button" onClick={() => removeRow(index)}>
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            <tr
+              style={{
+                borderTop: "1px solid black",
+                borderBottom: "1px solid black",
+              }}
+            >
+              <td
+                colSpan="3"
+                style={{
+                  textAlign: "right",
+                  fontWeight: "bold",
+                  fontSize: "20px",
+                }}
+              >
+                Total
+              </td>
+              <td
+                style={{
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  fontSize: "20px",
+                }}
+              >
+                {invoice.sub_total}
+              </td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+        <div className="add_row">
+          <button type="button" onClick={addRow}>
+            Add Row
+          </button>
+        </div>
+
+        {/* Invoice Summary */}
+
+        <div className="invoice-summary">
+          <div className="summary-row">
+            <span className="summary-label">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              Invoice To
+            </span>
+            <span className="summary-value">{invoice.invoice_to}</span>
           </div>
-        </div>
-      </div>
 
-      <table className="invoice_generator">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Amount</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invoice.items &&
-            invoice.items.length > 0 &&
-            invoice.items.map((item, index) => (
-              <tr key={index}>
-                <td className="name_of_item">
-                  <input
-                    type="text"
-                    name={`item_${index}`}
-                    value={item.item}
-                    onChange={handleChange}
-                    placeholder="Enter name"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    name={`quantity_${index}`}
-                    value={item.quantity}
-                    onChange={(e) => {
-                      handleChange(e);
-                      // updateAmount(index);
-                    }}
-                    min="0"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    name={`price_${index}`}
-                    value={item.price}
-                    onChange={(e) => {
-                      handleChange(e);
-                      // updateAmount(index);
-                    }}
-                    min="0"
-                  />
-                </td>
-                <td className="total_amount">{item.amount}</td>
-                <td>
-                  {index > 0 && (
-                    <button type="button" onClick={() => removeRow(index)}>
-                      Delete
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          <tr
-            style={{
-              borderTop: "1px solid black",
-              borderBottom: "1px solid black",
-            }}
-          >
-            <td
-              colSpan="3"
-              style={{
-                textAlign: "right",
-                fontWeight: "bold",
-                fontSize: "20px",
-              }}
+          <div className="summary-row">
+            <span className="summary-label">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              Date
+            </span>
+            {/* {formatDateTime(invoice.date)} */}
+            <span className="summary-value">{invoice.date}</span>
+          </div>
+
+          <div className="summary-row">
+            <span className="summary-label">Subtotal</span>
+            <span className="summary-value">
+              ₹{invoice.sub_total.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="summary-row">
+            <span className="summary-label">GST (18%)</span>
+            <span className="summary-value">₹{invoice.gst.toFixed(2)}</span>
+          </div>
+
+          <div className="summary-row">
+            <span className="summary-label">Total Amount</span>
+            <span className="summary-value total-value">
+              ₹{invoice.total.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="invoice-actions">
+            <button
+              className="btn btn-secondary"
+              onClick={generatePDF}
+              type="button"
             >
-              Total
-            </td>
-            <td
-              style={{
-                fontWeight: "bold",
-                textAlign: "center",
-                fontSize: "20px",
-              }}
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span>Download PDF</span>
+            </button>
+
+            <button
+              className="btn btn-primary"
+              onClick={handleSubmit}
+              type="submit"
             >
-              {invoice.sub_total}
-            </td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-      <div className="add_row">
-        <button type="button" onClick={addRow}>
-          Add Row
-        </button>
-      </div>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
+                <line x1="16" y1="5" x2="22" y2="5" />
+                <line x1="19" y1="2" x2="19" y2="8" />
+              </svg>
+              <span>Generate Invoice</span>
+            </button>
 
-      {/* Invoice Summary */}
-
-      <div className="invoice-summary">
-        <div className="summary-row">
-          <span className="summary-label">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+            <button
+              type="submit"
+              onClick={handleSaveDraft}
+              className="btn btn-secondary"
             >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            Invoice To
-          </span>
-          <span className="summary-value">{invoice.invoice_to}</span>
-        </div>
-
-        <div className="summary-row">
-          <span className="summary-label">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            Date
-          </span>
-          {/* {formatDateTime(invoice.date)} */}
-          <span className="summary-value">
-            {new Date().toLocaleDateString("en-IN", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            })}
-          </span>
-        </div>
-
-        <div className="summary-row">
-          <span className="summary-label">Subtotal</span>
-          <span className="summary-value">₹{invoice.sub_total.toFixed(2)}</span>
-        </div>
-
-        <div className="summary-row">
-          <span className="summary-label">GST (18%)</span>
-          <span className="summary-value">₹{invoice.gst.toFixed(2)}</span>
-        </div>
-
-        <div className="summary-row">
-          <span className="summary-label">Total Amount</span>
-          <span className="summary-value total-value">
-            ₹{invoice.total.toFixed(2)}
-          </span>
-        </div>
-
-        <div className="invoice-actions">
-          <button
-            className="btn btn-secondary"
-            onClick={generatePDF}
-            type="button"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            <span>Download PDF</span>
-          </button>
-
-          <button
-            className="btn btn-primary"
-            onClick={handleSubmit}
-            type="submit"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
-              <line x1="16" y1="5" x2="22" y2="5" />
-              <line x1="19" y1="2" x2="19" y2="8" />
-            </svg>
-            <span>Generate Invoice</span>
-          </button>
-          {/* <button
-            className="btn btn-secondary"
-            // onClick={handleNewInvoice}
-            type="button"
-          >
-            New Invoice
-          </button> */}
-          <button type="submit" className="btn btn-secondary">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M4 4h16v16H4z" />
-              <path d="M4 8h16" />
-              <path d="M4 12h16" />
-              <path d="M4 16h16" />
-              <path d="M9 12l2 2l4-4" />
-            </svg>
-            <span>Save as Draft</span>
-          </button>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M4 4h16v16H4z" />
+                <path d="M4 8h16" />
+                <path d="M4 12h16" />
+                <path d="M4 16h16" />
+                <path d="M9 12l2 2l4-4" />
+              </svg>
+              <span>Save as Draft</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

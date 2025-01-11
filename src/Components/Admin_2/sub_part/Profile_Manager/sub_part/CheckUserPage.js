@@ -52,7 +52,7 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
 
   function updateUserStatus(email, status, message = null, set_status_by_admin = null) {
 
-    fetch(`${Server_url}/update-status`, {
+    fetch(`${Server_url}/owner/update-status`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './AddProfileData2.css'
 import { FaCamera } from 'react-icons/fa'
+import { useSelector } from 'react-redux'
 
 // import edit_icon from './../../img/pencil.png'
 
@@ -8,7 +9,14 @@ import { FaCamera } from 'react-icons/fa'
 
 function AddBusinessData() {
 
+  const user = useSelector((state) => state.user);
+
   const [selectedTypes, setSelectedTypes] = useState([]);
+  
+  useEffect(() => {
+    setSelectedTypes(user?.services || []);
+  }, [user?.services]);
+
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [otherServiceDescription, setOtherServiceDescription] = useState('');
   const [customServices, setCustomServices] = useState([]);
@@ -17,6 +25,15 @@ function AddBusinessData() {
 
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+
+  const [formData, setFormData] = useState({
+    businessName: user?.business_name || '',
+    businessEmail: user?.business_email || '',
+    gstNumber: user?.gst_number || '',
+    businessLocation: user?.business_address || '',
+    businessWebsite: user?.website || '',
+    services: user?.services || '',
+  });
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -58,14 +75,11 @@ function AddBusinessData() {
   };
 
   const handleInputChange = (e) => {
-    const inputValue = e.target.value;
-    setOtherServiceDescription(inputValue);
-
-    const filtered = photography_services.filter(service =>
-      service.toLowerCase().includes(inputValue.toLowerCase())
-    );
-    setFilteredSuggestions(filtered);
-    setShowSuggestions(inputValue.length > 0);
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   };
 
   const handleSuggestionClick = (suggestion) => {
@@ -226,6 +240,18 @@ function AddBusinessData() {
   
  
 
+  const handleServiceInputChange = (e) => {
+    const value = e.target.value;
+    setOtherServiceDescription(value);
+    
+    // Filter suggestions based on input
+    const filtered = photography_services.filter(service =>
+      service.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredSuggestions(filtered);
+    setShowSuggestions(value.length > 0);
+  };
+
   return (
     <div className="profile-container" id='AddBusinessDataPopup'>
       <div className="profile-header">
@@ -276,12 +302,24 @@ function AddBusinessData() {
       <div className="form-group_for_2_inputs">
       <div className="inputs-group">
           <label>Business Name</label>
-          <input type="text" placeholder="Business Name" />
+          <input 
+            type="text" 
+            name="businessName"
+            value={formData.businessName}
+            onChange={handleInputChange}
+            placeholder="Business Name" 
+          />
         </div>
       
         <div className="inputs-group">
           <label>Business Email Address</label>
-          <input type="text" placeholder="Add Email here" />
+          <input 
+            type="text" 
+            name="businessEmail"
+            value={formData.businessEmail}
+            onChange={handleInputChange}
+            placeholder="Add Email here" 
+          />
         </div>
         </div>
 
@@ -290,17 +328,35 @@ function AddBusinessData() {
 
         <div className="form-group">
           <label>Business GST Number</label>
-          <input type="text" placeholder="Add GST Number here" />
+          <input 
+            type="text" 
+            name="gstNumber"
+            value={formData.gstNumber}
+            onChange={handleInputChange}
+            placeholder="Add GST Number here" 
+          />
         </div>
 
         <div className="form-group">
           <label>Business Location</label>
-          <input type="text" placeholder="Add Location here" />
+          <input 
+            type="text" 
+            name="businessLocation"
+            value={formData.businessLocation}
+            onChange={handleInputChange}
+            placeholder="Add Location here" 
+          />
         </div>
 
         <div className="form-group">
           <label>Business Website</label>
-          <input type="text" placeholder="(website, social page, blog, etc.)" />
+          <input 
+            type="text" 
+            name="businessWebsite"
+            value={formData.businessWebsite}
+            onChange={handleInputChange}
+            placeholder="(website, social page, blog, etc.)" 
+          />
         </div>
 
         
@@ -313,12 +369,11 @@ function AddBusinessData() {
               <input
                 placeholder="Tell us about your service..."
                 value={otherServiceDescription}
-                onChange={handleInputChange}
+                onChange={handleServiceInputChange}
                 onKeyDown={handleKeyDown}
                 onKeyPress={handleKeyPress}
                 onBlur={handleInputBlur}
                 className="other-input"
-                onResize={false}
               />
               {showSuggestions && filteredSuggestions.length > 0 && (
                 <div className="suggestions-list">

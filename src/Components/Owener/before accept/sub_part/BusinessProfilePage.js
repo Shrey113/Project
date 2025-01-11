@@ -387,7 +387,7 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
   };
 
   return (
-    <div className="profile-container" id='AddBusinessDataPopup'>
+    <div className="profile-container" id='AddBusinessDataPage'>
       {/* <div className="profile-header">
         <h2>Business Information</h2>
       </div> */}

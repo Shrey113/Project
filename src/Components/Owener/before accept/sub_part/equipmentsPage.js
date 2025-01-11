@@ -240,7 +240,7 @@ function EquipmentsPage() {
             <div className="equipment-info">
               <h3>{equipment.name}</h3>
               <p className="company">{equipment.equipment_type} • {equipment.equipment_company}</p>
-              <p className="price">${equipment.equipment_price_per_day}/day</p>
+              <p className="price">Rs.{equipment.equipment_price_per_day}/day</p>
               <p className="description">{equipment.equipment_description}</p>
             </div>
 
@@ -271,7 +271,7 @@ function EquipmentsPage() {
               <input 
                 type="number" 
                 name="pricePerDay" 
-                placeholder="Price per day $" 
+                placeholder="Price per day Rs." 
                 value={newEquipment.pricePerDay} 
                 onChange={handleInputChange} 
               />

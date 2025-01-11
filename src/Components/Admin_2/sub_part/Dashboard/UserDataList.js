@@ -110,7 +110,7 @@ function get_admin_data(){
 
 
   function updateUserStatus(email, status) {
-    fetch(`${Server_url}/update-status`, {
+    fetch(`${Server_url}/owner/update-status`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

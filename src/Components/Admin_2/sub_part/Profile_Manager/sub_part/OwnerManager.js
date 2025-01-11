@@ -156,7 +156,7 @@ function updateUserStatus(email, status, message = null, set_status_by_admin = n
     OnOneOwnerData();
     return;
   }
-  fetch(`${Server_url}/update-status`, {
+  fetch(`${Server_url}/owner/update-status`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',

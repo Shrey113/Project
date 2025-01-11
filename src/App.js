@@ -5,8 +5,20 @@ import LoginRegisterOwener from "./Components/Owener/Login_Register.js";
 import LoginRegisterClient from "./Components/Client/login_register.js";
 import ShowLoder from "./Components/Owener/sub_components/show_loder.js";
 import { useDispatch } from "react-redux";
-import Dashboard from "./Components/Owener/Dashboard.js";
+// set etewt weewfsf
+// set etewt weewfsf
+// set etewt weewfsf
+// set etewt weewfsf
+// set etewt weewfsf
+import './Components/Owener/css/HomePage.css';
+import './Components/Owener/css/Dashboard.css';
+// set etewt weewfsf
+// set etewt weewfsf
+// set etewt weewfsf
+// set etewt weewfsf
+// set etewt weewfsf
 import HomePage from "./Components/Client/HomePage.js";
+
 import PageNotFound from'./PageNotFound.js'
 
 import {localstorage_key_for_client,localstorage_key_for_jwt_user_side_key,Server_url,localstorage_key_for_admin_login} from './redux/AllData.js'
@@ -18,30 +30,70 @@ import BottomRightMenu from "./BottomRightMenu.js";
 // import Calendar from "./Components/Admin_2/sub_part/Calendar.js";
 
 import socket from './redux/socket.js'
+import OwnerSideBar from "./Components/Owener/Owner_side_bar.js";
+import OwnerHome from "./Components/Owener/sub_part/OwnerHome";
+import TeamOverview from "./Components/Owener/sub_part/TeamOverview";
+import InvoiceForm from "./Components/Owener/sub_part/Invoic_part/Invoic";
+import Profile from "./Components/Owener/profile_part_2/Profile";
+import EventManagement from './Components/Owener/event_management/EventManagement.js'
+import Packages from './Components/Owener/packages/Packages.js'
+import {BeforeAccept,PendingStatus,RejectedStatus} from "./Components/Owener/before accept/before_accept.js";
 
+// import { useSelector } from 'react-redux';
+import TableToggleButtons from "./Components/Owener/sub_part/Invoic_part/Sub_component/TableToggleButtons.js";
+import InvoicePage2 from "./Components/Owener/sub_part/Invoic_part/invoicePage2.js";
+import DraftInvoices from "./Components/Owener/sub_part/Invoic_part/Sub_component/DraftInvoices.js";
 
 
 
 function App() {
-  useEffect(() => {
 
-    const handleMessage = (msg) => {
-        console.log(msg);
-    };
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [OwnerStatus,setOwnerStatus] = useState('');
+  const [selectedTable, setSelectedTable] = useState("firstTable");
 
-    socket.on('message', handleMessage);
 
-   
-    return () => {
-        socket.off('message', handleMessage);
-    };
-}, []); 
 
+
+const renderStatus = () => {
+  
+  switch (OwnerStatus) {
+      case 'Reject':
+          return <RejectedStatus />;
+      case null:
+          return <BeforeAccept/>; 
+      case 'Pending':
+          return <PendingStatus />;
+      default:
+          return null;
+  }
+};
+
+const SetOwnerPage = ({ ActivePage ,is_need_3_button }) => {
+  // const location = useLocation(); // Get the current location
+  return (
+    OwnerStatus === 'Accept' ? (
+      <div className="Owner_main_home_pag_con">
+        <div className="main_part">
+          {/* Compare location.pathname */}
+          {is_need_3_button && (
+            <TableToggleButtons selectedTable={selectedTable} setSelectedTable={setSelectedTable} />
+      )}
+
+          <ActivePage />
+        </div>
+      </div>
+    ) : (
+      renderStatus()
+    )
+  );
+};
 
 
   const [authStatus, setAuthStatus] = useState({ Admin:null,owner: null, client: null });
   const dispatch = useDispatch();
 
+  // 1. Check Admin Token
   useEffect(() => {
     const checkAdminToken = async () => {
       const jwtToken = localStorage.getItem(localstorage_key_for_admin_login);
@@ -71,6 +123,7 @@ function App() {
     checkAdminToken();
   }, []);
 
+  // 2. Check Owner and Client Token
   useEffect(() => {
 
     const authenticateUser = async () => {
@@ -109,6 +162,9 @@ function App() {
           services: data.user.services || null,
           business_email: data.user.business_email || null,
         }});
+
+        setOwnerStatus(data.user.user_Status);
+
             setAuthStatus((prev) => ({ ...prev, owner: true }));
           } else {
             setAuthStatus((prev) => ({ ...prev, owner: false }));
@@ -154,6 +210,7 @@ function App() {
     authenticateUser();
   }, [dispatch]);
 
+  // 3. Show Loader
   if (authStatus.owner === null || authStatus.client === null || authStatus.admin === null) {
     return <ShowLoder />;
   }
@@ -165,31 +222,79 @@ function App() {
         <Route path="/Admin2" element={<Admin2 socket={socket}/> } />
         {/* <Route path="/Admin1" element={<Admin/> } /> */}
         <Route path="/BeforeLogin" element={<BeforeLogin/> } />
-
         
         {/* Default route */}
-
-        {/* <Route path="/" element={ authStatus.client ? <HomePage /> : authStatus.owner ? <Dashboard /> : <BeforeLogin /> } /> */}
-                {/* Default route */}
-                <Route path="/" element={ authStatus.client ? (<HomePage />) :
-                 authStatus.owner ? ( <Dashboard />) : 
-                 authStatus.admin ? ( <Admin2 />) : (
-                      <BeforeLogin />
-            )
-          }
-        />
+        <Route path="/" element={authStatus.client ? (<HomePage />) :
+          authStatus.owner ? (
+            <SetOwnerPage ActivePage={OwnerHome} />
+          ) : 
+          authStatus.admin ? (<Admin2 />) : (
+            <BeforeLogin />
+          )
+        }/>
 
         {/* Client routes */}
         <Route path="/Client" element={authStatus.client ? <HomePage /> : <LoginRegisterClient />} />
         <Route path="/Client/HomePage" element={authStatus.client ? <HomePage /> : <LoginRegisterClient />} />
 
+        {/* -------------------------------------------------------------------------------------------------------------- */}
+
+   
+
+
         {/* Owner routes */}
-        <Route path="/Owner" element={authStatus.owner ? <Dashboard /> : <LoginRegisterOwener />} />
-        <Route path="/Owner/Dashboard" element={authStatus.owner ? <Dashboard /> : <LoginRegisterOwener />} />
+        <Route path="/Owner" element={authStatus.owner ? 
+          <SetOwnerPage ActivePage={OwnerHome} /> : 
+          <LoginRegisterOwener />
+        } />
+
+        {/* Owner routes Event Management */}
+        <Route path="/Owner/Event" element={authStatus.owner ? 
+          <SetOwnerPage ActivePage={EventManagement} /> : 
+          <LoginRegisterOwener />
+        } />
+
+        {/* Owner routes Team Management */}
+        <Route path="/Owner/Team" element={authStatus.owner ? 
+          <SetOwnerPage ActivePage={TeamOverview} /> : 
+          <LoginRegisterOwener />
+        } />
+
+        {/* Owner routes Invoice */}
+        <Route path="Owner/Invoice" element={ <TableToggleButtons selectedTable={selectedTable} setSelectedTable={setSelectedTable} draftCount={5} />} >
+            <Route index element={<SetOwnerPage ActivePage={InvoiceForm} />} />
+            <Route path="generator" element={<SetOwnerPage ActivePage={InvoicePage2} />} />
+            <Route path="draft" element={<SetOwnerPage ActivePage={DraftInvoices} />} />
+        </Route>
+
+
+
+
+        {/* Owner routes Packages */}
+        <Route path="/Owner/Packages" element={authStatus.owner ? 
+          <SetOwnerPage ActivePage={Packages} /> : 
+          <LoginRegisterOwener />
+        } />
+
+
+
+
+        <Route path="/Owner/Profile" element={authStatus.owner ? 
+          <SetOwnerPage ActivePage={Profile} /> : 
+          <LoginRegisterOwener />
+        } />
+
+
+        {/* -------------------------------------------------------------------------------------------------------------- */}
 
         {/* 404 Page */}
         <Route path="*" element={<PageNotFound />} />
+
+        
       </Routes>
+      {authStatus.owner && OwnerStatus === 'Accept' && <OwnerSideBar activeIndex={activeIndex} setActiveIndex={setActiveIndex}/>}
+
+      {/* {authStatus.owner && OwnerStatus === 'Accept' && <TableToggleButtons/>} */}
       <BottomRightMenu />
     </Router>
   );

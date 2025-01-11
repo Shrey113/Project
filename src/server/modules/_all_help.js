@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const chalk = require('chalk')
+const chalk = require('chalk');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET_KEY = 'Jwt_key_for_photography_website';
 
 
 function error_message(message,error=""){
@@ -63,10 +66,6 @@ function server_request_mode(method, url, body) {
   console.log(...baseLog);
 }
 
-
-
-
-
 const log_file_path = path.join(__dirname, './../../Data_file/log_file.txt');
 
 function write_log_file(message, status = 'INFO') {
@@ -87,4 +86,22 @@ function write_log_file(message, status = 'INFO') {
   });
 }
 
-module.exports = {server_request_mode,write_log_file,error_message,info_message,success_message,normal_message}
+
+function create_jwt_token(user_email,user_name){
+  let data_for_jwt = {user_name,user_email}
+  let jwt_token = jwt.sign(data_for_jwt,JWT_SECRET_KEY)
+  return jwt_token;
+}
+
+// helper -- 2
+function check_jwt_token(jwt_token) {
+  try {
+      const data = jwt.verify(jwt_token, JWT_SECRET_KEY);
+      return data;
+  } catch (err) {
+      console.error(err);
+      return null; 
+  }
+}
+
+module.exports = {server_request_mode,write_log_file,error_message,info_message,success_message,normal_message,create_jwt_token,check_jwt_token}

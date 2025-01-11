@@ -1,6 +1,6 @@
 
   
-  #AddBusinessDataPopup {
+  #AddBusinessDataPage {
     position: relative;
     padding: var(--owner_profile_padding);
 
@@ -20,7 +20,7 @@
 
 
   
-  #AddBusinessDataPopup  .close-btn {
+  #AddBusinessDataPage  .close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -37,25 +37,25 @@
     color: #666;
   }
   
-  #AddBusinessDataPopup   .close-btn:hover {
+  #AddBusinessDataPage   .close-btn:hover {
     background-color: #f0f0f0;
   }
 
 
 
   
-#AddBusinessDataPopup .profile-container {
+#AddBusinessDataPage .profile-container {
     width: 100%;
     display: flex;
     flex-direction: column;
 }
 
-#AddBusinessDataPopup .profile-header {
+#AddBusinessDataPage .profile-header {
     margin-bottom: 24px;
     width: 100%;
 }
 
-#AddBusinessDataPopup .profile-header h2 {
+#AddBusinessDataPage .profile-header h2 {
     font-size: var(--owner_profile_title_font_size);
     font-weight: var(--Heading_weight);
     font-family: var(--Heading);
@@ -64,7 +64,7 @@
 
 
 
-#AddBusinessDataPopup  .profile-avatar-container {
+#AddBusinessDataPage  .profile-avatar-container {
     display: flex;
 
     align-items: center;
@@ -75,7 +75,7 @@
 
 }
 
-#AddBusinessDataPopup  .profile-avatar {
+#AddBusinessDataPage  .profile-avatar {
     position: relative;
     width: 100px;
     height: 100px;
@@ -83,38 +83,38 @@
     overflow: hidden;
 }
 
-#AddBusinessDataPopup  .profile-avatar img {
+#AddBusinessDataPage  .profile-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-#AddBusinessDataPopup  .profile-actions {
+#AddBusinessDataPage  .profile-actions {
     display: flex;
     gap: 12px;
 }
 
-#AddBusinessDataPopup  .upload-btn,#AddBusinessDataPopup .delete-btn {
+#AddBusinessDataPage  .upload-btn,#AddBusinessDataPage .delete-btn {
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
 
 }
 
-#AddBusinessDataPopup  .upload-btn {
+#AddBusinessDataPage  .upload-btn {
     background-color: var(--progress_bar_color);
     color: white;
 
 }
 
-#AddBusinessDataPopup  .delete-btn {
+#AddBusinessDataPage  .delete-btn {
     background-color: #c6c6c65c;
     border: none;
     color: #666;
 }
 
 
-#AddBusinessDataPopup .profile-avatar {
+#AddBusinessDataPage .profile-avatar {
     position: relative;
     width: 120px;
     height: 120px;
@@ -126,7 +126,7 @@
    
 }
 
-#AddBusinessDataPopup .profile-avatar img {
+#AddBusinessDataPage .profile-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -135,7 +135,7 @@
 }
 
 
-#AddBusinessDataPopup .profile-avatar span {
+#AddBusinessDataPage .profile-avatar span {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -149,7 +149,7 @@
 
 
 
-#AddBusinessDataPopup .profile-avatar-overlay {
+#AddBusinessDataPage .profile-avatar-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -165,21 +165,21 @@
     
 }
 
-#AddBusinessDataPopup .profile-avatar:hover .profile-avatar-overlay {
+#AddBusinessDataPage .profile-avatar:hover .profile-avatar-overlay {
     opacity: 1;
 }
 
-#AddBusinessDataPopup .profile-avatar-overlay label {
+#AddBusinessDataPage .profile-avatar-overlay label {
     cursor: pointer;
 }
 
-#AddBusinessDataPopup .profile-avatar-overlay img {
+#AddBusinessDataPage .profile-avatar-overlay img {
     width: 20px;
     height: 20px;
     filter: brightness(0) invert(1);
 }
 
-#AddBusinessDataPopup form{
+#AddBusinessDataPage form{
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -187,29 +187,29 @@
     max-width: 700px;
     width: 100%;
 }
-#AddBusinessDataPopup .form-group {
+#AddBusinessDataPage .form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
 
-#AddBusinessDataPopup .form-group_for_2_inputs{
+#AddBusinessDataPage .form-group_for_2_inputs{
     display: flex;
     justify-content: space-between;
 }
 
 
-#AddBusinessDataPopup .form-group_for_2_inputs .inputs-group{
+#AddBusinessDataPage .form-group_for_2_inputs .inputs-group{
     width: 48%;
 }
-#AddBusinessDataPopup .form-group_for_2_inputs .inputs-group label {
+#AddBusinessDataPage .form-group_for_2_inputs .inputs-group label {
     font-size: 14px;
     color: #333;
     font-weight: var(--sub_heading_weight);
     font-family: var(--sub_heading);
 }
-#AddBusinessDataPopup .form-group_for_2_inputs .inputs-group input {
+#AddBusinessDataPage .form-group_for_2_inputs .inputs-group input {
     width: 100%;
     padding: 12px 16px;
     border: 1px solid #E5E7EB;
@@ -221,7 +221,7 @@
     font-family: var(--body_data);
     font-weight: var(--body_data_weight);
 }
-#AddBusinessDataPopup .form-group_for_2_inputs .inputs-group input:focus {
+#AddBusinessDataPage .form-group_for_2_inputs .inputs-group input:focus {
     outline: none;
     border-color: #2563EB;
     box-shadow: 0 0 0 1px #2563EB;
@@ -229,16 +229,16 @@
 }
 
 
-#AddBusinessDataPopup .form-group label {
+#AddBusinessDataPage .form-group label {
     font-size: 14px;
     color: #333;
     font-weight: var(--sub_heading_weight);
     font-family: var(--sub_heading);
 }
 
-#AddBusinessDataPopup .form-group input, 
-#AddBusinessDataPopup .form-group select, 
-#AddBusinessDataPopup .form-group textarea {
+#AddBusinessDataPage .form-group input, 
+#AddBusinessDataPage .form-group select, 
+#AddBusinessDataPage .form-group textarea {
     width: 100%;
     padding: 12px 16px;
     border: 1px solid #E5E7EB;
@@ -251,20 +251,20 @@
 }
 
 
-#AddBusinessDataPopup .form-group input:focus,
-#AddBusinessDataPopup .form-group select:focus,
-#AddBusinessDataPopup .form-group textarea:focus {
+#AddBusinessDataPage .form-group input:focus,
+#AddBusinessDataPage .form-group select:focus,
+#AddBusinessDataPage .form-group textarea:focus {
     outline: none;
     border-color: #2563EB;
     box-shadow: 0 0 0 1px #2563EB;
 }
 
-#AddBusinessDataPopup .form-group textarea {
+#AddBusinessDataPage .form-group textarea {
     min-height: 100px;
     resize: vertical;
 }
 
-#AddBusinessDataPopup .form-group .ok-button{
+#AddBusinessDataPage .form-group .ok-button{
     /* width: 80px; */
     padding: 12px;
     border: 1px solid #ddd;
@@ -279,20 +279,20 @@
     font-weight: var(--body_button_weight);
 }
 
-#AddBusinessDataPopup .character-count {
+#AddBusinessDataPage .character-count {
     text-align: right;
     color: #666;
     font-size: 12px;
     margin-top: 4px;
 }
 
-#AddBusinessDataPopup .form-hint {
+#AddBusinessDataPage .form-hint {
     color: #666;
     font-size: 12px;
     margin-top: 4px;
 }
 
-#AddBusinessDataPopup .profile-image-input {
+#AddBusinessDataPage .profile-image-input {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -300,17 +300,17 @@
     z-index: 2;
 }
 
-#AddBusinessDataPopup .profile-image-input img {
+#AddBusinessDataPage .profile-image-input img {
     width: 100%;
     height: 100%;
     transition: transform 0.2s ease;
 }
 
-#AddBusinessDataPopup .profile-image-input img:hover {
+#AddBusinessDataPage .profile-image-input img:hover {
     transform: scale(1.1);
 }
 
-#AddBusinessDataPopup .profile-avatar-overlay {
+#AddBusinessDataPage .profile-avatar-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -325,11 +325,11 @@
     justify-content: center;
 }
 
-#AddBusinessDataPopup .profile-avatar:hover .profile-avatar-overlay {
+#AddBusinessDataPage .profile-avatar:hover .profile-avatar-overlay {
     opacity: 1;
 }
 
-#AddBusinessDataPopup .save-changes-btn {
+#AddBusinessDataPage .save-changes-btn {
     background-color: #2563EB;
     color: white;
     padding: 12px 24px;
@@ -342,11 +342,11 @@
     font-weight: var(--body_button_weight);
 }
 
-#AddBusinessDataPopup .save-changes-btn:hover {
+#AddBusinessDataPage .save-changes-btn:hover {
     background-color: #1D4ED8;
 }
 
-#AddBusinessDataPopup .country-select {
+#AddBusinessDataPage .country-select {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -355,12 +355,12 @@
     border-radius: 8px;
 }
 
-#AddBusinessDataPopup .country-select img {
+#AddBusinessDataPage .country-select img {
     width: 24px;
     height: 24px;
 }
 
-#AddBusinessDataPopup .camera-overlay {
+#AddBusinessDataPage .camera-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -372,7 +372,7 @@
     align-items: center;
 }
 
-#AddBusinessDataPopup .camera-icon {
+#AddBusinessDataPage .camera-icon {
     color: white;
     font-size: 1.2rem;
 }
@@ -380,18 +380,18 @@
 
 
 /* Business Services Input Container */
-#AddBusinessDataPopup .other-input-container {
+#AddBusinessDataPage .other-input-container {
   margin: 15px 0;
 }
 
-#AddBusinessDataPopup .form-group_with_button {
+#AddBusinessDataPage .form-group_with_button {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-#AddBusinessDataPopup .form-group_with_button input{
+#AddBusinessDataPage .form-group_with_button input{
     width: 100%;
     padding: 12px 16px;
     border: 1px solid #E5E7EB;
@@ -403,18 +403,18 @@
     font-weight: var(--body_data_weight);
 }
 
-#AddBusinessDataPopup .form-group_with_button input:focus{
+#AddBusinessDataPage .form-group_with_button input:focus{
     outline: none;
     border-color: #2563EB;
     box-shadow: 0 0 0 1px #2563EB;
 }
 
-#AddBusinessDataPopup .form-group_with_button label {
+#AddBusinessDataPage .form-group_with_button label {
   font-weight: 500;
   color: #333;
 }
 
-#AddBusinessDataPopup .form-group_with_button .other-input {
+#AddBusinessDataPage .form-group_with_button .other-input {
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -422,7 +422,7 @@
   width: calc(100% - 120px); /* Make space for the button */
 }
 
-#AddBusinessDataPopup .form-group_with_button .add-button {
+#AddBusinessDataPage .form-group_with_button .add-button {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -438,34 +438,34 @@
   font-weight: var(--body_button_weight);
 }
 
-#AddBusinessDataPopup .form-group_with_button .add-button:hover {
+#AddBusinessDataPage .form-group_with_button .add-button:hover {
   background-color: #0056b3;
 }
 
-#AddBusinessDataPopup .form-group_with_button .add-button:disabled {
+#AddBusinessDataPage .form-group_with_button .add-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
 }
 
 /* Selected Services Display */
-#AddBusinessDataPopup .selected-services {
+#AddBusinessDataPage .selected-services {
   margin: 10px 0;
   margin-bottom: 0;
 }
 
-#AddBusinessDataPopup .selected-services h3 {
+#AddBusinessDataPage .selected-services h3 {
   font-size: 16px;
   color: #333;
   margin-bottom: 10px;
 }
 
-#AddBusinessDataPopup .selected-items {
+#AddBusinessDataPage .selected-items {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-#AddBusinessDataPopup .selected-item {
+#AddBusinessDataPage .selected-item {
   display: flex;
   align-items: center;
   background-color: #f0f0f0;
@@ -474,11 +474,11 @@
   font-size: 14px;
 }
 
-#AddBusinessDataPopup .selected-item span {
+#AddBusinessDataPage .selected-item span {
   margin-right: 8px;
 }
 
-#AddBusinessDataPopup .selected-item .delete-button {
+#AddBusinessDataPage .selected-item .delete-button {
   background: none;
   border: none;
   color: #666;
@@ -488,16 +488,16 @@
   line-height: 1;
 }
 
-#AddBusinessDataPopup .selected-item .delete-button:hover {
+#AddBusinessDataPage .selected-item .delete-button:hover {
   color: #dc3545;
 }
 
-#AddBusinessDataPopup .input-suggestions-container {
+#AddBusinessDataPage .input-suggestions-container {
   position: relative;
   width: 100%;
 }
 
-#AddBusinessDataPopup .suggestions-list {
+#AddBusinessDataPage .suggestions-list {
   position: absolute;
   top: 100%;
   left: 0;
@@ -511,41 +511,41 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   z-index: 1000;
 }
-#AddBusinessDataPopup .suggestions-list::-webkit-scrollbar {
+#AddBusinessDataPage .suggestions-list::-webkit-scrollbar {
   width: 5px;
 }
-#AddBusinessDataPopup .suggestions-list::-webkit-scrollbar-thumb {
+#AddBusinessDataPage .suggestions-list::-webkit-scrollbar-thumb {
   background-color: #9747FF;
   border-radius: 5px;
 }
 
-#AddBusinessDataPopup .suggestion-item {
+#AddBusinessDataPage .suggestion-item {
   padding: 8px 12px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-#AddBusinessDataPopup .suggestion-item:hover {
+#AddBusinessDataPage .suggestion-item:hover {
   background-color: #f5f5f5;
 }
 
-#AddBusinessDataPopup .suggestion-item.selected {
+#AddBusinessDataPage .suggestion-item.selected {
   background-color: #e8e8e8;
 }
 
 /* Form Container Styles */
-#AddBusinessDataPopup .form-container {
+#AddBusinessDataPage .form-container {
   width: 100%;
   max-width: 700px;
   margin: 0 auto;
 }
 
-#AddBusinessDataPopup .input-group {
+#AddBusinessDataPage .input-group {
   margin-bottom: 24px;
   position: relative;
 }
 
-#AddBusinessDataPopup .input-group label {
+#AddBusinessDataPage .input-group label {
   display: block;
   margin-bottom: 8px;
   font-size: 14px;
@@ -554,8 +554,8 @@
   font-family: var(--sub_heading);
 }
 
-#AddBusinessDataPopup .input-group input,
-#AddBusinessDataPopup .input-group select {
+#AddBusinessDataPage .input-group input,
+#AddBusinessDataPage .input-group select {
   width: 100%;
   padding: 12px 16px;
   border: 1px solid #E5E7EB;
@@ -568,15 +568,15 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-#AddBusinessDataPopup .input-group input:focus,
-#AddBusinessDataPopup .input-group select:focus {
+#AddBusinessDataPage .input-group input:focus,
+#AddBusinessDataPage .input-group select:focus {
   outline: none;
   border-color: #2563EB;
   box-shadow: 0 0 0 1px #2563EB;
 }
 
 /* Error Message Styles */
-#AddBusinessDataPopup .error {
+#AddBusinessDataPage .error {
   color: #dc2626;
   font-size: 12px;
   margin-top: 4px;
@@ -585,42 +585,42 @@
 }
 
 /* Input with Error State */
-#AddBusinessDataPopup .input-group input.error-input,
-#AddBusinessDataPopup .input-group select.error-input {
+#AddBusinessDataPage .input-group input.error-input,
+#AddBusinessDataPage .input-group select.error-input {
   border-color: #dc2626;
   background-color: #fff1f2;
 }
 
 /* Multiple Select Styles */
-#AddBusinessDataPopup .input-group select[multiple] {
+#AddBusinessDataPage .input-group select[multiple] {
   min-height: 120px;
   padding: 8px;
 }
 
-#AddBusinessDataPopup .input-group select[multiple] option {
+#AddBusinessDataPage .input-group select[multiple] option {
   padding: 8px;
   margin: 2px 0;
   border-radius: 4px;
 }
 
-#AddBusinessDataPopup .input-group select[multiple] option:checked {
+#AddBusinessDataPage .input-group select[multiple] option:checked {
   background-color: var(--progress_bar_color);
   color: white;
 }
 
 /* File Upload Input Styles */
-#AddBusinessDataPopup .input-group input[type="file"] {
+#AddBusinessDataPage .input-group input[type="file"] {
   padding: 8px;
   background-color: transparent;
   border: 2px dashed #E5E7EB;
 }
 
-#AddBusinessDataPopup .input-group input[type="file"]:hover {
+#AddBusinessDataPage .input-group input[type="file"]:hover {
   border-color: var(--progress_bar_color);
 }
 
 /* Submit Button Styles */
-#AddBusinessDataPopup .submit-button {
+#AddBusinessDataPage .submit-button {
   background-color: var(--progress_bar_color);
   color: white;
   padding: 12px 24px;
@@ -635,32 +635,32 @@
   margin-top: 16px;
 }
 
-#AddBusinessDataPopup .submit-button:hover {
+#AddBusinessDataPage .submit-button:hover {
   background-color: #7e3cd6;
 }
 
-#AddBusinessDataPopup .submit-button:disabled {
+#AddBusinessDataPage .submit-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
 }
 
 /* Required Field Indicator */
-#AddBusinessDataPopup .input-group label.required::after {
+#AddBusinessDataPage .input-group label.required::after {
   content: '*';
   color: #dc2626;
   margin-left: 4px;
 }
 
 /* Input Group with Icon */
-#AddBusinessDataPopup .input-group-with-icon {
+#AddBusinessDataPage .input-group-with-icon {
   position: relative;
 }
 
-#AddBusinessDataPopup .input-group-with-icon input {
+#AddBusinessDataPage .input-group-with-icon input {
   padding-left: 40px;
 }
 
-#AddBusinessDataPopup .input-icon {
+#AddBusinessDataPage .input-icon {
   position: absolute;
   left: 12px;
   top: 50%;
@@ -669,18 +669,18 @@
 }
 
 /* Validation Success State */
-#AddBusinessDataPopup .input-group.success input {
+#AddBusinessDataPage .input-group.success input {
   border-color: #10b981;
   background-color: #f0fdf4;
 }
 
 /* Loading State for Submit Button */
-#AddBusinessDataPopup .submit-button.loading {
+#AddBusinessDataPage .submit-button.loading {
   position: relative;
   color: transparent;
 }
 
-#AddBusinessDataPopup .submit-button.loading::after {
+#AddBusinessDataPage .submit-button.loading::after {
   content: '';
   position: absolute;
   left: 50%;
@@ -702,15 +702,15 @@
 
 /* Responsive Adjustments */
 @media (max-width: 640px) {
-  #AddBusinessDataPopup .form-container {
+  #AddBusinessDataPage .form-container {
     padding: 16px;
   }
 
-  #AddBusinessDataPopup .input-group {
+  #AddBusinessDataPage .input-group {
     margin-bottom: 16px;
   }
 
-  #AddBusinessDataPopup .submit-button {
+  #AddBusinessDataPage .submit-button {
     padding: 10px 20px;
     font-size: 14px;
   }

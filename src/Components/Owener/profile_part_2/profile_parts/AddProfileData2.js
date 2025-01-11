@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux';
 import './AddBusinessData.css'
 import { FaCamera } from 'react-icons/fa'
-import {Server_url} from './../../../../redux/AllData'
+
 
 // import edit_icon from './../../img/pencil.png'
 
-function AddProfileData() {
+function AddProfileData({onInputChange }) {
   const user = useSelector((state) => state.user);
   const [profileImage, setProfileImage] = useState(null);
-  // const [ownerData, setOwnerData] = useState(null);
 
-  // Add new state variables for form inputs
   const [formData, setFormData] = useState({
-    userName: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    gender: 'male',
-    location: '',
-    socialMedia: ''
+    userName: user.user_name,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    email: user.user_email,
+    gender: user.gender,
+    location: user.business_address,
+    socialMedia: user.social_media
   });
+
+  
 
   // Add error states for each input
   const [errors, setErrors] = useState({
@@ -33,37 +33,7 @@ function AddProfileData() {
     socialMedia: ''
   });
 
-  useEffect(() => {
-    const fetchOwnerData = async () => {
-      try {
-        const response = await fetch(`${Server_url}/owner/get-owners`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            user_email: user.user_email
-          })
-        });
-        const data = await response.json();
-        // setOwnerData(data.owners);
-        // Populate form data with received data
-        setFormData({
-          userName: data.owners.user_name || '',
-          firstName: data.owners.first_name || '',
-          lastName: data.owners.last_name || '',
-          email: data.owners.user_email || '',
-          gender: data.owners.gender || 'male',
-          location: data.owners.business_address || '',
-          socialMedia: data.owners.social_media || ''
-        });
-      } catch (error) {
-        console.error('Error fetching owner data:', error);
-      }
-    };
 
-    fetchOwnerData();
-  }, [user.user_email]);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -92,6 +62,8 @@ function AddProfileData() {
       ...prev,
       [name]: ''
     }));
+
+    if (onInputChange) onInputChange();
   };
 
   return (

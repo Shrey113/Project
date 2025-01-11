@@ -49,7 +49,7 @@
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
+  /* --spacing-md: 1rem; */
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
 }
@@ -60,7 +60,7 @@
     min-height: 100vh;
     width: 100%;
     overflow-y: hidden;
-    /* background: var(--admin_bg_coloer); */
+    background: var(--admin_bg_coloer);
     /* display: flex;
     flex-direction: column; */
     /* justify-content: center;
@@ -85,6 +85,11 @@
     padding: 20px;
     width: 500px;
       text-align: center;
+
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
 }
 
 .Dashboard_main_con .status-icon {

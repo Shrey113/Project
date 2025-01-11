@@ -11,6 +11,8 @@ import AddReviews from './profile_parts/AddReviews';
 
 
 function Profile() {
+
+  
   const [activeSection, setActiveSection] = useState('User Profile');
 
   const sections = ['User Profile', 'Business Profile', 'portfolio', "Equipment's", "Reviews"];

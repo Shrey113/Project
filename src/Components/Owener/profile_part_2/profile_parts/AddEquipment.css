@@ -46,6 +46,10 @@
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
   padding: 10px;
+  grid-auto-flow: dense;
+}
+#AddEquipment .Equipment_con > * {
+  order: -1;
 }
 
 #AddEquipment .equipment-card {
@@ -66,6 +70,15 @@
 
 #AddEquipment .equipment-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#AddEquipment .add-equipment-btn{
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 #AddEquipment .equipment-img {
@@ -252,13 +265,13 @@
   text-align: center;
 }
 
-.remove-btn {
+#AddEquipment .remove-btn {
   position: absolute;
   top: 10px;
   right: 10px;
 }
 
-.remove-btn button {
+#AddEquipment .remove-btn button {
   background-color: #ff4444;
   color: white;
   border: none;
@@ -267,11 +280,11 @@
   cursor: pointer;
 }
 
-.remove-btn button:hover {
+#AddEquipment .remove-btn button:hover {
   background-color: #cc0000;
 }
 
-.add-form {
+#AddEquipment .add-form {
     height: 310px;
     border: 2px dashed #ccc;
     display: flex;
@@ -282,20 +295,20 @@
     display: flex;
     justify-content: space-evenly;
 }
-.equipment_new_info{
+#AddEquipment .equipment_new_info{
     padding: 0px 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
-.equipment_new_info span{
+#AddEquipment .equipment_new_info span{
     display: flex;
     gap: 10px;
 }
 
-.add-form input,
-.add-form select,
-.add-form textarea {
+#AddEquipment .add-form input,
+#AddEquipment .add-form select,
+#AddEquipment .add-form textarea {
     width: 100%;
     /* margin-bottom: 10px; */
     padding: 8px;
@@ -304,38 +317,76 @@
     
 }
 
-.add-form span {
+#AddEquipment .add-form span {
     display: flex;
     justify-content: space-between;
 }
 
-.add-form textarea {
+#AddEquipment .add-form textarea {
     height: 80px;
     resize: vertical;
 }
 
-.add-form .save-btn {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
 
-.add-form .save-btn:hover {
-    background-color: #45a049;
-
-}
-
-.equipment-card .remove-btn {
+#AddEquipment .equipment-card .remove-btn {
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.equipment-card:hover .remove-btn {
+#AddEquipment .equipment-card:hover .remove-btn {
   opacity: 1;
+}
+
+#AddEquipment .button_con {
+  display: flex;
+  margin-top: 15px;
+  gap: 10px;
+
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+#AddEquipment .save-btn {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+#AddEquipment .save-btn:hover {
+  background-color: #45a049;
+}
+
+#AddEquipment .close-btn {
+  padding: 8px 12px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: background-color 0.3s ease;
+}
+
+#AddEquipment .close-btn:hover {
+  background-color: #cc0000;
+}
+
+/* Add these styles to ensure buttons look good on different states */
+#AddEquipment .save-btn:disabled,
+#AddEquipment .close-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+#AddEquipment .save-btn:focus,
+#AddEquipment .close-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }

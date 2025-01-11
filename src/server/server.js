@@ -2,31 +2,38 @@ const express = require('express');
 const mysql = require('mysql2'); 
 const cors = require("cors");
 const app = express();
-const jwt = require('jsonwebtoken');
+
+const shrey11_ = require('./sub_part/other_rout_shrey_11');
 const adminRoutes = require('./sub_part/Admin_rout');
+const team_members = require('./sub_part/team_members');
 const ownerRoutes = require('./sub_part/owner_rout');
 const ownerRoutes_v2 = require('./sub_part/owner_rout_v2');
 const chartRoutes = require('./sub_part/chart_rout');
+const reviews_rout = require('./sub_part/reviews_rout');
 
-// import { Server_url } from '../redux/AllData';
+// @shrey11_  start ---- 
+// @shrey11_  start ---- 
+// @shrey11_  start ---- 
+// @shrey11_  start ---- 
+// @shrey11_  start ----
 app.use(express.json()); 
 app.use(cors());
 
 const { send_welcome_page, send_otp_page } = require('./modules/send_server_email');
-const {server_request_mode,write_log_file,error_message,info_message,success_message,normal_message} = require('./modules/_all_help');
+const {server_request_mode, write_log_file, error_message, info_message, success_message,
+      normal_message,create_jwt_token,check_jwt_token} = require('./modules/_all_help');
+
 const { generate_otp, get_otp, clear_otp } = require('./modules/OTP_generate');
-const JWT_SECRET_KEY = 'Jwt_key_for_photography_website';
 
 
-// Socket.IO setup
+
 const http = require('http');
 const { Server } = require('socket.io');
-const { emit } = require('process');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*', // Allow all origins
-    methods: '*', // Allow all HTTP methods
+    origin: '*', 
+    methods: '*', 
   },
 });
 
@@ -45,13 +52,6 @@ io.on('connection', (socket) => {
 });
 
 
-function broadcastMessage(message) {
-  io.emit('message', message);
-}
-
-setInterval(() => {
-  broadcastMessage('This is a broadcast message sent after 5 seconds for test @shrey');
-}, 5000);
 
 const db = mysql.createConnection({
   host: 'localhost', 
@@ -83,173 +83,18 @@ db.connect(err => {
   console.log('Connected to MySQL database');
 });
 
-// @shrey11_  start ---- 
-// @shrey11_  start ---- 
-// @shrey11_  start ---- 
-// @shrey11_  start ---- 
-// @shrey11_  start ----
-
-function create_jwt_token(user_email,user_name){
-  let data_for_jwt = {user_name,user_email}
-  let jwt_token = jwt.sign(data_for_jwt,JWT_SECRET_KEY)
-  return jwt_token;
-}
-
-// helper -- 2
-function check_jwt_token(jwt_token) {
-  try {
-      const data = jwt.verify(jwt_token, JWT_SECRET_KEY);
-      return data;
-  } catch (err) {
-      console.error(err);
-      return null; 
-  }
-}
-
-
-// Middleware usage
+// print data in log
 app.use((req, res, next) => {
     server_request_mode(req.method, req.url, req.body);
     next();
 });
   
 app.get("/",(req,res)=>{
-    res.send("hi server user")
+    res.send("hi server user running page will be here '/' ")
 });
 
-app.post("/send_otp_email", async (req, res) => {
-  const { email,type } = req.body;
-  if (!email || !type) {
-    error_message("send_otp_email say : Email and type is required")
-    return res.status(400).json({ error: "Email and type is required" });
-  }
-  try {
-    let otp;
-    if(type == "owner"){
-      otp = generate_otp(email,"owner")
-    }else{
-      otp = generate_otp(email,"client")
-    }
-    info_message(`An email has been sent to ${email}.OTP is ${otp}.`);
-
-    await send_otp_page(email, otp);
-    res.status(200).json({ message: `OTP email sent to ${email}` ,status:"success"});
-  } catch (error) {
-    console.error("Error sending OTP email:", error);
-    res.status(500).json({ error: "Failed to send OTP email" });
-  }
-});
-
-app.post('/get_admin_data', (req, res) => {
-  const { email } = req.body; // Extract email from request body
-
-  if (!email) {
-    return res.status(400).send({ error: 'Email is required' });
-  }
-
-  const query = 'SELECT access_type FROM admins WHERE admin_email = ?';
-
-  db.query(query, [email], (err, results) => {
-    if (err) {
-      console.error('Error fetching admin data:', err);
-      return res.status(500).send({ error: 'Database query failed' });
-    }
-
-    if (results.length === 0) {
-      return res.status(404).send({ error: 'Admin not found' });
-    }
-
-    const accessType = results[0].access_type;
-    res.status(200).send({ email, access_type: accessType });
-  });
-});
-
-app.post("/get_user_data_from_jwt", async (req, res) => {
-  const jwt_token = req.body.jwt_token;
-
-  if (!jwt_token) {
-    console.error("get_user_data_from_jwt says: JWT token is required");
-    return res.status(400).send("JWT token is required");
-  }
-
-  try {
-    const userData = check_jwt_token(jwt_token);
-    if (!userData || !userData.user_name || !userData.user_email) {
-      return res.status(200).json({ error: "Invalid or incomplete JWT token" });
-    }
-    const find_user = 'SELECT * FROM owner WHERE user_name = ? AND user_email = ?';
-
-    db.query(
-      find_user,
-      [userData.user_name, userData.user_email],
-      (err, result) => {
-        if (err) {
-          console.error("Database error:", err);
-          return res.status(500).json({ error: "Database error" });
-        }
-        if (result.length === 0) {
-          return res.status(200).json({ message: "User not found" });
-        }
-        res.status(200).json({ message: "User found", user: result[0] });
-      }
-    );
-  } catch (error) {
-    console.error("Error processing request:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-function getNotifications(notification_type, notification_message, notification_title, callback) {
-  const query = `
-      SELECT *, created_at 
-      FROM notification
-      WHERE notification_type = ? 
-      AND notification_message = ? 
-      AND notification_title = ? 
-      AND DATE(created_at) = CURDATE()`;
-
-  // Execute the query with placeholders for security
-  db.query(query, [notification_type, notification_message, notification_title], (err, results) => {
-      if (err) {
-          console.error('Error executing query:', err);
-          return callback(err, null);
-      }
-      callback(null, results);
-  });
-}
-
-app.post('/notifications_admin', (req, res) => {
-  const { notification_type, notification_message, notification_title } = req.body;
-
-  if (!notification_type || !notification_message || !notification_title) {
-      return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  // Call the getNotifications function
-  getNotifications(notification_type, notification_message, notification_title, (err, results) => {
-      if (err) {
-          return res.status(500).json({ error: 'Failed to fetch notifications' });
-      }
-      
-      console.log("sednotification received notification");
-      
-      io.emit('new_notification',"all ok");
-
-      res.json({message:"all ok", notifications: results });
-  });
-});
-
-app.get('/notifications_for_test', (req, res) => {
-  db.query('SELECT * FROM notification', (err, results) => {
-    if (err) {
-      console.error('Error fetching data: ', err);
-      res.status(500).send('Error fetching data');
-      return;
-    }
-    res.json(results);  // Send the data as JSON
-  });
-});
-
+// @shrey11_ other routes
+app.use('/', shrey11_);
 
 // admin routes
 app.use('/Admin', adminRoutes);
@@ -261,193 +106,228 @@ app.use('/owner_v2', ownerRoutes_v2);
 // owner routes
 app.use('/chart', chartRoutes);
 
+// team members routes
+app.use('/team_members', team_members);
 
-
-app.get('/team_members/get_members', (req, res) => {
-  const query = `
-      SELECT owner_email,member_id, member_name, member_profile_img, member_role, member_event_assignment, member_status
-      FROM team_member
-  `;
-  
-  // Execute the query to fetch data from the database
-  db.query(query, (err, results) => {
-      if (err) {
-          console.error('Error fetching team members:', err);
-          res.status(500).send('Database error');
-          return;
-      }
-      res.json(results); // Send the fetched data as a JSON response
-  });
-});
-
-app.post('/team_members/add_members', (req, res) => {
-  const { owner_email, member_name, member_profile_img, member_role, member_event_assignment, member_status } = req.body;
-  
-  // Insert the new team member into the database
-  const query = `
-      INSERT INTO team_member (owner_email, member_name, member_profile_img, member_role, member_event_assignment, member_status)
-      VALUES (?, ?, ?, ?, ?, ?)
-  `;
-  
-  db.query(query, [owner_email, member_name, member_profile_img, member_role, member_event_assignment, member_status], (err, result) => {
-      if (err) {
-          console.error('Error adding team member:', err);
-          res.status(500).send('Database error');
-          return;
-      }
-      res.status(201).json({ message: 'Team member added successfully' });
-  });
-});
-
-
-app.delete('/team_members/delete_member', (req, res) => {
-  const { member_id, owner_email } = req.body;  // Expecting both member_id and owner_email in the request body
-
-  // SQL query to delete the team member by member_id and owner_email
-  const query = `
-      DELETE FROM team_member 
-      WHERE member_id = ? AND owner_email = ?
-  `;
-
-  db.query(query, [member_id, owner_email], (err, result) => {
-      if (err) {
-          console.error('Error deleting team member:', err);
-          res.status(500).send('Database error');
-          return;
-      }
-
-      if (result.affectedRows === 0) {
-          return res.status(404).json({ message: 'Member not found or you do not have permission to delete this member' });
-      }
-
-      res.status(200).json({ message: 'Team member deleted successfully' });
-  });
-});
-
-
-// Endpoint to update a team member's details
-app.put('/team_members/update_member/:id', (req, res) => {
-  const { id } = req.params; // ID of the member to update
-  const { member_name, member_profile_img, member_role, member_event_assignment, member_status } = req.body;
-  
-  const query = `
-      UPDATE team_member
-      SET member_name = ?, member_profile_img = ?, member_role = ?, member_event_assignment = ?, member_status = ?
-      WHERE id = ?
-  `;
-  
-  db.query(query, [member_name, member_profile_img, member_role, member_event_assignment, member_status, id], (err, result) => {
-      if (err) {
-          console.error('Error updating team member:', err);
-          res.status(500).send('Database error');
-          return;
-      }
-      res.status(200).json({ message: 'Team member updated successfully' });
-  });
-});
-
-
-app.put('/team_members/update_member', (req, res) => {
-  const { member_id, owner_email, member_name, member_profile_img, member_role, member_event_assignment, member_status } = req.body;
-
-  // Ensure the provided owner_email matches the member's owner_email (foreign key validation)
-  const query = `
-      UPDATE team_member
-      SET member_name = ?, member_profile_img = ?, member_role = ?, member_event_assignment = ?, member_status = ?
-      WHERE member_id = ? AND owner_email = ?
-  `;
-
-  db.query(query, [member_name, member_profile_img, member_role, member_event_assignment, member_status, member_id, owner_email], (err, result) => {
-      if (err) {
-          console.error('Error updating team member:', err);
-          res.status(500).send('Database error');
-          return;
-      }
-
-      if (result.affectedRows === 0) {
-          res.status(404).json({ message: 'Member not found or owner_email mismatch' });
-          return;
-      }
-
-      res.status(200).json({ message: 'Team member updated successfully' });
-  });
-});
+// reviews routes
+app.use('/reviews', reviews_rout);
 
 
 
 
-app.post('/update-status', (req, res) => {
-  const { user_email, user_Status, message, set_status_by_admin } = req.body;
-
-  // Validate required fields
-  if (!user_email || !user_Status) {
-    return res.status(400).json({ message: 'Missing required fields: user_email or user_Status' });
-  }
-
-  // Set default values for optional fields if they're undefined
-  const safeMessage = message || null; // If message is undefined, set it as null
-  const safeAdminEmail = set_status_by_admin || null; // If admin email is undefined, set it as null
-
-  // Retrieve admin information if an admin email is provided
-  if (safeAdminEmail) {
-    const getAdminIdQuery = 'SELECT admin_id FROM admins WHERE admin_email = ?';
-    db.execute(getAdminIdQuery, [safeAdminEmail], (err, adminResult) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ message: 'Database error when fetching admin' });
-      }
-
-      if (adminResult.length === 0) {
-        return res.status(400).json({ message: 'Admin not found' });
-      }
-
-      const admin_id = adminResult[0].admin_id;
-
-      // Update the user's status in the 'users' table
-      const updateStatusQuery = `
-        UPDATE owner
-        SET user_Status = ?, admin_message = ?, set_status_by_admin = ?
-        WHERE user_email = ?
-      `;
-      db.execute(updateStatusQuery, [user_Status, safeMessage, admin_id, user_email], (err, result) => {
-        if (err) {
-          console.log(err);
-          return res.status(500).json({ message: 'Database error while updating user status' });
-        }
-
-        return res.json({ message: 'Status updated' });
-      });
-    });
-  } else {
-    // If no admin email is provided, update the status without an admin_id
-    const updateStatusQuery = `
-      UPDATE owner
-      SET user_Status = ?, admin_message = ?, set_status_by_admin = NULL
-      WHERE user_email = ?
-    `;
-    db.execute(updateStatusQuery, [user_Status, safeMessage, user_email], (err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ message: 'Database error while updating user status' });
-      }
-
-      return res.json({ message: 'Status updated' });
-    });
-  }
-});
 
 // @shrey11_  End ---- 
 // @shrey11_  End ---- 
 // @shrey11_  End ---- 
 // @shrey11_  End ---- 
 // @shrey11_  End ----
-// praharsh  start ----
-// praharsh  start ----
-// praharsh  start ----
-// praharsh  start ----
-// praharsh  start ----
-// client paths
 
+
+// praharsh  start ----
+// praharsh  start ----
+// praharsh  start ----
+// praharsh  start ----
+// praharsh  start ----
+
+
+app.post("/api/delete-invoice", (req, res) => {
+  const { invoice_id, user_email } = req.body;
+
+  if (!invoice_id && !user_email) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invoice ID is required." });
+  }
+
+  const deleteQuery =
+    "DELETE FROM invoices WHERE invoice_id = ? and user_email = ?";
+  console.log("Delete Query", deleteQuery);
+  db.query(deleteQuery, [invoice_id, user_email], (err, result) => {
+    if (err) {
+      console.error("Error deleting invoice:", err);
+      return res
+        .status(200)
+        .json({ success: false, message: "Failed to delete invoice." });
+    }
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Invoice not found." });
+    }
+
+    res.json({ success: true, message: "Invoice deleted successfully." });
+  });
+});
+
+app.post("/save-draft", (req, res) => {
+  const {
+    invoice_id,
+    invoice_to,
+    invoice_to_address,
+    invoice_to_email,
+    date,
+    sub_total,
+    gst,
+    total,
+    user_email,
+    items,
+    as_draft,
+  } = req.body;
+
+  if (!invoice_id || !user_email || !invoice_to || !as_draft) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  // Insert the invoice into the invoices table
+  const queryInvoice = `INSERT INTO invoices (
+    invoice_id, user_email, date, sub_total, gst, total, invoice_to,as_draft
+  ) VALUES (?, ?, ?, ?, ?, ?, ?,?);`;
+
+  db.query(
+    queryInvoice,
+    [
+      invoice_id,
+      user_email,
+      date || null,
+      sub_total || null,
+      gst || null,
+      total || null,
+      invoice_to || null,
+      as_draft,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: err.message });
+      }
+
+      // Once the invoice is inserted, insert the items into the items table
+      if (items && items.length > 0) {
+        let completedItems = 0;
+
+        items.forEach((all_items) => {
+          const { item, quantity, price, amount } = all_items;
+
+          const queryItem = `INSERT INTO invoice_items (
+            invoice_id,user_email, item, quantity, price, amount, invoice_to_address, invoice_to_email
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`;
+
+          db.query(
+            queryItem,
+            [
+              invoice_id,
+              user_email,
+              item,
+              quantity,
+              price,
+              amount,
+              invoice_to_address,
+              invoice_to_email,
+            ],
+            (err, itemResult) => {
+              if (err) {
+                console.error("Error inserting item:", err);
+                return res.status(500).json({
+                  error: "Error inserting item",
+                  details: err.message,
+                });
+              }
+
+              completedItems++;
+
+              // Only proceed when all items have been inserted
+              if (completedItems === items.length) {
+                // Update the invoice ID counter
+                db.query(
+                  "UPDATE owner_main_invoice SET max_invoice_id = max_invoice_id + 1 WHERE user_email = ?",
+                  [user_email],
+                  (err, updateResult) => {
+                    if (err) {
+                      console.error(err);
+                      return res.status(500).json({
+                        error: "Error updating invoice ID",
+                        details: err.message,
+                      });
+                    }
+
+                    // Send the final response after everything is complete
+                    res.json({
+                      message: "Invoice items with draft added successfully",
+                      invoice_id,
+                      date: date,
+                      invoiceResult: result,
+                    });
+                  }
+                );
+              }
+            }
+          );
+        });
+      } else {
+        // If no items are provided, just send the invoice response
+        res.json({
+          message: "Invoice with draft added successfully",
+          invoice_id,
+          date: date,
+          result,
+        });
+      }
+    }
+  );
+});
+// app.post("/save-draft", (req, res) => {
+//   const {
+//     invoice_id,
+//     user_email,
+//     date,
+//     sub_total,
+//     gst,
+//     total,
+//     invoice_to,
+//     invoice_to_address,
+//     invoice_to_email,
+//     items,
+//     as_draft,
+//   } = req.body;
+
+//   const draftData = {
+//     invoice_id: invoice_id || null,
+//     user_email: user_email || null,
+//     date: date || null,
+//     sub_total: sub_total || null,
+//     gst: gst || null,
+//     total: total || null,
+//     invoice_to: invoice_to || null,
+//     invoice_to_address: invoice_to_address || null,
+//     invoice_to_email: invoice_to_email || null,
+//     items: items || null,
+//     as_draft: as_draft || null,
+//   };
+
+//   if (Object.keys(draftData).length === 0) {
+//     return res.status(400).json({ message: "No data provided to update." });
+//   }
+
+//   console.log("DraftData:", draftData);
+
+//   const query = `
+//     INSERT INTO invoices (invoice_id, user_email, date, sub_total, gst, total, invoice_to, invoice_to_address, invoice_to_email, items, as_draft)
+//     VALUES (${draftData.invoice_id}, ${draftData.user_email}, ${draftData.date}, ${draftData.sub_total}, ${draftData.gst}, ${draftData.total}, ${draftData.invoice_to}, ${draftData.invoice_to_address}, ${draftData.invoice_to_email}, ${draftData.items}, ${draftData.as_draft})
+//     `;
+
+//   console.log("Query:", query);
+
+//   db.query(query, (error, result) => {
+//     if (error) {
+//       console.error("Error executing query:", error);
+//       return res.status(500).send({ error: "Error saving draft." });
+//     }
+
+//     console.log("Query Result:", result); // Log the result of the query
+//     res.status(200).send({ message: "Draft saved successfully.", result });
+//   });
+// });
 
 app.post("/check_email_owner", (req, res) => {
   const { user_email } = req.body;
@@ -543,7 +423,6 @@ app.post("/add-invoice", (req, res) => {
         return res.status(500).json({ error: err.message });
       }
 
-      // Once the invoice is inserted, insert the items into the items table
       if (items && items.length > 0) {
         let completedItems = 0;
 
@@ -577,9 +456,7 @@ app.post("/add-invoice", (req, res) => {
 
               completedItems++;
 
-              // Only proceed when all items have been inserted
               if (completedItems === items.length) {
-                // Update the invoice ID counter
                 db.query(
                   "UPDATE owner_main_invoice SET max_invoice_id = max_invoice_id + 1 WHERE user_email = ?",
                   [user_email],
@@ -618,34 +495,37 @@ app.post("/add-invoice", (req, res) => {
   );
 });
 
-app.post("/invoices", (req, res) => {
+app.post("/invoices/without-draft", (req, res) => {
   const { user_email } = req.body;
 
   // Query for invoices without drafts
   const queryWithoutDraft =
     "SELECT * FROM trevita_project_1.invoices WHERE user_email = ? AND as_draft = 0 ORDER BY id";
 
+  // Execute the query
+  db.query(queryWithoutDraft, [user_email], (err, result) => {
+    if (err)
+      return res.status(500).json({ error: "Database error", details: err });
+
+    // Send the response with invoices without drafts
+    res.status(200).json({ without_draft: result });
+  });
+});
+
+app.post("/invoices/with-draft", (req, res) => {
+  const { user_email } = req.body;
+
   // Query for invoices with drafts
   const queryWithDraft =
     "SELECT * FROM trevita_project_1.invoices WHERE user_email = ? AND as_draft = 1 ORDER BY id";
 
-  // Execute both queries
-  db.query(queryWithoutDraft, [user_email], (err1, withoutDraft) => {
-    if (err1)
-      return res.status(500).json({ error: "Database error 1", details: err1 });
+  // Execute the query
+  db.query(queryWithDraft, [user_email], (err, result) => {
+    if (err)
+      return res.status(500).json({ error: "Database error", details: err });
 
-    db.query(queryWithDraft, [user_email], (err2, withDraft) => {
-      if (err2)
-        return res
-          .status(500)
-          .json({ error: "Database error 2", details: err2 });
-
-      // Send a single JSON response combining both results
-      res.status(200).json({
-        without_draft: withoutDraft,
-        with_draft: withDraft,
-      });
-    });
+    // Send the response with invoices with drafts
+    res.status(200).json({ with_draft: result });
   });
 });
 
