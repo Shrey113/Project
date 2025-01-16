@@ -209,7 +209,7 @@
 /* Buttons */
 .invoice_and_table_container .invoice_form .invoice-summary .invoice-actions {
   display: flex;
-  gap: var(--spacing-md);
+  gap: 10px;
   margin-top: var(--spacing-xl);
   justify-content: flex-end;
 }

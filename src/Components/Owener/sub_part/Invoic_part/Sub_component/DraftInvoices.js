@@ -13,6 +13,7 @@ function DraftInvoices() {
   const [draftCount, setDraftCount] = useState(0);
   const [DraftInvoiceChange, setDraftInvoiceChange] = useState(false);
   const [selectedInvoiceData, setSelectedInvoiceData] = useState(null);
+  const [itemsData, setItemsData] = useState([]);
 
   const user = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ function DraftInvoices() {
       }
 
       const data = await response.json();
-
+      setItemsData(data.items);
       if (data.success && data.items && data.items.length > 0) {
         return data.items;
       } else {
@@ -182,7 +183,11 @@ function DraftInvoices() {
   return (
     <div>
       {DraftInvoiceChange ? (
-        <DraftInvoiceLayout invoiceData={selectedInvoiceData} />
+        <DraftInvoiceLayout
+          invoiceData={selectedInvoiceData}
+          itemsData={itemsData}
+          setDraftInvoiceChange={setDraftInvoiceChange}
+        />
       ) : (
         <div className="draft-invoices-container">
           {draftCount === 0 ? (

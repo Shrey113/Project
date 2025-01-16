@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 // set etewt weewfsf
 // set etewt weewfsf
 // set etewt weewfsf
-import './Components/Owener/css/HomePage.css';
+
 import './Components/Owener/css/Dashboard.css';
 // set etewt weewfsf
 // set etewt weewfsf
@@ -47,15 +47,30 @@ import DraftInvoices from "./Components/Owener/sub_part/Invoic_part/Sub_componen
 
 
 function App() {
-
   const [activeIndex, setActiveIndex] = useState(0);
   const [OwnerStatus,setOwnerStatus] = useState('');
   const [selectedTable, setSelectedTable] = useState("firstTable");
 
-
-
+  useEffect(() => {
+    const location = window.location.pathname
+    if(location === '/Owner'){
+      setActiveIndex(0);
+    }else if(location === '/Owner/Event'){
+      setActiveIndex(1);
+    }else if(location === '/Owner/Team'){
+      setActiveIndex(2);
+    }else if(location === '/Owner/Invoice' || location === '/Owner/Invoice/generator' || location === '/Owner/Invoice/draft'){
+      setActiveIndex(3);
+    }else if(location === '/Owner/Packages'){
+      setActiveIndex(4);
+    }else if(location === '/Owner/Profile'){
+      setActiveIndex(6);
+    }
+  }, []);
 
 const renderStatus = () => {
+
+
   
   switch (OwnerStatus) {
       case 'Reject':

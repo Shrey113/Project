@@ -571,5 +571,69 @@ router.post('/add-one-equipment', (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+router.get('/search', (req, res) => {
+  const searchTerm = req.query.term;
+
+  const ownerQuery = `
+    SELECT * FROM owner 
+    WHERE user_name LIKE CONCAT(?, '%') 
+    OR user_email LIKE CONCAT(?, '%') 
+    OR business_name LIKE CONCAT(?, '%');
+  `;
+
+  const equipmentQuery = `
+    SELECT * FROM equipment
+    WHERE name LIKE CONCAT(?, '%')
+
+  `;
+
+  const packageQuery = `
+    SELECT * FROM packages
+    WHERE PackageName LIKE CONCAT(?, '%')
+    
+  `;
+
+
+  db.query(ownerQuery, [searchTerm, searchTerm, searchTerm], (err, ownerResults) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    db.query(equipmentQuery, [searchTerm, searchTerm], (err, equipmentResults) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      db.query(packageQuery, [searchTerm, searchTerm], (err, packageResults) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+
+        // Send back all search results in a structured format
+        res.json({
+          owners: ownerResults,
+          equipment: equipmentResults,
+          packages: packageResults,
+        });
+      });
+    });
+  });
+});
+
+
+
 module.exports = router;
 

@@ -5,9 +5,7 @@ import autoTable from "jspdf-autotable";
 import { useSelector } from "react-redux";
 import { Server_url } from "../../../../redux/AllData";
 import { useLocation } from "react-router-dom";
-// import "./Invoice.css";
-// import "./Sub_component/DraftInvoices.css";
-// import "./Sub_component/EditInvoiceModal.css";
+import "./Invoice.css";
 
 function InvoicePage2() {
   const location = useLocation();
@@ -98,68 +96,21 @@ function InvoicePage2() {
     }
   };
 
-  const [invoice, setInvoice] = useState(() => {
-    if (location.state?.draftData) {
-      const draftData = location.state.draftData;
-      console.log("Draft Data:", draftData);
-      const formatDateTime = (isoString) => {
-        const date = new Date(isoString);
-
-        const options = {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        };
-
-        const formattedDate = new Intl.DateTimeFormat("en-IN", options).format(
-          date
-        );
-
-        // Return the full date in the format '7 Jan 2025'
-        return {
-          date: formattedDate,
-          time: date.toLocaleTimeString(),
-        };
-      };
-      const formattedItems =
-        Array.isArray(draftData.items) && draftData.items.length > 0
-          ? draftData.items.map((item) => ({
-              item: item.item || "",
-              quantity: Number(item.quantity) || 0,
-              price: Number(item.price) || 0,
-              amount: Number(item.amount) || 0,
-            }))
-          : [{ item: "", quantity: 0, price: 0, amount: 0 }];
-      return {
-        invoice_id: setInvoice_id(draftData.invoice_id),
-        invoice_to: draftData.invoice_to || "",
-        invoice_to_address: draftData.invoice_to_address || "",
-        invoice_to_email: draftData.invoice_to_email || "",
-        date: formatDateTime(draftData.date).date || new Date().toISOString(),
-        sub_total: Number(draftData.sub_total) || 0,
-        gst: Number(draftData.gst) || 0,
-        total: Number(draftData.total) || 0,
-        user_email: draftData.user_email || user.user_email,
-        items: formattedItems,
-      };
-    }
-
-    return {
-      invoice_id: invoice_id,
-      invoice_to: "",
-      invoice_to_address: "",
-      invoice_to_email: "",
-      date: new Date().toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }),
-      sub_total: 0,
-      gst: 0,
-      total: 0,
-      user_email: user.user_email,
-      items: [{ item: "", quantity: 0, price: 0, amount: 0 }],
-    };
+  const [invoice, setInvoice] = useState({
+    invoice_id: invoice_id,
+    invoice_to: "",
+    invoice_to_address: "",
+    invoice_to_email: "",
+    date: new Date().toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }),
+    sub_total: 0,
+    gst: 0,
+    total: 0,
+    user_email: user.user_email,
+    items: [{ item: "", quantity: 0, price: 0, amount: 0 }],
   });
 
   useEffect(() => {
@@ -200,6 +151,7 @@ function InvoicePage2() {
       console.error("Error fetching invoice ID:", error);
     }
   };
+
   //   for getting invoice id
   useEffect(() => {
     getInvoiceId(user.user_email);
@@ -407,7 +359,6 @@ function InvoicePage2() {
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // Create a promise to handle logo loading
     const addLogoIfExists = () => {
       return new Promise((resolve) => {
         if (logoPreview) {
@@ -769,7 +720,6 @@ function InvoicePage2() {
                       value={item.quantity}
                       onChange={(e) => {
                         handleChange(e);
-                        // updateAmount(index);
                       }}
                       min="0"
                     />
