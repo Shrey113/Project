@@ -9,7 +9,8 @@ const Client_secret ='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'
 const redirect_uris = 'https://developers.google.com/oauthplayground'
 
 
-const refresh_token ='1//04d9fd5LKART2CgYIARAAGAQSNwF-L9IrVUtYktt9-ARof400JKKxXyi4go-xKSN0k_kh_NoZePEDlRYRt-0vuA40InwCBcdN_WA'
+// const refresh_token ='1//04d9fd5LKART2CgYIARAAGAQSNwF-L9IrVUtYktt9-ARof400JKKxXyi4go-xKSN0k_kh_NoZePEDlRYRt-0vuA40InwCBcdN_WA'
+const refresh_token ='1//04VDneOkEAywZCgYIARAAGAQSNwF-L9IrbYfurQ2fXulpizSdgIp5zXiM_pfKc3QX6wAhQ__Wth3_ufH9wYIo0RxiY8CLPtDDeQo'
 
 
 
@@ -25,7 +26,7 @@ const filePath = path.join(__dirname, 'test_file.png');
 
 
 const folderName = 'Main Project Folder';
-const main_folder_id = '1_6pjUXAfO0p7Vem2DG-eYsmdV7FKmTfv';
+const main_folder_id = '1-57j0wnCUqytJFiuN9nFGbC0FSxX9NcQ';
 
 
 
@@ -70,6 +71,7 @@ async function createFolder(folder_name) {
         console.error('Error creating folder:', error);
     }
 }
+
 
 async function uploadFileToFolder(folderId, file_path, file_name, file_type) {
     try {
@@ -124,7 +126,6 @@ async function get_files_from_folder(folderId) {
         throw error;
     }
 }
-
 
 module.exports = {createRootFolderIfNotExist,createFolder,uploadFileToFolder,get_files_from_folder};
 
