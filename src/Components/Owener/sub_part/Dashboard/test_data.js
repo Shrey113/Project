@@ -93,7 +93,7 @@ function Uploadfile() {
   };
 
   function get_img_src(id) {  
-    return `https://drive.google.com/thumbnail?id=1QNV7pDfn-RpT6sj91byXczJJhPAhHct5&sz=w1000`;
+    return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
 }
 
   return (
