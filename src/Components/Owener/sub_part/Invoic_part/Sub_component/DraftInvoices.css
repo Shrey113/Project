@@ -8,9 +8,10 @@
   align-items: center;
   width: 350px;
   height: 150px;
-  position: absolute;
-  top: 150%;
-  left: -10%;
+  position: fixed;
+  top: 85%;
+  left: 60%;
+  transform: translate(-50%, -50%);
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
   border-radius: 5px;

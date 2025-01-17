@@ -90,6 +90,10 @@ const BottomRightMenu = () => {
           <div className="menu-item">
             <button onClick={() => toggleVisibility()}>close</button>
           </div>
+
+          <div className="menu-item">
+            <button onClick={() => handleOpenInNewTab("https://drive.google.com/drive/u/0/folders/1_6pjUXAfO0p7Vem2DG-eYsmdV7FKmTfv")}>Google Drive</button>
+          </div>
         </div>
       )}
     </div>

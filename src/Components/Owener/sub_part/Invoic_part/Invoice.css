@@ -833,14 +833,6 @@
 }
 
 .invoice_and_table_container .invoice_list {
-  /* 
-  max-width: 950px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  margin-top: 20px;
-  gap: 25px; */
   width: 1100px;
   padding: 17px 20px;
   background: #fff;

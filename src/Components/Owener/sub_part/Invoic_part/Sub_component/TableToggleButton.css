@@ -1,9 +1,10 @@
 .button_con_wrap {
   padding: 20px;
-  display: flex;
+
   justify-content: center;
   align-items: center;
   background: var(--owner_home_page_bg);
+  display: flex;
   padding-left: var(--owner_side_bar_width);
 }
 

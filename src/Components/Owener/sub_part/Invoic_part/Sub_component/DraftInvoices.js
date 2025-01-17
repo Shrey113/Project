@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { FaEdit, FaTrash } from "react-icons/fa";
 import "./DraftInvoices.css";
 import { useSelector } from "react-redux";
@@ -16,7 +16,6 @@ function DraftInvoices() {
   const [itemsData, setItemsData] = useState([]);
 
   const user = useSelector((state) => state.user);
-  const navigate = useNavigate();
 
   const fetchInvoicesWithDraft = async (user_email) => {
     try {
@@ -44,7 +43,7 @@ function DraftInvoices() {
 
   useEffect(() => {
     fetchInvoicesWithDraft(user.user_email);
-  }, []);
+  }, [user.user_email]);
 
   const invoice_items_fetch = async (invoice_id, user_email) => {
     try {
@@ -120,8 +119,8 @@ function DraftInvoices() {
   };
 
   const openDeleteModal = (invoiceId) => {
+    setIsDeleteModalOpen(!isDeleteModalOpen);
     setSelectedInvoiceId(invoiceId);
-    setIsDeleteModalOpen(true);
   };
 
   const closeDeleteModal = () => {

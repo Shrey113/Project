@@ -35,8 +35,8 @@ import OwnerHome from "./Components/Owener/sub_part/OwnerHome";
 import TeamOverview from "./Components/Owener/sub_part/TeamOverview";
 import InvoiceForm from "./Components/Owener/sub_part/Invoic_part/Invoic";
 import Profile from "./Components/Owener/profile_part_2/Profile";
-import EventManagement from './Components/Owener/event_management/EventManagement.js'
-import Packages from './Components/Owener/packages/Packages.js'
+import EventManagement from './Components/Owener/sub_part/Event Management/EventManagement.js'
+import Packages from './Components/Owener/sub_part/Packages/Packages.js'
 import {BeforeAccept,PendingStatus,RejectedStatus} from "./Components/Owener/before accept/before_accept.js";
 
 // import { useSelector } from 'react-redux';
@@ -84,16 +84,12 @@ const renderStatus = () => {
   }
 };
 
-const SetOwnerPage = ({ ActivePage ,is_need_3_button }) => {
+const SetOwnerPage = ({ ActivePage  }) => {
   // const location = useLocation(); // Get the current location
   return (
     OwnerStatus === 'Accept' ? (
       <div className="Owner_main_home_pag_con">
         <div className="main_part">
-          {/* Compare location.pathname */}
-          {is_need_3_button && (
-            <TableToggleButtons selectedTable={selectedTable} setSelectedTable={setSelectedTable} />
-      )}
 
           <ActivePage />
         </div>
@@ -309,7 +305,6 @@ const SetOwnerPage = ({ ActivePage ,is_need_3_button }) => {
       </Routes>
       {authStatus.owner && OwnerStatus === 'Accept' && <OwnerSideBar activeIndex={activeIndex} setActiveIndex={setActiveIndex}/>}
 
-      {/* {authStatus.owner && OwnerStatus === 'Accept' && <TableToggleButtons/>} */}
       <BottomRightMenu />
     </Router>
   );

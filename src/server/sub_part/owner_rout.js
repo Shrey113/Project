@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const {server_request_mode,write_log_file,error_message,info_message,success_message,normal_message} = require('./../modules/_all_help');
 const { generate_otp, get_otp, clear_otp } = require('./../modules/OTP_generate');
 const JWT_SECRET_KEY = 'Jwt_key_for_photography_website';
+const {createFolder} = require('./../Google_Drive/data');
+
 
 function create_jwt_token(user_email,user_name){
     let data_for_jwt = {user_name,user_email}
@@ -349,7 +351,7 @@ router.put('/update-owner', (req, res) => {
 });
 
 
-router.post('/update-status', (req, res) => {
+router.post('/update-status', async (req, res) => {
   const { user_email, user_Status, message, set_status_by_admin } = req.body;
 
   // Validate required fields
@@ -364,7 +366,7 @@ router.post('/update-status', (req, res) => {
   // Retrieve admin information if an admin email is provided
   if (safeAdminEmail) {
     const getAdminIdQuery = 'SELECT admin_id FROM admins WHERE admin_email = ?';
-    db.execute(getAdminIdQuery, [safeAdminEmail], (err, adminResult) => {
+    db.execute(getAdminIdQuery, [safeAdminEmail], async (err, adminResult) => {
       if (err) {
         console.log(err);
         return res.status(500).json({ message: 'Database error when fetching admin' });
@@ -376,17 +378,28 @@ router.post('/update-status', (req, res) => {
 
       const admin_id = adminResult[0].admin_id;
 
+      let folder_id = null;
+
+      if(user_Status == "Accept"){
+        const folder =  await createFolder(user_email);
+        console.log("folder",folder);
+        folder_id = folder?.id;
+      }
+
       // Update the user's status in the 'users' table
       const updateStatusQuery = `
         UPDATE owner
-        SET user_Status = ?, admin_message = ?, set_status_by_admin = ?
+        SET user_Status = ?, admin_message = ?, set_status_by_admin = ? ,user_folder_id = ?
         WHERE user_email = ?
       `;
-      db.execute(updateStatusQuery, [user_Status, safeMessage, admin_id, user_email], (err, result) => {
+      
+      db.execute(updateStatusQuery, [user_Status, safeMessage, admin_id, folder_id, user_email], (err, result) => {
         if (err) {
           console.log(err);
           return res.status(500).json({ message: 'Database error while updating user status' });
         }
+
+
 
         return res.json({ message: 'Status updated' });
       });

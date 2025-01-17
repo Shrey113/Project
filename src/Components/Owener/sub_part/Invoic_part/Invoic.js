@@ -3,9 +3,8 @@ import "./Invoice.css";
 import { useSelector } from "react-redux";
 import { Server_url } from "../../../../redux/AllData";
 import EditInvoiceModal from "./Sub_component/EditInvoiceModal";
-import InvoicePage2 from "./invoicePage2";
+// import InvoicePage2 from "./invoicePage2";
 import view_icon from "./Images/letter-i.png";
-import DraftInvoices from "./Sub_component/DraftInvoices";
 
 const InvoiceForm = ({ selectedTable }) => {
   const user = useSelector((state) => state.user);
@@ -13,7 +12,6 @@ const InvoiceForm = ({ selectedTable }) => {
   // const [activeTable, setActiveTable] = useState("firstTable");
 
   const [invoices, setInvoices] = useState([]);
-  const [invoice_id, setInvoice_id] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -29,8 +27,6 @@ const InvoiceForm = ({ selectedTable }) => {
   // const currentInvoices = invoices.slice(indexOfFirstItem, indexOfLastItem);
 
   // Handle Change
-
-
 
   const handleRowClick = (invoice) => {
     setSelectedInvoice(invoice);
@@ -113,88 +109,85 @@ const InvoiceForm = ({ selectedTable }) => {
 
   return (
     <div className="invoice_and_table_container">
-    
-     
-        <div className="invoice_list">
-          <h2>Invoice List</h2>
+      <div className="invoice_list">
+        <h2>Invoice List</h2>
 
-          {loading ? (
-            <p>Loading invoices...</p>
-          ) : error ? (
-            <p style={{ color: "red" }}>{error}</p>
-          ) : (
-            <>
-              <table className="invoice_table">
-                <thead>
+        {loading ? (
+          <p>Loading invoices...</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : (
+          <>
+            <table className="invoice_table">
+              <thead>
+                <tr>
+                  <th>Index</th>
+                  <th>Invoice ID</th>
+                  <th>User Email</th>
+                  <th>Date</th>
+                  <th>Subtotal</th>
+                  <th>GST</th>
+                  <th>Total</th>
+                  <th>Invoice To</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoices.length === 0 ? (
                   <tr>
-                    <th>Index</th>
-                    <th>Invoice ID</th>
-                    <th>User Email</th>
-                    <th>Date</th>
-                    <th>Subtotal</th>
-                    <th>GST</th>
-                    <th>Total</th>
-                    <th>Invoice To</th>
-                    <th>Action</th>
+                    <td colSpan="9" style={{ textAlign: "center" }}>
+                      No Invoices Generated yet. Please Create an Invoice.
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {invoices.length === 0 ? (
-                    <tr>
-                      <td colSpan="7" style={{ textAlign: "center" }}>
-                        No Invoices Generated yet. Please Create an Invoice.
+                ) : (
+                  invoices.map((inv, index) => (
+                    <tr
+                      key={inv.invoice_id}
+                      onClick={() => handleRowClick(inv)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <td>{index + 1}</td>
+                      <td>{inv.invoice_id}</td>
+                      <td>{inv.user_email}</td>
+                      <td>{formatDateTime(inv.date).date}</td>
+                      <td>{inv.sub_total}</td>
+                      <td>{inv.gst}</td>
+                      <td>{inv.total}</td>
+                      <td>{inv.invoice_to}</td>
+                      <td>
+                        <button
+                          onClick={() => handleRowClick(inv)}
+                          style={{
+                            height: "25px",
+                            width: "25px",
+                            backgroundColor: "transparent",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <img
+                            src={view_icon}
+                            alt=""
+                            style={{ height: "100%" }}
+                          />
+                        </button>
                       </td>
                     </tr>
-                  ) : (
-                    invoices.map((inv, index) => (
-                      <tr
-                        key={inv.invoice_id}
-                        onClick={() => handleRowClick(inv)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <td>{index + 1}</td>
-                        <td>{inv.invoice_id}</td>
-                        <td>{inv.user_email}</td>
-                        <td>{formatDateTime(inv.date).date}</td>
-                        <td>{inv.sub_total}</td>
-                        <td>{inv.gst}</td>
-                        <td>{inv.total}</td>
-                        <td>{inv.invoice_to}</td>
-                        <td>
-                          <button
-                            onClick={() => handleRowClick(inv)}
-                            style={{
-                              height: "25px",
-                              width: "25px",
-                              backgroundColor: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <img
-                              src={view_icon}
-                              alt=""
-                              style={{ height: "100%" }}
-                            />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-              {isEditModalOpen && (
-                <EditInvoiceModal
-                  invoice={selectedInvoice}
-                  user={user}
-                  onClose={() => setIsEditModalOpen(false)}
-                  formatDateTime={formatDateTime}
-                />
-              )}
-            </>
-          )}
-        </div>
-    
+                  ))
+                )}
+              </tbody>
+            </table>
+            {isEditModalOpen && (
+              <EditInvoiceModal
+                invoice={selectedInvoice}
+                user={user}
+                onClose={() => setIsEditModalOpen(false)}
+                formatDateTime={formatDateTime}
+              />
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

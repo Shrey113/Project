@@ -4,11 +4,11 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useSelector } from "react-redux";
 import { Server_url } from "../../../../redux/AllData";
-import { useLocation } from "react-router-dom";
+import { useCount } from "../../../../redux/CountContext";
 import "./Invoice.css";
 
 function InvoicePage2() {
-  const location = useLocation();
+
 
   const [emailError, setEmailError] = useState("");
   const user = useSelector((state) => state.user);
@@ -20,21 +20,17 @@ function InvoicePage2() {
   const addressRef = useRef(null);
   const emailRef = useRef(null);
 
-  const [draftInvoices, setDraftInvoices] = useState([]);
-  const [draftCount, setDraftCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [invoices, setInvoices] = useState([]);
-  const [error, setError] = useState(null);
+  const { setCount } = useCount();
   const [invoice_id, setInvoice_id] = useState(null);
 
-  const generateInvoice = async () => {
+  const generateInvoice = async (user_email) => {
     try {
       const response = await fetch(`${Server_url}/generate-invoice`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ user_email: user.user_email }),
+        body: JSON.stringify({ user_email: user_email }),
       });
       const data = await response.json();
       setInvoice_id(data.invoice_id);
@@ -45,11 +41,11 @@ function InvoicePage2() {
   };
 
   useEffect(() => {
-    generateInvoice();
-  }, []);
+    generateInvoice(user.user_email);
+  }, [user.user_email]);
   const fetchInvoicesWithDraft = async (user_email) => {
     try {
-      // setLoading(true);
+  
       const response = await fetch(`${Server_url}/invoices/with-draft`, {
         method: "POST",
         headers: {
@@ -61,40 +57,14 @@ function InvoicePage2() {
       const with_draft = Array.isArray(data.with_draft)
         ? [...data.with_draft].sort((a, b) => a.invoice_id - b.invoice_id)
         : [];
-      setDraftInvoices(with_draft);
-      setDraftCount(with_draft.length);
+      setCount(with_draft.length);
       console.log("Fetched draft invoices:", with_draft);
     } catch (error) {
       console.error("Error fetching invoices with draft:", error);
-      // setError("Failed to load invoices. Please try again later.");
-      setDraftInvoices([]);
+      setCount(0);
     }
   };
 
-  const fetchInvoicesWithoutDraft = async (user_email) => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${Server_url}/invoices/without-draft`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user_email: user_email }),
-      });
-      const data = await response.json();
-      const without_draft = Array.isArray(data.without_draft)
-        ? [...data.without_draft].sort((a, b) => a.invoice_id - b.invoice_id)
-        : [];
-      setInvoices(without_draft);
-      console.log("Fetched invoices without draft:", without_draft);
-    } catch (error) {
-      console.error("Error fetching invoices without draft:", error);
-      setError("Failed to load invoices. Please try again later.");
-      setInvoices([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const [invoice, setInvoice] = useState({
     invoice_id: invoice_id,
@@ -275,7 +245,6 @@ function InvoicePage2() {
       console.log(data);
 
       generateInvoice();
-      fetchInvoicesWithoutDraft(user.user_email);
       handleNewInvoice();
       fetchInvoicesWithDraft(user.user_email);
       alert("Invoice generated successfully!");
@@ -501,6 +470,114 @@ function InvoicePage2() {
       alert("Error saving draft. Please try again.");
     }
   };
+  // useEffect(() => {
+  //   const navigation_check = navigate((nextLocation) => {
+  //     // Check if we're navigating away from invoice generator page
+  //     if (!nextLocation.pathname.includes("/Owner/Invoice/generator")) {
+  //       // Check if there's data to save
+  //       if (
+  //         invoice.invoice_to ||
+  //         invoice.items.some(
+  //           (item) => item.item || item.quantity > 0 || item.price > 0
+  //         )
+  //       ) {
+  //         const userConfirmed = window.confirm(
+  //           "Do you want to save your progress as draft before leaving?"
+  //         );
+
+  //         if (userConfirmed) {
+  //           // Use the existing handleSaveDraft function
+  //           handleSaveDraft().then(() => {
+  //             navigate(nextLocation.pathname);
+  //           });
+  //           return false;
+  //         }
+  //       }
+  //     }
+  //     return true;
+  //   });
+
+  //   return () => {
+  //     if (navigation_check) {
+  //       navigation_check();
+  //     }
+  //   };
+  // }, [navigate, invoice, handleSaveDraft]);
+
+  // function handleLocationChange() {
+  //   if (location.pathname.includes("/Owner/Invoice/generator")) {
+  //     if (
+  //       invoice.invoice_id &&
+  //       invoice.user_email &&
+  //       invoice.invoice_to &&
+  //       invoice.items.some((item) => item.item)
+  //     ) {
+  //       alert(
+  //         "You have unsaved changes. Do you want to save them before leaving?"
+  //       );
+  //       handleSaveDraft();
+  //     } else {
+  //       return;
+  //     }
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   const handleBeforeUnload = (event) => {
+  //     const message =
+  //       "You have unsaved changes. Do you want to save them before leaving?";
+  //     event.returnValue = message;
+  //     return message;
+  //   };
+
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
+
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+  //   };
+  // }, [invoice, location]);
+
+  // useEffect(() => {
+  //   const handleLocationChange = () => {
+  //     // Check if the user is leaving the invoice generator page and if the form is dirty
+  //     // if (isFormDirty && location.pathname !== "/Owner/Invoice/generator") {
+  //     //   const confirmLeave = window.confirm(
+  //     //     "You have unsaved changes. Do you want to save them before leaving?"
+  //     //   );
+  //     //   if (confirmLeave) {
+  //     //     console.log("Saving draft...");
+  //     //     setIsFormDirty(false);
+  //     //   } else {
+  //     //     console.log("User left without saving.");
+  //     //   }
+  //     // }
+  //     if (isFormDirty) {
+  //       if (location.pathname === "/Owner/Invoice") {
+  //         window.alert(
+  //           "You have unsaved changes. Do you want to save them before leaving?"
+  //         );
+  //         navigate("/Owner/Invoice", { state: { message: "unsaved changes" } });
+  //       }
+  //       if (location.pathname === "/Owner/Invoice/draft") {
+  //         window.alert(
+  //           "You have unsaved changes. Do you want to save them before leaving?"
+  //         );
+  //         navigate("/Owner/Invoice/draft", {
+  //           state: { message: "unsaved changes" },
+  //         });
+  //       }
+  //       if (location.pathname === "/Owner/Packages") {
+  //         window.alert("unsaved changes");
+  //         navigate("/Owner/Packages", {
+  //           state: { message: "unsaved changes" },
+  //         });
+  //       }
+  //     } else {
+  //       window.alert("not running");
+  //     }
+  //   };
+  //   handleLocationChange();
+  // }, [location]);
 
   return (
     <div className="invoice_and_table_container">

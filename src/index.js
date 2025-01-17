@@ -6,12 +6,15 @@ import reportWebVitals from './reportWebVitals';
 
 import { Provider } from "react-redux";
 import store from "./redux/store";
+import { CountProvider } from "./redux/CountContext.js";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+<React.StrictMode>
     <Provider store={store}>
-    <App />
+      <CountProvider>
+        <App />
+      </CountProvider>
     </Provider>
   </React.StrictMode>
 );
