@@ -24,6 +24,8 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
     location: '',
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const fetchOwnerByEmail = async () => {
       try {
@@ -51,6 +53,7 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
   }, [email]);
 
   function updateUserStatus(email, status, message = null, set_status_by_admin = null) {
+    setIsLoading(true);
 
     fetch(`${Server_url}/owner/update-status`, {
         method: 'POST',
@@ -71,14 +74,16 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
         return response.json();
     })
     .then(data => {
-      if(data.message === 'Status updated'){
-        console.log('Response:', data);
-        closeOneOwnerData();
-      }else{
-        alert(data)
-      }
+        setIsLoading(false);
+        if(data.message === 'Status updated'){
+            console.log('Response:', data);
+            closeOneOwnerData();
+        }else{
+            alert(data)
+        }
     })
     .catch(error => {
+        setIsLoading(false);
         console.error('Error:', error.message);
     });
   }
@@ -150,6 +155,14 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
 
   return (
     <div className="check-user-page">
+        {isLoading && (
+            <div className="loader-overlay">
+                <div className="loader-content">
+                    <div className="loader"></div>
+                    <p>Creating user folder... This may take a few minutes</p>
+                </div>
+            </div>
+        )}
       <div className="wrap_p">
       <div className="back_button" onClick={closeOneOwnerData}>
         <span>

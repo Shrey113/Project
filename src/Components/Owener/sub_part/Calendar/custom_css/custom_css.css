@@ -1,0 +1,99 @@
+
+.rbc-month-view {
+    border: none;
+}
+
+
+.rbc-month-row {
+    border: none;
+}
+
+.rbc-day-bg {
+    border: none !important;
+}
+
+/* Event Styles */
+.rbc-event {
+    border-radius: 8px !important;
+    padding: 4px 8px !important;
+    margin: 2px 0 !important;
+    border-left: 3px solid rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    &:hover {
+        transform: scale(1.02);
+    }
+}
+
+
+.rbc-event-content {
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+/* Month View: Event Box Height and Padding */
+.rbc-month-view .rbc-event {
+    height: fit-content; /* Adjust box height */
+    padding: 5px; /* Adjust padding for content */
+    font-size: 12px; /* Adjust font size */
+  }
+
+  
+  
+  /* Week View: Event Box Height */
+  .rbc-time-view .rbc-event {
+    min-height: 40px; /* Minimum height for event boxes */
+    padding: 8px;
+    font-size: 14px;
+  }
+  /* Day View: Event Box Height */
+  .rbc-day-slot .rbc-event {
+    height: 50px; /* Adjust box height for the day view */
+    padding: 10px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+  }
+
+  
+
+
+  /* Month view specific styling */
+.rbc-month-view .rbc-event {
+    min-height: 28px;
+
+}
+
+.rbc-month-view .rbc-event-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Today's Date */
+.rbc-today {
+    background-color: transparent;
+}
+
+/* Date Cells */
+.rbc-date-cell {
+    padding: 8px;
+    font-size: 0.9rem;
+    color: #333;
+  
+}
+
+
+
+/* Calendar Grid */
+.rbc-calendar {
+    padding: 0;
+    
+}
+
+.rbc-header {
+    padding: 10px;
+    border: none !important;
+    font-weight: 500;
+}

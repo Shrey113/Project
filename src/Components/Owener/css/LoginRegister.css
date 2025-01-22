@@ -1,11 +1,5 @@
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: sans-serif;
-  user-select: none;
-  /* font-family: monospace; */
-    
+  box-sizing: border-box; 
 }
 :root{
   --color_1:#000C20;

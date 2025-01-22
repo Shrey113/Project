@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
-/* Container */
+
 .packages-container {
   display: flex;
   align-items: center;
@@ -8,107 +8,345 @@
   height: 100vh;
   width: 100%;
   gap: 60px;
+  overflow: hidden;
 }
 
-/* Boxes */
-.package-box {
-  width: 30%;
-  height: 80%;
+.packages-container .package-cards-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 40px;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+  flex-direction: column;
+}
+
+.packages-container .package-cards-container .packages-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  cursor: pointer;
+}
+.packages-container .package-cards-container .packages-header h1 {
+  font-family: "Raleway", sans-serif;
+  font-size: 35px;
+  font-weight: 600;
+  color: #333;
+}
+.packages-container .package-cards-container .packages-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  width: 90%;
+  height: 650px;
+  width: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  flex-wrap: wrap;
+  padding: 20px 20px 20px 40px;
+}
+
+.packages-container .package-cards-container .packages-grid::-webkit-scrollbar {
+  width: 0px;
+}
+
+.packages-container .package-cards-container .packages-grid .package-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-direction: column;
+  line-height: 1.5;
+  height: 90%;
+  min-width: 300px;
+  flex-shrink: 0;
   border-radius: 10px;
-  border: 2px dashed #5b5a5a;
 }
 
-.basic-box {
-  background: rgb(104, 101, 101);
-  transition: all 0.5s ease-in-out;
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_title {
+  width: 100%;
+  position: relative;
+  height: 90px;
+  margin-top: 20px;
 }
-.basic-box:hover {
-  background: lightgray;
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_title
+  .first_container {
+  width: 10px;
+  position: absolute;
+  top: 0;
+  left: -10px;
+  height: 90%;
+  z-index: 10;
+  &::after {
+    content: "";
+    position: absolute;
+    height: 10px;
+    width: 10px;
+    background-color: rgb(35, 19, 50);
+    top: -10px;
+    border-radius: 100% 0% 0% 100% / 100% 100% 0% 0%;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    height: 10px;
+    width: 10px;
+    background-color: rgb(35, 19, 50);
+    bottom: -10px;
+    border-radius: 0% 100% 0% 100% / 2% 0% 100% 98%;
+  }
 }
 
-.standard-box {
-  background: linear-gradient(135deg, #fff5f5, #f4cccc);
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_title
+  .second_container {
+  width: 100%;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-
-.package-box:hover {
-  filter: brightness(1.1);
-}
-
-/* Add Package Placeholder */
-.add-package {
-  text-align: center;
-  font-size: 20px;
-  color: #333;
-}
-.add-package p {
-  font-family: "Lato", sans-serif;
-}
-
-.add-package span {
-  font-size: 50px;
-  display: block;
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_title
+  .second_container
+  .package_name {
+  font-size: 18px;
+  font-family: "Raleway", sans-serif;
+  color: white;
   font-weight: bold;
-  margin-bottom: 10px;
-  color: #555;
+}
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_title
+  .second_container
+  .package_price {
+  font-size: 29px;
+  font-family: "Lato", sans-serif;
+  font-weight: 500;
+  color: #fff;
 }
 
-/* Package Card */
-.package-card {
-  width: 80%;
-  max-width: 400px;
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_title
+  .third_container {
+  width: 10px;
+  height: 90%;
+  position: absolute;
+  top: 0;
+  right: -10px;
+  z-index: 10;
+  &::after {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    height: 10px;
+    width: 10px;
+    background-color: rgb(35, 19, 50);
+    border-radius: 0% 100% 0% 100% / 100% 100% 0% 0%;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    right: 0;
+    background-color: rgb(35, 19, 50);
+    height: 10px;
+    width: 10px;
+    border-radius: 0% 100% 100% 0% / 100% 0% 100% 0%;
+  }
+}
+
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .wrapper_for_svg_and_details
+  .packge_description
+  p {
+  z-index: 20;
+  color: #575757;
+}
+
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_all_details {
+  width: 100%;
+  line-height: 1.6;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_all_details
+  .package_Services {
+  width: 100%;
+  text-align: center;
+  gap: 10px;
+}
+
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_all_details
+  .package_Services
+  .service-item {
+  font-family: "Raleway", sans-serif;
+  font-weight: 400;
+  color: black;
+}
+
+.packages-container .package-cards-container .tooltip-container {
+  position: absolute;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  right: 50px;
+  top: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(119, 119, 119);
+  cursor: pointer;
+}
+.packages-container .package-cards-container .tooltip-container button {
+  font-size: 30px;
+  color: white;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+.packages-container .package-cards-container .tooltip-container .tooltip-text {
+  visibility: hidden;
+  width: fit-content;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  top: 35px;
+  right: -85px;
+  padding: 5px;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 10;
+  font-size: 10px;
+  text-wrap: nowrap;
+}
+.packages-container
+  .package-cards-container
+  .tooltip-container:hover
+  .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.packages-container .package-form-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+  overflow: scroll;
+  padding-top: 35px;
+  padding-bottom: 10px;
+  gap: 60px;
+}
+.packages-container .package-form-modal::-webkit-scrollbar {
+  width: 0px;
+}
+.packages-container .package-form-modal .package-form {
+  width: 650px;
   background: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  text-align: left;
 }
 
-.package-card h3 {
-  margin-bottom: 10px;
-  font-size: 22px;
-  color: #333;
-}
-
-.package-card p {
-  margin: 5px 0;
-  font-size: 16px;
-  color: #555;
-}
-
-.package-card p strong {
-  color: #000;
-}
-
-/* Form */
-.package-form {
-  width: 80%;
-  max-width: 400px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.package-form h2 {
+.packages-container .package-form-modal .package-form h2 {
   text-align: center;
   margin-bottom: 15px;
   color: #333;
 }
 
-.package-form label {
+.packages-container .package-form-modal .package-form .form_lables_input label {
   display: block;
   margin-bottom: 10px;
   font-weight: bold;
   color: #555;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.packages-container
+  .package-form-modal
+  .package-form
+  .form_lables_input
+  label
+  .all_services {
+  background-color: rgb(242, 242, 242);
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+  flex-wrap: wrap;
+}
+.packages-container
+  .package-form-modal
+  .package-form
+  .form_lables_input
+  label
+  .all_services:hover {
+  background-color: rgb(222, 222, 222);
+  margin-bottom: 15px;
 }
 
-.package-form input,
-.package-form textarea {
+.packages-container
+  .package-form-modal
+  .package-form
+  .form_lables_input
+  label
+  .service-input
+  button {
+  padding: 5px;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  background-color: rgb(217, 248, 174);
+  border: none;
+  font-weight: 600;
+}
+
+.packages-container .package-form-modal .package-form input {
   width: 100%;
   padding: 8px;
   margin-bottom: 15px;
@@ -116,18 +354,220 @@
   border-radius: 4px;
   font-size: 14px;
 }
+.packages-container .package-form-modal .package-form .form-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
 
-.package-form button {
-  width: 100%;
-  padding: 10px;
+.packages-container .package-form-modal .package-form .form-buttons button {
+  padding: 8px 10px;
   background: #4682b4;
   color: #fff;
   border: none;
   border-radius: 4px;
   font-size: 16px;
   cursor: pointer;
+  font-family: "Lato", sans-serif;
 }
 
-.package-form button:hover {
+.packages-container
+  .package-form-modal
+  .package-form
+  .form-buttons
+  button:hover {
   background: #315f7d;
+}
+
+/* preview section */
+/* preview section */
+/* preview section */
+/* preview section */
+
+.packages-container .package-form-modal .preview-section {
+  width: 350px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+.packages-container .package-form-modal .preview-section h2 {
+  font-family: "Raleway", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+}
+.packages-container .package-form-modal .preview-section .package-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-direction: column;
+  line-height: 1.5;
+  height: 90%;
+  min-width: 300px;
+  flex-shrink: 0;
+  border-radius: 10px;
+}
+.packages-container
+  .package-form-modal
+  .preview-section
+  .package-card
+  .package_title {
+  width: 100%;
+  position: relative;
+  height: 90px;
+  margin-top: 20px;
+}
+.packages-container
+  .package-form-modal
+  .preview-section
+  .package-card
+  .package_title
+  .first_container {
+  width: 10px;
+  position: absolute;
+  top: 0;
+  left: -10px;
+  height: 90%;
+  z-index: 10;
+  &::after {
+    content: "";
+    position: absolute;
+    height: 10px;
+    width: 10px;
+    background-color: rgb(35, 19, 50);
+    top: -10px;
+    border-radius: 100% 0% 0% 100% / 100% 100% 0% 0%;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    height: 10px;
+    width: 10px;
+    background-color: rgb(35, 19, 50);
+    bottom: -10px;
+    border-radius: 0% 100% 0% 100% / 2% 0% 100% 98%;
+  }
+}
+.packages-container
+  .package-form-modal
+  .preview-section
+  .package-card
+  .package_title
+  .second_container {
+  width: 100%;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.packages-container
+  .package-form-modal
+  .preview-section
+  .package-card
+  .package_title
+  .second_container
+  .package_name {
+  font-size: 18px;
+  font-family: "Raleway", sans-serif;
+  color: white;
+  font-weight: bold;
+}
+.packages-container
+  .package-form-modal
+  .preview-section
+  .package-card
+  .package_title
+  .second_container
+  .package_price {
+  font-size: 29px;
+  font-family: "Lato", sans-serif;
+  font-weight: 500;
+  color: #fff;
+}
+
+.packages-container
+  .package-form-modal
+  .preview-section
+  .package-card
+  .package_title
+  .third_container {
+  width: 10px;
+  height: 90%;
+  position: absolute;
+  top: 0;
+  right: -10px;
+  z-index: 10;
+  &::after {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    height: 10px;
+    width: 10px;
+    background-color: rgb(35, 19, 50);
+    border-radius: 0% 100% 0% 100% / 100% 100% 0% 0%;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    right: 0;
+    background-color: rgb(35, 19, 50);
+    height: 10px;
+    width: 10px;
+    border-radius: 0% 100% 100% 0% / 100% 0% 100% 0%;
+  }
+}
+.packages-container
+  .package-form-modal
+  .preview-section
+  .package-card
+  .wrapper_for_svg_and_details
+  .packge_description
+  p {
+  z-index: 20;
+  color: #575757;
+}
+
+.packages-container
+  .package-form-modal
+  .preview-section
+  .package-card
+  .package_all_details {
+  width: 100%;
+  line-height: 1.6;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.packages-container
+  .package-form-modal
+  .preview-section
+  .package-card
+  .package_all_details
+  .package_Services {
+  width: 100%;
+  text-align: center;
+  gap: 10px;
+}
+
+.packages-container
+  .package-form-modal
+  .preview-section
+  .package-card
+  .package_all_details
+  .package_Services
+  .service-item {
+  font-family: "Raleway", sans-serif;
+  font-weight: 400;
+  color: black;
 }

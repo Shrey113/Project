@@ -1,0 +1,65 @@
+
+/* Modern Date Picker Styles */
+.modern-date-picker {
+    background-color: white;
+}
+
+.modern-date-picker .MuiInputBase-root {
+    height: 45px;
+    font-size: 0.9rem;
+}
+
+.modern-date-picker .MuiOutlinedInput-notchedOutline {
+    border-color: #e5e7eb;
+}
+
+.modern-date-picker .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: #4f46e5;
+}
+
+.modern-date-picker .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #4f46e5;
+    border-width: 2px;
+}
+
+/* Calendar Popup Styles */
+.MuiDateCalendar-root {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.MuiPickersDay-root {
+    font-size: 0.9rem;
+    margin: 2px;
+    transition: all 0.2s;
+}
+
+.MuiPickersDay-root:hover {
+    background-color: rgba(79, 70, 229, 0.1) !important;
+}
+
+.MuiPickersDay-root.Mui-selected {
+    background-color: #4f46e5 !important;
+}
+
+.MuiPickersDay-today {
+    border: 1px solid #4f46e5 !important;
+    color: #4f46e5 !important;
+}
+
+/* Animation for calendar popup */
+.MuiPopover-root .MuiPaper-root {
+    animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

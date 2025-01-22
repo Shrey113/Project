@@ -1,0 +1,104 @@
+#EventManagement{
+  /* background: rgba(255, 0, 0, 0.201); */
+  height: 100%;
+  width: 100%;
+  padding: 30px;
+}
+
+#EventManagement .owner-requests {
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#EventManagement h2 {
+  margin-bottom: 20px;
+}
+
+#EventManagement .tab-buttons {
+  margin-bottom: 20px;
+}
+
+#EventManagement .tab-buttons button {
+  padding: 10px 20px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 5px;
+  background: #f0f0f0;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+#EventManagement .tab-buttons button.active {
+  background: #007bff;
+  color: white;
+}
+
+#EventManagement .table-container {
+  overflow-x: auto;
+}
+
+#EventManagement table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#EventManagement th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+#EventManagement th {
+  background-color: #f8f9fa;
+}
+
+#EventManagement .status {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.9em;
+}
+
+#EventManagement .status.pending {
+  background-color: #ffe5e5;
+  color: #ff4444;
+}
+
+#EventManagement .action-buttons button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#EventManagement .pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+#EventManagement .pagination button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+}
+
+#EventManagement .pagination button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+#EventManagement .prev-btn, .next-btn {
+  background: #f8f9fa;
+}
+
+.action-buttons img {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+  }

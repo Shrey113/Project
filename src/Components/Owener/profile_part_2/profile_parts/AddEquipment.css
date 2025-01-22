@@ -187,8 +187,8 @@
   font-weight: bold;
 }
 
-.form-group input,
-.form-group select,
+#AddEquipment .form-group input,
+#AddEquipment .form-group select,
 #AddEquipment .form-group textarea {
   width: 100%;
   padding: 0.5rem;
@@ -198,7 +198,7 @@
 
 #AddEquipment .form-group textarea {
   height: 100px;
-  resize: vertical;
+  resize: none;
 }
 
 #AddEquipment .modal-buttons {
@@ -285,12 +285,11 @@
 }
 
 #AddEquipment .add-form {
-    height: 310px;
+    height: 360px;
     border: 2px dashed #ccc;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    background: rebeccapurple;
     position: relative;
     display: flex;
     justify-content: space-evenly;
@@ -324,7 +323,7 @@
 
 #AddEquipment .add-form textarea {
     height: 80px;
-    resize: vertical;
+    resize: none;
 }
 
 
@@ -354,7 +353,7 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 14px;  width: fit-content;
   transition: background-color 0.3s ease;
 }
 
@@ -371,6 +370,7 @@
   cursor: pointer;
   font-size: 18px;
   line-height: 1;
+  width: fit-content;
   transition: background-color 0.3s ease;
 }
 
@@ -389,4 +389,58 @@
 #AddEquipment .close-btn:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+#AddEquipment .popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#AddEquipment .popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+}
+
+#AddEquipment .popup-content h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+#AddEquipment .popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#AddEquipment .popup-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#AddEquipment .popup-buttons button:first-child {
+  background-color: #e0e0e0;
+}
+
+#AddEquipment .delete-confirm-btn {
+  background-color: #ff4444;
+  color: white;
+}
+
+#AddEquipment .delete-confirm-btn:hover {
+  background-color: #cc0000;
 }

@@ -46,6 +46,7 @@ function OwnerSideBar({activeIndex, setActiveIndex}) {
         { name: 'Team Management', icon: Team_icon, active_icon: Team_no_active_icon, path: '/Owner/Team' },
         { name: 'Invoice Management', icon: client_icon ,active_icon: client_no_active_icon, path: '/Owner/Invoice'},
         { name: 'Packages and Pricing', icon: Packages_icon,active_icon: Packages_no_active_icon, path: '/Owner/Packages' },
+        { name: 'calendar ', icon: Packages_icon,active_icon: Packages_no_active_icon, path: '/Owner/calendar' },
       ];
   return (
     <div className="side_bar" id='OwnerSideBar' ref={sidebarRef} style={{width: isSidebarOpen ? '340px' : '70px'}}>

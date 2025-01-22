@@ -1,9 +1,9 @@
 import React from 'react'
 import './Charts.css'
 
-import ChartWithData from './sub_part/ChartWithData'
+// import ChartWithData from './sub_part/ChartWithData'
 import ProfitExpensesChart from './sub_part/ProfitExpensesChart'
-import UserGrowthChart from './sub_part/UserGrowthChart'
+// import UserGrowthChart from './sub_part/UserGrowthChart'
 import ActiveUsersChart from './sub_part/ActiveUsersChart'
 import PackageUsageCharts from './sub_part/PackageUsageCharts'
 

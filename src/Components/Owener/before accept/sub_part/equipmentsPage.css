@@ -173,8 +173,8 @@ margin-bottom: 0.5rem;
 font-weight: bold;
 }
 
-.form-group input,
-.form-group select,
+#EquipmentsPage .form-group input,
+#EquipmentsPage .form-group select,
 #EquipmentsPage .form-group textarea {
 width: 100%;
 padding: 0.5rem;

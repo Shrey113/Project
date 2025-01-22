@@ -85,21 +85,27 @@ function AddEquipment() {
 
 
 
-  const handleRemove = (id,server_id) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
+  const handleRemove = (id, server_id) => {
+    setItemToDelete({ id, server_id });
+    setShowDeleteConfirm(true);
+  };
 
+  const confirmDelete = () => {
     fetch(`${Server_url}/owner/remove-equipment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ user_email: user.user_email, user_equipment_id: server_id }),
+      body: JSON.stringify({ user_email: user.user_email, user_equipment_id: itemToDelete.server_id }),
     })
     .then(response => response.json())
     .then(data => {
       if(data.message === 'Equipment removed successfully'){
         getEquipmentItems(user.user_email)
-        // alert('Equipment removed successfully');
+        setShowDeleteConfirm(false);
       }
     })
     .catch(error => console.error('Error:', error));
@@ -260,6 +266,24 @@ function AddEquipment() {
           </div>
         ))}
       </div>
+
+      {showDeleteConfirm && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this equipment?</p>
+            <div className="popup-buttons">
+              <button onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
+              <button 
+                className="delete-confirm-btn"
+                onClick={confirmDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

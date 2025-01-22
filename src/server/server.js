@@ -11,6 +11,8 @@ const ownerRoutes_v2 = require('./sub_part/owner_rout_v2');
 const chartRoutes = require('./sub_part/chart_rout');
 const reviews_rout = require('./sub_part/reviews_rout');
 
+const calendarRoutes = require('./sub_part/calendar_rout');
+
 const owner_drive_rout = require('./Google_Drive/owner_drive_rout');
 
 // @shrey11_  start ---- 
@@ -118,6 +120,8 @@ app.use('/team_members', team_members);
 // reviews routes
 app.use('/reviews', reviews_rout);
 
+// calendar routes
+app.use('/calendar', calendarRoutes);
 
 
 
@@ -135,183 +139,142 @@ app.use('/reviews', reviews_rout);
 // praharsh  start ----
 // praharsh  start ----
 
-// app.post("/save-draft-invoice", (req, res) => {
-//   const {
-//     invoice_id,
-//     invoice_to,
-//     invoice_to_address,
-//     invoice_to_email,
-//     date,
-//     sub_total,
-//     gst,
-//     total,
-//     user_email,
-//     items,
-//     as_draft,
-//   } = req.body;
+app.put("/api/update_package", async (req, res) => {
+  const {
+    id,
+    package_name,
+    service,
+    description,
+    price,
+    card_color,
+    user_email,
+  } = req.body;
 
-//   if (!invoice_id || !user_email || !invoice_to || !as_draft) {
-//     return res.status(400).json({ error: "Missing required fields" });
-//   }
+  // Validate required fields
+  if (!id || !user_email) {
+    return res.status(400).json({ error: "Missing required fields." });
+  }
 
-//   // Insert the invoice into the invoices table
-//   const queryInvoice = `
-//   UPDATE invoices 
-//   SET 
-//     user_email = ?, 
-//     date = ?, 
-//     sub_total = ?, 
-//     gst = ?, 
-//     total = ?, 
-//     invoice_to = ?, 
-//     as_draft = ? 
-//   WHERE invoice_id = ?;
-// `;
+  // Extract the updated fields
+  const updates = [];
+  const values = [];
 
+  if (package_name !== undefined) {
+    updates.push("package_name = ?");
+    values.push(package_name);
+  }
+  if (service !== undefined) {
+    updates.push("service = ?");
+    values.push(service);
+  }
+  if (description !== undefined) {
+    updates.push("description = ?");
+    values.push(description);
+  }
+  if (price !== undefined) {
+    updates.push("price = ?");
+    values.push(price);
+  }
+  if (card_color !== undefined) {
+    updates.push("card_color = ?");
+    values.push(card_color);
+  }
 
-//   db.query(
-//     queryInvoice,
-//     [
-//       invoice_id,
-//       user_email,
-//       date || null,
-//       sub_total || null,
-//       gst || null,
-//       total || null,
-//       invoice_to || null,
-//       as_draft,
-//     ],
-//     (err, result) => {
-//       if (err) {
-//         console.error("Database error:", err);
-//         return res.status(500).json({ error: err.message });
-//       }
+  if (updates.length === 0) {
+    return res.status(400).json({ error: "No fields to update." });
+  }
 
-//       if (items && items.length > 0) {
-//         let totalItems = items.length;
-//         let completedItems = 0;
-//         let hasError = false;
+  const query = `
+    UPDATE packages 
+    SET ${updates.join(", ")} 
+    WHERE id = ? AND user_email = ?
+  `;
+  values.push(id, user_email);
 
-//         items.forEach((all_items) => {
-//           const { item, quantity, price, amount } = all_items;
+  try {
+    db.query(query, values, (err, result) => {
+      if (err) {
+        console.error("Error updating package:", err);
+        return res.status(500).json({ error: "Failed to update package." });
+      }
 
-//           const queryCheckItemExists = `
-//             SELECT id FROM invoice_items 
-//             WHERE item = ? AND invoice_id = ?;
-//           `;
+      if (result.affectedRows > 0) {
+        res.status(200).json({
+          message: "Package updated successfully!",
+          updatedFields: updates.map((u) => u.split("=")[0].trim()),
+        });
+      } else {
+        res.status(404).json({
+          error:
+            "Package not found or you do not have permission to update it.",
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).json({ error: "Failed to update package." });
+  }
+});
 
-//           const queryInsertItem = `
-//             INSERT INTO invoice_items (
-//               invoice_id, user_email, item, quantity, price, amount, invoice_to_address, invoice_to_email
-//             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-//           `;
+app.post("/api/fetch_packages", (req, res) => {
+  const { user_email } = req.body;
+  const fetchQuery = `
+    SELECT * FROM packages WHERE user_email = ?
+  `;
+  db.query(fetchQuery, [user_email], (err, rows) => {
+    if (err) {
+      console.error("Error fetching packages:", err);
+      return res.status(500).json({ error: "Failed to fetch packages" });
+    }
+    res.json(rows);
+  });
+});
 
-//           const queryUpdateItem = `
-//             UPDATE invoice_items
-//             SET 
-//               quantity = ?, 
-//               price = ?, 
-//               amount = ?, 
-//               invoice_to_address = ?, 
-//               invoice_to_email = ?
-//             WHERE id = ?;
-//           `;
+app.post("/api/packages", (req, res) => {
+  const { package_name, service, description, price, user_email, card_color } =
+    req.body;
 
-//           // Check if item exists
-//           db.query(queryCheckItemExists, [item, invoice_id], (err, results) => {
-//             if (err) {
-//               console.error("Error checking if item exists:", err);
-//               if (!hasError) {
-//                 hasError = true;
-//                 return res.status(500).json({ error: err.message });
-//               }
-//               return;
-//             }
+  // Validate if the service field is a valid JSON string
+  let servicesJson;
+  try {
+    servicesJson = JSON.stringify(service); // Convert object/array to JSON string
+  } catch (err) {
+    return res.status(400).json({ error: "Invalid JSON format for services" });
+  }
 
-//             if (results.length > 0) {
-//               const itemId = results[0].id;
-//               // Update existing item
-//               db.query(
-//                 queryUpdateItem,
-//                 [
-//                   quantity,
-//                   price,
-//                   amount,
-//                   invoice_to_address,
-//                   invoice_to_email,
-//                   itemId,
-//                 ],
-//                 (err) => {
-//                   if (err) {
-//                     console.error("Error updating item:", err);
-//                     if (!hasError) {
-//                       hasError = true;
-//                       return res.status(500).json({ error: err.message });
-//                     }
-//                     return;
-//                   }
-//                   completedItems++;
-//                   if (completedItems === totalItems && !hasError) {
-//                     res.json({
-//                       message: "Invoice and items updated successfully",
-//                       invoice_id,
-//                       date,
-//                       invoiceResult: result,
-//                     });
-//                   }
-//                 }
-//               );
-//             } else {
-//               // Insert new item
-//               db.query(
-//                 queryInsertItem,
-//                 [
-//                   invoice_id,
-//                   user_email,
-//                   item,
-//                   quantity,
-//                   price,
-//                   amount,
-//                   invoice_to_address,
-//                   invoice_to_email,
-//                 ],
-//                 (err) => {
-//                   if (err) {
-//                     console.error("Error inserting item:", err);
-//                     if (!hasError) {
-//                       hasError = true;
-//                       return res.status(500).json({ error: err.message });
-//                     }
-//                     return;
-//                   }
-//                   completedItems++;
-//                   if (completedItems === totalItems && !hasError) {
-//                     res.json({
-//                       message: "Invoice and items added/updated successfully",
-//                       invoice_id,
-//                       date,
-//                       invoiceResult: result,
-//                     });
-//                   }
-//                 }
-//               );
-//             }
-//           });
-//         });
-//       } else {
-//         // No items to handle, send response
-//         res.json({
-//           message: "Invoice with draft added successfully",
-//           invoice_id,
-//           date,
-//           result,
-//         });
-//       }
-//     }
-//   );
-// });
+  const insertQuery = `
+    INSERT INTO packages (package_name, service, description, price,card_color, user_email)
+    VALUES (?, ?, ?, ?, ?,?)
+  `;
 
+  db.query(
+    insertQuery,
+    [package_name, servicesJson, description, price, card_color, user_email],
+    (err, result) => {
+      if (err) {
+        console.error("Error inserting package:", err);
+        return res.status(500).json({ error: "Failed to add package" });
+      }
 
+      // Fetch the inserted package to confirm
+      const fetchQuery = `
+        SELECT * FROM packages WHERE id = ?
+      `;
+      db.query(fetchQuery, [result.insertId], (err, rows) => {
+        if (err) {
+          console.error("Error fetching inserted package:", err);
+          return res.status(500).json({ error: "Failed to retrieve package" });
+        }
+
+        res.status(200).json({
+          success: true,
+          message: "Package added successfully",
+          results: rows[0],
+        });
+      });
+    }
+  );
+});
 app.post("/save-draft-invoice", (req, res) => {
   const {
     invoice_id,

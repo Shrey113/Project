@@ -261,7 +261,7 @@
 
 
 /* Selected Services Display */
- .selected-services {
+ .check-user-page .selected-services {
   margin: 10px 0;
   margin-bottom: 0;
   display: flex;
@@ -270,19 +270,19 @@
 
 }
 
- .selected-services h3 {
+ .check-user-page .selected-services h3 {
   font-size: 16px;
   color: #333;
   margin-bottom: 10px;
 }
 
- .selected-items {
+ .check-user-page .selected-items {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
- .selected-item {
+ .check-user-page .selected-item {
   display: flex;
   align-items: center;
   background-color: #f0f0f0;
@@ -291,7 +291,42 @@
   font-size: 14px;
 }
 
- .selected-item span {
+ .check-user-page .selected-item span {
   margin-right: 8px;
   text-wrap: nowrap;
+}
+
+.check-user-page .loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.check-user-page .loader-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.check-user-page .loader {
+    border: 4px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 4px solid #3498db;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

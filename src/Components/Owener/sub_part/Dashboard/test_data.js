@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { Server_url } from '../../../../redux/AllData';
 
 import './test_data.css';
+import not_find_data from './../../img/not_find_data.jpg';
 
 function Uploadfile() {
   const user = useSelector((state) => state.user);
@@ -173,6 +174,10 @@ function Uploadfile() {
                   src={get_img_src(file.id)} 
                   alt={file.name || "No Name"} 
                   onClick={() => handleImageClick(get_img_src(file.id))}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = not_find_data;
+                  }}
                 />
                 <div className="file-name">{file.name || "No Name"}</div>
                 <div className="file-info">
@@ -183,6 +188,18 @@ function Uploadfile() {
             ))
           )}
         </div>
+
+        <iframe src={`https://drive.usercontent.google.com/download?id=1mOEzQl8Hy1TYfW-ch8gzqqnaIUvU9-OP`} title="Portfolio" height="fit-content" width="100%" />
+
+
+        {/* <img src="" alt="sssssssss" /> */}
+
+
+        <img 
+  src="https://drive.google.com/thumbnail?id=1mOEzQl8Hy1TYfW-ch8gzqqnaIUvU9-OP" 
+  alt="sssswwssssss" 
+/>
+
       </div>
 
       {selectedImage && (
@@ -194,6 +211,10 @@ function Uploadfile() {
             src={selectedImage} 
             alt="Full-screen preview" 
             onClick={(e) => e.stopPropagation()}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = not_find_data;
+            }}
           />
         </div>
       )}

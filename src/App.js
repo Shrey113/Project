@@ -34,7 +34,15 @@ import OwnerSideBar from "./Components/Owener/Owner_side_bar.js";
 import OwnerHome from "./Components/Owener/sub_part/OwnerHome";
 import TeamOverview from "./Components/Owener/sub_part/TeamOverview";
 import InvoiceForm from "./Components/Owener/sub_part/Invoic_part/Invoic";
+
+
 import Profile from "./Components/Owener/profile_part_2/Profile";
+
+// import Profile from "./Components/Owener/sub_part/Profile.js";
+
+// https://trello.com/b/mpwGf27w/msu-project
+
+
 import EventManagement from './Components/Owener/sub_part/Event Management/EventManagement.js'
 import Packages from './Components/Owener/sub_part/Packages/Packages.js'
 import {BeforeAccept,PendingStatus,RejectedStatus} from "./Components/Owener/before accept/before_accept.js";
@@ -43,6 +51,7 @@ import {BeforeAccept,PendingStatus,RejectedStatus} from "./Components/Owener/bef
 import TableToggleButtons from "./Components/Owener/sub_part/Invoic_part/Sub_component/TableToggleButtons.js";
 import InvoicePage2 from "./Components/Owener/sub_part/Invoic_part/invoicePage2.js";
 import DraftInvoices from "./Components/Owener/sub_part/Invoic_part/Sub_component/DraftInvoices.js";
+import Calendar from "./Components/Owener/sub_part/Calendar/Calendar.js";
 
 
 
@@ -63,6 +72,8 @@ function App() {
       setActiveIndex(3);
     }else if(location === '/Owner/Packages'){
       setActiveIndex(4);
+    }else if(location === '/Owner/calendar'){
+      setActiveIndex(5);
     }else if(location === '/Owner/Profile'){
       setActiveIndex(6);
     }
@@ -286,6 +297,13 @@ const SetOwnerPage = ({ ActivePage  }) => {
           <SetOwnerPage ActivePage={Packages} /> : 
           <LoginRegisterOwener />
         } />
+
+        {/* Owner routes calendar */}
+        <Route path="/Owner/calendar" element={authStatus.owner ? 
+          <SetOwnerPage ActivePage={Calendar} /> : 
+          <LoginRegisterOwener />
+        } />
+
 
 
 

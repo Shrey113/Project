@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 const {server_request_mode,write_log_file,error_message,info_message,success_message,normal_message} = require('./../modules/_all_help');
 const { generate_otp, get_otp, clear_otp } = require('./../modules/OTP_generate');
 const JWT_SECRET_KEY = 'Jwt_key_for_photography_website';
-const {createFolder} = require('./../Google_Drive/data');
+const {create_users_folders} = require('./../Google_Drive/data');
 
 
 function create_jwt_token(user_email,user_name){
@@ -378,22 +378,21 @@ router.post('/update-status', async (req, res) => {
 
       const admin_id = adminResult[0].admin_id;
 
-      let folder_id = null;
+
 
       if(user_Status == "Accept"){
-        const folder =  await createFolder(user_email);
+        const folder =  await create_users_folders(user_email);
         console.log("folder",folder);
-        folder_id = folder?.id;
       }
 
       // Update the user's status in the 'users' table
       const updateStatusQuery = `
         UPDATE owner
-        SET user_Status = ?, admin_message = ?, set_status_by_admin = ? ,user_folder_id = ?
+        SET user_Status = ?, admin_message = ?, set_status_by_admin = ?
         WHERE user_email = ?
       `;
       
-      db.execute(updateStatusQuery, [user_Status, safeMessage, admin_id, folder_id, user_email], (err, result) => {
+      db.execute(updateStatusQuery, [user_Status, safeMessage, admin_id, user_email], (err, result) => {
         if (err) {
           console.log(err);
           return res.status(500).json({ message: 'Database error while updating user status' });
@@ -645,6 +644,211 @@ router.get('/search', (req, res) => {
     });
   });
 });
+
+// Create a new portfolio folder
+router.post('/portfolio/create-folder', (req, res) => {
+  const { folder_name, user_email } = req.body;
+
+  if (!folder_name || !user_email) {
+    return res.status(400).json({ error: 'Folder name and user email are required' });
+  }
+
+  const query = `
+    INSERT INTO portfolio_folders (folder_name, user_email, created_at)
+    VALUES (?, ?, NOW())
+  `;
+
+  db.query(query, [folder_name, user_email], (err, result) => {
+    if (err) {
+      console.error('Error creating folder:', err);
+      return res.status(500).json({ error: 'Error creating folder' });
+    }
+
+    res.status(201).json({
+      message: 'Folder created successfully',
+      folder_id: result.insertId
+    });
+  });
+});
+
+// Add photos to a folder - Modified to store Google Drive file IDs
+router.post('/portfolio/add-photos', (req, res) => {
+  const { folder_id, user_email, photos } = req.body;
+
+  if (!folder_id || !user_email || !Array.isArray(photos)) {
+    return res.status(400).json({ error: 'Invalid request data' });
+  }
+
+  // Expecting photos array with format: [{ name: 'photo1.jpg', file_id: 'google_drive_file_id' }]
+  const query = `
+    INSERT INTO portfolio_photos (folder_id, user_email, photo_name, photo_path, created_at)
+    VALUES (?, ?, ?, ?, NOW())
+  `;
+
+  const insertPromises = photos.map(photo => {
+    return new Promise((resolve, reject) => {
+      // Store the Google Drive file ID in photo_path
+      db.query(query, [folder_id, user_email, photo.name, photo.file_id], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+  });
+
+  Promise.all(insertPromises)
+    .then(() => {
+      res.status(201).json({ message: 'Photos added successfully' });
+    })
+    .catch(err => {
+      console.error('Error adding photos:', err);
+      res.status(500).json({ error: 'Error adding photos' });
+    });
+});
+
+// Delete a folder and its photos
+router.delete('/portfolio/delete-folder/:folder_id', async (req, res) => {
+  const { folder_id } = req.params;
+  const { user_email } = req.body;
+
+  if (!folder_id || !user_email) {
+    return res.status(400).json({ error: 'Folder ID and user email are required' });
+  }
+
+  // First, get all photo IDs from the folder to delete from Google Drive
+  const getPhotosQuery = `
+    SELECT photo_path FROM portfolio_photos 
+    WHERE folder_id = ? AND user_email = ?
+  `;
+
+  try {
+    // Get all file IDs before deleting
+    const [photos] = await db.promise().query(getPhotosQuery, [folder_id, user_email]);
+    
+    // Delete the folder and its photos from database (CASCADE will handle photo deletion)
+    const deleteFolderQuery = `
+      DELETE FROM portfolio_folders 
+      WHERE folder_id = ? AND user_email = ?
+    `;
+
+    const [result] = await db.promise().query(deleteFolderQuery, [folder_id, user_email]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Folder not found or unauthorized' });
+    }
+
+    // Here you would add your Google Drive deletion logic for each photo.file_id
+    // const fileIds = photos.map(photo => photo.photo_path);
+    // await deleteFilesFromGoogleDrive(fileIds);
+
+    res.status(200).json({ 
+      message: 'Folder and associated photos deleted successfully',
+      deletedFileIds: photos.map(photo => photo.photo_path)
+    });
+  } catch (err) {
+    console.error('Error deleting folder:', err);
+    res.status(500).json({ error: 'Error deleting folder and photos' });
+  }
+});
+
+// Delete specific photos
+router.delete('/portfolio/delete-photos', async (req, res) => {
+  const { photo_ids, user_email } = req.body;
+
+  if (!Array.isArray(photo_ids) || !user_email) {
+    return res.status(400).json({ error: 'Photo IDs array and user email are required' });
+  }
+
+  try {
+    // First get the file IDs from Google Drive
+    const getFileIdsQuery = `
+      SELECT photo_path FROM portfolio_photos 
+      WHERE photo_id IN (?) AND user_email = ?
+    `;
+
+    const [photos] = await db.promise().query(getFileIdsQuery, [photo_ids, user_email]);
+    
+    // Delete the photos from database
+    const deletePhotosQuery = `
+      DELETE FROM portfolio_photos 
+      WHERE photo_id IN (?) AND user_email = ?
+    `;
+
+    const [result] = await db.promise().query(deletePhotosQuery, [photo_ids, user_email]);
+
+    // Here you would add your Google Drive deletion logic
+    // const fileIds = photos.map(photo => photo.photo_path);
+    // await deleteFilesFromGoogleDrive(fileIds);
+
+    res.status(200).json({ 
+      message: 'Photos deleted successfully',
+      deletedCount: result.affectedRows,
+      deletedFileIds: photos.map(photo => photo.photo_path)
+    });
+  } catch (err) {
+    console.error('Error deleting photos:', err);
+    res.status(500).json({ error: 'Error deleting photos' });
+  }
+});
+
+// Get all folders for a user
+router.get('/portfolio/folders/:user_email', (req, res) => {
+  const { user_email } = req.params;
+
+  const query = `
+    SELECT f.*, 
+           COUNT(p.photo_id) as photo_count
+    FROM portfolio_folders f
+    LEFT JOIN portfolio_photos p ON f.folder_id = p.folder_id
+    WHERE f.user_email = ?
+    GROUP BY f.folder_id
+    ORDER BY f.created_at DESC
+  `;
+
+  db.query(query, [user_email], (err, results) => {
+    if (err) {
+      console.error('Error fetching folders:', err);
+      return res.status(500).json({ error: 'Error fetching folders' });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+// Get all photos in a folder
+router.get('/portfolio/photos/:folder_id', (req, res) => {
+  const { folder_id } = req.params;
+  const { user_email } = req.query;
+
+  if (!user_email) {
+    return res.status(400).json({ error: 'User email is required' });
+  }
+
+  const query = `
+    SELECT 
+      photo_id,
+      folder_id,
+      photo_name,
+      photo_path as file_id,
+      created_at
+    FROM portfolio_photos 
+    WHERE folder_id = ? AND user_email = ?
+    ORDER BY created_at DESC
+  `;
+
+  db.query(query, [folder_id, user_email], (err, results) => {
+    if (err) {
+      console.error('Error fetching photos:', err);
+      return res.status(500).json({ error: 'Error fetching photos' });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+
+
+
+
 
 
 

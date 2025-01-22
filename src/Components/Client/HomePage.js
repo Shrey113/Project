@@ -30,8 +30,6 @@ import Photographer from "./sub_component/Photographer.js";
 import AllPhotographer from "./sub_component/AllPhotographer.js";
 
 function HomePage() {
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
   const [showProfileBox, setShowProfileBox] = useState(false);
   const profileBoxRef = useRef(null);
   const profileContainerRef = useRef(null);
@@ -95,7 +93,7 @@ function HomePage() {
   //   setActiveIndex(index);
   // };
 
-  const [photos, setPhotos] = useState([
+  const [photos] = useState([
     {
       imgUrl: AfterLoginsliderImage3,
       PhotographerUrl: companyLogo,
@@ -166,8 +164,7 @@ function HomePage() {
         if (response.ok) {
           if (result.message === "Token is valid") {
             if (result.data.user_name && result.data.user_email) {
-              setUserName(result.data.user_name);
-              setUserEmail(result.data.user_email);
+              
             }
           }
         } else {
@@ -206,8 +203,6 @@ function HomePage() {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
-
-  let ticking = false;
 
   const toggleProfileBox = () => {
     setShowProfileBox((prevState) => !prevState);

@@ -27,7 +27,6 @@ function UserProfilePage() {
 
   const [image, setImage] = useState(null);
 
-  const [base64Image, setBase64Image] = useState("");
   const [showSaveButton, setShowSaveButton] = useState(false);
   const [imageSavePopup, setImageSavePopup] = useState(false);
   const [user_data_popup, set_user_data_popup] = useState(false);
@@ -37,7 +36,7 @@ function UserProfilePage() {
   const [update_cancel_toggle, set_update_cancel_toggle] = useState(true);
   const [mainPage, setMainPage] = useState("userProfile");
 
-  const [bookingData, setBookingData] = useState("");
+  const [bookingData] = useState("");
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0]; // Get the selected file
@@ -45,7 +44,6 @@ function UserProfilePage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result);
-        setBase64Image(reader.result.split(",")[1]);
         setShowSaveButton(true);
       };
       reader.readAsDataURL(file); // Read file as Data URL
