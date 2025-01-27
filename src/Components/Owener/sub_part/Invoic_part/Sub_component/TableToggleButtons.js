@@ -13,6 +13,17 @@ const TableToggleButtons = ({ selectedTable, setSelectedTable }) => {
     setSelectedTable(tableName);
   };
 
+
+useEffect(() => {
+    if (selectedTable === "firstTable") {
+      navigate("/Owner/Invoice");
+    } else if (selectedTable === "secondTable") {
+      navigate("/Owner/Invoice/generator");
+    } else if (selectedTable === "draftTable") {
+      navigate("/Owner/Invoice/draft");
+    }
+  }, [selectedTable, navigate]);
+
   const fetchInvoicesWithDraft = async (user_email,setCount) => {
     try {
       // setLoading(true);

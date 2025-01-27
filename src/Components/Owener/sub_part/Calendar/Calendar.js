@@ -127,13 +127,19 @@ function Calendar() {
     };
 
 
-    useEffect(() => {
-      handleDayClick("")
-    }, []);
+
 
 
 
   const handleSelectSlot = (slotInfo) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
+
+    if (slotInfo.start < currentDate) {
+      alert("You cannot create events in the past");
+      return; // Prevent creating events in the past
+    }
+
     setNewEvent({
       ...newEvent,
       start: slotInfo.start,

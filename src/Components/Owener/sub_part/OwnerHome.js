@@ -3,8 +3,9 @@ import { useSelector } from 'react-redux';
 import './OwnerHome.css';
 import { localstorage_key_for_jwt_user_side_key } from './../../../redux/AllData.js';
 import Search from './Dashboard/part/search.js';
+import Calendar from './Calendar/Calendar.js';
 // import Scheduler from './Dashboard/part/Scheduler.js';
-import Uploadfile from './Dashboard/test_data.js';
+// import Uploadfile from './Dashboard/test_data.js';
 
 function OwnerHome() {
   const user = useSelector((state) => state.user);
@@ -19,7 +20,8 @@ function OwnerHome() {
   return (
     <div className='owner_home_page_container'>
     <Search/>
-    <Uploadfile/>
+    <Calendar/>
+    {/* <Uploadfile/> */}
     {/* <Scheduler/> */}
       <div className="title_bar">
         <div className="user_data">

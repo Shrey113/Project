@@ -1,4 +1,7 @@
 
+:root {
+    --rbc-border-color: 1px solid #dddddd7b;
+}
 .rbc-month-view {
     border: none;
 }
@@ -7,10 +10,16 @@
 .rbc-month-row {
     border: none;
 }
-
-.rbc-day-bg {
-    border: none !important;
+.rbc-header {
+    padding: 10px;
+    /* border: none !important; */
+    border: var(--rbc-border-color) !important;
+    font-weight: 600;
 }
+.rbc-day-bg {
+    border: var(--rbc-border-color) !important;
+}
+
 
 /* Event Styles */
 .rbc-event {
@@ -92,8 +101,3 @@
     
 }
 
-.rbc-header {
-    padding: 10px;
-    border: none !important;
-    font-weight: 500;
-}

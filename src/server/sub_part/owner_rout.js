@@ -790,29 +790,29 @@ router.delete('/portfolio/delete-photos', async (req, res) => {
   }
 });
 
-// Get all folders for a user
-router.get('/portfolio/folders/:user_email', (req, res) => {
-  const { user_email } = req.params;
+// // Get all folders for a user
+// router.get('/portfolio/folders/:user_email', (req, res) => {
+//   const { user_email } = req.params;
 
-  const query = `
-    SELECT f.*, 
-           COUNT(p.photo_id) as photo_count
-    FROM portfolio_folders f
-    LEFT JOIN portfolio_photos p ON f.folder_id = p.folder_id
-    WHERE f.user_email = ?
-    GROUP BY f.folder_id
-    ORDER BY f.created_at DESC
-  `;
+//   const query = `
+//     SELECT f.*, 
+//            COUNT(p.photo_id) as photo_count
+//     FROM portfolio_folders f
+//     LEFT JOIN portfolio_photos p ON f.folder_id = p.folder_id
+//     WHERE f.user_email = ?
+//     GROUP BY f.folder_id
+//     ORDER BY f.created_at DESC
+//   `;
 
-  db.query(query, [user_email], (err, results) => {
-    if (err) {
-      console.error('Error fetching folders:', err);
-      return res.status(500).json({ error: 'Error fetching folders' });
-    }
+//   db.query(query, [user_email], (err, results) => {
+//     if (err) {
+//       console.error('Error fetching folders:', err);
+//       return res.status(500).json({ error: 'Error fetching folders' });
+//     }
 
-    res.status(200).json(results);
-  });
-});
+//     res.status(200).json(results);
+//   });
+// });
 
 // Get all photos in a folder
 router.get('/portfolio/photos/:folder_id', (req, res) => {

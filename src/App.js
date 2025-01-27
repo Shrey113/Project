@@ -51,7 +51,7 @@ import {BeforeAccept,PendingStatus,RejectedStatus} from "./Components/Owener/bef
 import TableToggleButtons from "./Components/Owener/sub_part/Invoic_part/Sub_component/TableToggleButtons.js";
 import InvoicePage2 from "./Components/Owener/sub_part/Invoic_part/invoicePage2.js";
 import DraftInvoices from "./Components/Owener/sub_part/Invoic_part/Sub_component/DraftInvoices.js";
-import Calendar from "./Components/Owener/sub_part/Calendar/Calendar.js";
+// import Calendar from "./Components/Owener/sub_part/Calendar/Calendar.js";
 
 
 
@@ -61,20 +61,27 @@ function App() {
   const [selectedTable, setSelectedTable] = useState("firstTable");
 
   useEffect(() => {
-    const location = window.location.pathname
-    if(location === '/Owner'){
+    const location = window.location.pathname;
+    if (location === "/Owner") {
       setActiveIndex(0);
-    }else if(location === '/Owner/Event'){
+    } else if (location === "/Owner/Event") {
       setActiveIndex(1);
-    }else if(location === '/Owner/Team'){
+    } else if (location === "/Owner/Team") {
       setActiveIndex(2);
-    }else if(location === '/Owner/Invoice' || location === '/Owner/Invoice/generator' || location === '/Owner/Invoice/draft'){
+    } else if (location === "/Owner/Invoice") {
       setActiveIndex(3);
-    }else if(location === '/Owner/Packages'){
+      setSelectedTable("firstTable");
+    } else if (location === "/Owner/Invoice/generator") {
+      setActiveIndex(3);
+      setSelectedTable("secondTable");
+    } else if (location === "/Owner/Invoice/draft") {
+      setActiveIndex(3);
+      setSelectedTable("draftTable");
+    } else if (location === "/Owner/Packages") {
       setActiveIndex(4);
-    }else if(location === '/Owner/calendar'){
+    } else if (location === "/Owner/calendar") {
       setActiveIndex(5);
-    }else if(location === '/Owner/Profile'){
+    } else if (location === "/Owner/Profile") {
       setActiveIndex(6);
     }
   }, []);
@@ -110,6 +117,7 @@ const SetOwnerPage = ({ ActivePage  }) => {
     )
   );
 };
+
 
 
   const [authStatus, setAuthStatus] = useState({ Admin:null,owner: null, client: null });
@@ -299,10 +307,10 @@ const SetOwnerPage = ({ ActivePage  }) => {
         } />
 
         {/* Owner routes calendar */}
-        <Route path="/Owner/calendar" element={authStatus.owner ? 
+        {/* <Route path="/Owner/calendar" element={authStatus.owner ? 
           <SetOwnerPage ActivePage={Calendar} /> : 
           <LoginRegisterOwener />
-        } />
+        } /> */}
 
 
 

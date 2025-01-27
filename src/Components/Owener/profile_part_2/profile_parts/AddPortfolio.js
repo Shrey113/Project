@@ -82,7 +82,7 @@ function AddPortfolio() {
       const result = await response.json();
       if (result.folder_id) {
         // Refresh the folders list
-        fetch_folders(user.user_email);
+        // fetch_folders(user.user_email);
         setShowFolderPopup(false);
         setNewFolderName('');
         setFolderCover(null);
@@ -132,7 +132,7 @@ function AddPortfolio() {
 
   useEffect(() => {
     fetch_files(user.user_email);
-    fetch_folders(user.user_email);
+    // fetch_folders(user.user_email);
   }, [user.user_email]);
 
   const handleFolderClick = (folder) => {
@@ -162,7 +162,7 @@ function AddPortfolio() {
 
         if (response.ok) {
           // Refresh folders list
-          fetch_folders(user.user_email);
+          // fetch_folders(user.user_email);
         } else {
           console.error('Failed to delete folder');
         }

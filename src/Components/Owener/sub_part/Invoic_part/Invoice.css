@@ -388,7 +388,10 @@
   align-items: flex-start;
   justify-content: center;
   flex-direction: column;
-  gap: 10px;
+  gap: 0px;
+  margin-top: 5px;
+  /* background: rebeccapurple; */
+  /* height: 100px; */
 }
 .invoice_and_table_container
   .invoice_form
