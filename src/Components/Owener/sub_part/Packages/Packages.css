@@ -5,16 +5,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100%;
   width: 100%;
-  gap: 60px;
+  gap: 20px;
+  /* background-color: rebeccapurple; */
   overflow: hidden;
 }
 
 .packages-container .package-cards-container {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 40px;
   height: 100%;
   width: 100%;
@@ -54,7 +55,7 @@
 .packages-container .package-cards-container .packages-grid .package-card {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
   flex-direction: column;
   line-height: 1.5;
@@ -72,7 +73,7 @@
   width: 100%;
   position: relative;
   height: 90px;
-  margin-top: 20px;
+  margin-top: 30px;
 }
 .packages-container
   .package-cards-container
@@ -199,7 +200,7 @@
   height: 70%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  margin-top: 20px;
   flex-direction: column;
 }
 
@@ -212,6 +213,9 @@
   width: 100%;
   text-align: center;
   gap: 10px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
 .packages-container
@@ -403,11 +407,11 @@
 .packages-container .package-form-modal .preview-section .package-card {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
   flex-direction: column;
   line-height: 1.5;
-  height: 90%;
+  min-height: 300px;
   min-width: 300px;
   flex-shrink: 0;
   border-radius: 10px;

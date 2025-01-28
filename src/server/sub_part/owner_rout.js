@@ -595,8 +595,7 @@ router.post('/add-one-equipment', (req, res) => {
 
 
 
-
-router.get('/search', (req, res) => {
+router.get("/search", (req, res) => {
   const searchTerm = req.query.term;
 
   const ownerQuery = `
@@ -614,36 +613,48 @@ router.get('/search', (req, res) => {
 
   const packageQuery = `
     SELECT * FROM packages
-    WHERE PackageName LIKE CONCAT(?, '%')
+    WHERE package_name LIKE CONCAT(?, '%')
     
   `;
 
-
-  db.query(ownerQuery, [searchTerm, searchTerm, searchTerm], (err, ownerResults) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-
-    db.query(equipmentQuery, [searchTerm, searchTerm], (err, equipmentResults) => {
+  db.query(
+    ownerQuery,
+    [searchTerm, searchTerm, searchTerm],
+    (err, ownerResults) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
 
-      db.query(packageQuery, [searchTerm, searchTerm], (err, packageResults) => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
+      db.query(
+        equipmentQuery,
+        [searchTerm, searchTerm],
+        (err, equipmentResults) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
 
-        // Send back all search results in a structured format
-        res.json({
-          owners: ownerResults,
-          equipment: equipmentResults,
-          packages: packageResults,
-        });
-      });
-    });
-  });
+          db.query(
+            packageQuery,
+            [searchTerm, searchTerm],
+            (err, packageResults) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+
+              // Send back all search results in a structured format
+              res.json({
+                owners: ownerResults,
+                equipment: equipmentResults,
+                packages: packageResults,
+              });
+            }
+          );
+        }
+      );
+    }
+  );
 });
+
 
 // Create a new portfolio folder
 router.post('/portfolio/create-folder', (req, res) => {
@@ -848,9 +859,318 @@ router.get('/portfolio/photos/:folder_id', (req, res) => {
 
 
 
+router.post("/update-user-profile-image", (req, res) => {
+  const { user_email, userProfileImage } = req.body;
+
+  if (!user_email || !userProfileImage) {
+    return res.status(400).send("Missing required fields.");
+  }
+
+  const query = `UPDATE owner SET user_profile_image_base64 = ? WHERE user_email = ?`;
+  const values = [userProfileImage, user_email];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error.");
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Owner not found.");
+    }
+
+    res.json({message:"User profile image updated successfully."});
+  });
+});
+
+router.post("/remove-profile-image-type", (req, res) => {
+  const { user_email, type } = req.body;
+
+  if (!user_email || !type) {
+    return res.status(400).send("Missing required fields. 'user_email' and 'type' are required.");
+  }
+
+  let column;
+  if (type === "user") {
+    column = "user_profile_image_base64";
+  } else if (type === "business") {
+    column = "business_profile_base64"; 
+  } else {
+    return res.status(400).send("Invalid type. Use 'user' or 'business'.");
+  }
+
+  const query = `UPDATE owner SET ${column} = NULL WHERE user_email = ?`;
+  
+  db.query(query, [user_email], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error.");
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Owner not found.");
+    }
+
+    res.json({message: `${type} profile image removed successfully.`});
+  });
+});
+
+// Route to fetch user or business profile image
+router.get("/fetch-profile-image", (req, res) => {
+  const { user_email, type } = req.query;
+
+  if (!user_email || !type) {
+    return res.status(400).send("Missing required fields. 'user_email' and 'type' are required.");
+  }
+
+  let column;
+  if (type === "user") {
+    column = "user_profile_image_base64";
+  } else if (type === "business") {
+    column = "business_profile_base64";
+  } else {
+    return res.status(400).send("Invalid type. Use 'user' or 'business'.");
+  }
+
+  const query = `SELECT ${column} FROM owner WHERE user_email = ?`;
+  
+  db.query(query, [user_email], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error.");
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send("Owner not found.");
+    }
+
+    const imageBase64 = results[0][column];
+    if (!imageBase64) {
+      return res.status(404).send("Image not found.");
+    }
+
+    res.send({ user_email, type, imageBase64 });
+  });
+});
+
+router.post("/update-business-profile-image", (req, res) => {
+  const { user_email, businessProfileImage } = req.body;
+
+  if (!user_email || !businessProfileImage) {
+    return res.status(400).send("Missing required fields.");
+  }
+
+  const query = `UPDATE owner SET business_profile_base64 = ? WHERE user_email = ?`;
+  const values = [businessProfileImage, user_email];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error.");
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Owner not found.");
+    }
+
+    res.json({message:"Business profile image updated successfully."});
+  });
+});
 
 
 
+
+// Create a new folder
+router.post('/owner-folders/create', (req, res) => {
+  const { folder_name, user_email, cover_page_base64 } = req.body;
+
+  if (!folder_name || !user_email) {
+    return res.status(400).json({ error: 'Folder name and user email are required' });
+  }
+
+  const query = `
+    INSERT INTO owner_folders (folder_name, user_email, cover_page_base64)
+    VALUES (?, ?, ?)
+  `;
+
+  db.query(query, [folder_name, user_email, cover_page_base64], (err, result) => {
+    if (err) {
+      console.error('Error creating folder:', err);
+      return res.status(500).json({ error: 'Error creating folder' });
+    }
+
+    res.status(201).json({
+      message: 'Folder created successfully.',
+      folder_id: result.insertId
+    });
+  });
+});
+
+// Get all folders for a user
+router.get('/owner-folders/:user_email', (req, res) => {
+  const { user_email } = req.params;
+
+  const query = `
+    SELECT f.*, COUNT(ff.file_id) as file_count
+    FROM owner_folders f
+    LEFT JOIN owner_folders_files ff ON f.folder_id = ff.folder_id
+    WHERE f.user_email = ?
+    GROUP BY f.folder_id
+    ORDER BY f.created_at DESC
+  `;
+
+  db.query(query, [user_email], (err, results) => {
+    if (err) {
+      console.error('Error fetching folders:', err);
+      return res.status(500).json({ error: 'Error fetching folders' });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+// Upload files to a folder
+router.post('/owner-folders/upload', (req, res) => {
+  const { folder_id, files } = req.body;
+
+  if (!folder_id || !Array.isArray(files)) {
+    return res.status(400).json({ error: 'Invalid request data' });
+  }
+
+  const query = `
+    INSERT INTO owner_folders_files (folder_id, file_name, file_type, file_data)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  const insertPromises = files.map(file => {
+    return new Promise((resolve, reject) => {
+      db.query(query, [folder_id, file.name, file.type, file.data], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+  });
+
+  Promise.all(insertPromises)
+    .then(() => {
+      res.status(201).json({ message: 'Files uploaded successfully' });
+    })
+    .catch(err => {
+      console.error('Error uploading files:', err);
+      res.status(500).json({ error: 'Error uploading files' });
+    });
+});
+
+// Get all files in a folder
+router.get('/owner-folders/files/:folder_id', (req, res) => {
+  const { folder_id } = req.params;
+
+  const query = `
+    SELECT file_id, file_name, file_type, created_at, file_data
+    FROM owner_folders_files
+    WHERE folder_id = ?
+    ORDER BY created_at DESC
+  `;
+
+  db.query(query, [folder_id], (err, results) => {
+    if (err) {
+      console.error('Error fetching files:', err);
+      return res.status(500).json({ error: 'Error fetching files' });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+
+
+
+// Delete a folder and its files
+router.delete('/owner-folders/:folder_id', (req, res) => {
+  const { folder_id } = req.params;
+  const { user_email } = req.body;
+
+  // First verify the user owns this folder
+  const verifyQuery = `
+    SELECT folder_id FROM owner_folders 
+    WHERE folder_id = ? AND user_email = ?
+  `;
+
+  db.query(verifyQuery, [folder_id, user_email], (err, results) => {
+    if (err) {
+      console.error('Error verifying folder ownership:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'Unauthorized or folder not found' });
+    }
+
+    // Delete the folder (cascade will handle file deletion)
+    const deleteQuery = `DELETE FROM owner_folders WHERE folder_id = ?`;
+
+    db.query(deleteQuery, [folder_id], (err, result) => {
+      if (err) {
+        console.error('Error deleting folder:', err);
+        return res.status(500).json({ error: 'Error deleting folder' });
+      }
+
+      res.status(200).json({ message: 'Folder and files deleted successfully' });
+    });
+  });
+});
+
+// Delete specific files
+router.post('/owner-folders-files/delete', (req, res) => {
+
+  const { file_ids, folder_id, user_email } = req.body;
+
+  if (!Array.isArray(file_ids) || file_ids.length === 0 || !folder_id || !user_email) {
+    return res.status(400).json({ error: 'Invalid request data' });
+  }
+
+  // Verify the user owns this folder
+  const verifyQuery = `
+    SELECT folder_id FROM owner_folders 
+    WHERE folder_id = ? AND user_email = ?
+  `;
+
+  db.query(verifyQuery, [folder_id, user_email], (err, results) => {
+    if (err) {
+      console.error('Error verifying folder ownership:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'Unauthorized or folder not found' });
+    }
+
+    // Delete the specified files
+    const deleteQuery = `
+      DELETE FROM owner_folders_files 
+      WHERE file_id IN (?) AND folder_id = ?
+    `;
+
+    db.query(deleteQuery, [file_ids, folder_id], (err, result) => {
+      if (err) {
+        console.error('Error deleting files:', err);
+        return res.status(500).json({ error: 'Error deleting files' });
+      }
+
+      if (result.affectedRows > 0) {
+        res.status(200).json({
+          message: 'Files deleted successfully',
+          deletedCount: result.affectedRows
+        });
+      } else {
+        res.status(404).json({
+          message: 'No files found to delete',
+          deletedCount: 0
+        });
+      }
+    });
+  });
+});
 
 module.exports = router;
 

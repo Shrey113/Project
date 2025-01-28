@@ -83,13 +83,18 @@
     box-shadow: var(--admin_box_shadow);
     border-radius: var(--admin_box_radius);
     padding: 20px;
-    width: 500px;
+    width: 80%;
+    max-width: 500px;
       text-align: center;
 
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+}
+.Dashboard_main_con .status-container h2 {
+    padding: 0;
+    margin: 0;
 }
 
 .Dashboard_main_con .status-icon {
@@ -232,3 +237,104 @@
 .Dashboard_main_con .close-popup-button:hover {
     background-color: #c9302c;
 }
+
+/* Mobile Devices (320px to 480px) */
+@media only screen and (max-width: 480px) {
+    .Dashboard_main_con .status-container {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .Dashboard_main_con .status-container h2 {
+        font-size: 1.1rem;
+    }
+
+    .Dashboard_main_con .status-container .dec {
+        font-size: 0.9rem;
+    }
+
+    .Dashboard_main_con .status-container .status-icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .Dashboard_main_con .popup-content {
+        width: 95%;
+        padding: 1em;
+    }
+
+    .Dashboard_main_con .popup-content .dec,
+    .Dashboard_main_con .popup-content .dec_2 {
+        font-size: 0.9rem;
+    }
+
+    .Dashboard_main_con .logout-button,
+    .Dashboard_main_con .view-details-button {
+        margin: 0.3em;
+        padding: 0.4em 0.8em;
+        font-size: 0.85em;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .Dashboard_main_con .view-details-button img {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+    }
+}
+
+/* Tablets (481px to 768px) */
+@media only screen and (min-width: 481px) and (max-width: 768px) {
+    .Dashboard_main_con .status-container {
+        
+        padding: 18px;
+    }
+
+    .Dashboard_main_con .status-container h2 {
+        font-size: 1.2rem;
+    }
+
+    .Dashboard_main_con .status-container .status-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .Dashboard_main_con .popup-content {
+        width: 90%;
+    }
+
+    .Dashboard_main_con .logout-button,
+    .Dashboard_main_con .view-details-button {
+        margin: 0.4em;
+        padding: 0.5em 1em;
+        font-size: 0.9em;
+    }
+
+    .Dashboard_main_con .view-details-button img {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+    }
+}
+
+/* Tablets & Small Laptops (769px to 1024px) */
+@media only screen and (min-width: 769px) and (max-width: 1024px) {
+    .Dashboard_main_con .logout-button,
+    .Dashboard_main_con .view-details-button {
+        margin: 0.45em;
+        padding: 0.55em 1.1em;
+        font-size: 0.95em;
+    }
+
+    .Dashboard_main_con .view-details-button img {
+        width: 19px;
+        height: 19px;
+        margin-right: 9px;
+    }
+}
+
+
+

@@ -2,16 +2,41 @@ import React, { useState } from 'react'
 import './AddProfileData.css'
 
 import edit_icon from './../../img/pencil.png'
+import { Server_url } from '../../../../redux/AllData';
 
 function AddProfileData() {
   const [profileImage, setProfileImage] = useState(null);
+  const [updateStatus, setUpdateStatus] = useState('');
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+        setProfileImage(base64Image);
+        
+        try {
+          const response = await fetch(`${Server_url}/owner/update-user-profile-image`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user_email: user.user_email,
+              userProfileImage: base64Image
+            })
+          });
+
+          if (response.ok) {
+            setUpdateStatus('Profile image updated successfully!');
+          } else {
+            setUpdateStatus('Failed to update profile image.');
+          }
+        } catch (error) {
+          console.error('Error updating profile image:', error);
+          setUpdateStatus('Error updating profile image.');
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -19,6 +44,7 @@ function AddProfileData() {
 
   return (
     <div className="profile-container">
+      {updateStatus && <div className="update-status">{updateStatus}</div>}
       <div className="profile-header">
         <h2>Add your profile data</h2>
       </div>

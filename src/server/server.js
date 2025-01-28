@@ -109,7 +109,7 @@ app.use('/Admin', adminRoutes);
 // owner routes
 app.use('/owner', ownerRoutes);
 app.use('/owner_v2', ownerRoutes_v2);
-app.use('/owner_drive', owner_drive_rout);
+// app.use('/owner_drive', owner_drive_rout);
 
 // owner routes
 app.use('/chart', chartRoutes);
@@ -138,7 +138,85 @@ app.use('/calendar', calendarRoutes);
 // praharsh  start ----
 // praharsh  start ----
 // praharsh  start ----
+app.post("/api/upload-photo", (req, res) => {
+  console.log(req.body);
 
+  const { photoData, name, type, user_email } = req.body;
+
+  // Validate input
+  if (!photoData || !name || !type) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing required fields" });
+  }
+
+  // SQL query to insert photo into the database
+  const query =
+    "INSERT INTO Photo_files (photo_name, photo_type, photo,user_email) VALUES (?, ?, ?,?)";
+
+  // Insert the data into the database
+  db.execute(query, [name, type, photoData, user_email], (err, result) => {
+    if (err) {
+      console.error("Error inserting photo into the database:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to save the photo" });
+    }
+
+    // Return success response
+    res.json({
+      success: true,
+      message: "Photo added to database successfully!",
+      data: result,
+    });
+  });
+});
+app.post("/owner_drive/get_portfolio", (req, res) => {
+  const { email } = req.body;
+
+  // SQL query to fetch portfolio files based on user_email
+  const query = "SELECT * FROM Photo_files  WHERE user_email = ?";
+
+  db.query(query, [email], (err, results) => {
+    if (err) {
+      console.error("Error fetching portfolio files:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+
+    if (results.length > 0) {
+      res.json({ success: true, files: results });
+    } else {
+      res
+        .status(404)
+        .json({ success: false, message: "No portfolio found for this user." });
+    }
+  });
+});
+app.post("/owner_drive/delete-photo", (req, res) => {
+  const { user_email, photo_id } = req.body;
+
+  if (!user_email || !photo_id) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  // SQL query to delete the photo
+  const deletePhotoQuery =
+    "DELETE FROM photo_files WHERE user_email = ? AND photo_id = ?";
+
+  // Execute the query
+  db.query(deletePhotoQuery, [user_email, photo_id], (err, results) => {
+    if (err) {
+      console.error("Error deleting photo:", err);
+      return res.status(500).json({ error: "Failed to delete photo" });
+    }
+
+    if (results.affectedRows > 0) {
+      res.status(200).json({ message: "Photo deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Photo not found or unauthorized" });
+    }
+  });
+});
 app.put("/api/update_package", async (req, res) => {
   const {
     id,

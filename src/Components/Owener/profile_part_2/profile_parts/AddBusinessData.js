@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import './AddProfileData2.css'
 import { FaCamera } from 'react-icons/fa'
-import { useSelector } from 'react-redux'
+import { useSelector,useDispatch } from 'react-redux'
+import { Server_url } from '../../../../redux/AllData';
 
 // import edit_icon from './../../img/pencil.png'
 
@@ -10,6 +11,7 @@ import { useSelector } from 'react-redux'
 function AddBusinessData() {
 
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   const [selectedTypes, setSelectedTypes] = useState([]);
   
@@ -35,19 +37,84 @@ function AddBusinessData() {
     services: user?.services || '',
   });
 
-  const handleImageUpload = (event) => {
+  useEffect(() => {
+    setProfileImage(user.business_profile_base64);
+  }, [user.business_profile_base64]);
+
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+        setProfileImage(base64Image);
+        dispatch({ type: "SET_USER_Owner", payload: {
+          business_profile_base64: base64Image
+        }});
+
+        
+        try {
+          const response = await fetch(`${Server_url}/owner/update-business-profile-image`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user_email: user.user_email,
+              businessProfileImage: base64Image
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to update profile image');
+          }
+          
+        } catch (error) {
+          console.error('Error updating profile image:', error);
+          alert('Failed to update profile image');
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleDeleteImage = () => {
-    setProfileImage(null);
+  const handleDeleteImage = async () => {
+    // Show confirmation dialog
+    const isConfirmed = window.confirm("Are you sure you want to remove the business profile image?");
+    
+    if (!isConfirmed) return;
+
+    try {
+      const response = await fetch(`${Server_url}/owner/remove-profile-image-type`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_email: user.user_email,
+          type: 'business'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete profile image');
+      }
+
+      let data = await response.json();
+      if(data.message === "business profile image removed successfully."){
+        dispatch({ 
+          type: "SET_USER_Owner", 
+          payload: {
+            business_profile_base64: null
+          }
+        });
+      }
+
+
+    } catch (error) {
+      console.error('Error deleting profile image:', error);
+      alert('Failed to delete profile image');
+    }
   };
 
 
@@ -237,6 +304,11 @@ function AddBusinessData() {
     'Custom Album Design Services',
     'Virtual Tour Photography'
   ];
+
+  const handleSaveChanges = async (e) => {
+    e.preventDefault();
+    alert("Changes not for temp test saved successfully");
+  }
   
  
 
@@ -263,9 +335,9 @@ function AddBusinessData() {
                 {profileImage ? (
                     <>
                         <img src={profileImage} alt="Profile" />
-                        <div className="camera-overlay">
+                        <label htmlFor="profile-image-input" className="camera-overlay">
                             <FaCamera className="camera-icon" />
-                        </div>
+                        </label>
                     </>
                 ) : (
                     <>
@@ -296,7 +368,7 @@ function AddBusinessData() {
             </div>
         </div>
 
-      <form>
+      <form onSubmit={handleSaveChanges}>
 
 
       <div className="form-group_for_2_inputs">

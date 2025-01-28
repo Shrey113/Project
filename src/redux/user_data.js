@@ -18,6 +18,9 @@ const initialState = {
   website: '',
   services: '',
   business_email: '',
+  
+  user_profile_image_base64: '',
+  business_profile_base64: '',
 };
 
 const user_data = (state = initialState, action) => {

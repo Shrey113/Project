@@ -169,6 +169,17 @@ function Calendar() {
     );
   };
   const handleEventDrop = async ({ event, start, end }) => {
+   
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); 
+    
+    if (start < currentDate) {
+        alert("You cannot move events to past dates");
+        return; // Keep the event in its original position
+    }else{
+      return;
+    }
+
     // Update the event locally
     const updatedEvent = { ...event, start, end };
     const updatedEvents = events.map((e) => 
@@ -184,8 +195,8 @@ function Calendar() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                ...updatedEvent,  // Send the updated event data
-                id: event.id,     // Ensure the id is passed
+                ...updatedEvent,
+                id: event.id,
             }),
         });
 
@@ -199,6 +210,7 @@ function Calendar() {
 };
 
 const handleEventResize = async ({ event, start, end }) => {
+  return;
   // Update the event locally
   const updatedEvent = { ...event, start, end };
   const updatedEvents = events.map((e) => 

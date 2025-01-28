@@ -295,3 +295,9 @@
     overflow: hidden;    
     text-overflow: ellipsis; 
 }
+
+@media only screen and (max-width: 600px) {
+  #OwnerSideBar {
+    display: none;
+  }
+}

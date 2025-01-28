@@ -4,6 +4,7 @@ import CustomInputField from "./sub_component/CustomInputField.js";
 import close from "./../../Assets/Client/close.png";
 import leftArrow from "./../../Assets/Client/left-arrow.png";
 import { data } from "react-router-dom";
+import { Server_url } from "../../redux/AllData.js";
 function ForgetPassword({ set_show_forget_password }) {
   const [forget_email, set_forget_email] = useState("");
   const [forget_email_error, set_forget_email_error] = useState("");
@@ -37,7 +38,7 @@ function ForgetPassword({ set_show_forget_password }) {
     if (is_valid) {
       try {
         const response = await fetch(
-          "http://localhost:4000/verify_forget_otp_client",
+          `${Server_url}/verify_forget_otp_client`,
           {
             method: "POST",
             headers: {
@@ -101,7 +102,7 @@ function ForgetPassword({ set_show_forget_password }) {
     if (is_valid) {
       try {
         const response = await fetch(
-          "http://localhost:4000/client_password_verify",
+          `${Server_url}/client_password_verify`,
           {
             method: "POST",
             headers: {
@@ -163,7 +164,7 @@ function ForgetPassword({ set_show_forget_password }) {
     if (is_valid) {
       try {
         const response = await fetch(
-          "http://localhost:4000/client_email_verify",
+          `${Server_url}/client_email_verify`,
           {
             method: "POST",
             headers: {

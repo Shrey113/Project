@@ -1,13 +1,15 @@
-import React, { useState } from 'react'
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react'
+import { useSelector,useDispatch } from 'react-redux';
 import './AddBusinessData.css'
 import { FaCamera } from 'react-icons/fa'
+import { Server_url } from '../../../../redux/AllData';
 
 
 // import edit_icon from './../../img/pencil.png'
 
 function AddProfileData({onInputChange }) {
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const [profileImage, setProfileImage] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -19,6 +21,10 @@ function AddProfileData({onInputChange }) {
     location: user.business_address,
     socialMedia: user.social_media
   });
+
+  useEffect(() => {
+    setProfileImage(user.user_profile_image_base64);
+  }, [user.user_profile_image_base64]);
 
   
 
@@ -33,21 +39,115 @@ function AddProfileData({onInputChange }) {
     socialMedia: ''
   });
 
+  
+  // Add useEffect to fetch profile image when component mounts
 
-
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
-    if (file) {
+    
+    // Validate file type
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!file || !validImageTypes.includes(file.type)) {
+      alert('Please select a valid image file (JPEG, PNG, or GIF)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      alert('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
+      
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+        setProfileImage(base64Image);
+        dispatch({ type: "SET_USER_Owner", payload: {
+          user_profile_image_base64: base64Image
+        }});
+        
+
+        try {
+          const response = await fetch(`${Server_url}/owner/update-user-profile-image`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user_email: user.user_email,
+              userProfileImage: base64Image
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          if(data.message === "User profile image updated successfully."){
+            console.log("Profile image updated successfully");
+          }
+        } catch (error) {
+          console.error('Error updating profile image:', error);
+          alert('Failed to update profile image. Please try again.');
+        }
       };
+
+      reader.onerror = () => {
+        alert('Error reading file. Please try again.');
+      };
+
       reader.readAsDataURL(file);
+      
+    } catch (error) {
+      console.error('Error handling image upload:', error);
+      alert('An unexpected error occurred. Please try again.');
     }
   };
 
-  const handleDeleteImage = () => {
-    setProfileImage(null);
+
+
+
+  const handleDeleteImage = async () => {
+    // Show confirmation dialog
+    const isConfirmed = window.confirm("Are you sure you want to remove the business profile image?");
+    
+    if (!isConfirmed) return;
+
+    try {
+      const response = await fetch(`${Server_url}/owner/remove-profile-image-type`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_email: user.user_email,
+          type: 'user'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete profile image');
+      }
+
+      let data = await response.json();
+      if(data.message === "user profile image removed successfully."){
+        dispatch({ 
+          type: "SET_USER_Owner", 
+          payload: {
+            user_profile_image_base64: null
+          }
+        });
+      }
+
+
+    } catch (error) {
+      console.error('Error deleting profile image:', error);
+      alert('Failed to delete profile image');
+    }
   };
 
   // Add handle input change function
@@ -77,9 +177,9 @@ function AddProfileData({onInputChange }) {
                 {profileImage ? (
                     <>
                         <img src={profileImage} alt="Profile" />
-                        <div className="camera-overlay">
+                        <label htmlFor="profile-image-input" className="camera-overlay">
                             <FaCamera className="camera-icon" />
-                        </div>
+                        </label>
                     </>
                 ) : (
                     <>

@@ -22,7 +22,7 @@ import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/autoplay";
 
-import { localstorage_key_for_client } from "./../../redux/AllData";
+import { localstorage_key_for_client, Server_url } from "./../../redux/AllData";
 
 function LoginRegisterClient() {
   const [isLoginVisible, setIsLoginVisible] = useState(true);
@@ -53,8 +53,8 @@ function LoginRegisterClient() {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState("");
-
-  const Server_url = "http://localhost:4000";
+ 
+  
 
   const toggle_login_register = () => {
     setIsLoginVisible(!isLoginVisible);

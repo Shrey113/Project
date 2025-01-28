@@ -358,3 +358,109 @@ opacity: 1;
     border-radius: 5px;
     background-color: #ffe6e6;
 }
+
+@media screen and (max-width: 600px) {
+  #EquipmentsPage {
+    padding: 16px;
+  }
+
+  #EquipmentsPage .equipment-header {
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+
+  #EquipmentsPage .equipment-header h2 {
+    font-size: 24px;
+  }
+
+  #EquipmentsPage .add-btn {
+    width: 100%;
+    padding: 12px 20px;
+  }
+
+  #EquipmentsPage .Equipment_con {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 0;
+  }
+
+  #EquipmentsPage .equipment-card {
+    height: auto;
+    min-height: 350px;
+    margin: 0;
+    width: 100%;
+  }
+
+  #EquipmentsPage .equipment-img {
+    width: 60px;
+    margin-top: 16px;
+    margin-left: 16px;
+  }
+
+  #EquipmentsPage .equipment-info {
+    padding: 16px;
+  }
+
+  #EquipmentsPage .equipment-info h3 {
+    font-size: 18px;
+  }
+
+  #EquipmentsPage .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  #EquipmentsPage .type-selector {
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  #EquipmentsPage .type-option {
+    width: 70px;
+    padding: 0.4rem;
+  }
+
+  #EquipmentsPage .add-form {
+    height: auto;
+    min-height: 350px;
+    padding: 16px;
+  }
+
+  #EquipmentsPage .equipment_new_info {
+    padding: 0px 12px;
+    gap: 8px;
+  }
+
+  #EquipmentsPage .equipment_new_info span {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #EquipmentsPage .add-form .save-btn {
+    position: static;
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  #EquipmentsPage .modal-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  #EquipmentsPage .modal-buttons button {
+    width: 100%;
+  }
+
+  #EquipmentsPage .remove-btn {
+    opacity: 1;
+    top: 8px;
+    right: 8px;
+  }
+
+  #EquipmentsPage .remove-btn button {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+}

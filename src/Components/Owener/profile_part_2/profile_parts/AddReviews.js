@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from 'react'
 import './AddReviews.css'
 import { useSelector } from 'react-redux';
+import { Server_url } from '../../../../redux/AllData';
 
 
 
@@ -67,7 +68,7 @@ function AddReviews() {
     const fetchReviews = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('http://localhost:4000/reviews/get_reviews', {
+        const response = await fetch(`${Server_url}/reviews/get_reviews`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

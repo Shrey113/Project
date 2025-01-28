@@ -248,7 +248,7 @@ function AddEquipment() {
           </div>
         )}
 
-        {equipmentItems.map((equipment) => (
+        { equipmentItems.length > 0 ? equipmentItems.map((equipment) => (
           <div className="equipment-card" key={equipment.id}>
             <div className="equipment-img">
               <img src={getImgByType(equipment.equipment_type)} alt={equipment.name} />
@@ -264,7 +264,7 @@ function AddEquipment() {
               <button onClick={() => handleRemove(equipment.id,equipment.user_equipment_id)}>Remove</button>
             </div>
           </div>
-        ))}
+        )) : <p className='not-found-data'>No equipment found</p>}
       </div>
 
       {showDeleteConfirm && (

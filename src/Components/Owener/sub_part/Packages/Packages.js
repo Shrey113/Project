@@ -15,7 +15,7 @@ const Packages = () => {
     service: [],
     description: "",
     price: "",
-    card_color: "#ffffff",
+    card_color: "#ff6f61",
   });
   const [newService, setNewService] = useState("");
 
@@ -96,6 +96,7 @@ const Packages = () => {
         setFormData({
           package_name: "",
           service: [],
+          card_color: "#ff6f61",
           description: "",
           price: "",
           user_email: user.user_email,
@@ -267,7 +268,7 @@ const Packages = () => {
                 className="package-card"
                 style={{ backgroundColor: `#ffffff` }}
               >
-                <div className="pckid">{pkg.id}</div>
+                {/* <div className="pckid">{pkg.id}</div> */}
                 <div className="package_title">
                   <div
                     className="first_container"

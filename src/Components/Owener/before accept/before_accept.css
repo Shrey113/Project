@@ -8,7 +8,15 @@
   background: var(--owner_home_page_bg);
   /* background: red; */
 }
-
+.before_accept_container .content_section {
+  background: var(--owner_home_page_ui);
+  /* padding-top: 20px; */
+  border-radius: var(--owner_profile_border-radius);
+  box-shadow: var(--owner_profile_box_shadow);
+  padding: 40px 40px;
+  /* background: rebeccapurple; */
+  /* width: fit-content; */
+}
 .before_accept_container .progress_bar {
   display: flex;
   justify-content: space-between;
@@ -77,16 +85,7 @@
 }
 
 
-.before_accept_container .content_section {
-  /* background: rebeccapurple; */
-  background: var(--owner_home_page_ui);
-  /* padding-top: 20px; */
-  border-radius: var(--owner_profile_border-radius);
-  box-shadow: var(--owner_profile_box_shadow);
-  padding: 40px 40px;
-  /* background: rebeccapurple; */
-  /* width: fit-content; */
-}
+
 
 
 .before_accept_container .content_section h1{
@@ -95,3 +94,65 @@
   font-family: var(--Heading);
   font-weight: var(--Heading_weight);
 }
+
+/* Responsive styles for screens under 700px */
+@media screen and (max-width: 700px) {
+  .before_accept_container {
+    padding: 0;
+    background: rebeccapurple;
+  }
+
+
+  .before_accept_container .progress_bar {
+    margin-bottom: 30px;
+  }
+
+  .before_accept_container .step_number {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .before_accept_container .step_name {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .before_accept_container .connector {
+    width: calc(100% - 30px);
+    top: 14px;
+    left: calc(50% + 14px);
+  }
+
+  .before_accept_container .content_section {
+    padding: 20px;
+  }
+
+  .before_accept_container .content_section h1 {
+    font-size: 20px;
+  }
+}
+
+/* For very small screens */
+@media screen and (max-width: 480px) {
+ 
+  .before_accept_container .content_section {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .before_accept_container .step_number {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 10px;
+  }
+
+  .before_accept_container .step_name {
+    margin-top: 0;
+    text-align: left;
+    font-size: 0.7rem;
+    /* background: rebeccapurple; */
+  }
+}
+
+

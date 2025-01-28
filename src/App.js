@@ -35,7 +35,7 @@ import OwnerHome from "./Components/Owener/sub_part/OwnerHome";
 import TeamOverview from "./Components/Owener/sub_part/TeamOverview";
 import InvoiceForm from "./Components/Owener/sub_part/Invoic_part/Invoic";
 
-
+import Search_photographer from "./Components/Owener/sub_part/Search_photographer/Search_photographer.js";
 import Profile from "./Components/Owener/profile_part_2/Profile";
 
 // import Profile from "./Components/Owener/sub_part/Profile.js";
@@ -191,6 +191,9 @@ const SetOwnerPage = ({ ActivePage  }) => {
           website: data.user.website || null,
           services: data.user.services || null,
           business_email: data.user.business_email || null,
+          
+          business_profile_base64: data.user.business_profile_base64 || null,
+          user_profile_image_base64: data.user.user_profile_image_base64 || null,
         }});
 
         setOwnerStatus(data.user.user_Status);
@@ -313,13 +316,22 @@ const SetOwnerPage = ({ ActivePage  }) => {
         } /> */}
 
 
-
+        <Route path="/Owner/search_photographer" element={
+            authStatus.owner ? (
+              <SetOwnerPage ActivePage={Search_photographer} />
+            ) : (
+              <LoginRegisterOwener />
+            )
+          }
+        />
 
 
         <Route path="/Owner/Profile" element={authStatus.owner ? 
           <SetOwnerPage ActivePage={Profile} /> : 
           <LoginRegisterOwener />
         } />
+
+        
 
 
         {/* -------------------------------------------------------------------------------------------------------------- */}

@@ -179,9 +179,9 @@ export const BeforeAccept = () => {
   const [currentStep, setCurrentStep] = useState(1);
 
 
-  const [is_Page1, setIs_Page1] = useState(false);
-  const [is_Page2, setIs_Page2] = useState(false);
-  const [is_Page3, setIs_Page3] = useState(false);
+  const [is_Page1, setIs_Page1] = useState(true);
+  const [is_Page2, setIs_Page2] = useState(true);
+  const [is_Page3, setIs_Page3] = useState(true);
  
 
   const handleStepClick = (stepId) => {

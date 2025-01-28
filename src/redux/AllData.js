@@ -1,12 +1,8 @@
 export const localstorage_key_for_jwt_user_side_key = 'Jwt_user_localstorage_key_on_photography_website';
 export const localstorage_key_for_admin_login = "localstorage_key_for_admin_login";
-export const Server_url = 'http://localhost:4000';
+// export const Server_url = 'http://localhost:4000';
+export const Server_url = 'http://192.168.29.193:4000';
 // export const Server_url = 'http://127.0.0.1:3306';
 export const localstorage_key_for_client = "localstorage_key_for_client";
 export const localstorage_key_for_admin_settings = "localstorage_key_for_admin_settings";
 
-
-export function get_img_src(id) {  
-    // https://lh3.googleusercontent.com/d/......id
-    return `https://drive.google.com/thumbnail?id=${id}`;
-}

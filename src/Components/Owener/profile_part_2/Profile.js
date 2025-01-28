@@ -18,7 +18,7 @@ function Profile() {
   const sections = ['User Profile', 'Business Profile', 'portfolio', "Equipment's", "Reviews"];
 
   return (
-    <div className="profile-container">
+    <div className="profile-container-after-accept">
       <div className="sidebar">
         {sections.map((section) => (
           <div

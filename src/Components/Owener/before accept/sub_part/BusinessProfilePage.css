@@ -716,3 +716,81 @@
   }
 }
 
+@media screen and (max-width: 600px) {
+  #AddBusinessDataPage {
+    padding: 10px;
+  }
+
+  #AddBusinessDataPage .profile-avatar-container {
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+  }
+
+  #AddBusinessDataPage .profile-header h2 {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  #AddBusinessDataPage .form-group_for_2_inputs {
+    flex-direction: column;
+  }
+
+  #AddBusinessDataPage .form-group_for_2_inputs .inputs-group {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  #AddBusinessDataPage .profile-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  #AddBusinessDataPage .upload-btn,
+  #AddBusinessDataPage .delete-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  #AddBusinessDataPage form {
+    padding: 0 12px;
+  }
+
+  #AddBusinessDataPage .submit-button,
+  #AddBusinessDataPage .save-changes-btn {
+    width: 100%;
+  }
+
+  #AddBusinessDataPage .form-group_with_button {
+    flex-direction: column;
+  }
+
+  #AddBusinessDataPage .form-group_with_button input {
+    width: 100%;
+  }
+
+  #AddBusinessDataPage .form-group_with_button .add-button {
+    position: static;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  #AddBusinessDataPage .suggestions-list {
+    width: 100%;
+  }
+
+  #AddBusinessDataPage .selected-item {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  #AddBusinessDataPage .input-group-with-icon input {
+    padding-left: 36px;
+  }
+
+  #AddBusinessDataPage .input-icon {
+    left: 8px;
+  }
+}
+

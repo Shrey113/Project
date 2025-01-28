@@ -1,7 +1,196 @@
 .sub-portfolio{
     background: white;
     border-radius: 10px;
-    padding: 20px;
-    margin-top: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 0px 15px;
+    margin-top:-16px;
+}
+
+.files-section {
+
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+
+
+.file-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition:box-shadow 0.3s ease;
+}
+
+.file-item:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.file-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.file-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  color: white;
+}
+
+.file-item:hover .file-info {
+  transform: translateY(0);
+}
+
+.file-info span {
+  display: block;
+  margin: 5px 0;
+}
+
+.file-info span:first-child {
+  font-weight: 500;
+  font-size: 1.1em;
+}
+
+.file-info span:last-child {
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+.delete-btn_on_sub {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  z-index: 2;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 0;
+  line-height: 1;
+}
+
+.delete-btn:hover {
+  background: rgba(255, 0, 0, 1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .files-section {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .files-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+.file-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.portfolio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  padding: 0 12px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+.back-btn img{
+  width: 20px;
+  height: 20px;
+}
+
+.back-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.back-btn span {
+  font-size: 18px;
+}
+
+.portfolio-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.add-files-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.add-files-btn:hover {
+  background-color: #0056b3;
+}
+
+.add-files-btn span {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.files-section .no-files-messages {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
