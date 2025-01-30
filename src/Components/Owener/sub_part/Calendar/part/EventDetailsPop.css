@@ -431,3 +431,37 @@
   background-color: #F9FAFB;  /* Very light gray on hover */
   border-radius: 4px;
 }
+
+
+
+
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    .modal-overlay_event_details .modal-content {
+        width: 96%;
+        padding: 1.5rem;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-overlay_event_details .modal-actions button {
+        width: 100%;
+    }
+}
+@media (max-width: 500px) {
+    .modal-overlay_event_details .modal-content {
+        width: 96%;
+        padding: 1.5rem;
+        max-height: 95dvh;
+        overflow-y: auto;
+    }
+
+    .modal-overlay_event_details .modal-actions {
+        flex-direction: column;
+    }
+
+    .modal-overlay_event_details .modal-actions button {
+        width: 100%;
+    }
+}

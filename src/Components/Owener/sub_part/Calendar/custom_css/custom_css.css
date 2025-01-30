@@ -1,4 +1,3 @@
-
 :root {
     --rbc-border-color: 1px solid #dddddd7b;
 }
@@ -98,6 +97,71 @@
 /* Calendar Grid */
 .rbc-calendar {
     padding: 0;
-    
+    width: 100%;
+    min-height: 600px;
+    max-width: 100%;
+}
+
+/* Responsive Month View */
+@media screen and (max-width: 768px) {
+    .rbc-month-view {
+        font-size: 0.9rem;
+    }
+
+    .rbc-header {
+        padding: 5px;
+        font-size: 0.8rem;
+    }
+
+    .rbc-month-view .rbc-event {
+        min-height: 20px;
+        padding: 2px 4px !important;
+        font-size: 10px;
+    }
+
+    .rbc-date-cell {
+        padding: 4px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Responsive Week/Day View */
+@media screen and (max-width: 768px) {
+    .rbc-time-view .rbc-event {
+        min-height: 30px;
+        padding: 4px;
+        font-size: 12px;
+    }
+
+    .rbc-time-header-content {
+        font-size: 0.8rem;
+    }
+
+    .rbc-time-content {
+        font-size: 0.8rem;
+    }
+
+    .rbc-label {
+        padding: 2px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Small Mobile Devices */
+@media screen and (max-width: 480px) {
+    .rbc-toolbar {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .rbc-toolbar button {
+        padding: 5px;
+        font-size: 0.8rem;
+    }
+
+    .rbc-month-view .rbc-event {
+        min-height: 18px;
+        font-size: 9px;
+    }
 }
 

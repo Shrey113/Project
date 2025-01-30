@@ -271,3 +271,29 @@
   padding: 10px;
   font-style: italic;
 }
+
+@media (max-width: 1024px) {
+  .year-view-container .year-view {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .year-view-container .year-view {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .year-view-container .year-view {
+    grid-template-columns: 1fr;
+  }
+
+  .month-container {
+    padding: 8px;
+  }
+
+  .calendar-grid {
+    font-size: 0.8rem;
+  }
+}

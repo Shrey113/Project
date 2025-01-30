@@ -161,10 +161,8 @@ function Calendar() {
 
   const CustomEvent = ({ event }) => {
     return (
-      <div style={{ padding: '5px' }}>
+      <div className='custom-event-container'>
         <strong>{event.title}</strong>
-        <br />
-        <span style={{ fontSize: '0.85em', color: '#555' }}>{event.description}</span>
       </div>
     );
   };
@@ -176,68 +174,67 @@ function Calendar() {
     if (start < currentDate) {
         alert("You cannot move events to past dates");
         return; // Keep the event in its original position
-    }else{
-      return;
     }
 
     // Update the event locally
-    const updatedEvent = { ...event, start, end };
-    const updatedEvents = events.map((e) => 
-        e.id === event.id ? updatedEvent : e
-    );
-    setEvents(updatedEvents);
+    // const updatedEvent = { ...event, start, end };
+    // const updatedEvents = events.map((e) => 
+    //     e.id === event.id ? updatedEvent : e
+    // );
+    // setEvents(updatedEvents);
 
-    // Send the updated event to the server
-    try {
-        const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                ...updatedEvent,
-                id: event.id,
-            }),
-        });
+    // try {
+    //     const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
+    //         method: 'PUT',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             ...updatedEvent,
+    //             id: event.id,
+    //         }),
+    //     });
 
-        const data = await response.json();
-        if (!response.ok) {
-            console.error(data.error || 'Failed to update event on server');
-        }
-    } catch (err) {
-        console.error('Failed to save updated event:', err.message);
-    }
+    //     const data = await response.json();
+    //     if (!response.ok) {
+    //         console.error(data.error || 'Failed to update event on server');
+    //     }
+    // } catch (err) {
+    //     console.error('Failed to save updated event:', err.message);
+    // }
+
+
 };
 
 const handleEventResize = async ({ event, start, end }) => {
   return;
   // Update the event locally
-  const updatedEvent = { ...event, start, end };
-  const updatedEvents = events.map((e) => 
-      e.id === event.id ? updatedEvent : e
-  );
-  setEvents(updatedEvents);
+  // const updatedEvent = { ...event, start, end };
+  // const updatedEvents = events.map((e) => 
+  //     e.id === event.id ? updatedEvent : e
+  // );
+  // setEvents(updatedEvents);
 
 
-  try {
-      const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
-          method: 'PUT',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              ...updatedEvent,
-              id: event.id,
-          }),
-      });
+  // try {
+  //     const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
+  //         method: 'PUT',
+  //         headers: {
+  //             'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //             ...updatedEvent,
+  //             id: event.id,
+  //         }),
+  //     });
 
-      const data = await response.json();
-      if (!response.ok) {
-          console.error(data.error || 'Failed to update event on server');
-      }
-  } catch (err) {
-      console.error('Failed to save updated event:', err.message);
-  }
+  //     const data = await response.json();
+  //     if (!response.ok) {
+  //         console.error(data.error || 'Failed to update event on server');
+  //     }
+  // } catch (err) {
+  //     console.error('Failed to save updated event:', err.message);
+  // }
 };
 
 

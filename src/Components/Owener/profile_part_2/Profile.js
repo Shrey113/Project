@@ -10,21 +10,32 @@ import AddReviews from './profile_parts/AddReviews';
 
 
 
+
+
 function Profile() {
 
   
   const [activeSection, setActiveSection] = useState('User Profile');
+  const [showMenu, setShowMenu] = useState(false);
 
   const sections = ['User Profile', 'Business Profile', 'portfolio', "Equipment's", "Reviews"];
 
   return (
     <div className="profile-container-after-accept">
-      <div className="sidebar">
+      <div className="profile-header-mobile" onClick={() => setShowMenu(!showMenu)}>
+        <span>{activeSection}</span>
+        <span className="menu-icon">{showMenu ? '▼' : '▶'}</span>
+      </div>
+      
+      <div className={`sidebar ${showMenu ? 'show-menu' : ''}`}>
         {sections.map((section) => (
           <div
             key={section}
             className={`sidebar-item ${activeSection === section ? 'active' : ''}`}
-            onClick={() => setActiveSection(section)}
+            onClick={() => {
+              setActiveSection(section);
+              setShowMenu(false);
+            }}
           >
             {section}
           </div>

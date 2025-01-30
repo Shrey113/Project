@@ -1,4 +1,4 @@
- .portfolio-container {
+ .portfolio-container-before-accept {
   padding: 1.5rem;
   margin: 0 auto;
   min-height: 100vh;
@@ -6,7 +6,7 @@
   /* background: red; */
 }
 
-.portfolio-container h1 {
+.portfolio-container-before-accept h1 {
   text-align: left;
   color: #2c3e50;
   font-size: 1.5rem;
@@ -26,7 +26,7 @@
 }
 
 
-.portfolio-container .upload-section {
+.portfolio-container-before-accept .upload-section {
   text-align: center;
   margin-bottom: 2rem;
   padding: 1.5rem;
@@ -37,7 +37,7 @@
   margin-right: auto;
 }
 
-.portfolio-container .custom-file-upload {
+.portfolio-container-before-accept .custom-file-upload {
   border: 1.5px dashed #3498db;
   border-radius: 8px;
   padding: 0.8rem 1.5rem;
@@ -49,14 +49,14 @@
   font-size: 0.9rem;
 }
 
-.portfolio-container .custom-file-upload:hover {
+.portfolio-container-before-accept .custom-file-upload:hover {
   background-color: #3498db;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
 }
 
-.portfolio-container .gallery {
+.portfolio-container-before-accept .gallery {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
@@ -64,7 +64,7 @@
   margin-bottom: 2rem;
 }
 
-.portfolio-container .image-card {
+.portfolio-container-before-accept .image-card {
   position: relative;
   border-radius: 10px;
   overflow: hidden;
@@ -75,7 +75,7 @@
 }
 
 
-.portfolio-container .image-card img {
+.portfolio-container-before-accept .image-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -84,7 +84,7 @@
 
 
 
-.portfolio-container .image-overlay {
+.portfolio-container-before-accept .image-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -95,11 +95,11 @@
   transition: transform 0.3s ease;
 }
 
-.portfolio-container .image-card:hover .image-overlay {
+.portfolio-container-before-accept .image-card:hover .image-overlay {
   transform: translateY(0);
 }
 
-.portfolio-container .image-overlay p {
+.portfolio-container-before-accept .image-overlay p {
   margin: 0 0 0.5rem 0;
   font-size: 0.8rem;
   font-weight: 500;
@@ -109,7 +109,7 @@
   text-overflow: ellipsis;
 }
 
-.portfolio-container .image-overlay button {
+.portfolio-container-before-accept .image-overlay button {
   background-color: #e74c3c;
   color: white;
   border: none;
@@ -121,12 +121,12 @@
   font-size: 0.8rem;
 }
 
-.portfolio-container .image-overlay button:hover {
+.portfolio-container-before-accept .image-overlay button:hover {
   background-color: #c0392b;
   /* transform: translateY(-1px); */
 }
 
-.portfolio-container .error-message {
+.portfolio-container-before-accept .error-message {
   color: #e74c3c;
   margin-top: 0.8rem;
   padding: 0.6rem;
@@ -136,14 +136,14 @@
   font-weight: 500;
 }
 
-.portfolio-container .status-message {
+.portfolio-container-before-accept .status-message {
   color: #2c3e50;
   margin-top: 0.8rem;
   font-size: 1rem;
   font-weight: 500;
 }
 
-.portfolio-container .empty-gallery {
+.portfolio-container-before-accept .empty-gallery {
   text-align: center;
   padding: 2rem;
   color: #95a5a6;
@@ -151,13 +151,13 @@
   font-weight: 500;
 }
 
-.portfolio-container .requirement-note {
+.portfolio-container-before-accept .requirement-note {
   color: #7f8c8d;
   margin-top: 0.5rem;
   font-size: 0.8rem;
 }
 
-.portfolio-container .next-page-section {
+.portfolio-container-before-accept .next-page-section {
   text-align: center;
   margin-top: 2rem;
   padding: 1.5rem;
@@ -167,7 +167,7 @@
   margin-right: auto;
 }
 
-.portfolio-container .next-page-button {
+.portfolio-container-before-accept .next-page-button {
   background-color: #2ecc71;
   color: white;
   border: none;
@@ -180,13 +180,13 @@
   box-shadow: 0 4px 12px rgba(46, 204, 113, 0.15);
 }
 
-.portfolio-container .next-page-button:hover {
+.portfolio-container-before-accept .next-page-button:hover {
   background-color: #27ae60;
   /* transform: translateY(-2px); */
   box-shadow: 0 6px 15px rgba(46, 204, 113, 0.2);
 }
 
-.portfolio-container .optional-message {
+.portfolio-container-before-accept .optional-message {
   margin-top: 0.8rem;
   color: #7f8c8d;
   font-size: 0.8rem;
@@ -194,18 +194,18 @@
 }
 
 /* Disabled states */
-.portfolio-container .image-overlay button:disabled {
+.portfolio-container-before-accept .image-overlay button:disabled {
   background-color: #bdc3c7;
   cursor: not-allowed;
   opacity: 0.7;
 }
 
-.portfolio-container .image-overlay button:disabled:hover {
+.portfolio-container-before-accept .image-overlay button:disabled:hover {
   transform: none;
   background-color: #bdc3c7;
 }
 
-.portfolio-container input[type="file"]:disabled + .custom-file-upload {
+.portfolio-container-before-accept input[type="file"]:disabled + .custom-file-upload {
   border-color: #bdc3c7;
   color: #bdc3c7;
   cursor: not-allowed;
@@ -223,38 +223,38 @@
   }
 }
 
-.portfolio-container .next-page-section {
+.portfolio-container-before-accept .next-page-section {
   animation: fadeInUp 0.4s ease;
 }
 
 /* Responsive Design */
  @media (max-width: 768px) {
 
-  .portfolio-container h1 {
+  .portfolio-container-before-accept h1 {
     font-size: 1.3rem;
     margin: 0.8rem 0 1.5rem;
   }
   
-  .portfolio-container .gallery {
+  .portfolio-container-before-accept .gallery {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .portfolio-container .image-card {
+  .portfolio-container-before-accept .image-card {
     height: 160px;
   }
   
-  .portfolio-container .custom-file-upload {
+  .portfolio-container-before-accept .custom-file-upload {
     padding: 0.6rem 1.2rem;
     font-size: 0.85rem;
   }
   
-  .portfolio-container .next-page-button {
+  .portfolio-container-before-accept .next-page-button {
     padding: 0.6rem 1.5rem;
     font-size: 0.85rem;
   }
 }
 
-.portfolio-container input[type="file"] {
+.portfolio-container-before-accept input[type="file"] {
   width: 0.1px;
   height: 0.1px;
   opacity: 0;
@@ -263,20 +263,20 @@
   z-index: -1;
 }
 
-.portfolio-container .next-page-button.disabled {
+.portfolio-container-before-accept .next-page-button.disabled {
   background-color: #bdc3c7;
   cursor: not-allowed;
   transform: none !important;
   box-shadow: none !important;
 }
 
-.portfolio-container .next-page-button.disabled:hover {
+.portfolio-container-before-accept .next-page-button.disabled:hover {
   background-color: #bdc3c7;
   transform: none;
   box-shadow: none;
 }
 
-.portfolio-container .add-image-card {
+.portfolio-container-before-accept .add-image-card {
   height: 200px;
   border: 2px dashed #3498db;
   border-radius: 10px;
@@ -290,13 +290,13 @@
   overflow: hidden;
 }
 
-.portfolio-container .add-image-card:hover {
+.portfolio-container-before-accept .add-image-card:hover {
   border-color: #2980b9;
   background-color: rgba(52, 152, 219, 0.05);
   /* transform: translateY(-4px); */
 }
 
-.portfolio-container .add-image-content {
+.portfolio-container-before-accept .add-image-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -305,23 +305,23 @@
   transition: all 0.3s ease;
 }
 
-.portfolio-container .plus-icon {
+.portfolio-container-before-accept .plus-icon {
   font-size: 2.5rem;
   font-weight: 300;
   line-height: 1;
 }
 
-.portfolio-container .add-text {
+.portfolio-container-before-accept .add-text {
   font-size: 0.9rem;
   font-weight: 500;
 }
 
-.portfolio-container .image-count {
+.portfolio-container-before-accept .image-count {
   font-size: 0.8rem;
   opacity: 0.7;
 }
 
-.portfolio-container .add-image-card input[type="file"] {
+.portfolio-container-before-accept .add-image-card input[type="file"] {
   width: 0.1px;
   height: 0.1px;
   opacity: 0;
@@ -331,7 +331,7 @@
 }
 
 /* Update gallery gap for consistent spacing */
-.portfolio-container .gallery {
+.portfolio-container-before-accept .gallery {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
@@ -341,19 +341,19 @@
 
 /* Responsive adjustments */
  @media (max-width: 1024px) {
-  .portfolio-container .gallery {
+  .portfolio-container-before-accept .gallery {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
  @media (max-width: 768px) {
-  .portfolio-container .gallery {
+  .portfolio-container-before-accept .gallery {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
  @media (max-width: 480px) {
-  .portfolio-container .gallery {
+  .portfolio-container-before-accept .gallery {
     grid-template-columns: repeat(1, 1fr);
   }
 }

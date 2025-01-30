@@ -2,11 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import "./DraftInvoiceLayout.css";
 import { useSelector } from "react-redux";
 import { Server_url } from "../../../../../redux/AllData";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { FaArrowLeft } from "react-icons/fa";
+import html2pdf from "html2pdf.js";
+import { useCount } from "../../../../../redux/CountContext";
 
-function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
+function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
   const [toggle_recipient_input, setToggle_recipient_input] = useState(false);
   const [toggleAddressInput, setToggleAddressInput] = useState(false);
   const [toggleEmailInput, setToggleEmailInput] = useState(false);
@@ -14,8 +14,9 @@ function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
   const user = useSelector((state) => state.user);
   const [isSavedraft, setIsSavedraft] = useState(false);
 
-  console.log("invoiceData", invoiceData.items);
-  console.log("itemsData", itemsData);
+  const { decrementCount } = useCount();
+
+  console.log("invoiceData", invoiceData);
   function formatDateTime(isoString) {
     const date = new Date(isoString);
 
@@ -29,10 +30,9 @@ function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
       date
     );
 
-    // Return the full date in the format '7 Jan 2025'
     return {
-      date: formattedDate, // Full date format like '7 Jan 2025'
-      time: date.toLocaleTimeString(), // Extracts the time part as '14:30:00 PM'
+      date: formattedDate,
+      time: date.toLocaleTimeString(),
     };
   }
   const inputRef = useRef(null);
@@ -83,9 +83,12 @@ function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
   };
 
   useEffect(() => {
+    if (invoiceData.invoice_logo) {
+      setLogoPreview(invoiceData.invoice_logo);
+    }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [invoiceData.invoice_logo]);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -131,9 +134,7 @@ function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
 
       // Recalculate amount if both quantity and price are valid
       if (!isNaN(items[index].quantity) && !isNaN(items[index].price)) {
-        items[index].amount = (
-          items[index].quantity * items[index].price
-        ).toFixed(2);
+        items[index].amount = items[index].quantity * items[index].price;
       } else {
         items[index].amount = 0; // reset amount if quantity or price are invalid
       }
@@ -147,8 +148,8 @@ function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
         ...invoice,
         items,
         sub_total,
-        gst: (sub_total * 0.18).toFixed(2),
-        total: (sub_total * 1.18).toFixed(2),
+        gst: sub_total * 0.18,
+        total: sub_total * 1.18,
       });
     } else {
       setInvoice({ ...invoice, [name]: value });
@@ -178,107 +179,243 @@ function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
     });
   };
 
-  const generateInvoiceContent = (doc) => {
-    // Set font styles
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(24);
-    doc.text("INVOICE", 14, 30);
+  // const generateInvoiceContent = (doc) => {
+  //   // Set font styles
+  //   doc.setFont("helvetica", "bold");
+  //   doc.setFontSize(24);
+  //   doc.text("INVOICE", 14, 30);
 
-    // Company details section
-    doc.setFontSize(12);
-    doc.text("From:", 14, 45);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${user.user_name}`, 14, 55);
-    doc.text(`${user.business_address}`, 14, 65);
-    doc.text(`${user.user_email}`, 14, 75);
-    doc.text(`GST No: ${user.gst_number}`, 14, 85);
+  //   // Company details section
+  //   doc.setFontSize(12);
+  //   doc.text("From:", 14, 45);
+  //   doc.setFont("helvetica", "normal");
+  //   doc.text(`${user.user_name}`, 14, 55);
+  //   doc.text(`${user.business_address}`, 14, 65);
+  //   doc.text(`${user.user_email}`, 14, 75);
+  //   doc.text(`GST No: ${user.gst_number}`, 14, 85);
 
-    // Bill to section
-    doc.setFont("helvetica", "bold");
-    doc.text("Bill To:", 120, 45);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${invoice.invoice_to}`, 120, 55);
-    doc.text(`${invoice.invoice_to_address || ""}`, 120, 65);
-    doc.text(`${invoice.invoice_to_email || ""}`, 120, 75);
+  //   // Bill to section
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text("Bill To:", 120, 45);
+  //   doc.setFont("helvetica", "normal");
+  //   doc.text(`${invoice.invoice_to}`, 120, 55);
+  //   doc.text(`${invoice.invoice_to_address || ""}`, 120, 65);
+  //   doc.text(`${invoice.invoice_to_email || ""}`, 120, 75);
 
-    // Invoice details
-    doc.setFont("helvetica", "bold");
-    doc.text(`Invoice No: ${invoice.invoice_id}`, 120, 85);
-    doc.text(`Date: ${(new Date(invoice.date), "dd/MM/yyyy")}`, 120, 95);
+  //   // Invoice details
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text(`Invoice No: ${invoice.invoice_id}`, 120, 85);
+  //   doc.text(`Date: ${(new Date(invoice.date), "dd/MM/yyyy")}`, 120, 95);
 
-    // Items table
-    autoTable(doc, {
-      startY: 110,
-      head: [["Item", "Quantity", "Price", "Amount"]],
-      body: invoice.items.map((item) => [
-        item.item,
-        item.quantity,
-        `₹${item.price.toFixed(2)}`,
-        `₹${item.amount.toFixed(2)}`,
-      ]),
-      theme: "grid",
-      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-      styles: { fontSize: 10 },
-    });
+  //   // Items table
+  //   autoTable(doc, {
+  //     startY: 110,
+  //     head: [["Item", "Quantity", "Price", "Amount"]],
+  //     body: invoice.items.map((item) => [
+  //       item.item,
+  //       item.quantity,
+  //       `₹${item.price.toFixed(2)}`,
+  //       `₹${item.amount.toFixed(2)}`,
+  //     ]),
+  //     theme: "grid",
+  //     headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+  //     styles: { fontSize: 10 },
+  //   });
 
-    // Summary section
-    const finalY = doc.autoTable.previous.finalY + 10;
-    doc.setFontSize(10);
+  //   // Summary section
+  //   const finalY = doc.autoTable.previous.finalY + 10;
+  //   doc.setFontSize(10);
 
-    // Right-aligned summary
-    const rightColumn = 190;
-    doc.text(
-      `Subtotal: ₹${invoice.sub_total.toFixed(2)}`,
-      rightColumn,
-      finalY,
-      { align: "right" }
-    );
-    doc.text(
-      `GST (18%): ₹${invoice.gst.toFixed(2)}`,
-      rightColumn,
-      finalY + 10,
-      { align: "right" }
-    );
+  //   // Right-aligned summary
+  //   const rightColumn = 190;
+  //   doc.text(
+  //     `Subtotal: ₹${invoice.sub_total.toFixed(2)}`,
+  //     rightColumn,
+  //     finalY,
+  //     { align: "right" }
+  //   );
+  //   doc.text(
+  //     `GST (18%): ₹${invoice.gst.toFixed(2)}`,
+  //     rightColumn,
+  //     finalY + 10,
+  //     { align: "right" }
+  //   );
 
-    doc.setFont("helvetica", "bold");
-    doc.text(`Total: ₹${invoice.total.toFixed(2)}`, rightColumn, finalY + 20, {
-      align: "right",
-    });
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text(`Total: ₹${invoice.total.toFixed(2)}`, rightColumn, finalY + 20, {
+  //     align: "right",
+  //   });
 
-    // Footer
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.text("Thank you for your business!", 14, finalY + 40);
-  };
+  //   // Footer
+  //   doc.setFont("helvetica", "normal");
+  //   doc.setFontSize(8);
+  //   doc.text("Thank you for your business!", 14, finalY + 40);
+  // };
+
+  // const generatePDF = () => {
+  //   const doc = new jsPDF();
+
+  //   const addLogoIfExists = () => {
+  //     return new Promise((resolve) => {
+  //       if (logoPreview) {
+  //         const img = new Image();
+  //         img.onload = () => {
+  //           // Calculate aspect ratio to maintain logo proportions
+  //           const imgWidth = 40;
+  //           const imgHeight = (img.height * imgWidth) / img.width;
+  //           doc.addImage(img, "JPEG", 14, 10, imgWidth, imgHeight);
+  //           resolve();
+  //         };
+  //         img.src = logoPreview;
+  //       } else {
+  //         resolve();
+  //       }
+  //     });
+  //   };
+
+  //   // Generate PDF with proper async handling
+  //   addLogoIfExists().then(() => {
+  //     generateInvoiceContent(doc);
+  //     doc.save(`Invoice_${invoice.invoice_id}.pdf`);
+  //   });
+  // };
 
   const generatePDF = () => {
-    const doc = new jsPDF();
+    // Create a container div for the PDF content
+    const element = document.createElement("div");
+    element.className = "pdf-container";
 
-    const addLogoIfExists = () => {
-      return new Promise((resolve) => {
-        if (logoPreview) {
-          const img = new Image();
-          img.onload = () => {
-            // Calculate aspect ratio to maintain logo proportions
-            const imgWidth = 40;
-            const imgHeight = (img.height * imgWidth) / img.width;
-            doc.addImage(img, "JPEG", 14, 10, imgWidth, imgHeight);
-            resolve();
-          };
-          img.src = logoPreview;
-        } else {
-          resolve();
-        }
-      });
+    // Generate the HTML content
+    element.innerHTML = `
+      <div class="invoice-page" style="
+        padding: 40px;
+        font-family: Arial, sans-serif;
+        position: relative;
+        background: white;
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0 auto;
+      ">
+        <div class="header" style="
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 30px;
+        ">
+          ${
+            logoPreview
+              ? `
+            <div class="logo" style="width: 150px; height: 90px;">
+              <img src="${logoPreview}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+            </div>
+          `
+              : `
+            <div style="width: 150px; height: 80px;"></div>
+          `
+          }
+          <div class="invoice-title" style="text-align: right; font-size: 24px; font-weight: bold;">
+            INVOICE<br/>
+            <span style="font-size: 14px;">Invoice No: ${
+              invoice.invoice_id
+            }</span><br/>
+            <span style="font-size: 14px;">Date: ${invoice.date}</span>
+          </div>
+        </div>
+
+        <div class="address-section" style="
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 40px;
+        ">
+          <div class="from-address">
+            <h3 style="margin-bottom: 10px;">From:</h3>
+            <p style="margin: 0;">${user.user_name}</p>
+            <p style="margin: 0;">${user.business_address}</p>
+            <p style="margin: 0;">${user.user_email}</p>
+            <p style="margin: 0;">GST No: ${user.gst_number}</p>
+          </div>
+          <div class="to-address" style="text-align: right;">
+            <h3 style="margin-bottom: 10px;">Bill To:</h3>
+            <p style="margin: 0;">${invoice.invoice_to}</p>
+            <p style="margin: 0;">${invoice.invoice_to_address || ""}</p>
+            <p style="margin: 0;">${invoice.invoice_to_email || ""}</p>
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+          <thead>
+            <tr style="background-color: #f8f9fa;">
+              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: left;">Item</th>
+              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Quantity</th>
+              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Price</th>
+              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${invoice.items
+              .map(
+                (item) => `
+              <tr>
+                <td style="padding: 12px; border: 1px solid #dee2e6;">${
+                  item.item
+                }</td>
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">${
+                  item.quantity
+                }</td>
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.price.toFixed(
+                  2
+                )}</td>
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.amount.toFixed(
+                  2
+                )}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+
+        <div class="summary-section" style="margin-left: auto; width: 300px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>Subtotal:</span>
+            <span>₹${invoice.sub_total.toFixed(2)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>GST (18%):</span>
+            <span>₹${invoice.gst.toFixed(2)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; border-top: 2px solid #dee2e6; padding-top: 10px;">
+            <span>Total:</span>
+            <span>₹${invoice.total.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div class="footer" style="margin-top: 50px; text-align: center; font-size: 12px; color: #6c757d;">
+          <p>Thank you for your business!</p>
+        </div>
+      </div>
+    `;
+
+    // Configure pdf options
+    const opt = {
+      margin: 0,
+      filename: `Invoice_${invoice.invoice_id}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+      },
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+      },
+      pagebreak: { mode: "css", before: ".page-break" },
     };
 
-    // Generate PDF with proper async handling
-    addLogoIfExists().then(() => {
-      generateInvoiceContent(doc);
-      doc.save(`Invoice_${invoice.invoice_id}.pdf`);
-    });
+    // Generate PDF
+    html2pdf().from(element).set(opt).save();
   };
-
   const fetchInvoicesWithDraft = async (user_email) => {
     try {
       // setLoading(true);
@@ -293,13 +430,9 @@ function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
       const with_draft = Array.isArray(data.with_draft)
         ? [...data.with_draft].sort((a, b) => a.invoice_id - b.invoice_id)
         : [];
-      // setDraftInvoices(with_draft);
-      // setDraftCount(with_draft.length);
       console.log("Fetched draft invoices:", with_draft);
     } catch (error) {
       console.error("Error fetching invoices with draft:", error);
-      // setError("Failed to load invoices. Please try again later.");
-      // setDraftInvoices([]);
     }
   };
 
@@ -360,6 +493,7 @@ function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
 
       const data = await response.json();
       console.log(data);
+      decrementCount();
       fetchInvoicesWithDraft(user.user_email);
       alert("Invoice generated successfully!");
       generatePDF();
@@ -424,6 +558,37 @@ function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
       setIsSavedraft(false);
     }
   };
+  const uploadBase64ImageDraft = async () => {
+    if (!logoPreview) {
+      alert("Please upload an image first.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${Server_url}/upload-draft-invoice-photo`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          image: logoPreview,
+          user_email: user.user_email,
+          invoice_id: invoice.invoice_id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image.");
+      }
+
+      const data = await response.json();
+      alert("Image uploaded successfully!");
+      console.log("Server response:", data);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Error uploading image. Please try again.");
+    }
+  };
 
   return (
     <div className="invoice_and_table_container_draft">
@@ -442,29 +607,53 @@ function DraftInvoiceLayout({ invoiceData, itemsData, setDraftInvoiceChange }) {
       </div>
       <div className="invoice_form">
         <div className="company_logo_invoice">
-          <div className="preview_image">
-            <input
-              type="file"
-              name="company_logo"
-              accept="image/*"
-              onChange={handleLogoChange}
-              style={{ display: "none" }}
-              id="input_image"
-            />
-            <div
-              className="companyLogo"
-              onClick={() => document.getElementById("input_image").click()}
+          <div
+            className="logo_for_invoice"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+          >
+            <div className="preview_image">
+              <input
+                type="file"
+                name="company_logo"
+                accept="image/*"
+                onChange={handleLogoChange}
+                style={{ display: "none" }}
+                id="input_image"
+              />
+              <div
+                className="companyLogo"
+                onClick={() => document.getElementById("input_image").click()}
+                style={{
+                  backgroundImage: logoPreview ? `url(${logoPreview})` : "none",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  width: "100%",
+                  height: "100%",
+                  cursor: "pointer",
+                }}
+              >
+                {!logoPreview && <span>Click to upload</span>}
+              </div>
+            </div>
+            <button
+              onClick={uploadBase64ImageDraft}
               style={{
-                backgroundImage: logoPreview ? `url(${logoPreview})` : "none",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                width: "100%",
-                height: "100%",
+                marginTop: "10px",
+                padding: "6px 12px",
+                backgroundColor: "#333",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
                 cursor: "pointer",
               }}
             >
-              {!logoPreview && <span>Click to upload</span>}
-            </div>
+              Upload Image
+            </button>
           </div>
           <div className="invoice_and_gst_no">
             <div className="invoice_id">

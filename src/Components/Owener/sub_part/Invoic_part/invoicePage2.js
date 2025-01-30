@@ -1,18 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import jsPDF from "jspdf";
-// import { format } from "date-fns";
-import autoTable from "jspdf-autotable";
+
+import html2pdf from "html2pdf.js";
 import { useSelector } from "react-redux";
 import { Server_url } from "../../../../redux/AllData";
 import { useCount } from "../../../../redux/CountContext";
 import "./Invoice.css";
 
 function InvoicePage2() {
-
-
   const [emailError, setEmailError] = useState("");
   const user = useSelector((state) => state.user);
-  const [logoPreview, setLogoPreview] = useState(null);
   const [toggle_recipient_input, setToggle_recipient_input] = useState(false);
   const [toggleAddressInput, setToggleAddressInput] = useState(false);
   const [toggleEmailInput, setToggleEmailInput] = useState(false);
@@ -20,8 +16,10 @@ function InvoicePage2() {
   const addressRef = useRef(null);
   const emailRef = useRef(null);
 
-  const { setCount } = useCount();
+  const { incrementCount, setCount } = useCount();
   const [invoice_id, setInvoice_id] = useState(null);
+  const [logoPreview, setLogoPreview] = useState("");
+  const [base64Image, setBase64Image] = useState("");
 
   const generateInvoice = async (user_email) => {
     try {
@@ -33,6 +31,7 @@ function InvoicePage2() {
         body: JSON.stringify({ user_email: user_email }),
       });
       const data = await response.json();
+
       setInvoice_id(data.invoice_id);
     } catch (error) {
       console.error("Error fetching new invoice ID:", error);
@@ -45,7 +44,6 @@ function InvoicePage2() {
   }, [user.user_email]);
   const fetchInvoicesWithDraft = async (user_email) => {
     try {
-  
       const response = await fetch(`${Server_url}/invoices/with-draft`, {
         method: "POST",
         headers: {
@@ -65,9 +63,7 @@ function InvoicePage2() {
     }
   };
 
-
   const [invoice, setInvoice] = useState({
-    invoice_id: invoice_id,
     invoice_to: "",
     invoice_to_address: "",
     invoice_to_email: "",
@@ -102,30 +98,30 @@ function InvoicePage2() {
     }
   };
 
-  const getInvoiceId = async (user_email) => {
-    try {
-      const response = await fetch(`${Server_url}/generate-invoice`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user_email }),
-      });
-      const data = await response.json();
+  // const getInvoiceId = async (user_email) => {
+  //   try {
+  //     const response = await fetch(`${Server_url}/generate-invoice`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ user_email }),
+  //     });
+  //     const data = await response.json();
 
-      setInvoice((prev) => ({
-        ...prev,
-        invoice_id: data.invoice_id,
-      }));
-    } catch (error) {
-      console.error("Error fetching invoice ID:", error);
-    }
-  };
+  //     setInvoice((prev) => ({
+  //       ...prev,
+  //       invoice_id: data.invoice_id,
+  //     }));
+  //   } catch (error) {
+  //     console.error("Error fetching invoice ID:", error);
+  //   }
+  // };
 
-  //   for getting invoice id
-  useEffect(() => {
-    getInvoiceId(user.user_email);
-  }, [user.user_email]);
+  // //   for getting invoice id
+  // useEffect(() => {
+  //   getInvoiceId(user.user_email);
+  // }, [user.user_email]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -172,6 +168,7 @@ function InvoicePage2() {
 
   const handleNewInvoice = async () => {
     setInvoice({
+      invoice_id: invoice_id,
       invoice_to: "",
       invoice_to_address: "",
       invoice_to_email: "",
@@ -193,6 +190,7 @@ function InvoicePage2() {
     e.preventDefault();
 
     if (
+      !invoice_id ||
       !invoice.invoice_to ||
       invoice.items[0].item === "" ||
       invoice.invoice_to_address === "" ||
@@ -225,9 +223,12 @@ function InvoicePage2() {
 
       const completeInvoice = {
         ...invoice,
+        invoice_id: invoice_id,
         date: date,
         user_email: user.user_email,
+        invoice_photo: logoPreview,
       };
+      console.log("completed Invoice", completeInvoice);
 
       const response = await fetch(`${Server_url}/add-invoice`, {
         method: "POST",
@@ -244,7 +245,7 @@ function InvoicePage2() {
       const data = await response.json();
       console.log(data);
 
-      generateInvoice();
+      generateInvoice(user.user_email);
       handleNewInvoice();
       fetchInvoicesWithDraft(user.user_email);
       alert("Invoice generated successfully!");
@@ -261,14 +262,6 @@ function InvoicePage2() {
     } finally {
       button.disabled = false;
       button.innerHTML = "Generate Invoice";
-    }
-  };
-
-  const handleLogoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setLogoPreview(imageUrl);
     }
   };
 
@@ -326,108 +319,142 @@ function InvoicePage2() {
   };
 
   const generatePDF = () => {
-    const doc = new jsPDF();
+    // Create a container div for the PDF content
+    const element = document.createElement("div");
+    element.className = "pdf-container";
 
-    const addLogoIfExists = () => {
-      return new Promise((resolve) => {
-        if (logoPreview) {
-          const img = new Image();
-          img.onload = () => {
-            // Calculate aspect ratio to maintain logo proportions
-            const imgWidth = 40;
-            const imgHeight = (img.height * imgWidth) / img.width;
-            doc.addImage(img, "JPEG", 14, 10, imgWidth, imgHeight);
-            resolve();
-          };
-          img.src = logoPreview;
-        } else {
-          resolve();
-        }
-      });
+    // Generate the HTML content
+    element.innerHTML = `
+      <div class="invoice-page" style="
+        padding: 40px;
+        font-family: Arial, sans-serif;
+        position: relative;
+        background: white;
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0 auto;
+      ">
+        <div class="header" style="
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 30px;
+        ">
+          ${
+            logoPreview
+              ? `
+            <div class="logo" style="width: 150px; height: 90px;">
+              <img src="${logoPreview}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+            </div>
+          `
+              : `
+            <div style="width: 150px; height: 80px;"></div>
+          `
+          }
+          <div class="invoice-title" style="text-align: right; font-size: 24px; font-weight: bold;">
+            INVOICE<br/>
+            <span style="font-size: 14px;">Invoice No: ${invoice_id}</span><br/>
+            <span style="font-size: 14px;">Date: ${invoice.date}</span>
+          </div>
+        </div>
+
+        <div class="address-section" style="
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 40px;
+        ">
+          <div class="from-address">
+            <h3 style="margin-bottom: 10px;">From:</h3>
+            <p style="margin: 0;">${user.user_name}</p>
+            <p style="margin: 0;">${user.business_address}</p>
+            <p style="margin: 0;">${user.user_email}</p>
+            <p style="margin: 0;">GST No: ${user.gst_number}</p>
+          </div>
+          <div class="to-address" style="text-align: right;">
+            <h3 style="margin-bottom: 10px;">Bill To:</h3>
+            <p style="margin: 0;">${invoice.invoice_to}</p>
+            <p style="margin: 0;">${invoice.invoice_to_address || ""}</p>
+            <p style="margin: 0;">${invoice.invoice_to_email || ""}</p>
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+          <thead>
+            <tr style="background-color: #f8f9fa;">
+              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: left;">Item</th>
+              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Quantity</th>
+              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Price</th>
+              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${invoice.items
+              .map(
+                (item) => `
+              <tr>
+                <td style="padding: 12px; border: 1px solid #dee2e6;">${
+                  item.item
+                }</td>
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">${
+                  item.quantity
+                }</td>
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.price.toFixed(
+                  2
+                )}</td>
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.amount.toFixed(
+                  2
+                )}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+
+        <div class="summary-section" style="margin-left: auto; width: 300px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>Subtotal:</span>
+            <span>₹${invoice.sub_total.toFixed(2)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>GST (18%):</span>
+            <span>₹${invoice.gst.toFixed(2)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; border-top: 2px solid #dee2e6; padding-top: 10px;">
+            <span>Total:</span>
+            <span>₹${invoice.total.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div class="footer" style="margin-top: 50px; text-align: center; font-size: 12px; color: #6c757d;">
+          <p>Thank you for your business!</p>
+        </div>
+      </div>
+    `;
+
+    // Configure pdf options
+    const opt = {
+      margin: 0,
+      filename: `Invoice_${invoice_id}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+      },
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+      },
+      pagebreak: { mode: "css", before: ".page-break" },
     };
 
-    // Generate PDF with proper async handling
-    addLogoIfExists().then(() => {
-      generateInvoiceContent(doc);
-      doc.save(`Invoice_${invoice.invoice_id}.pdf`);
-    });
-  };
-
-  const generateInvoiceContent = (doc) => {
-    // Set font styles
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(24);
-    doc.text("INVOICE", 14, 30);
-
-    // Company details section
-    doc.setFontSize(12);
-    doc.text("From:", 14, 45);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${user.user_name}`, 14, 55);
-    doc.text(`${user.business_address}`, 14, 65);
-    doc.text(`${user.user_email}`, 14, 75);
-    doc.text(`GST No: ${user.gst_number}`, 14, 85);
-
-    // Bill to section
-    doc.setFont("helvetica", "bold");
-    doc.text("Bill To:", 120, 45);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${invoice.invoice_to}`, 120, 55);
-    doc.text(`${invoice.invoice_to_address || ""}`, 120, 65);
-    doc.text(`${invoice.invoice_to_email || ""}`, 120, 75);
-
-    // Invoice details
-    doc.setFont("helvetica", "bold");
-    doc.text(`Invoice No: ${invoice.invoice_id}`, 120, 85);
-    doc.text(`Date: ${(new Date(invoice.date), "dd/MM/yyyy")}`, 120, 95);
-
-    // Items table
-    autoTable(doc, {
-      startY: 110,
-      head: [["Item", "Quantity", "Price", "Amount"]],
-      body: invoice.items.map((item) => [
-        item.item,
-        item.quantity,
-        `₹${item.price.toFixed(2)}`,
-        `₹${item.amount.toFixed(2)}`,
-      ]),
-      theme: "grid",
-      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-      styles: { fontSize: 10 },
-    });
-
-    // Summary section
-    const finalY = doc.autoTable.previous.finalY + 10;
-    doc.setFontSize(10);
-
-    // Right-aligned summary
-    const rightColumn = 190;
-    doc.text(
-      `Subtotal: ₹${invoice.sub_total.toFixed(2)}`,
-      rightColumn,
-      finalY,
-      { align: "right" }
-    );
-    doc.text(
-      `GST (18%): ₹${invoice.gst.toFixed(2)}`,
-      rightColumn,
-      finalY + 10,
-      { align: "right" }
-    );
-
-    doc.setFont("helvetica", "bold");
-    doc.text(`Total: ₹${invoice.total.toFixed(2)}`, rightColumn, finalY + 20, {
-      align: "right",
-    });
-
-    // Footer
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.text("Thank you for your business!", 14, finalY + 40);
+    // Generate PDF
+    html2pdf().from(element).set(opt).save();
   };
 
   const handleSaveDraft = async () => {
-    if (!invoice.invoice_id || !user.user_email || !invoice.invoice_to) {
+    if (!invoice_id || !user.user_email || !invoice.invoice_to) {
       alert("Cannot save draft without invoice ID or user email.");
       return;
     }
@@ -437,9 +464,11 @@ function InvoicePage2() {
 
       const draftInvoice = {
         ...invoice,
+        invoice_id: invoice_id,
         date,
         user_email: user.user_email,
         as_draft: 1,
+        invoice_logo: logoPreview,
       };
 
       const response = await fetch(`${Server_url}/save-draft`, {
@@ -459,9 +488,10 @@ function InvoicePage2() {
         data.message === "Invoice items with draft added successfully" ||
         data.message === "Invoice with draft added successfully"
       ) {
+        incrementCount();
         alert("Draft saved successfully!");
         handleNewInvoice();
-        generateInvoice();
+        generateInvoice(user.user_email);
         fetchInvoicesWithDraft(user.user_email);
       }
       console.log(data);
@@ -470,143 +500,129 @@ function InvoicePage2() {
       alert("Error saving draft. Please try again.");
     }
   };
-  // useEffect(() => {
-  //   const navigation_check = navigate((nextLocation) => {
-  //     // Check if we're navigating away from invoice generator page
-  //     if (!nextLocation.pathname.includes("/Owner/Invoice/generator")) {
-  //       // Check if there's data to save
-  //       if (
-  //         invoice.invoice_to ||
-  //         invoice.items.some(
-  //           (item) => item.item || item.quantity > 0 || item.price > 0
-  //         )
-  //       ) {
-  //         const userConfirmed = window.confirm(
-  //           "Do you want to save your progress as draft before leaving?"
-  //         );
 
-  //         if (userConfirmed) {
-  //           // Use the existing handleSaveDraft function
-  //           handleSaveDraft().then(() => {
-  //             navigate(nextLocation.pathname);
-  //           });
-  //           return false;
-  //         }
-  //       }
-  //     }
-  //     return true;
-  //   });
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
 
-  //   return () => {
-  //     if (navigation_check) {
-  //       navigation_check();
-  //     }
-  //   };
-  // }, [navigate, invoice, handleSaveDraft]);
+      reader.onloadend = () => {
+        setBase64Image(reader.result);
+        setLogoPreview(reader.result);
+      };
 
-  // function handleLocationChange() {
-  //   if (location.pathname.includes("/Owner/Invoice/generator")) {
-  //     if (
-  //       invoice.invoice_id &&
-  //       invoice.user_email &&
-  //       invoice.invoice_to &&
-  //       invoice.items.some((item) => item.item)
-  //     ) {
-  //       alert(
-  //         "You have unsaved changes. Do you want to save them before leaving?"
-  //       );
-  //       handleSaveDraft();
-  //     } else {
-  //       return;
-  //     }
-  //   }
-  // }
+      console.log(reader.readAsDataURL(file));
+    }
+  };
 
-  // useEffect(() => {
-  //   const handleBeforeUnload = (event) => {
-  //     const message =
-  //       "You have unsaved changes. Do you want to save them before leaving?";
-  //     event.returnValue = message;
-  //     return message;
-  //   };
+  const uploadBase64Image = async () => {
+    if (!base64Image) {
+      alert("Please upload an image first.");
+      return;
+    }
 
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
+    try {
+      const response = await fetch(`${Server_url}/upload-invoice-logo`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          image: base64Image,
+          user_email: user.user_email,
+        }),
+      });
 
-  //   return () => {
-  //     window.removeEventListener("beforeunload", handleBeforeUnload);
-  //   };
-  // }, [invoice, location]);
+      if (!response.ok) {
+        throw new Error("Failed to upload image.");
+      }
 
-  // useEffect(() => {
-  //   const handleLocationChange = () => {
-  //     // Check if the user is leaving the invoice generator page and if the form is dirty
-  //     // if (isFormDirty && location.pathname !== "/Owner/Invoice/generator") {
-  //     //   const confirmLeave = window.confirm(
-  //     //     "You have unsaved changes. Do you want to save them before leaving?"
-  //     //   );
-  //     //   if (confirmLeave) {
-  //     //     console.log("Saving draft...");
-  //     //     setIsFormDirty(false);
-  //     //   } else {
-  //     //     console.log("User left without saving.");
-  //     //   }
-  //     // }
-  //     if (isFormDirty) {
-  //       if (location.pathname === "/Owner/Invoice") {
-  //         window.alert(
-  //           "You have unsaved changes. Do you want to save them before leaving?"
-  //         );
-  //         navigate("/Owner/Invoice", { state: { message: "unsaved changes" } });
-  //       }
-  //       if (location.pathname === "/Owner/Invoice/draft") {
-  //         window.alert(
-  //           "You have unsaved changes. Do you want to save them before leaving?"
-  //         );
-  //         navigate("/Owner/Invoice/draft", {
-  //           state: { message: "unsaved changes" },
-  //         });
-  //       }
-  //       if (location.pathname === "/Owner/Packages") {
-  //         window.alert("unsaved changes");
-  //         navigate("/Owner/Packages", {
-  //           state: { message: "unsaved changes" },
-  //         });
-  //       }
-  //     } else {
-  //       window.alert("not running");
-  //     }
-  //   };
-  //   handleLocationChange();
-  // }, [location]);
+      const data = await response.json();
+      alert("Image uploaded successfully!");
+      console.log("Server response:", data);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Error uploading image. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const response = await fetch(`${Server_url}/get-invoice-logo`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_email: user.user_email }), // Send user_email in the body
+        });
+
+        const data = await response.json();
+        if (response.ok && data.invoice_logo) {
+          setLogoPreview(data.invoice_logo);
+        }
+      } catch (error) {
+        console.error("Error fetching logo:", error);
+      }
+    };
+
+    if (user.user_email) {
+      fetchLogo();
+    }
+  }, [user.user_email]);
 
   return (
     <div className="invoice_and_table_container">
       <div className="invoice_form">
         <div className="company_logo_invoice">
-          <div className="preview_image">
-            <input
-              type="file"
-              name="company_logo"
-              accept="image/*"
-              onChange={handleLogoChange}
-              style={{ display: "none" }}
-              id="input_image"
-            />
-            <div
-              className="companyLogo"
-              onClick={() => document.getElementById("input_image").click()}
+          <div
+            className="logo_for_invoice"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+          >
+            <div className="preview_image">
+              <input
+                type="file"
+                name="company_logo"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: "none" }}
+                id="input_image"
+              />
+
+              <div
+                className="companyLogo"
+                onClick={() => document.getElementById("input_image").click()}
+                style={{
+                  backgroundImage: logoPreview ? `url(${logoPreview})` : "none",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  cursor: "pointer",
+                  width: "100%",
+                  height: "100%",
+                }}
+              >
+                {!logoPreview && <span>Click to upload</span>}
+              </div>
+            </div>
+            <button
+              onClick={uploadBase64Image}
               style={{
-                backgroundImage: logoPreview ? `url(${logoPreview})` : "none",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                width: "100%",
-                height: "100%",
+                marginTop: "10px",
+                padding: "6px 12px",
+                backgroundColor: "#333",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
                 cursor: "pointer",
-                objectFit: "cover",
               }}
             >
-              {!logoPreview && <span>Click to upload</span>}
-            </div>
+              Upload Image
+            </button>
           </div>
           <div className="invoice_and_gst_no">
             <div className="invoice_id">

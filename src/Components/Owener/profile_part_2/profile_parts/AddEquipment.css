@@ -6,6 +6,8 @@
     box-shadow: var(--owner_profile_box_shadow);
     width: 100%;
     max-width: 100%;
+    height: fit-content;
+    min-height: 100vh;
 }
 
 
@@ -443,4 +445,95 @@
 
 #AddEquipment .delete-confirm-btn:hover {
   background-color: #cc0000;
+}
+
+@media screen and (max-width: 700px) {
+  #AddEquipment {
+    padding: 15px;
+  }
+
+  #AddEquipment .equipment-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  #AddEquipment .Equipment_con {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 5px;
+  }
+
+  #AddEquipment .equipment-card {
+    height: auto;
+    min-height: 320px;
+    padding: 15px;
+  }
+
+  #AddEquipment .equipment-img {
+    width: 60px;
+    margin-top: 10px;
+    margin-left: 10px;
+  }
+
+  #AddEquipment .equipment-info {
+    padding: 15px;
+  }
+
+  #AddEquipment .equipment-info h3 {
+    font-size: 18px;
+  }
+
+  #AddEquipment .equipment-info p {
+    font-size: 14px;
+  }
+
+  #AddEquipment .add-form {
+    height: auto;
+    min-height: 380px;
+    padding: 15px;
+  }
+
+  #AddEquipment .equipment_new_info {
+    padding: 0px 10px;
+  }
+
+  #AddEquipment .equipment_new_info span {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #AddEquipment .button_con {
+    position: static;
+    margin-top: 15px;
+    justify-content: space-between;
+  }
+
+  #AddEquipment .save-btn,
+  #AddEquipment .close-btn {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+
+  #AddEquipment .popup-content {
+    width: 85%;
+    padding: 15px;
+  }
+
+  #AddEquipment .popup-buttons {
+    gap: 8px;
+  }
+
+  #AddEquipment .popup-buttons button {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  #AddEquipment .remove-btn {
+    opacity: 1;
+    position: static;
+    margin-top: 10px;
+    text-align: right;
+  }
 }

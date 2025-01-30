@@ -3,6 +3,7 @@
   padding: var(--owner_profile_padding);
   width: 100%;
   max-width: 100%;
+
 }
 
 
@@ -41,9 +42,9 @@ background-color: #0056b3;
 #EquipmentsPage .Equipment_con {
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+flex-direction: row-reverse; 
 gap: 20px;
 padding: 10px;
-
 /* background: rebeccapurple; */
 }
 

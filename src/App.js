@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import LoginRegisterOwener from "./Components/Owener/Login_Register.js";
 import LoginRegisterClient from "./Components/Client/login_register.js";
 import ShowLoder from "./Components/Owener/sub_components/show_loder.js";
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 // set etewt weewfsf
 // set etewt weewfsf
 // set etewt weewfsf
@@ -25,7 +25,7 @@ import {localstorage_key_for_client,localstorage_key_for_jwt_user_side_key,Serve
 // import Admin from "./Components/Admin/Admin.js";
 import BeforeLogin from "./Components/BeforeLogin/BeforeLogin.js";
 import Admin2 from "./Components/Admin_2/Admin.js";
-import BottomRightMenu from "./BottomRightMenu.js";
+
 // import Admin from "./Components/Admin/Admin.js";
 // import Calendar from "./Components/Admin_2/sub_part/Calendar.js";
 
@@ -42,12 +42,14 @@ import Profile from "./Components/Owener/profile_part_2/Profile";
 
 // https://trello.com/b/mpwGf27w/msu-project
 
+import burger_menu from './Components/Owener/img/burger-menu.png'
+
 
 import EventManagement from './Components/Owener/sub_part/Event Management/EventManagement.js'
 import Packages from './Components/Owener/sub_part/Packages/Packages.js'
 import {BeforeAccept,PendingStatus,RejectedStatus} from "./Components/Owener/before accept/before_accept.js";
 
-// import { useSelector } from 'react-redux';
+
 import TableToggleButtons from "./Components/Owener/sub_part/Invoic_part/Sub_component/TableToggleButtons.js";
 import InvoicePage2 from "./Components/Owener/sub_part/Invoic_part/invoicePage2.js";
 import DraftInvoices from "./Components/Owener/sub_part/Invoic_part/Sub_component/DraftInvoices.js";
@@ -56,11 +58,57 @@ import DraftInvoices from "./Components/Owener/sub_part/Invoic_part/Sub_componen
 
 
 function App() {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [authStatus, setAuthStatus] = useState({ Admin:null,owner: null, client: null });
+
+
   const [OwnerStatus,setOwnerStatus] = useState('');
   const [selectedTable, setSelectedTable] = useState("firstTable");
 
+  const dispatch = useDispatch();
+  const isMobile = useSelector((state) => state.user.isMobile);
+  const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
+  // const activeIndex = useSelector((state) => state.user.activeIndex);
+
+  const set_is_sidebar_open = (value) => {
+    dispatch({type: 'SET_USER_Owner', payload: {
+      isSidebarOpen: value,
+    }});
+  }
+
+
   useEffect(() => {
+    // Initial setup
+    const handleResize = () => {
+      const isMobileView = window.innerWidth <= 1200;
+      dispatch({
+        type: 'SET_USER_Owner', 
+        payload: {
+          isMobile: isMobileView,
+          // Close sidebar automatically on mobile, keep open on desktop
+          isSidebarOpen: !isMobileView
+        }
+      });
+    };
+
+    // Call once on mount to set initial state
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", handleResize);
+    
+    // Cleanup event listener on unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, [dispatch]);
+
+
+
+  useEffect(() => {
+    const setActiveIndex = (value) => {
+      dispatch({type: 'SET_USER_Owner', payload: {
+        activeIndex: value,
+      }});
+    }
+  
     const location = window.location.pathname;
     if (location === "/Owner") {
       setActiveIndex(0);
@@ -84,12 +132,9 @@ function App() {
     } else if (location === "/Owner/Profile") {
       setActiveIndex(6);
     }
-  }, []);
+  }, [dispatch]);
 
 const renderStatus = () => {
-
-
-  
   switch (OwnerStatus) {
       case 'Reject':
           return <RejectedStatus />;
@@ -103,13 +148,16 @@ const renderStatus = () => {
 };
 
 const SetOwnerPage = ({ ActivePage  }) => {
-  // const location = useLocation(); // Get the current location
   return (
     OwnerStatus === 'Accept' ? (
-      <div className="Owner_main_home_pag_con">
+      <div className={`Owner_main_home_pag_con ${isMobile ? 'for_mobile' : ''}`}>
         <div className="main_part">
+          
+      {isMobile && <div className='toggle_button_con' id="toggle_button_con_home_page"  onClick={()=>{set_is_sidebar_open(!isSidebarOpen)}}>
+                      <img src={burger_menu} alt="asa" />
+                    </div>}
 
-          <ActivePage />
+          <ActivePage  />
         </div>
       </div>
     ) : (
@@ -120,8 +168,7 @@ const SetOwnerPage = ({ ActivePage  }) => {
 
 
 
-  const [authStatus, setAuthStatus] = useState({ Admin:null,owner: null, client: null });
-  const dispatch = useDispatch();
+  
 
   // 1. Check Admin Token
   useEffect(() => {
@@ -259,7 +306,7 @@ const SetOwnerPage = ({ ActivePage  }) => {
         {/* Default route */}
         <Route path="/" element={authStatus.client ? (<HomePage />) :
           authStatus.owner ? (
-            <SetOwnerPage ActivePage={OwnerHome} />
+            <SetOwnerPage ActivePage={OwnerHome}/>
           ) : 
           authStatus.admin ? (<Admin2 />) : (
             <BeforeLogin />
@@ -341,9 +388,11 @@ const SetOwnerPage = ({ ActivePage  }) => {
 
         
       </Routes>
-      {authStatus.owner && OwnerStatus === 'Accept' && <OwnerSideBar activeIndex={activeIndex} setActiveIndex={setActiveIndex}/>}
+      {authStatus.owner && OwnerStatus === 'Accept' && 
+      <OwnerSideBar />
+      }
 
-      <BottomRightMenu />
+  
     </Router>
   );
 }

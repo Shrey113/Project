@@ -21,6 +21,11 @@ const initialState = {
   
   user_profile_image_base64: '',
   business_profile_base64: '',
+
+  // for mobile
+  isMobile: window.innerWidth <= 1200,
+  isSidebarOpen: window.innerWidth > 1200,
+  activeIndex: 0,
 };
 
 const user_data = (state = initialState, action) => {

@@ -16,6 +16,8 @@ function Search_photographer() {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [isSearching, setIsSearching] = useState(false);
 
+  const [activeSection, setActiveSection] = useState("maharashtra");
+
   useEffect(() => {
     setIsSearching(true);
     const timer = setTimeout(() => {
@@ -157,9 +159,44 @@ function Search_photographer() {
     filteredUsers.equipment.length > 0;
 
   return (
-    <>
-      <div className="search_outer_container">
-        <div className="search-container">
+    <div className="photographer-main-container">
+      {/* Navbar */}
+      <nav className="photographer-navbar">
+        <div className="nav-links">
+          <button
+            className={`nav-link ${
+              activeSection === "maharashtra" ? "active" : ""
+            }`}
+            onClick={() => setActiveSection("maharashtra")}
+          >
+            Maharashtra
+          </button>
+          <button
+            className={`nav-link ${
+              activeSection === "gujarat" ? "active" : ""
+            }`}
+            onClick={() => setActiveSection("gujarat")}
+          >
+            Gujarat
+          </button>
+          <button
+            className={`nav-link ${
+              activeSection === "rajasthan" ? "active" : ""
+            }`}
+            onClick={() => setActiveSection("rajasthan")}
+          >
+            Rajasthan
+          </button>
+          <button
+            className={`nav-link ${activeSection === "delhi" ? "active" : ""}`}
+            onClick={() => setActiveSection("delhi")}
+          >
+            Delhi
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="search-container-nav">
           <input
             type="text"
             className="search-input"
@@ -169,25 +206,86 @@ function Search_photographer() {
             onKeyDown={handleKeyDown}
           />
           {searchTerm !== "" && (
-            <>
+            <div className="search-results-dropdown">
               {isSearching ? (
                 <div className="searching-text">Searching...</div>
-              ) : hasResults ? (
+              ) : (
                 <>
                   {renderItems("Owners", filteredUsers.owners)}
                   {renderItems("Packages", filteredUsers.packages)}
                   {renderItems("Equipment", filteredUsers.equipment)}
+                  {!hasResults && (
+                    <div className="no-results">No results found.</div>
+                  )}
                 </>
-              ) : (
-                <div className="no-results">No results found.</div>
               )}
-            </>
+            </div>
           )}
         </div>
+      </nav>
+
+      {/* Sections */}
+      <div className="sections-container">
+        <section
+          id="maharashtra"
+          className={`section ${
+            activeSection === "maharashtra" ? "active" : ""
+          }`}
+        >
+          <h2>Maharashtra Photographers</h2>
+        </section>
+
+        <section
+          id="gujarat"
+          className={`section ${activeSection === "gujarat" ? "active" : ""}`}
+        >
+          <h2>Gujarat Photographers</h2>
+        </section>
+
+        <section
+          id="rajasthan"
+          className={`section ${activeSection === "rajasthan" ? "active" : ""}`}
+        >
+          <h2>Rajasthan Photographers</h2>
+        </section>
+
+        <section
+          id="delhi"
+          className={`section ${activeSection === "delhi" ? "active" : ""}`}
+        >
+          <h2>Delhi Photographers</h2>
+        </section>
       </div>
-      <div className="all_photographers_card"></div>
-    </>
+    </div>
   );
 }
 
 export default Search_photographer;
+// <>
+//   <div className="search-container">
+//     <input
+//       type="text"
+//       className="search-input"
+//       placeholder="Search..."
+//       value={searchTerm}
+//       onChange={(e) => setSearchTerm(e.target.value)}
+//       onKeyDown={handleKeyDown}
+//     />
+//     {searchTerm !== "" && (
+//       <>
+//         {isSearching ? (
+//           <div className="searching-text">Searching...</div>
+//         ) : hasResults ? (
+//           <>
+//             {renderItems("Owners", filteredUsers.owners)}
+//             {renderItems("Packages", filteredUsers.packages)}
+//             {renderItems("Equipment", filteredUsers.equipment)}
+//           </>
+//         ) : (
+//           <div className="no-results">No results found.</div>
+//         )}
+//       </>
+//     )}
+//   </div>
+//   <div className="all_photographers_card"></div>
+// </>

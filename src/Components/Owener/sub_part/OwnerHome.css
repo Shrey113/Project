@@ -10,6 +10,10 @@
       
       padding-left: var(--owner_side_bar_width);
   }
+
+  .Owner_main_home_pag_con.for_mobile{
+    padding-left: 0;
+  }
   
   
   .Owner_main_home_pag_con .main_part{
@@ -24,6 +28,21 @@
       /* background: rebeccapurple; */
   }
   
+
+
+  .Owner_main_home_pag_con .main_part .toggle_button_con{
+    height: 50px;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    cursor: pointer;
+  }
+  .Owner_main_home_pag_con .main_part .toggle_button_con img{
+    height: 100%;
+    width: 100%;
+  }
   
   /*  */
   .Owner_main_home_pag_con .main_part .title_bar{
@@ -67,4 +86,22 @@
 
   .owner_home_page_container{
     padding:  0 20px;
+  }
+
+  @media (max-width: 768px) {
+    .owner_home_page_container{
+      padding:  0 10px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .owner_home_page_container{
+      padding:  0 5px;
+    }
+  }
+
+  @media (max-width: 320px) {
+    .owner_home_page_container{
+      padding:  0 2px;
+    }
   }

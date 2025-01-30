@@ -5,6 +5,7 @@ import "./DraftInvoices.css";
 import { useSelector } from "react-redux";
 import { Server_url } from "../../../../../redux/AllData";
 import DraftInvoiceLayout from "./DraftInvoiceLayout";
+import { useCount } from "../../../../../redux/CountContext";
 
 function DraftInvoices() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -13,7 +14,7 @@ function DraftInvoices() {
   const [draftCount, setDraftCount] = useState(0);
   const [DraftInvoiceChange, setDraftInvoiceChange] = useState(false);
   const [selectedInvoiceData, setSelectedInvoiceData] = useState(null);
-  const [itemsData, setItemsData] = useState([]);
+  const { decrementCount } = useCount();
 
   const user = useSelector((state) => state.user);
 
@@ -60,7 +61,6 @@ function DraftInvoices() {
       }
 
       const data = await response.json();
-      setItemsData(data.items);
       if (data.success && data.items && data.items.length > 0) {
         return data.items;
       } else {
@@ -111,8 +111,8 @@ function DraftInvoices() {
             : [{ item: "", quantity: 0, price: 0, amount: 0 }],
       };
 
-      setDraftInvoiceChange(true); // Switch to DraftInvoiceLayout
-      setSelectedInvoiceData(formattedInvoice); // Store the selected invoice data
+      setDraftInvoiceChange(true);
+      setSelectedInvoiceData(formattedInvoice);
     } catch (error) {
       console.error("Error preparing invoice for editing:", error);
     }
@@ -146,6 +146,7 @@ function DraftInvoices() {
 
       const result = await response.json();
       if (result.success) {
+        decrementCount();
         alert(result.message);
         fetchInvoicesWithDraft(user.user_email);
       } else {
@@ -184,7 +185,6 @@ function DraftInvoices() {
       {DraftInvoiceChange ? (
         <DraftInvoiceLayout
           invoiceData={selectedInvoiceData}
-          itemsData={itemsData}
           setDraftInvoiceChange={setDraftInvoiceChange}
         />
       ) : (

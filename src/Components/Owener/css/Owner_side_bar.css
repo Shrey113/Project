@@ -22,7 +22,36 @@
     left: 0;
     top: 0;
     transition: all var(--owner_home_page_sidebar_time) ease-in-out;
+    z-index: 100;
+
+    /* display: none; */
+ 
   }
+  #OwnerSideBar.for_mobile{
+    height: 100dvh;
+  }
+
+  .side_bar.open_side_bar {
+    margin-left: calc(-1 * var(--owner_side_bar_width));
+    background: red;
+}
+  .side_bar.close_side_bar{
+    /* display: none; */
+    margin-left: 0px;
+    background: rebeccapurple;
+  }
+
+  .side_bar_black_bg{
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.223);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99;
+    width: 100%;
+  }
+
   #OwnerSideBar .toggle_button_con {
     margin-top: 10px;
     height: 40px;
@@ -76,12 +105,14 @@
   #OwnerSideBar .category_con {
     margin-top: 20px;
     position: relative;
-    /* background: #640f0f6b; */
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: start;
     height: 100%;
+  }
+  #OwnerSideBar .category_con.for_mobile{
+    margin-right: 15px;
   }
   
   #OwnerSideBar .category_con .side_menu {
@@ -91,6 +122,7 @@
    left: -5px;
    background: var(--owner_home_page_ui_color);
    border-radius: 10px;
+
   }
   
 
@@ -110,7 +142,6 @@
     cursor: pointer;
     height: 60px;
     width: 100%;
-    /* background: rebeccapurple; */
     &:hover{
         background-color: var(--owner_home_page_hover_coloer);
     }
@@ -126,7 +157,7 @@
     position: absolute;
     left: -5px;
     width: calc(100% + 5px);
-    height: 60px;
+   
     background-color: #007bff;
     background: var(--owner_home_page_bg);
     border-radius: 5px;
@@ -162,6 +193,15 @@
     }
   }
 
+
+  #OwnerSideBar .category_con .active_me_slider.for_mobile{
+    &::before{
+      display: none;
+    }
+    &::after{
+      display: none;
+    }
+  }
 
   
   #OwnerSideBar .category_con .active_me_slider_set {
@@ -204,6 +244,25 @@
         box-shadow: var(--owner_home_page_bg) 11px -11px 0px
     }
   }
+#OwnerSideBar .close_side_bar_button{
+  display: none;
+}
+#OwnerSideBar .close_side_bar_button.active{
+  display: flex;
+  height: 35px;
+  width: 35px;
+  padding: 5px;
+  border-radius: 5px;
+  margin-right: 15px;
+  cursor: pointer;
+  &:hover{
+    background: var(--owner_home_page_hover_coloer);
+  }
+}
+#OwnerSideBar .close_side_bar_button.active img{
+  height: 100%;
+  width: 100%;
+}
 
 
 
@@ -296,8 +355,46 @@
     text-overflow: ellipsis; 
 }
 
-@media only screen and (max-width: 600px) {
-  #OwnerSideBar {
-    display: none;
+
+/* Add media query for smaller devices */
+
+/* must chage width in js file */
+@media screen and (max-width: 768px) {
+  
+
+  #OwnerSideBar .side_bar_title {
+    font-size: 18px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+  }
+
+  #OwnerSideBar .category_con .item {
+    /* padding: 8px 5px; */
+    height: 50px;
+  }
+
+  #OwnerSideBar .active_me_slider {
+
+    background: red;
+  }
+
+  #OwnerSideBar .user_profile {
+    height: 80px;
+    padding: 0px 5px;
+  }
+
+  #OwnerSideBar .user_profile .user_icon_1 {
+    height: 40px;
+    width: 40px;
+    flex: 0 0 40px;
+  }
+
+  #OwnerSideBar .user_profile .user_data .user_name {
+    font-size: 1rem;
+  }
+
+  #OwnerSideBar .user_profile .user_data .user_email {
+    font-size: 0.8rem;
   }
 }
+

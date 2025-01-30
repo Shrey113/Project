@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react'
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react'
+import { useSelector,useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import './css/Owner_side_bar.css';
@@ -7,7 +7,7 @@ import './css/Owner_side_bar.css';
 import user4 from './img/user4.jpg';
 import app_icon from './img/app-store.png';
 
-
+import close_menu from './img/close.png'
 
 import dashboard_icon from './img/active/dashboard.png';
 import dashboard_no_active_icon from './img/no_active/dashboard.png';
@@ -26,19 +26,53 @@ import Packages_icon from './img/active/photo.png'
 import Packages_no_active_icon from './img/no_active/photo.png'
 
 
-function OwnerSideBar({activeIndex, setActiveIndex}) {
+function OwnerSideBar() {
+  const dispatch = useDispatch();
+
     const user = useSelector((state) => state.user);
-    const [isSidebarOpen] = useState(true);
-    const sidebarRef = useRef(null);
+    const isMobile = useSelector((state) => state.user.isMobile);
+    const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
+    const activeIndex = useSelector((state) => state.user.activeIndex);
+
+    const set_is_sidebar_open = (value) => {
+      dispatch({
+        type: 'SET_USER_Owner', 
+        payload: {
+          isSidebarOpen: value,
+        }
+      });
+    };
+    const setActiveIndex = (value) => {
+      dispatch({type: 'SET_USER_Owner', payload: {
+        activeIndex: value,
+      }});
+    }
+
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+useEffect(() => {
+  const handleResize = () => setWindowWidth(window.innerWidth);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
+
+
+   
+  
+
+    // const sidebarRef = useRef(null);
     const navigate = useNavigate();
+
 
     
   const handleItemClick = (index) => {
     setActiveIndex(index);
+    if (isMobile) {
+      set_is_sidebar_open(false);
+    }
     navigate(menuItems[index].path);
   };
-
-
 
     const menuItems = [
         { name: 'Dashboard', icon:dashboard_icon  ,active_icon:dashboard_no_active_icon, path: '/Owner'},
@@ -54,35 +88,68 @@ function OwnerSideBar({activeIndex, setActiveIndex}) {
           path: "/Owner/search_photographer",
         },
       ];
-  return (
-    <div className="side_bar" id='OwnerSideBar' ref={sidebarRef} style={{width: isSidebarOpen ? '340px' : '70px'}}>
 
-    {/* <div className="toggle_button_con" onClick={()=>{setIsSidebarOpen(!isSidebarOpen)}}>
-      {isSidebarOpen ?
-      <img src={toggle_close_button_icon} alt="" />
-      :
-      <img src={ toggle_button_icon} alt="" />
-      
+  useEffect(() => {
+    if (isSidebarOpen && isMobile) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
     }
-      
-    </div> */}
+
+    // Cleanup function to reset overflow when component unmounts
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isSidebarOpen, isMobile]);
+
+  return (
+    <>
+    <div 
+      className="side_bar_black_bg" 
+      style={{display: (isMobile && isSidebarOpen) ? "block" : "none"}}
+      onClick={() => set_is_sidebar_open(!isSidebarOpen)}
+    >
+    </div>
+    {/* side bar */}
+    <div className={`side_bar ${!isSidebarOpen ? "open_side_bar" : "close_side_bar"} 
+                         ${isMobile ? 'for_mobile' : ''}`} id="OwnerSideBar">
+
+  
+
+    {/* close side bar button */}
+
     <div className="side_bar_title">
-      <div className="title_bar_img">
-        <img src={app_icon} alt="" />
-      </div>
-      {isSidebarOpen && <div className="title_bar_text">Owner {user.user_Status}</div>}
+    {isMobile ? 
+      <div className={`close_side_bar_button ${isSidebarOpen ? "active" : ""}`} 
+      onClick={() => set_is_sidebar_open(!isSidebarOpen)}>
+        <img src={close_menu} alt="Close" />
     </div>
 
-    <div className="category_con">
+      :
+
+
+
+<div className="title_bar_img">
+<img src={app_icon} alt="" />
+</div>
+
+    }
+
+        <div className="title_bar_text">Owner {user.user_Status}</div>
+    </div>
+
+    <div className={`category_con ${isMobile ? 'for_mobile' : ''}`}>
       {activeIndex <= menuItems.length && 
       
     
-      <div className={`active_me_slider ${isSidebarOpen ? '' : ''}`} style={{
-          top: `${activeIndex * 60}px`,
-          transition: "all 0.2s ease-in-out",
-        }}>
-          {isSidebarOpen && <div className="side_menu"></div>}
-        </div>
+<div
+  className={`active_me_slider ${isMobile ? "for_mobile" : ""}`}
+  style={{
+    height: `${windowWidth <= 768 ? 50 : 60}px`,
+    top: `${activeIndex * (windowWidth <= 768 ? 50 : 60)}px`,
+    transition: "all 0.2s ease-in-out",
+  }}
+></div>
 
 }
 
@@ -103,10 +170,9 @@ function OwnerSideBar({activeIndex, setActiveIndex}) {
               <img src={item.icon} alt={item.name} />
             )}
           </div>
-            {isSidebarOpen && 
             <div className={`text`}>
               {item.name}
-            </div>}
+            </div>
         </div>
       ))}
     </div>
@@ -118,12 +184,15 @@ function OwnerSideBar({activeIndex, setActiveIndex}) {
       <div className="user_icon_1">
         <img src={user.user_profile_image_base64 || user4} alt="" />
       </div>
-      {isSidebarOpen && <div className="user_data">
+      <div className="user_data">
         <div className="user_name">{user.user_name}</div>
         <div className="user_email">{user.user_email}</div>
-      </div>}
+      </div>
     </div>
+
+
   </div>
+  </>
   )
 }
 
