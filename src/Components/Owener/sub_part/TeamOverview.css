@@ -17,7 +17,7 @@
     width: 100%;
     background: #f9f9f9;
     border-radius: 8px;
-    overflow: hidden;
+
     box-shadow: var(--all_page_box_shaod);
 }
 .team-overview .team-member-list .title_bar{
@@ -41,8 +41,10 @@
     }
 }
 .team-overview .team-member-list .title_bar button img{
-    height: 100%;
-    width: 100%;
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    display: block;
 }
 .team-overview .team-member-list table {
     width: 100%;
@@ -85,6 +87,7 @@
    display: flex;
    align-items: center;
    gap: 10px;
+   width: fit-content;
 }
 .team-overview .team-member-list td .profile_con .profile_img{
    height: 40px;
@@ -190,7 +193,6 @@
     gap: 10px;
     margin-top: 10px;
     margin-bottom: 15px;
-    /* background: rebeccapurple; */
 }
 #TeamOverview_pop_menu .pro_title{
     margin-top: 15px;
@@ -264,7 +266,6 @@
     padding: 15px;
     gap: 30px;
     width: 100%;
-    /* background: rebeccapurple; */
 }
 .card_for_a_owner_team {
     background: #fff;
@@ -305,7 +306,6 @@
   .card_for_a_owner_team .avatars {
     display: flex;
     margin-top: 15px;
-    background: rebeccapurple;
     position: relative;
     margin-bottom: 50px;
   }
@@ -342,46 +342,374 @@
 
   /* Responsive TeamOverview.css */
 
+@media (max-width: 1200px) {
+  .all_card_con {
+    flex-wrap: wrap;
+  }
+  
+  .card_for_a_owner_team {
+    width: calc(50% - 15px);
+    max-width: none;
+  }
+}
+
 @media (max-width: 768px) {
   .team-overview {
-      padding: 15px;
+    padding: 10px;
   }
 
-  .team-overview .team-member-list {
-      margin-top: 15px;
-      border-radius: 6px;
-      box-shadow: none;
+
+
+  .team-member-list table {
+    width: 100%;
+    min-width: 100%;
+  }
+  .team-member-list table thead{
+    width: 100%;
+
+  }
+  .team-member-list table tbody{
+    width: 100%;
   }
 
-  .team-overview .team-member-list .title_bar {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
+  /* Hide non-essential columns on mobile */
+  .team-member-list th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3)):not(:last-child),
+  .team-member-list td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3)):not(:last-child) {
+    display: none;
   }
 
-  .team-overview .team-member-list th, 
-  .team-overview .team-member-list td {
-      padding: 10px;
+  /* Show only ID, Name and Actions columns */
+  .team-member-list th:nth-child(1),
+  .team-member-list td:nth-child(1),
+  .team-member-list th:nth-child(2),
+  .team-member-list td:nth-child(2),
+  .team-member-list th:last-child,
+  .team-member-list td:last-child {
+    display: table-cell;
+  }
+  
+  .team-overview .team-member-list td  .profile_con {
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
 
-  .team-overview .team-member-list td .profile_con {
-      flex-direction: column;
-      align-items: flex-start;
+  .team-overview .team-member-list td  .profile_con .profile_img {
+    height: 35px;
+    width: 35px;
   }
 
-  #TeamOverview_pop_menu .popup-content {
-      padding: 15px;
-      max-width: 90%;
+  .team-member-list td button {
+    height: 30px;
+    width: 30px;
+    padding: 5px;
   }
 
-  .all_card_con {
-      flex-direction: column;
-      gap: 20px;
+  /* Adjust table cell padding */
+  .team-member-list th, 
+  .team-member-list td {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 500px) {
+  .team-overview {
+    padding: 5px;
   }
 
   .card_for_a_owner_team {
-      width: 100%;
-      max-width: 100%;
-      padding: 15px;
+    width: 100%;
   }
+
+  .team-member-list .title_bar {
+    padding: 15px;
+  }
+  .team-member-list .title_bar h2{
+    font-size: 20px;
+  }
+  .team-member-list .title_bar img{
+    height: 30px;
+    width: 30px;
+  }
+
+  /* Further optimize button sizes for very small screens */
+  .team-member-list td button {
+    height: 25px;
+    width: 25px;
+    padding: 4px;
+  }
+
+  /* Adjust column widths for better mobile display */
+  .team-member-list td:nth-child(1) {
+    width: 40px;
+  }
+
+  .team-member-list td:nth-child(2) {
+    min-width: 120px;
+  }
+
+  .team-member-list td:last-child {
+    width: 120px;
+  }
+}
+
+/* Action Menu Styles */
+.action-menu-container {
+    position: relative;
+}
+
+.mobile-menu-trigger {
+    display: none;
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.mobile-menu-trigger span {
+    display: block;
+    width: 4px;
+    height: 4px;
+    background-color: #333;
+    border-radius: 50%;
+    margin: 2px auto;
+}
+
+.mobile-action-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    z-index: 1000;
+    min-width: 150px;
+}
+
+.mobile-action-menu button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.mobile-action-menu button:hover {
+    background-color: #f5f5f5;
+}
+
+.mobile-action-menu button img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.mobile-action-menu button span {
+    font-size: 14px;
+}
+
+/* Responsive styles */
+@media screen and (min-width: 501px) {
+    .mobile-menu-trigger {
+        display: none;
+    }
+
+    .mobile-action-menu {
+        display: none;
+    }
+      
+
+}
+
+
+@media screen and (max-width: 500px) {
+    .all_card_con{
+        gap: 10px;
+        justify-content: space-evenly;
+    }
+
+    .mobile-menu-trigger {
+        display: block;
+    }
+
+    .desktop-actions {
+        display: none;
+    }
+
+    /* Adjust table font sizes */
+    .team-member-list table {
+        font-size: 14px;
+    }
+
+    .team-member-list th {
+        font-size: 13px;
+    }
+
+    .profile_con .data {
+        font-size: 13px;
+    }
+
+    /* Adjust card font sizes */
+    .card_for_a_owner_team {
+        flex-direction: row;
+
+        padding: 0px;
+        width: fit-content;
+        padding: 10px 20px;
+     
+    }
+    .card_for_a_owner_team .avatars{
+        display: none;
+      }
+    .card_for_a_owner_team .title {
+        font-size: 20px;
+        height: fit-content;
+        margin: 0px;
+        font-weight: 400;
+    }
+
+    .card_for_a_owner_team .description {
+        font-size: 20px;
+        margin: 0px;
+    }
+}
+
+@media screen and (max-width: 420px) {
+    .all_card_con{
+        gap: 10px;
+    }
+    .card_for_a_owner_team .title {
+        font-size: 15px;
+    }
+
+    .card_for_a_owner_team .description {
+        font-size: 15px;
+    }
+    .team-member-list .title_bar h2{
+        font-size: 16px;
+      }
+      .team-member-list .title_bar button{
+        height: 25px;
+        width: 25px;
+      }
+    
+}
+@media screen and (max-width: 350px) {
+    .card_for_a_owner_team .title {
+        font-size: 12px;
+    }
+
+    .card_for_a_owner_team .description {
+        font-size: 12px;
+    }
+}
+
+
+/* Responsive styles for popup menu */
+@media (max-width: 768px) {
+    #TeamOverview_pop_menu .popup-content {
+        max-width: 90%;
+        margin: 0 15px;
+        padding: 15px;
+    }
+
+    #TeamOverview_pop_menu .popup-content h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    #TeamOverview_pop_menu .popup-content form {
+        gap: 8px;
+    }
+
+    #TeamOverview_pop_menu .profile-pic-selection {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #TeamOverview_pop_menu .member-table .label {
+        width: 120px;
+    }
+}
+
+@media (max-width: 500px) {
+    #TeamOverview_pop_menu .popup-content {
+        max-width: 95%;
+        margin: 0 10px;
+        padding: 12px;
+    }
+
+    #TeamOverview_pop_menu .popup-content h3 {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
+
+    #TeamOverview_pop_menu .popup-content form input, 
+    #TeamOverview_pop_menu .popup-content form select {
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    #TeamOverview_pop_menu .popup-actions button {
+        padding: 6px 12px;
+        font-size: 13px;
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    #TeamOverview_pop_menu .profile-pic-selection img {
+        width: 40px;
+        height: 40px;
+    }
+
+    #TeamOverview_pop_menu .member-table {
+        font-size: 13px;
+    }
+
+    #TeamOverview_pop_menu .member-table .label {
+        width: 100px;
+    }
+
+    #TeamOverview_pop_menu .member-table td {
+        padding: 6px;
+    }
+
+    #TeamOverview_pop_menu .member-card {
+        padding: 12px;
+    }
+}
+
+@media (max-height: 600px) {
+    #TeamOverview_pop_menu .popup-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* Add these CSS rules for the add icon */
+.title_bar button img {
+    width: 24px;  /* Fixed width */
+    height: 24px; /* Fixed height */
+    object-fit: contain; /* Maintains aspect ratio */
+    display: block; /* Removes any extra space */
+}
+
+.title_bar button {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsive adjustments if needed */
+@media screen and (max-width: 768px) {
+    .title_bar button img {
+        width: 20px;  /* Slightly smaller on mobile */
+        height: 20px;
+    }
 }

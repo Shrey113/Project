@@ -26,6 +26,8 @@ const initialState = {
   isMobile: window.innerWidth <= 1200,
   isSidebarOpen: window.innerWidth > 1200,
   activeIndex: 0,
+  is_full_screen: true,
+  isOwnerFullScreen: false,
 };
 
 const user_data = (state = initialState, action) => {

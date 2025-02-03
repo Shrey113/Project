@@ -35,9 +35,11 @@ import OwnerHome from "./Components/Owener/sub_part/OwnerHome";
 import TeamOverview from "./Components/Owener/sub_part/TeamOverview";
 import InvoiceForm from "./Components/Owener/sub_part/Invoic_part/Invoic";
 
-import Search_photographer from "./Components/Owener/sub_part/Search_photographer/Search_photographer.js";
+// import Search_photographer from "./Components/Owener/sub_part/Search_photographer/Search_photographer.js";
 import Profile from "./Components/Owener/profile_part_2/Profile";
-
+import Search_photographer from "./Components/Owener/sub_part/Search_photographer/Search_photographer.js";
+import DetailedView from "./Components/Owener/sub_part/Search_photographer/sub_part/DetailedView.js";
+import OwnerDetails from "./Components/Owener/sub_part/Search_photographer/sub_part/OwnerDetails.js";
 // import Profile from "./Components/Owener/sub_part/Profile.js";
 
 // https://trello.com/b/mpwGf27w/msu-project
@@ -59,7 +61,7 @@ import DraftInvoices from "./Components/Owener/sub_part/Invoic_part/Sub_componen
 
 function App() {
   const [authStatus, setAuthStatus] = useState({ Admin:null,owner: null, client: null });
-
+  const user = useSelector((state) => state.user);
 
   const [OwnerStatus,setOwnerStatus] = useState('');
   const [selectedTable, setSelectedTable] = useState("firstTable");
@@ -68,6 +70,11 @@ function App() {
   const isMobile = useSelector((state) => state.user.isMobile);
   const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
   // const activeIndex = useSelector((state) => state.user.activeIndex);
+
+  const isOwnerFullScreen = useSelector(
+    (state) => state.user.isOwnerFullScreen
+  );
+
 
   const set_is_sidebar_open = (value) => {
     dispatch({type: 'SET_USER_Owner', payload: {
@@ -147,25 +154,33 @@ const renderStatus = () => {
   }
 };
 
-const SetOwnerPage = ({ ActivePage  }) => {
-  return (
-    OwnerStatus === 'Accept' ? (
-      <div className={`Owner_main_home_pag_con ${isMobile ? 'for_mobile' : ''}`}>
-        <div className="main_part">
-          
-      {isMobile && <div className='toggle_button_con' id="toggle_button_con_home_page"  onClick={()=>{set_is_sidebar_open(!isSidebarOpen)}}>
-                      <img src={burger_menu} alt="asa" />
-                    </div>}
+const SetOwnerPage = ({ ActivePage }) => {
+  return OwnerStatus === "Accept" ? (
+    <div
+      className={`Owner_main_home_pag_con ${isMobile ? "for_mobile" : ""} ${
+        isOwnerFullScreen ? "for_full_screen" : ""
+      }`}
+    >
+      <div className="main_part">
+        {isMobile && (
+          <div
+            className="toggle_button_con"
+            id="toggle_button_con_home_page"
+            onClick={() => {
+              set_is_sidebar_open(!isSidebarOpen);
+            }}
+          >
+            <img src={burger_menu} alt="asa" />
+          </div>
+        )}
 
-          <ActivePage  />
-        </div>
+        <ActivePage />
       </div>
-    ) : (
-      renderStatus()
-    )
+    </div>
+  ) : (
+    renderStatus()
   );
 };
-
 
 
   
@@ -372,6 +387,23 @@ const SetOwnerPage = ({ ActivePage  }) => {
           }
         />
 
+<Route
+          path="/Owner/search_photographer/:owner_email"
+          element={
+     
+              <SetOwnerPage ActivePage={OwnerDetails} />
+           
+          }
+        />
+        <Route
+          path="/Owner/search_photographer/:owner_email/:type"
+          element={
+           
+              <SetOwnerPage ActivePage={DetailedView} />
+          
+          }
+        />
+
 
         <Route path="/Owner/Profile" element={authStatus.owner ? 
           <SetOwnerPage ActivePage={Profile} /> : 
@@ -388,9 +420,9 @@ const SetOwnerPage = ({ ActivePage  }) => {
 
         
       </Routes>
-      {authStatus.owner && OwnerStatus === 'Accept' && 
-      <OwnerSideBar />
-      }
+      {authStatus.owner && user.is_full_screen && OwnerStatus === "Accept" && (
+        <OwnerSideBar />
+      )}
 
   
     </Router>

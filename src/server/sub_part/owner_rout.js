@@ -656,32 +656,6 @@ router.get("/search", (req, res) => {
 });
 
 
-// Create a new portfolio folder
-router.post('/portfolio/create-folder', (req, res) => {
-  const { folder_name, user_email } = req.body;
-
-  if (!folder_name || !user_email) {
-    return res.status(400).json({ error: 'Folder name and user email are required' });
-  }
-
-  const query = `
-    INSERT INTO portfolio_folders (folder_name, user_email, created_at)
-    VALUES (?, ?, NOW())
-  `;
-
-  db.query(query, [folder_name, user_email], (err, result) => {
-    if (err) {
-      console.error('Error creating folder:', err);
-      return res.status(500).json({ error: 'Error creating folder' });
-    }
-
-    res.status(201).json({
-      message: 'Folder created successfully',
-      folder_id: result.insertId
-    });
-  });
-});
-
 // Add photos to a folder - Modified to store Google Drive file IDs
 router.post('/portfolio/add-photos', (req, res) => {
   const { folder_id, user_email, photos } = req.body;
@@ -716,50 +690,7 @@ router.post('/portfolio/add-photos', (req, res) => {
     });
 });
 
-// Delete a folder and its photos
-router.delete('/portfolio/delete-folder/:folder_id', async (req, res) => {
-  const { folder_id } = req.params;
-  const { user_email } = req.body;
 
-  if (!folder_id || !user_email) {
-    return res.status(400).json({ error: 'Folder ID and user email are required' });
-  }
-
-  // First, get all photo IDs from the folder to delete from Google Drive
-  const getPhotosQuery = `
-    SELECT photo_path FROM portfolio_photos 
-    WHERE folder_id = ? AND user_email = ?
-  `;
-
-  try {
-    // Get all file IDs before deleting
-    const [photos] = await db.promise().query(getPhotosQuery, [folder_id, user_email]);
-    
-    // Delete the folder and its photos from database (CASCADE will handle photo deletion)
-    const deleteFolderQuery = `
-      DELETE FROM portfolio_folders 
-      WHERE folder_id = ? AND user_email = ?
-    `;
-
-    const [result] = await db.promise().query(deleteFolderQuery, [folder_id, user_email]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Folder not found or unauthorized' });
-    }
-
-    // Here you would add your Google Drive deletion logic for each photo.file_id
-    // const fileIds = photos.map(photo => photo.photo_path);
-    // await deleteFilesFromGoogleDrive(fileIds);
-
-    res.status(200).json({ 
-      message: 'Folder and associated photos deleted successfully',
-      deletedFileIds: photos.map(photo => photo.photo_path)
-    });
-  } catch (err) {
-    console.error('Error deleting folder:', err);
-    res.status(500).json({ error: 'Error deleting folder and photos' });
-  }
-});
 
 // Delete specific photos
 router.delete('/portfolio/delete-photos', async (req, res) => {

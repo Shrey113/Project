@@ -177,3 +177,13 @@
 .draft-invoices-container .total .label {
   color: #666;
 }
+
+
+
+@media (max-width: 500px) {
+  .draft-invoices-container .drafts-grid {
+    display: flex;
+    flex-direction: column;
+    /* background: rebeccapurple; */
+  }
+}

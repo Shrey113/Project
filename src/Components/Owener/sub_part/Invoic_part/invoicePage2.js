@@ -21,6 +21,21 @@ function InvoicePage2() {
   const [logoPreview, setLogoPreview] = useState("");
   const [base64Image, setBase64Image] = useState("");
 
+  const [is_mobile, set_is_mobile] = useState(true);
+
+
+  useEffect(() => {
+    const handle_mobile_resize = () => {
+      set_is_mobile(window.innerWidth < 1100);
+    };
+    handle_mobile_resize();
+    window.addEventListener("resize", handle_mobile_resize);
+    return () => {
+      window.removeEventListener("resize", handle_mobile_resize);
+    };
+  }, []);
+
+
   const generateInvoice = async (user_email) => {
     try {
       const response = await fetch(`${Server_url}/generate-invoice`, {
@@ -56,7 +71,6 @@ function InvoicePage2() {
         ? [...data.with_draft].sort((a, b) => a.invoice_id - b.invoice_id)
         : [];
       setCount(with_draft.length);
-      console.log("Fetched draft invoices:", with_draft);
     } catch (error) {
       console.error("Error fetching invoices with draft:", error);
       setCount(0);
@@ -219,7 +233,6 @@ function InvoicePage2() {
     try {
       const date = new Date().toISOString();
 
-      console.log(date);
 
       const completeInvoice = {
         ...invoice,
@@ -228,7 +241,6 @@ function InvoicePage2() {
         user_email: user.user_email,
         invoice_photo: logoPreview,
       };
-      console.log("completed Invoice", completeInvoice);
 
       const response = await fetch(`${Server_url}/add-invoice`, {
         method: "POST",
@@ -242,8 +254,9 @@ function InvoicePage2() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.log(data);
+      // const data = await response.json();
+      // console.log(data);
+   
 
       generateInvoice(user.user_email);
       handleNewInvoice();
@@ -484,6 +497,7 @@ function InvoicePage2() {
       }
 
       const data = await response.json();
+      // console.log(data);
       if (
         data.message === "Invoice items with draft added successfully" ||
         data.message === "Invoice with draft added successfully"
@@ -494,7 +508,6 @@ function InvoicePage2() {
         generateInvoice(user.user_email);
         fetchInvoicesWithDraft(user.user_email);
       }
-      console.log(data);
     } catch (error) {
       console.error("Error saving draft:", error);
       alert("Error saving draft. Please try again.");
@@ -538,8 +551,8 @@ function InvoicePage2() {
       }
 
       const data = await response.json();
+      console.log(data);
       alert("Image uploaded successfully!");
-      console.log("Server response:", data);
     } catch (error) {
       console.error("Error uploading image:", error);
       alert("Error uploading image. Please try again.");
@@ -574,36 +587,17 @@ function InvoicePage2() {
   return (
     <div className="invoice_and_table_container">
       <div className="invoice_form">
-        <div className="company_logo_invoice">
-          <div
-            className="logo_for_invoice"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
-            <div className="preview_image">
-              <input
-                type="file"
-                name="company_logo"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={{ display: "none" }}
-                id="input_image"
-              />
+        <div className="company_logo_invoice"> 
+          <div className="logo_for_invoice" >
+            <div className="preview_image"> 
+              <input type="file" name="company_logo" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} id="input_image" />
 
               <div
                 className="companyLogo"
                 onClick={() => document.getElementById("input_image").click()}
                 style={{
                   backgroundImage: logoPreview ? `url(${logoPreview})` : "none",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  cursor: "pointer",
-                  width: "100%",
-                  height: "100%",
+
                 }}
               >
                 {!logoPreview && <span>Click to upload</span>}
@@ -637,10 +631,11 @@ function InvoicePage2() {
         <h1>INVOICE</h1>
         <div className="bill_details">
           <div className="bill_to">
+
+            <div className="recipient_name">
             <div className="date">
               <strong>Date</strong> : {invoice.date}
             </div>
-            <div className="recipient_name">
               <div className="recipient-input" ref={inputRef}>
                 <strong>Bill to:</strong>
                 {toggle_recipient_input ? (
@@ -651,32 +646,21 @@ function InvoicePage2() {
                       onChange={handleChange}
                       name="invoice_to"
                       placeholder="Enter Recipient Name"
-                      style={{
-                        padding: "5px",
-                        border: "none",
-                        outline: "1px solid #ddd",
-                        fontSize: "14px",
-                        borderRadius: "4px",
-                      }}
+                  
                       autoFocus
                     />
                     <button
                       onClick={handleConfirmRecipient}
-                      style={{
-                        border: "none",
-                        backgroundColor: "transparent",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                      }}
+                 
                     >
                       {" "}
                       ✔{" "}
                     </button>
                   </>
                 ) : (
-                  <p onClick={handle_toggle_input}>
+                  <div onClick={handle_toggle_input}>
                     {invoice.invoice_to || "Enter Recipient Name"}
-                  </p>
+                  </div>
                 )}
               </div>
 
@@ -688,16 +672,7 @@ function InvoicePage2() {
                       onChange={handleChange}
                       placeholder="Enter Address"
                       name="invoice_to_address"
-                      style={{
-                        padding: "4px",
-                        border: "none",
-                        outline: "1px solid #ddd",
-                        fontSize: "14px",
-                        borderRadius: "4px",
-                        width: "200px",
-                        height: "60px",
-                        resize: "none",
-                      }}
+                     
                       autoFocus
                     />
                     <button
@@ -706,19 +681,18 @@ function InvoicePage2() {
                         border: "none",
                         backgroundColor: "transparent",
                         cursor: "pointer",
-                        fontSize: "14px",
                       }}
                     >
                       ✔
                     </button>
                   </>
                 ) : (
-                  <p
+                  <div
                     onClick={handleToggleAddressInput}
                     style={{ maxWidth: "300px", width: "200px" }}
                   >
                     {invoice.invoice_to_address || "Enter Address"}
-                  </p>
+                  </div>
                 )}
               </div>
 
@@ -732,13 +706,7 @@ function InvoicePage2() {
                       placeholder="Enter Email ID"
                       name="invoice_to_email"
                       onBlur={handleBlur}
-                      style={{
-                        padding: "5px",
-                        border: "none",
-                        outline: "1px solid #ddd",
-                        fontSize: "14px",
-                        borderRadius: "4px",
-                      }}
+                    
                       autoFocus
                     />
                     <button
@@ -747,27 +715,28 @@ function InvoicePage2() {
                         border: "none",
                         backgroundColor: "transparent",
                         cursor: "pointer",
-                        fontSize: "14px",
                       }}
                     >
                       ✔
                     </button>
                     {emailError && ( // Display error message
-                      <p
+                      <div
                         style={{
                           color: "red",
-                          fontSize: "12px",
                           marginTop: "5px",
+                          outline:"none",
+                          border:"none",
+                          fontSize:13
                         }}
                       >
                         {emailError}
-                      </p>
+                      </div>
                     )}
                   </>
                 ) : (
-                  <p onClick={handleToggleEmailInput}>
+                  <div onClick={handleToggleEmailInput}>
                     {invoice.invoice_to_email || "Enter Email ID"}
-                  </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -775,13 +744,46 @@ function InvoicePage2() {
           <div className="bill_from">
             <div className="recipient_name">
               <strong>From:</strong>
-              <p>{user.user_name}</p>
-              <p>{user.business_address}</p>
-              <p>{user.user_email}</p>
+              <div>{user.user_name}</div>
+              <div className="business_address">{user.business_address}</div>
+              <div>{user.user_email}</div>
             </div>
           </div>
         </div>
 
+
+        {is_mobile ? 
+            <div className="mobile-invoice-generator">
+            {invoice.items &&
+              invoice.items.length > 0 &&
+              invoice.items.map((item, index) => (
+                <div className="invoice-item" key={index}>
+                  <div className="input-wrapper">
+                    <label htmlFor={`item_${index}`} className="input-label">Item</label>
+                    <input type="text" name={`item_${index}`} value={item.item} onChange={handleChange} placeholder="Enter name" className="input-field" />
+                  </div>
+                  <div className="input-wrapper">
+                    <label htmlFor={`quantity_${index}`} className="input-label">Quantity</label>
+                    <input type="number" name={`quantity_${index}`} value={item.quantity} onChange={handleChange} min="0" className="input-field" />
+                  </div>
+                  <div className="input-wrapper">
+                    <label htmlFor={`price_${index}`} className="input-label">Price</label> 
+                    <input type="number" name={`price_${index}`} value={item.price} onChange={handleChange} min="0" className="input-field" />
+                  </div>
+                  <div className="input-wrapper">
+                    <label className="input-label">{` `}</label>
+                    <div className="total-amount">₹{item.amount}</div>
+                  </div>
+                  {index > 0 && (
+                    <button type="button" onClick={() => removeRow(index)} className="delete-btn">
+                      Delete
+                    </button>
+                  )}
+                </div>
+              ))}
+            <div className="subtotal">Subtotal: ₹{invoice.sub_total}</div>
+          </div>
+        : 
         <table className="invoice_generator">
           <thead>
             <tr>
@@ -850,7 +852,6 @@ function InvoicePage2() {
                 style={{
                   textAlign: "right",
                   fontWeight: "bold",
-                  fontSize: "20px",
                 }}
               >
                 Total
@@ -859,7 +860,6 @@ function InvoicePage2() {
                 style={{
                   fontWeight: "bold",
                   textAlign: "center",
-                  fontSize: "20px",
                 }}
               >
                 {invoice.sub_total}
@@ -868,13 +868,13 @@ function InvoicePage2() {
             </tr>
           </tbody>
         </table>
+
+}
         <div className="add_row">
           <button type="button" onClick={addRow}>
             Add Row
           </button>
         </div>
-
-        {/* Invoice Summary */}
 
         <div className="invoice-summary">
           <div className="summary-row">
@@ -936,68 +936,40 @@ function InvoicePage2() {
           </div>
 
           <div className="invoice-actions">
-            <button
-              className="btn btn-secondary"
-              onClick={generatePDF}
-              type="button"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              <span>Download PDF</span>
-            </button>
+      <button className="btn btn-secondary" onClick={generatePDF} type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        <span>Download PDF</span>
+      </button>
 
-            <button
-              className="btn btn-primary"
-              onClick={handleSubmit}
-              type="submit"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
-                <line x1="16" y1="5" x2="22" y2="5" />
-                <line x1="19" y1="2" x2="19" y2="8" />
-              </svg>
-              <span>Generate Invoice</span>
-            </button>
+      <div className="wrapper_for_buttons">
 
-            <button
-              type="submit"
-              onClick={handleSaveDraft}
-              className="btn btn-secondary"
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M4 4h16v16H4z" />
-                <path d="M4 8h16" />
-                <path d="M4 12h16" />
-                <path d="M4 16h16" />
-                <path d="M9 12l2 2l4-4" />
-              </svg>
-              <span>Save as Draft</span>
-            </button>
-          </div>
+      <button className="btn btn-primary" onClick={handleSubmit} type="submit">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
+          <line x1="16" y1="5" x2="22" y2="5" />
+          <line x1="19" y1="2" x2="19" y2="8" />
+        </svg>
+        <span>Generate Invoice</span>
+      </button>
+
+      <button className="btn btn-secondary" onClick={handleSaveDraft} type="submit">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M4 4h16v16H4z" />
+          <path d="M4 8h16" />
+          <path d="M4 12h16" />
+          <path d="M4 16h16" />
+          <path d="M9 12l2 2l4-4" />
+        </svg>
+        <span>Save as Draft</span>
+      </button>
+
+      </div>
+    </div>
+
         </div>
       </div>
     </div>

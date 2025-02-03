@@ -34,6 +34,139 @@ const db = mysql.createConnection({
   },
 });
 
+const app = express();
+const bodyParser = require("body-parser");
+
+// Middleware to parse JSON bodies
+app.use(bodyParser.json());
+
+router.get("/api/equipment/:email", (req, res) => {
+  const email = req.params.email;
+
+  const query = "SELECT * FROM packages WHERE user_email = ?";
+
+  db.query(query, [email], (err, results) => {
+    if (err) {
+      console.error("Error fetching packages:", err);
+      return res.status(500).send("Server error");
+    }
+    res.json(results);
+  });
+});
+
+router.get("/api/packages/:email", (req, res) => {
+  const email = req.params.email;
+
+  const query = "SELECT * FROM equipment WHERE user_email = ?";
+
+  db.query(query, [email], (err, results) => {
+    if (err) {
+      console.error("Error fetching equipment:", err);
+      return res.status(500).send("Server error");
+    }
+    res.json(results);
+  });
+});
+
+// Route to handle the POST request for fetching owner details
+router.post("/api/owner-all-details", (req, res) => {
+  const { user_email } = req.body;
+
+  if (!user_email) {
+    return res.status(400).json({ error: "User email is required" });
+  }
+
+  // Query for fetching equipment details
+  const equipmentQuery = `
+      SELECT * FROM equipment
+      WHERE user_email = ? LIMIT 5
+    `;
+
+  // Query for fetching package details
+  const packagesQuery = `
+      SELECT * FROM packages
+      WHERE user_email = ? LIMIT 5
+    `;
+
+  // Query for fetching photo files details
+  const photoFilesQuery = `
+      SELECT * FROM photo_files
+      WHERE user_email = ? LIMIT 5
+    `;
+
+  // Execute the queries in parallel using Promise.all
+  Promise.all([
+    new Promise((resolve, reject) => {
+      db.query(equipmentQuery, [user_email], (err, result) => {
+        if (err) reject(err);
+        else {
+          console.log("Equipment Query Result:", result);
+          resolve(result);
+        }
+      });
+    }),
+    new Promise((resolve, reject) => {
+      db.query(packagesQuery, [user_email], (err, result) => {
+        if (err) reject(err);
+        else {
+          console.log("Packages Query Result:", result);
+          resolve(result);
+        }
+      });
+    }),
+    new Promise((resolve, reject) => {
+      db.query(photoFilesQuery, [user_email], (err, result) => {
+        if (err) reject(err);
+        else {
+          console.log("Photo Files Query Result:", result); // Log the result of the query
+          resolve(result);
+        }
+      });
+    }),
+  ])
+    .then(([equipmentResult, packagesResult, photoFilesResult]) => {
+      console.log("All data fetched:", {
+        equipment: equipmentResult,
+        packages: packagesResult,
+        photo_files: photoFilesResult,
+      });
+
+      // Send the combined data as JSON
+      res.json({
+        equipment: equipmentResult,
+        packages: packagesResult,
+        photo_files: photoFilesResult,
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching owner details:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    });
+});
+
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+router.post("/api/owners", (req, res) => {
+  const { user_email } = req.body;
+
+  const sql = "SELECT * FROM owner where user_email != ?";
+
+  db.query(sql, [user_email], (err, result) => {
+    if (err) {
+      console.error("Error fetching owners:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+    const withoutPasswordData = result.map(
+      ({ password, ...ownerData }) => ownerData
+    );
+    res.json({ result: withoutPasswordData });
+  });
+});
+
 router.post("/owner_drive/delete-photo", (req, res) => {
   const { user_email, photo_id } = req.body;
 
@@ -116,7 +249,6 @@ router.post("/api/upload-photo", (req, res) => {
 
 router.post("/upload-invoice-logo", async (req, res) => {
   const { image, user_email } = req.body;
-
 
   if (!image || !user_email) {
     return res

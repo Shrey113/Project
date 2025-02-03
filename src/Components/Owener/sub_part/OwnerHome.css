@@ -15,6 +15,9 @@
     padding-left: 0;
   }
   
+  .Owner_main_home_pag_con.for_full_screen {
+    padding-left: 0;
+  }
   
   .Owner_main_home_pag_con .main_part{
       height:100vh;

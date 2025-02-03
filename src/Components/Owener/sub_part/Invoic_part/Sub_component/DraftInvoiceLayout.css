@@ -165,7 +165,7 @@
   font-family: "Lato", serif;
   font-size: 15px;
 }
-.invoice_and_table_container .invoice_form .bill_details .bill_from {
+.invoice_and_table_container_draft .invoice_form .bill_details .bill_from {
   height: 100%;
   flex: 1;
   display: flex;

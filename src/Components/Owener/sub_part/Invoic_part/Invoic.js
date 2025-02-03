@@ -59,14 +59,14 @@ const InvoiceForm = () => {
   const checkEmail = async (user_email) => {
     try {
       setLoading(true);
-      const response = await fetch(`${Server_url}/check_email_owner`, {
+     await fetch(`${Server_url}/check_email_owner`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ user_email: user_email }),
       });
-      const data = await response.json();
+      // const data = await response.json();
 
     } catch (error) {
       console.error("Error fetching invoices:", error);
@@ -412,7 +412,7 @@ const InvoiceForm = () => {
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center",
+                       
                           gap: "10px",
                         }}
                       >

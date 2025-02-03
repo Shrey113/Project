@@ -255,7 +255,7 @@
 
 .modal-overlay_event_details .form-control {
     width: 100%;
-    padding: 0.75rem;
+    /* padding: 0.75rem; */
     border: 1px solid #E5E7EB;
     border-radius: 0.375rem;
     font-size: 1rem;

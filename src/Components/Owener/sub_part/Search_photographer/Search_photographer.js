@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import "./Search_photographer.css";
+import OwnerList from "./sub_part/Owners_List";
 import { Server_url } from "../../../../redux/AllData";
 
 function Search_photographer() {
   const user = useSelector((state) => state.user);
   const user_email = user.user_email;
+  const [all_owner_data, set_all_owner_Data] = useState();
+  // const [loading, setLoading] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState({
@@ -57,6 +60,31 @@ function Search_photographer() {
 
     return () => clearTimeout(timer);
   }, [searchTerm, user_email]);
+
+  useEffect(() => {
+    // setLoading(true);
+    const fetchOwners = async () => {
+      try {
+        const response = await fetch(`${Server_url}/api/owners`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_email: user.user_email }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch owners");
+        }
+
+        const data = await response.json();
+        set_all_owner_Data(data.result); // Ensure correct data structure
+      } catch (error) {
+        console.error("Error fetching owner data:", error);
+      }
+    };
+    fetchOwners();
+  }, [user.user_email]);
 
   const handleKeyDown = (e) => {
     const totalItems = Object.values(filteredUsers).flat().length;
@@ -226,66 +254,16 @@ function Search_photographer() {
 
       {/* Sections */}
       <div className="sections-container">
-        <section
-          id="maharashtra"
-          className={`section ${
-            activeSection === "maharashtra" ? "active" : ""
-          }`}
-        >
-          <h2>Maharashtra Photographers</h2>
-        </section>
-
-        <section
-          id="gujarat"
-          className={`section ${activeSection === "gujarat" ? "active" : ""}`}
-        >
-          <h2>Gujarat Photographers</h2>
-        </section>
-
-        <section
-          id="rajasthan"
-          className={`section ${activeSection === "rajasthan" ? "active" : ""}`}
-        >
-          <h2>Rajasthan Photographers</h2>
-        </section>
-
-        <section
-          id="delhi"
-          className={`section ${activeSection === "delhi" ? "active" : ""}`}
-        >
-          <h2>Delhi Photographers</h2>
-        </section>
+        <OwnerList
+          owners={
+            all_owner_data?.filter((owner) =>
+              owner.user_name?.toLowerCase().includes(searchTerm.toLowerCase())
+            ) || []
+          }
+        />
       </div>
     </div>
   );
 }
 
 export default Search_photographer;
-// <>
-//   <div className="search-container">
-//     <input
-//       type="text"
-//       className="search-input"
-//       placeholder="Search..."
-//       value={searchTerm}
-//       onChange={(e) => setSearchTerm(e.target.value)}
-//       onKeyDown={handleKeyDown}
-//     />
-//     {searchTerm !== "" && (
-//       <>
-//         {isSearching ? (
-//           <div className="searching-text">Searching...</div>
-//         ) : hasResults ? (
-//           <>
-//             {renderItems("Owners", filteredUsers.owners)}
-//             {renderItems("Packages", filteredUsers.packages)}
-//             {renderItems("Equipment", filteredUsers.equipment)}
-//           </>
-//         ) : (
-//           <div className="no-results">No results found.</div>
-//         )}
-//       </>
-//     )}
-//   </div>
-//   <div className="all_photographers_card"></div>
-// </>

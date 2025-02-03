@@ -25,6 +25,9 @@ import client_no_active_icon from './img/no_active/client.png'
 import Packages_icon from './img/active/photo.png'
 import Packages_no_active_icon from './img/no_active/photo.png'
 
+import logout_icon from './img/logout.png'
+
+import { localstorage_key_for_jwt_user_side_key } from './../../redux/AllData.js';
 
 function OwnerSideBar() {
   const dispatch = useDispatch();
@@ -101,6 +104,15 @@ useEffect(() => {
       document.body.style.overflow = 'auto';
     };
   }, [isSidebarOpen, isMobile]);
+
+  
+  const handleLogout = () => {
+    localStorage.removeItem(localstorage_key_for_jwt_user_side_key);
+
+    window.location.reload();
+    console.log("User logged out successfully!");
+  };
+
 
   return (
     <>
@@ -188,6 +200,18 @@ useEffect(() => {
         <div className="user_name">{user.user_name}</div>
         <div className="user_email">{user.user_email}</div>
       </div>
+      <button 
+        className="logout_button"
+        onClick={(e) => {
+          e.stopPropagation();
+          let confirm = window.confirm("Are you sure you want to logout?");
+          if(confirm){
+            handleLogout();
+          }
+        }}
+      >
+        <img src={logout_icon} alt="Logout" />
+      </button>
     </div>
 
 

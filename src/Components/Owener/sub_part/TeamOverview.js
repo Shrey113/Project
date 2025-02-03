@@ -43,8 +43,6 @@ const PopUp = ({ action, member, onClose, onSave }) => {
         return Object.keys(errors).length === 0;
     };
     
-    
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -114,8 +112,15 @@ const PopUp = ({ action, member, onClose, onSave }) => {
         onClose();
     };
 
+    // Add click handler for overlay
+    const handleOverlayClick = (e) => {
+        if (e.target.className === 'popup-overlay') {
+            onClose();
+        }
+    };
+
     return (
-        <div className="popup-overlay" id='TeamOverview_pop_menu'>
+        <div className="popup-overlay" id='TeamOverview_pop_menu' onClick={handleOverlayClick}>
             <div className="popup-content">
                 <h3>{action} User</h3>
                 {action !== 'View' ? (
@@ -251,6 +256,65 @@ const ADDCardForActive =({total_member}) =>{
     );
 }
 
+const ActionMenu = ({ member, onEdit, onRemove, onView }) => {
+    const [showMenu, setShowMenu] = useState(false);
+
+    // Add useEffect for handling outside clicks
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (showMenu && !event.target.closest('.action-menu-container')) {
+                setShowMenu(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showMenu]);
+
+    return (
+        <div className="action-menu-container">
+            {/* Show 3-dot menu button on mobile */}
+            <button className="mobile-menu-trigger" onClick={() => setShowMenu(!showMenu)}>
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            {/* Regular buttons for desktop */}
+            <div className="desktop-actions">
+                <button onClick={onEdit}>
+                    <img src={Edit_icon} alt="Edit Icon" />
+                </button>
+                <button onClick={onRemove}>
+                    <img src={Remove_icon} alt="Remove Icon" />
+                </button>
+                <button onClick={onView}>
+                    <img src={View_icon} alt="View Icon" />
+                </button>
+            </div>
+
+            {/* Popup menu for mobile */}
+            {showMenu && (
+                <div className="mobile-action-menu">
+                    <button onClick={() => { onEdit(); setShowMenu(false); }}>
+                        <img src={Edit_icon} alt="Edit Icon" />
+                        <span>Edit</span>
+                    </button>
+                    <button onClick={() => { onRemove(); setShowMenu(false); }}>
+                        <img src={Remove_icon} alt="Remove Icon" />
+                        <span>Remove</span>
+                    </button>
+                    <button onClick={() => { onView(); setShowMenu(false); }}>
+                        <img src={View_icon} alt="View Icon" />
+                        <span>View</span>
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const TeamOverview = () => {
 
@@ -323,6 +387,20 @@ const TeamOverview = () => {
       
       
 
+    // Add new useEffect for handling outside clicks
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (popupState.show && !event.target.closest('.popup-content') && !event.target.closest('button')) {
+                setPopupState({ show: false, action: '', member: null });
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [popupState.show]);
+
     return (
         <div className="team-overview">
 
@@ -360,9 +438,8 @@ const TeamOverview = () => {
                     <tbody>
                         {teamData.map((member, index) => (
                             <tr key={index}>
-                                {/* <td>{member.member_id}</td> */}
-                                <td>{index + 1}</td>
-                                <td>
+                                <td data-label="No">{index + 1}</td>
+                                <td data-label="Name">
                                     <div className="profile_con">
                                         <div className="profile_img">
                                             <img src={member.member_profile_img} alt="" />
@@ -370,19 +447,16 @@ const TeamOverview = () => {
                                         <div className="data">{member.member_name}</div>
                                     </div>
                                 </td>
-                                <td>{member.member_role}</td>
-                                <td>{member.member_event_assignment || 'Unassigned'}</td>
-                                <td>{member.member_status}</td>
-                                <td>
-                                    <button onClick={() => handleEditUser(member)}>
-                                        <img src={Edit_icon} alt="Edit Icon" />
-                                    </button>
-                                    <button onClick={() => handleRemoveUser(member.member_id,user.user_email)}>
-                                        <img src={Remove_icon} alt="Remove Icon" />
-                                    </button>
-                                    <button onClick={() => handleViewUser(member)}>
-                                        <img src={View_icon} alt="View Icon" />
-                                    </button>
+                                <td data-label="Role">{member.member_role}</td>
+                                <td data-label="Event Assignment">{member.member_event_assignment || 'Unassigned'}</td>
+                                <td data-label="Status">{member.member_status}</td>
+                                <td data-label="Actions">
+                                    <ActionMenu 
+                                        member={member}
+                                        onEdit={() => handleEditUser(member)}
+                                        onRemove={() => handleRemoveUser(member.member_id, user.user_email)}
+                                        onView={() => handleViewUser(member)}
+                                    />
                                 </td>
                             </tr>
                         ))}

@@ -259,27 +259,14 @@ const EditInvoiceModal = ({
             &times;
           </button>
         </div>
-        <div
-          className="preview_and_invoice_details_wrapper"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "230px",
-            gap: "20px",
-          }}
-        >
-          <div
-            className="preview_image"
-            style={{ height: "100%", width: "30%", objectFit: "cover" }}
-          >
+        <div className="preview_and_invoice_details_wrapper">
+          <div className="preview_image">
             <img
               src={invoice.invoice_logo}
               alt=""
-              style={{ height: "100%", width: "100%", objectFit: "cover" }}
             />
           </div>
-          <div className="invoice-details" style={{ width: "60%" }}>
+          <div className="invoice-details">
             <div className="detail-item">
               <span className="label">
                 Invoice To <span>:</span>
@@ -325,40 +312,33 @@ const EditInvoiceModal = ({
             </div>
           </div>
         </div>
-        <div
-          className="table-container"
-          style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <div className="table-container">
           <h2>Invoice Items</h2>
-          <table className="invoice-table">
-            <thead>
-              <tr>
-                <th>Sr. No.</th>
-                <th>Item Name</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoice.invoice_items &&
-                invoice.invoice_items.map((item, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{item.item}</td>
-                    <td>{item.quantity}</td>
-                    <td>₹{item.price}</td>
-                    <td>₹{item.quantity * item.price}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+          <div className="table-responsive">
+            <table className="invoice-table">
+              <thead>
+                <tr>
+                  <th>Sr. No.</th>
+                  <th>Item Name</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoice.invoice_items &&
+                  invoice.invoice_items.map((item, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{item.item}</td>
+                      <td>{item.quantity}</td>
+                      <td>₹{item.price}</td>
+                      <td>₹{item.quantity * item.price}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         <div className="modal-footer">
           <button className="print-button">Print Invoice</button>

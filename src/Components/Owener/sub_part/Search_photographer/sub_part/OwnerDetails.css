@@ -1,0 +1,232 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.owner-details-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  overflow-y: scroll;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+/* for back button  */
+
+.owner-details-container .owner-info-details .back-button {
+  padding: 8px 18px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+/* owner details first section  */
+
+.owner-details-container .owner-info-details {
+  height: 60%;
+  position: relative;
+}
+.owner-details-container .owner-info-details .owner-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.owner-details-container .owner-info-details .owner_details_img_container {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.owner-details-container
+  .owner-info-details
+  .owner_details_img_container
+  .owner-profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* base for all sections  */
+
+.owner-details-container .section {
+  height: 60vh;
+  width: 100%;
+  padding: 20px;
+}
+
+.owner-details-container .section.equipment_section,
+.owner-details-container .section.packages_section,
+.owner-details-container .section.photo_section {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.owner-details-container .section.equipment_section .equipment-list,
+.owner-details-container .section.packages_section .packages-list {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-direction: column;
+  list-style: none;
+  height: 90%;
+  width: 100%;
+  position: relative;
+  background-color: rebeccapurple;
+}
+
+.owner-details-container .section.equipment_section .equipment-list button,
+.owner-details-container .section.packages_section .packages-list button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  border: 1px solid black;
+  background-color: lightblue;
+  border-radius: 20px;
+  font-size: 16px;
+  font-family: cursive;
+  cursor: pointer;
+}
+.owner-details-container
+  .section.equipment_section
+  .equipment-list
+  .equipment_items_container,
+.owner-details-container
+  .section.packages_section
+  .packages-list
+  .package_items_container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.owner-details-container
+  .section.equipment_section
+  .equipment-list
+  .equipment_items_container
+  .equipment_item,
+.owner-details-container
+  .section.packages_section
+  .packages-list
+  .package_items_container
+  .package_item {
+  height: fit-content;
+  padding: 20px;
+  border-radius: 8px;
+  gap: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* .owner-details-container
+  .section.equipment_section
+  .equipment-list
+  .equipment-item,
+.owner-details-container
+  .section.packages_section
+  .packages-list
+  .package-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  list-style: none;
+} */
+
+.owner-details-container .section .no-data {
+  font-size: 16px;
+  color: #888;
+}
+
+/* no equipment section  */
+
+.owner-details-container .section.equipment_section .no_equipments {
+  height: 300px;
+  width: 300px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  object-fit: cover;
+}
+.owner-details-container .section.equipment_section .no_equipments img {
+  height: 100%;
+  width: 100%;
+}
+.owner-details-container .section.equipment_section .no_equipments p {
+  font-size: 20px;
+}
+
+/* no packages section  */
+
+.owner-details-container .section.packages_section .no_equipments {
+  height: 300px;
+  width: 300px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  object-fit: cover;
+}
+.owner-details-container .section.packages_section .no_equipments img {
+  height: 100%;
+  width: 100%;
+}
+.owner-details-container .section.packages_section .no_equipments p {
+  font-size: 20px;
+}
+
+/* no photo section  */
+
+.owner-details-container .section.photo_section .no_equipments {
+  height: 300px;
+  width: 300px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  object-fit: cover;
+}
+.owner-details-container .section.photo_section .no_equipments img {
+  height: 100%;
+  width: 100%;
+}
+.owner-details-container .section.photo_section .no_equipments p {
+  font-size: 20px;
+}
+
+/* photo section container  */
+
+.owner-details-container .section.photo_section .photos-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.owner-details-container
+  .section.photo_section
+  .photos-container
+  .profile_preview_images {
+  display: flex;
+  gap: 20px;
+}
+.owner-details-container
+  .section.photo_section
+  .photos-container
+  .profile_preview_images
+  .photo-thumbnail {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+}

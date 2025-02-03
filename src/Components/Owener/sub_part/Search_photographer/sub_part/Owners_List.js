@@ -1,0 +1,109 @@
+import React, { useState } from "react";
+import "./Owners_List.css";
+import user1 from "./../../../sub_part/profile_pic/user1.jpg";
+import { Server_url } from "./../../../../../redux/AllData";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
+const OwnerList = ({ owners }) => {
+  const [selectedOwner, setSelectedOwner] = useState(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const set_is_full_screen = (value) => {
+    dispatch({
+      type: "SET_USER_Owner",
+      payload: {
+        is_full_screen: value,
+      },
+    });
+  };
+
+  const set_owner_full_screen = (value) => {
+    dispatch({
+      type: "SET_USER_Owner",
+      payload: {
+        isOwnerFullScreen: value,
+      },
+    });
+  };
+
+  const handleExplore = async (owner) => {
+    if (selectedOwner === owner) {
+      setSelectedOwner(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${Server_url}/api/owner-all-details`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_email: owner.user_email }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch owner details");
+      }
+
+      const data = await response.json();
+      console.log("Data received from server.....................", data);
+      if (data && data.equipment && data.packages && data.photo_files) {
+        navigate(`/Owner/search_photographer/${owner.user_email}`, {
+          state: { ownerData: data, selectedOwner: owner },
+        });
+        set_is_full_screen(false);
+        set_owner_full_screen(true);
+      } else {
+        console.error("Data format is not as expected:", data);
+      }
+    } catch (error) {
+      console.error("Error fetching owner details:", error);
+    }
+  };
+
+  if (!owners || owners.length === 0) {
+    return <p>No photographers found.</p>;
+  }
+
+  return (
+    <div className="owner-list-container">
+      {owners.map((owner, index) => (
+        <div
+          key={index}
+          className="owner-card"
+          onClick={() => {
+            handleExplore(owner);
+          }}
+        >
+          <div className="image_container">
+            <img
+              src={owner.user_profile_image_base64 || user1}
+              alt="Owner Avatar"
+              className="owner-avatar"
+            />
+          </div>
+
+          <div className="owner-info">
+            <h3>{owner.user_name}</h3>
+            <p className="email">Email: {owner.user_email}</p>
+            <p className="location">
+              <span style={{ backgroundColor: "lightgrey", padding: "2px" }}>
+                Location:
+              </span>{" "}
+              {owner.business_address || "Not Available"}
+            </p>
+          </div>
+          <div className="explore-button-container">
+            <button onClick={() => handleExplore(owner)}>
+              {selectedOwner === owner ? "Hide Details" : "Explore"}
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default OwnerList;

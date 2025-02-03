@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import "./Packages.css";
 import default_image from "./Images/default_image.png";
 import "./sub_parts/DefaultPage.css";
+import "./Packages_responsive.css";
 import { Server_url } from "./../../../../redux/AllData";
 import { useSelector } from "react-redux";
+import MobilePackageView from './MobilePackageView';
 
 const Packages = () => {
   const user = useSelector((state) => state.user);
@@ -17,7 +19,51 @@ const Packages = () => {
     price: "",
     card_color: "#ff6f61",
   });
+
+  const [mobile_view, setMobile_view] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);  
+
+  const [selectedPackage, setSelectedPackage] = useState(null);
+
+  useEffect(() => {
+    setIsMobileView(window.innerWidth <= 768);
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   const [newService, setNewService] = useState("");
+
+  const themeOptions = [
+    {
+      name: "Standard",
+      headerBg: "#F4B400",
+      cardBg: "#FFF8E1",
+      textColor: "#000000",
+      buttonBg: "#F4B400",
+      buttonText: "#FFFFFF"
+    },
+    {
+      name: "Professional",
+      headerBg: "#E91E63",
+      cardBg: "#FCE4EC",
+      textColor: "#000000",
+      buttonBg: "#E91E63",
+      buttonText: "#FFFFFF"
+    },
+    {
+      name: "Business",
+      headerBg: "#2196F3",
+      cardBg: "#E3F2FD",
+      textColor: "#000000",
+      buttonBg: "#2196F3",
+      buttonText: "#FFFFFF"
+    }
+  ];
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -227,6 +273,79 @@ const Packages = () => {
     );
   };
 
+  const handleMobileViewToggle = (pkg) => {
+    setMobile_view(true);
+    setSelectedPackage(pkg);
+  };
+
+  const handleCloseMobileView = () => {
+    setMobile_view(false);
+    setSelectedPackage(null);
+  };
+
+  // const handleUpdatePackage = (updatedPackage) => {
+  //   // Update the package in your main packages array
+  //   const updatedPackages = packages.map(pkg => 
+  //     pkg.id === updatedPackage.id ? updatedPackage : pkg
+  //   );
+  //   setPackages(updatedPackages);
+    
+  //   // Here you can also make API call to update the package in backend
+  //   // updatePackageInBackend(updatedPackage);
+  // };
+
+  const handleMobilePackageUpdate = async (updatedPackage) => {
+    // Validate package name
+    if (!updatedPackage.package_name.trim()) {
+      alert("Package name cannot be empty");
+      return false;
+    }
+
+    const updatedPackageData = {
+      id: updatedPackage.id,
+      package_name: updatedPackage.package_name.trim(),
+      service: Array.isArray(updatedPackage.service)
+        ? JSON.stringify(updatedPackage.service)
+        : updatedPackage.service,
+      description: updatedPackage.description,
+      price: updatedPackage.price,
+      card_color: updatedPackage.card_color,
+      user_email: user.user_email,
+    };
+
+    try {
+      const response = await fetch(`${Server_url}/api/update_package`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedPackageData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update the packages state with the new data
+        setPackages(prevPackages =>
+          prevPackages.map(pkg =>
+            pkg.id === updatedPackage.id ? { ...updatedPackage, isEditing: false } : pkg
+          )
+        );
+
+        alert(data.message || "Package updated successfully!");
+        return true;
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to update package");
+        return false;
+      }
+    } catch (err) {
+      console.error("Error connecting to the server:", err);
+      alert("Failed to update package");
+      return false;
+    }
+  };
+
   return (
     <div className="packages-container">
       {packages.length === 0 && !formVisible && (
@@ -261,6 +380,7 @@ const Packages = () => {
           <div className="packages-header">
             <h1>Your Packages</h1>
           </div>
+          {!isMobileView ? (
           <div className="packages-grid">
             {packages.map((pkg, index) => (
               <div
@@ -327,7 +447,6 @@ const Packages = () => {
                                 : "#ffffff",
                             width: "100%",
                             padding: "8px 10px",
-                            fontSize: "25px",
                           }}
                         >
                           {pkg.isEditing ? (
@@ -369,6 +488,34 @@ const Packages = () => {
               </div>
             ))}
           </div>
+          ) : (
+            <div className="packages-grid-for-mobile" >
+              {packages.map((pkg, index) => (
+                <div key={index} className="package-card" style={{backgroundColor: pkg.card_color || "#6fa8dc"}} >
+                  <div className="package-card-header" >
+                    <h3 className="package-title">{pkg.package_name}</h3>
+                    <div 
+                      className="package-card-i-button" 
+                      onClick={() => handleMobileViewToggle(pkg)}
+                    >
+                      i
+                    </div>
+                  </div>
+                  <div className="package-card-body">
+                    <div className="price-tag">
+                      <span className="currency">₹</span>
+                      <span className="amount">{pkg.price}</span>
+                      <span className="period">/Day</span>
+                    </div>
+                    <div className="description-container">
+                      <p className="package-description">{pkg.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
           <div className="tooltip-container">
             <button
               className="add-package-button"
@@ -386,16 +533,22 @@ const Packages = () => {
           <form className="package-form" onSubmit={handleAddPackage}>
             <h2>Create Package</h2>
             <div className="form_lables_input">
+              <div className="two_input_field">
+                <label>
+                  Package Name:
+                  <input type="text" name="package_name" value={formData.package_name} onChange={handleChange} required />
+              </label>
               <label>
-                Package Name:
+                Price/Day:
                 <input
-                  type="text"
-                  name="package_name"
-                  value={formData.package_name}
+                  type="number"
+                  name="price"
+                  value={formData.price}
                   onChange={handleChange}
                   required
                 />
               </label>
+              </div>
               <label>
                 Service:
                 <div
@@ -464,16 +617,7 @@ const Packages = () => {
                   </button>
                 </div>
               </label>
-              <label>
-                Price/Day:
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
+
               <label>
                 Description:
                 <textarea
@@ -495,33 +639,26 @@ const Packages = () => {
               </label>
 
               <label>
-                Select Color:
-                <div
-                  className="color-palette"
-                  style={{ display: "flex", gap: "10px" }}
-                >
-                  {["#ff6f61", "#6fa8dc", "#93c47d"].map((color, index) => (
-                    <div
+                Select Theme:
+                <div className="color-palette">
+                  {themeOptions.map((theme, index) => (
+                    <div 
                       key={index}
-                      onClick={() =>
-                        setFormData({ ...formData, card_color: color })
-                      }
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "50%",
-                        backgroundColor: color,
-                        cursor: "pointer",
-                        border:
-                          formData.card_color === color
-                            ? `2px solid white`
-                            : "1px solid #ccc",
-                        outline:
-                          formData.card_color === color
-                            ? `3px solid ${color}`
-                            : "1px solid #ccc",
-                      }}
-                    ></div>
+                      className={`theme-option ${formData.card_color === theme.headerBg ? 'selected' : ''}`}
+                      onClick={() => setFormData({ ...formData, card_color: theme.headerBg })}
+                    >
+                      <div className="theme-preview">
+                        <div  className="theme-preview-header" style={{ backgroundColor: theme.headerBg }}/>
+                        <div  className="theme-preview-body" style={{ backgroundColor: theme.cardBg }}>
+                        <span></span>
+                          <span>- -</span>
+                          <span>- -</span>
+                          <span></span>
+                        </div>
+                        
+                      </div>
+                      <span className="theme-name">{theme.name}</span>
+                    </div>
                   ))}
                 </div>
               </label>
@@ -591,7 +728,6 @@ const Packages = () => {
                               : "#ffffff",
                           width: "100%",
                           padding: "8px 10px",
-                          fontSize: "25px",
                         }}
                       >
                         {srv.charAt(0).toUpperCase() +
@@ -606,6 +742,14 @@ const Packages = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {mobile_view && selectedPackage && (
+        <MobilePackageView
+          selectedPackage={selectedPackage}
+          onClose={handleCloseMobileView}
+          onUpdatePackage={handleMobilePackageUpdate}
+        />
       )}
     </div>
   );
