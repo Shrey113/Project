@@ -1,0 +1,104 @@
+.reject_message {
+  position: fixed;
+  top: 20px;
+  right: -300px;
+  background: #eecdc8;
+  color: #b52f29;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: right 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+.reject_message img {
+  height: 50px;
+  width: 50px;
+}
+
+/* When the message is active */
+.reject_message.show {
+  right: 20px;
+  opacity: 1;
+}
+
+/* Hide smoothly */
+.reject_message.hide {
+  right: -300px;
+  opacity: 0;
+}
+
+.success_message {
+  position: fixed;
+  top: 20px;
+  right: -300px;
+  height: fit-content;
+  width: fit-content;
+  line-height: 1.4;
+  padding: 10px 25px 10px 10px;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  background: #dcf2d4;
+}
+.success_message img {
+  height: 50px;
+  width: 50px;
+}
+
+.success_message.show {
+  right: 30px;
+  opacity: 1;
+}
+
+.success_message.hide {
+  right: -300px;
+  opacity: 0;
+}
+
+.warning_message {
+  position: fixed;
+  top: 20px;
+  right: -300px;
+  height: fit-content;
+  width: fit-content;
+  line-height: 1.4;
+  padding: 10px 25px 10px 10px;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  background-color: #f8f4c4;
+}
+.warning_message img {
+  height: 50px;
+  width: 50px;
+}
+
+.warning_message.show {
+  right: 30px;
+  opacity: 1;
+}
+
+.warning_message.hide {
+  right: -300px;
+  opacity: 0;
+}
+

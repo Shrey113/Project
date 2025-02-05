@@ -15,8 +15,20 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
   const [isSavedraft, setIsSavedraft] = useState(false);
 
   const { decrementCount } = useCount();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
 
-  console.log("invoiceData", invoiceData);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 600);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // console.log("invoiceData", invoiceData);
   function formatDateTime(isoString) {
     const date = new Date(isoString);
 
@@ -416,6 +428,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
     // Generate PDF
     html2pdf().from(element).set(opt).save();
   };
+
   const fetchInvoicesWithDraft = async (user_email) => {
     try {
       // setLoading(true);
@@ -592,18 +605,9 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
 
   return (
     <div className="invoice_and_table_container_draft">
-      <div
-        className="back-btn"
-        style={{
-          cursor: "pointer",
-          position: "absolute",
-          top: "30px",
-          left: "-20px",
-          fontSize: "20px",
-          zIndex: "10",
-        }}
-      >
-        <FaArrowLeft onClick={() => setDraftInvoiceChange(false)} />
+      <div className="back-btn" onClick={() => setDraftInvoiceChange(false)}>
+        <FaArrowLeft />
+        Back
       </div>
       <div className="invoice_form">
         <div className="company_logo_invoice">
@@ -640,20 +644,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
                 {!logoPreview && <span>Click to upload</span>}
               </div>
             </div>
-            <button
-              onClick={uploadBase64ImageDraft}
-              style={{
-                marginTop: "10px",
-                padding: "6px 12px",
-                backgroundColor: "#333",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Upload Image
-            </button>
+            <button onClick={uploadBase64ImageDraft}>Upload Image</button>
           </div>
           <div className="invoice_and_gst_no">
             <div className="invoice_id">
@@ -665,6 +656,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
             </div>
           </div>
         </div>
+
         <h1>INVOICE</h1>
         <div className="bill_details">
           <div className="bill_to">
@@ -712,6 +704,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
               </div>
 
               <div className="recipient-input" ref={addressRef}>
+                <strong> Address:</strong>
                 {toggleAddressInput ? (
                   <>
                     <textarea
@@ -754,6 +747,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
               </div>
 
               <div className="recipient-input" ref={emailRef}>
+                <strong>Email : </strong>
                 {toggleEmailInput ? (
                   <>
                     <input
@@ -783,7 +777,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
                     >
                       ✔
                     </button>
-                    {emailError && ( // Display error message
+                    {emailError && (
                       <p
                         style={{
                           color: "red",
@@ -813,98 +807,160 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
           </div>
         </div>
 
-        <table className="invoice_generator">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th>Amount</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        {isMobile ? (
+          <div className="mobile-invoice-generator">
             {invoice.items &&
               invoice.items.length > 0 &&
               invoice.items.map((item, index) => (
-                <tr key={index}>
-                  <td className="name_of_item">
+                <div className="invoice-item" key={index}>
+                  <div className="input-wrapper">
+                    <label htmlFor={`item_${index}`} className="input-label">
+                      Item
+                    </label>
                     <input
                       type="text"
                       name={`item_${index}`}
                       value={item.item}
                       onChange={handleChange}
                       placeholder="Enter name"
+                      className="input-field"
                     />
-                  </td>
-                  <td>
+                  </div>
+                  <div className="input-wrapper">
+                    <label
+                      htmlFor={`quantity_${index}`}
+                      className="input-label"
+                    >
+                      Quantity
+                    </label>
                     <input
                       type="number"
                       name={`quantity_${index}`}
                       value={item.quantity}
-                      onChange={(e) => {
-                        handleChange(e);
-                        // updateAmount(index);
-                      }}
+                      onChange={handleChange}
                       min="0"
+                      className="input-field"
                     />
-                  </td>
-                  <td>
+                  </div>
+                  <div className="input-wrapper">
+                    <label htmlFor={`price_${index}`} className="input-label">
+                      Price
+                    </label>
                     <input
                       type="number"
                       name={`price_${index}`}
                       value={item.price}
-                      onChange={(e) => {
-                        handleChange(e);
-                        // updateAmount(index);
-                      }}
+                      onChange={handleChange}
                       min="0"
+                      className="input-field"
                     />
-                  </td>
-                  <td className="total_amount">{item.amount}</td>
-                  <td>
-                    {index > 0 && (
-                      <button type="button" onClick={() => removeRow(index)}>
-                        Delete
-                      </button>
-                    )}
-                  </td>
-                </tr>
+                  </div>
+                  <div className="input-wrapper">
+                    <label className="input-label">SubTotal</label>
+                    <div className="total-amount">₹{item.amount}</div>
+                  </div>
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => removeRow(index)}
+                      className="delete-btn"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               ))}
-            <tr
-              style={{
-                borderTop: "1px solid black",
-                borderBottom: "1px solid black",
-              }}
-            >
-              <td
-                colSpan="3"
+            <div className="subtotal">Total: ₹{invoice.sub_total}</div>
+          </div>
+        ) : (
+          <table className="invoice_generator">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoice.items &&
+                invoice.items.length > 0 &&
+                invoice.items.map((item, index) => (
+                  <tr key={index}>
+                    <td className="name_of_item">
+                      <input
+                        type="text"
+                        name={`item_${index}`}
+                        value={item.item}
+                        onChange={handleChange}
+                        placeholder="Enter name"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        name={`quantity_${index}`}
+                        value={item.quantity}
+                        onChange={handleChange}
+                        min="0"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        name={`price_${index}`}
+                        value={item.price}
+                        onChange={handleChange}
+                        min="0"
+                      />
+                    </td>
+                    <td className="total_amount">{item.amount}</td>
+                    <td>
+                      {index > 0 && (
+                        <button type="button" onClick={() => removeRow(index)}>
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              <tr
+                className="total_amount_draft"
                 style={{
-                  textAlign: "right",
-                  fontWeight: "bold",
-                  fontSize: "20px",
+                  borderTop: "1px solid black",
+                  borderBottom: "1px solid black",
                 }}
               >
-                Total
-              </td>
-              <td
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  fontSize: "20px",
-                }}
-              >
-                {invoice.sub_total}
-              </td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
+                <td
+                  colSpan="3"
+                  style={{
+                    textAlign: "right",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Total
+                </td>
+                <td
+                  style={{
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  {invoice.sub_total}
+                </td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+
         <div className="add_row">
           <button type="button" onClick={addRow}>
             Add Row
           </button>
         </div>
+
         <div className="invoice-summary">
           <div className="summary-row">
             <span className="summary-label">
@@ -957,30 +1013,10 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
 
           <div className="summary-row">
             <span className="summary-label">Total Amount</span>
-            <span className="summary-value total-value">₹{invoice.total}</span>
+            <span className="summary-value ">₹{invoice.total}</span>
           </div>
 
           <div className="invoice-actions">
-            {/* <button
-              className="btn btn-secondary"
-              onClick={generatePDF}
-              type="button"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              <span>Download PDF</span>
-            </button> */}
-
             <button
               className="btn btn-primary"
               onClick={handleSubmit}

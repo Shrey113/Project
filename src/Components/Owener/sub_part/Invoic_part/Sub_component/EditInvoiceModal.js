@@ -261,10 +261,7 @@ const EditInvoiceModal = ({
         </div>
         <div className="preview_and_invoice_details_wrapper">
           <div className="preview_image">
-            <img
-              src={invoice.invoice_logo}
-              alt=""
-            />
+            <img src={invoice.invoice_logo} alt="" />
           </div>
           <div className="invoice-details">
             <div className="detail-item">
@@ -277,13 +274,17 @@ const EditInvoiceModal = ({
               <span className="label">
                 Recipient Address <span>:</span>
               </span>
-              <span className="value">{invoice.invoice_to_address}</span>
+              <span className="value">
+                {invoice.invoice_items[0].invoice_to_address}
+              </span>
             </div>
             <div className="detail-item">
               <span className="label">
                 Recipient Email <span>:</span>
               </span>
-              <span className="value">{invoice.invoice_to_email}</span>
+              <span className="value">
+                {invoice.invoice_items[0].invoice_to_email}
+              </span>
             </div>
             <div className="detail-item">
               <span className="label">
@@ -296,7 +297,6 @@ const EditInvoiceModal = ({
                 Subtotal <span>:</span>
               </span>
               <span className="value">₹{invoice.sub_total}</span>
-              <span className="value">{user.invoice_to_address}</span>
             </div>
             <div className="detail-item">
               <span className="label">
@@ -313,32 +313,34 @@ const EditInvoiceModal = ({
           </div>
         </div>
         <div className="table-container">
-          <h2>Invoice Items</h2>
-          <div className="table-responsive">
-            <table className="invoice-table">
-              <thead>
-                <tr>
-                  <th>Sr. No.</th>
-                  <th>Item Name</th>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoice.invoice_items &&
-                  invoice.invoice_items.map((item, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{item.item}</td>
-                      <td>{item.quantity}</td>
-                      <td>₹{item.price}</td>
-                      <td>₹{item.quantity * item.price}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
+          <h2 className="invoice_list_heading" style={{ margin: "0px" }}>
+            Invoice Items
+          </h2>
+          {/* <div className="table-responsive"> */}
+          <table className="invoice-table">
+            <thead>
+              <tr>
+                <th>Sr. No.</th>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoice.invoice_items &&
+                invoice.invoice_items.map((item, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{item.item}</td>
+                    <td>{item.quantity}</td>
+                    <td>₹{item.price}</td>
+                    <td>₹{item.quantity * item.price}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+          {/* </div> */}
         </div>
         <div className="modal-footer">
           <button className="print-button">Print Invoice</button>

@@ -23,7 +23,6 @@ function InvoicePage2() {
 
   const [is_mobile, set_is_mobile] = useState(true);
 
-
   useEffect(() => {
     const handle_mobile_resize = () => {
       set_is_mobile(window.innerWidth < 1100);
@@ -34,7 +33,6 @@ function InvoicePage2() {
       window.removeEventListener("resize", handle_mobile_resize);
     };
   }, []);
-
 
   const generateInvoice = async (user_email) => {
     try {
@@ -233,7 +231,6 @@ function InvoicePage2() {
     try {
       const date = new Date().toISOString();
 
-
       const completeInvoice = {
         ...invoice,
         invoice_id: invoice_id,
@@ -256,7 +253,6 @@ function InvoicePage2() {
 
       // const data = await response.json();
       // console.log(data);
-   
 
       generateInvoice(user.user_email);
       handleNewInvoice();
@@ -587,17 +583,23 @@ function InvoicePage2() {
   return (
     <div className="invoice_and_table_container">
       <div className="invoice_form">
-        <div className="company_logo_invoice"> 
-          <div className="logo_for_invoice" >
-            <div className="preview_image"> 
-              <input type="file" name="company_logo" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} id="input_image" />
+        <div className="company_logo_invoice">
+          <div className="logo_for_invoice">
+            <div className="preview_image">
+              <input
+                type="file"
+                name="company_logo"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: "none" }}
+                id="input_image"
+              />
 
               <div
                 className="companyLogo"
                 onClick={() => document.getElementById("input_image").click()}
                 style={{
                   backgroundImage: logoPreview ? `url(${logoPreview})` : "none",
-
                 }}
               >
                 {!logoPreview && <span>Click to upload</span>}
@@ -631,11 +633,10 @@ function InvoicePage2() {
         <h1>INVOICE</h1>
         <div className="bill_details">
           <div className="bill_to">
-
             <div className="recipient_name">
-            <div className="date">
-              <strong>Date</strong> : {invoice.date}
-            </div>
+              <div className="date">
+                <strong>Date</strong> : {invoice.date}
+              </div>
               <div className="recipient-input" ref={inputRef}>
                 <strong>Bill to:</strong>
                 {toggle_recipient_input ? (
@@ -646,16 +647,9 @@ function InvoicePage2() {
                       onChange={handleChange}
                       name="invoice_to"
                       placeholder="Enter Recipient Name"
-                  
                       autoFocus
                     />
-                    <button
-                      onClick={handleConfirmRecipient}
-                 
-                    >
-                      {" "}
-                      ✔{" "}
-                    </button>
+                    <button onClick={handleConfirmRecipient}> ✔ </button>
                   </>
                 ) : (
                   <div onClick={handle_toggle_input}>
@@ -672,7 +666,6 @@ function InvoicePage2() {
                       onChange={handleChange}
                       placeholder="Enter Address"
                       name="invoice_to_address"
-                     
                       autoFocus
                     />
                     <button
@@ -706,7 +699,6 @@ function InvoicePage2() {
                       placeholder="Enter Email ID"
                       name="invoice_to_email"
                       onBlur={handleBlur}
-                    
                       autoFocus
                     />
                     <button
@@ -724,9 +716,9 @@ function InvoicePage2() {
                         style={{
                           color: "red",
                           marginTop: "5px",
-                          outline:"none",
-                          border:"none",
-                          fontSize:13
+                          outline: "none",
+                          border: "none",
+                          fontSize: 13,
                         }}
                       >
                         {emailError}
@@ -751,125 +743,157 @@ function InvoicePage2() {
           </div>
         </div>
 
-
-        {is_mobile ? 
-            <div className="mobile-invoice-generator">
+        {is_mobile ? (
+          <div className="mobile-invoice-generator">
             {invoice.items &&
               invoice.items.length > 0 &&
               invoice.items.map((item, index) => (
                 <div className="invoice-item" key={index}>
                   <div className="input-wrapper">
-                    <label htmlFor={`item_${index}`} className="input-label">Item</label>
-                    <input type="text" name={`item_${index}`} value={item.item} onChange={handleChange} placeholder="Enter name" className="input-field" />
-                  </div>
-                  <div className="input-wrapper">
-                    <label htmlFor={`quantity_${index}`} className="input-label">Quantity</label>
-                    <input type="number" name={`quantity_${index}`} value={item.quantity} onChange={handleChange} min="0" className="input-field" />
-                  </div>
-                  <div className="input-wrapper">
-                    <label htmlFor={`price_${index}`} className="input-label">Price</label> 
-                    <input type="number" name={`price_${index}`} value={item.price} onChange={handleChange} min="0" className="input-field" />
-                  </div>
-                  <div className="input-wrapper">
-                    <label className="input-label">{` `}</label>
-                    <div className="total-amount">₹{item.amount}</div>
-                  </div>
-                  {index > 0 && (
-                    <button type="button" onClick={() => removeRow(index)} className="delete-btn">
-                      Delete
-                    </button>
-                  )}
-                </div>
-              ))}
-            <div className="subtotal">Subtotal: ₹{invoice.sub_total}</div>
-          </div>
-        : 
-        <table className="invoice_generator">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th>Amount</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoice.items &&
-              invoice.items.length > 0 &&
-              invoice.items.map((item, index) => (
-                <tr key={index}>
-                  <td className="name_of_item">
+                    <label htmlFor={`item_${index}`} className="input-label">
+                      Item
+                    </label>
                     <input
                       type="text"
                       name={`item_${index}`}
                       value={item.item}
                       onChange={handleChange}
                       placeholder="Enter name"
+                      className="input-field"
                     />
-                  </td>
-                  <td>
+                  </div>
+                  <div className="input-wrapper">
+                    <label
+                      htmlFor={`quantity_${index}`}
+                      className="input-label"
+                    >
+                      Quantity
+                    </label>
                     <input
                       type="number"
                       name={`quantity_${index}`}
                       value={item.quantity}
-                      onChange={(e) => {
-                        handleChange(e);
-                      }}
+                      onChange={handleChange}
                       min="0"
+                      className="input-field"
                     />
-                  </td>
-                  <td>
+                  </div>
+                  <div className="input-wrapper">
+                    <label htmlFor={`price_${index}`} className="input-label">
+                      Price
+                    </label>
                     <input
                       type="number"
                       name={`price_${index}`}
                       value={item.price}
-                      onChange={(e) => {
-                        handleChange(e);
-                        // updateAmount(index);
-                      }}
+                      onChange={handleChange}
                       min="0"
+                      className="input-field"
                     />
-                  </td>
-                  <td className="total_amount">{item.amount}</td>
-                  <td>
-                    {index > 0 && (
-                      <button type="button" onClick={() => removeRow(index)}>
-                        Delete
-                      </button>
-                    )}
-                  </td>
-                </tr>
+                  </div>
+                  <div className="input-wrapper">
+                    <label className="input-label">SubTotal</label>
+                    <div className="total-amount">₹{item.amount}</div>
+                  </div>
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => removeRow(index)}
+                      className="delete-btn"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               ))}
-            <tr
-              style={{
-                borderTop: "1px solid black",
-                borderBottom: "1px solid black",
-              }}
-            >
-              <td
-                colSpan="3"
+            <div className="subtotal">Total: ₹{invoice.sub_total}</div>
+          </div>
+        ) : (
+          <table className="invoice_generator">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoice.items &&
+                invoice.items.length > 0 &&
+                invoice.items.map((item, index) => (
+                  <tr key={index}>
+                    <td className="name_of_item">
+                      <input
+                        type="text"
+                        name={`item_${index}`}
+                        value={item.item}
+                        onChange={handleChange}
+                        placeholder="Enter name"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        name={`quantity_${index}`}
+                        value={item.quantity}
+                        onChange={(e) => {
+                          handleChange(e);
+                        }}
+                        min="0"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        name={`price_${index}`}
+                        value={item.price}
+                        onChange={(e) => {
+                          handleChange(e);
+                          // updateAmount(index);
+                        }}
+                        min="0"
+                      />
+                    </td>
+                    <td className="total_amount">{item.amount}</td>
+                    <td>
+                      {index > 0 && (
+                        <button type="button" onClick={() => removeRow(index)}>
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              <tr
                 style={{
-                  textAlign: "right",
-                  fontWeight: "bold",
+                  borderTop: "1px solid black",
+                  borderBottom: "1px solid black",
                 }}
               >
-                Total
-              </td>
-              <td
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "center",
-                }}
-              >
-                {invoice.sub_total}
-              </td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
-
-}
+                <td
+                  colSpan="3"
+                  style={{
+                    textAlign: "right",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Total
+                </td>
+                <td
+                  style={{
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  {invoice.sub_total}
+                </td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        )}
         <div className="add_row">
           <button type="button" onClick={addRow}>
             Add Row
@@ -936,40 +960,70 @@ function InvoicePage2() {
           </div>
 
           <div className="invoice-actions">
-      <button className="btn btn-secondary" onClick={generatePDF} type="button">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-        <span>Download PDF</span>
-      </button>
+            <button
+              className="btn btn-secondary"
+              onClick={generatePDF}
+              type="button"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span>Download PDF</span>
+            </button>
 
-      <div className="wrapper_for_buttons">
+            <div className="wrapper_for_buttons">
+              <button
+                className="btn btn-primary"
+                onClick={handleSubmit}
+                type="submit"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
+                  <line x1="16" y1="5" x2="22" y2="5" />
+                  <line x1="19" y1="2" x2="19" y2="8" />
+                </svg>
+                <span>Generate Invoice</span>
+              </button>
 
-      <button className="btn btn-primary" onClick={handleSubmit} type="submit">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
-          <line x1="16" y1="5" x2="22" y2="5" />
-          <line x1="19" y1="2" x2="19" y2="8" />
-        </svg>
-        <span>Generate Invoice</span>
-      </button>
-
-      <button className="btn btn-secondary" onClick={handleSaveDraft} type="submit">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M4 4h16v16H4z" />
-          <path d="M4 8h16" />
-          <path d="M4 12h16" />
-          <path d="M4 16h16" />
-          <path d="M9 12l2 2l4-4" />
-        </svg>
-        <span>Save as Draft</span>
-      </button>
-
-      </div>
-    </div>
-
+              <button
+                className="btn btn-secondary"
+                onClick={handleSaveDraft}
+                type="submit"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M4 4h16v16H4z" />
+                  <path d="M4 8h16" />
+                  <path d="M4 12h16" />
+                  <path d="M4 16h16" />
+                  <path d="M9 12l2 2l4-4" />
+                </svg>
+                <span>Save as Draft</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

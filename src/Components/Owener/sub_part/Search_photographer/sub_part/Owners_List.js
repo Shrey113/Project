@@ -4,8 +4,24 @@ import user1 from "./../../../sub_part/profile_pic/user1.jpg";
 import { Server_url } from "./../../../../../redux/AllData";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { FaEnvelope, FaMapMarkerAlt, FaSearch } from "react-icons/fa";
+const SkeletonCard = () => (
+  <div className="owner-card skeleton">
+    <div className="image_container skeleton-image">
+      <div className="skeleton-animation"></div>
+    </div>
+    <div className="owner-info">
+      <div className="skeleton-text skeleton-animation"></div>
+      <div className="skeleton-text skeleton-animation"></div>
+      <div className="skeleton-text skeleton-animation"></div>
+    </div>
+    <div className="explore-button-container">
+      <div className="skeleton-button skeleton-animation"></div>
+    </div>
+  </div>
+);
 
-const OwnerList = ({ owners }) => {
+const OwnerList = ({ owners, filteredUsers, isLoading }) => {
   const [selectedOwner, setSelectedOwner] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -63,8 +79,67 @@ const OwnerList = ({ owners }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="owner-list-container">
+        {[1, 2, 3, 4 ,5 ,6].map((index) => (
+          <SkeletonCard key={index} />
+        ))}
+      </div>
+    );
+  }
+
+  if (filteredUsers && filteredUsers.owners && filteredUsers.owners.length > 0) {
+    return (
+      <div className="owner-list-container">
+        {filteredUsers.owners.map((owner, index) => (
+          <div
+            key={index}
+            className="owner-card"
+            onClick={() => {
+              handleExplore(owner);
+            }}
+          >
+            <div className="image_container">
+              <img
+                src={owner.user_profile_image_base64 || user1}
+                alt="Owner Avatar"
+                className="owner-avatar"
+              />
+            </div>
+
+            <div className="owner-info">
+              <h3>{owner.user_name}</h3>
+              <p className="email"> <FaEnvelope className="icon" />{owner.user_email}</p>
+              <p className="location">
+                <span >
+                  <FaMapMarkerAlt className="icon" />
+                {owner.business_address || "Not Available"}
+                </span>
+              </p>
+            </div>
+            <div className="explore-button-container">
+              <button onClick={() => handleExplore(owner)}>
+                {selectedOwner === owner ? "Hide Details" : "Explore"}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (!owners || owners.length === 0) {
-    return <p>No photographers found.</p>;
+    return (
+      <div className="no-photographers">
+        <div className="no-results-icon">
+          <FaSearch className="icon" />
+        </div>
+        <h2>No Photographers Found</h2>
+        <p>We couldn't find any photographers matching your search criteria.</p>
+        <p>Try adjusting your filters or search terms.</p>
+      </div>
+    );
   }
 
   return (
@@ -87,10 +162,10 @@ const OwnerList = ({ owners }) => {
 
           <div className="owner-info">
             <h3>{owner.user_name}</h3>
-            <p className="email">Email: {owner.user_email}</p>
+            <p className="email"> <FaEnvelope className="icon" />{owner.user_email}</p>
             <p className="location">
-              <span style={{ backgroundColor: "lightgrey", padding: "2px" }}>
-                Location:
+              <span>
+                <FaMapMarkerAlt className="icon" /> 
               </span>{" "}
               {owner.business_address || "Not Available"}
             </p>

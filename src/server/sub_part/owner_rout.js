@@ -1103,5 +1103,212 @@ router.post('/owner-folders-files/delete', (req, res) => {
   });
 });
 
+// Add package request
+router.post('/add-package-request', (req, res) => {
+  // Extract only the needed fields (ignore extra error fields).
+  const {
+    package_name,
+    service,
+    description,
+    price,
+    event_name,       // required for package requests
+    location,
+    requirements,
+    days_required,
+    total_amount,
+    sender_email,
+    receiver_email
+  } = req.body;
+
+  console.log("package request.........................", req.body);
+
+  // Validate required fields
+  if (
+    !package_name ||
+    !service ||
+    !description ||
+    isNaN(price) ||
+    !event_name ||
+    !location ||
+    !requirements ||
+    isNaN(days_required) ||
+    isNaN(total_amount) ||
+    !sender_email ||
+    !receiver_email
+  ) {
+    return res.status(400).json({ error: 'Invalid or missing fields' });
+  }
+
+  // If service is an array, convert it to a comma-separated string.
+  const serviceString = Array.isArray(service) ? service.join(', ') : service;
+
+  // Build the parameterized INSERT query.
+  const query = `
+    INSERT INTO event_request (
+      event_request_type,      -- varchar(50)
+      package_name,            -- varchar(255)
+      service,                 -- varchar(255)
+      description,             -- text
+      price,                   -- decimal(10,2)
+      event_name,              -- varchar(255)
+      equipment_name,          -- varchar(255)
+      equipment_company,       -- varchar(255)
+      equipment_type,          -- varchar(255)
+      equipment_description,   -- text
+      equipment_price_per_day, -- decimal(10,2)
+      location,                -- varchar(255)
+      requirements,            -- text
+      days_required,           -- int
+      total_amount,            -- decimal(10,2)
+      sender_email,            -- varchar(255)
+      receiver_email,          -- varchar(255)
+      event_status             -- varchar(255)
+    ) VALUES (
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    )
+  `;
+
+  // Build the values array. Notice that:
+  // - 'package' is used for event_request_type.
+  // - Equipment-related fields are passed as NULL.
+  // - 'Pending' is used for event_status.
+  const values = [
+    'package',                  // event_request_type
+    package_name,               // package_name
+    serviceString,              // service
+    description,                // description
+    parseFloat(price),          // price
+    event_name,                 // event_name
+    null,                       // equipment_name (unused)
+    null,                       // equipment_company (unused)
+    null,                       // equipment_type (unused)
+    null,                       // equipment_description (unused)
+    null,                       // equipment_price_per_day (unused)
+    location,                   // location
+    requirements,               // requirements
+    parseInt(days_required, 10),// days_required
+    parseFloat(total_amount),   // total_amount
+    sender_email,               // sender_email
+    receiver_email,             // receiver_email
+    'Pending'                   // event_status
+  ];
+
+  // Execute the query.
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error adding package request:', err);
+      return res.status(500).json({ error: 'Error adding package request' });
+    }
+
+    res.status(201).json({
+      message: 'Package request added successfully',
+      request_id: result.insertId
+    });
+  });
+});
+
+
+
+// Add equipment request
+router.post('/add-equipment-request', (req, res) => {
+  const {
+    event_name,
+    equipment_name,
+    equipment_company,
+    equipment_type,
+    equipment_description,
+    equipment_price_per_day,
+    location,
+    requirements,
+    days_required,
+    total_amount,
+    sender_email,
+    receiver_email
+  } = req.body;
+
+  // Ensure all required fields exist and are valid
+  if (
+    !event_name || !equipment_name || !equipment_company || !equipment_type ||
+    !equipment_description || isNaN(equipment_price_per_day) ||
+    !location || !requirements || isNaN(days_required) || isNaN(total_amount) ||
+    !sender_email || !receiver_email
+  ) {
+    return res.status(400).json({ error: 'Invalid or missing fields' });
+  }
+
+  const query = `
+    INSERT INTO event_request (
+      event_request_type,
+      event_name,
+      equipment_name,
+      equipment_company,
+      equipment_type,
+      equipment_description,
+      equipment_price_per_day,
+      location,
+      requirements,
+      days_required,
+      total_amount,
+      sender_email,
+      receiver_email,
+      event_status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+    'equipment',
+    event_name,
+    equipment_name,
+    equipment_company,
+    equipment_type,
+    equipment_description,
+    parseFloat(equipment_price_per_day), // Ensure numeric values
+    location,
+    requirements,
+    parseInt(days_required),
+    parseFloat(total_amount),
+    sender_email,
+    receiver_email,
+    'Pending'
+  ];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error adding equipment request:', err);
+      return res.status(500).json({ error: 'Error adding equipment request' });
+    }
+
+    res.status(201).json({
+      message: 'Equipment request added successfully',
+      request_id: result.insertId
+    });
+  });
+});
+
+
+router.get('/get-package-details/:receiver_email', (req, res) => {
+  const { receiver_email } = req.params;
+  const query = `SELECT * FROM event_request WHERE receiver_email = ?`;
+  db.query(query, [receiver_email], (err, results) => {
+    if(err){
+      console.error('Error fetching package details:', err);
+      return res.status(500).json({ error: 'Error fetching package details' });
+    }
+    res.json(results);
+  });
+});
+
+router.get('/get-equipment-details-by/:receiver_email', (req, res) => {
+  const { receiver_email } = req.params;
+  const query = `SELECT * FROM event_request WHERE receiver_email = ?`;
+  db.query(query, [receiver_email], (err, results) => {
+    if(err){
+      console.error('Error fetching equipment details:', err);
+      return res.status(500).json({ error: 'Error fetching equipment details' });
+    }
+    res.json(results);
+  });
+});
+
 module.exports = router;
 

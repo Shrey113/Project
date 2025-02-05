@@ -40,12 +40,9 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #ffffff;
 }
 
 .modal-overlay .modal-content .modal-header h2 {
-  margin: 0;
   color: #333;
   font-size: 1.5rem;
 }
@@ -67,6 +64,7 @@
   background-color: #b67b5b7c;
   padding: 1rem;
   border-radius: 6px;
+  width: 60%;
 }
 
 .modal-overlay .modal-content .invoice-details .detail-item {
@@ -90,38 +88,42 @@
 }
 
 .modal-overlay .modal-content .table-container {
-  overflow-x: auto;
+  width: 100%;
+  overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-top: 20px;
 }
 
-.modal-overlay .modal-content .invoice-table {
+.modal-overlay .modal-content .table-container .invoice-table {
   width: 100%;
-  /* background-color: rebeccapurple; */
   border-collapse: collapse;
-  margin-top: 1rem;
   background-color: white;
 }
 
-.modal-overlay .modal-content .invoice-table th,
-.modal-overlay .modal-content .invoice-table td {
+.modal-overlay .modal-content .table-container .invoice-table th,
+.modal-overlay .modal-content .table-container .invoice-table td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #eee;
 }
 
-.modal-overlay .modal-content .invoice-table th {
+.modal-overlay .modal-content .table-container .invoice-table th {
   background-color: #f5b08bab;
   font-weight: 600;
   color: #333;
 }
 
-.modal-overlay .modal-content .invoice-table tbody tr {
+.modal-overlay .modal-content .table-container .invoice-table tbody tr {
   transition: all 0.5s ease;
 }
-.modal-overlay .modal-content .invoice-table tbody tr:hover {
+.modal-overlay .modal-content .table-container .invoice-table tbody tr:hover {
   background-color: #f1ded358;
 }
 
-.modal-overlay .modal-content .invoice-table td {
+.modal-overlay .modal-content .table-container .invoice-table td {
   color: #555;
 }
 
@@ -141,14 +143,7 @@
   border-radius: 4px;
   margin-bottom: 1rem;
 }
-.modal-overlay .modal-content .modal-footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  gap: 1rem;
-  padding: 1rem;
-}
+
 .modal-overlay .modal-content .modal-footer {
   display: flex;
   justify-content: center;
@@ -177,14 +172,12 @@
 }
 
 .preview_and_invoice_details_wrapper {
-  display: flex
-  ;
-      align-items: center;
-      justify-content: center;
-      height: 230px;
-  gap:20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 230px;
+  gap: 20px;
 }
-
 
 .table-responsive {
   width: 100%;
@@ -195,13 +188,13 @@
 }
 
 .table-responsive::after {
-  content: '';
+  content: "";
   position: absolute;
   right: 0;
   top: 0;
   bottom: 0;
   width: 5px;
-  background: linear-gradient(to left, rgba(0,0,0,0.1), transparent);
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.1), transparent);
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -224,82 +217,61 @@
   width: 100%;
 }
 
-.modal-footer {
+/* .modal-footer {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
   flex-wrap: wrap;
-}
+} */
 
-.preview_image{
+.preview_image {
   height: 100%;
   width: 30%;
   object-fit: cover;
 }
 
-.preview_image img{
+.preview_image img {
   height: 100%;
   width: 100%;
+  object-fit: cover;
 }
 
-.invoice-details{
-  width:60%;
-}
 /* Media Queries */
-@media screen and (max-width: 768px) {
+/* @media screen and (max-width: 768px) {
   .modal-content {
     padding: 15px;
   }
 
-  /* .preview_and_invoice_details_wrapper {
+  .preview_and_invoice_details_wrapper {
     flex-direction: column;
-  } */
+  }
 
   .preview_image {
     width: 100%;
   }
 
   .invoice-details {
-    width: 100%;
-  }
-
-
-  .detail-item {
-    margin-bottom: 0.2rem;
+    width: 70%;
+    gap: 5px;
   }
 
   .modal-footer button {
     width: 100%;
   }
-}
-
-@media screen and (max-width: 480px) {
-  .modal-content {
-    padding: 10px;
-  }
-
-  .modal-header h2 {
-    font-size: 18px;
-  }
-
-  .detail-item {
-    font-size: 13px;
-  }
-}
-
+} */
 
 @media screen and (max-width: 1024px) {
   .modal-overlay .modal-content {
     max-width: 90%;
     padding: 1.25rem;
   }
-  
+
   .preview_and_invoice_details_wrapper {
     gap: 15px;
   }
-  
+
   .preview_image {
-    width: 35%;
+    width: 40%;
   }
 }
 
@@ -309,34 +281,15 @@
     max-height: 90vh;
   }
 
-  .preview_and_invoice_details_wrapper {
-    flex-direction: column;
-    gap: 20px;
-  }
-  .modal-header {
-    position: sticky;
-    top: 0;
-    background: rgb(225, 225, 225);
-    padding: 10px 5px;
-    border-radius: 5px;
-  }
-
   .preview_image {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
+    width: 30%;
   }
-
   .preview_image img {
-    max-height: 200px;
-  }
-
-  .invoice-details {
     width: 100%;
+    object-fit: cover;
   }
-
-  .detail-item {
-    padding: 8px 0;
+  .preview_and_invoice_details_wrapper {
+    height: 220px;
   }
 
   .detail-item .label {
@@ -361,75 +314,127 @@
     width: 100%;
     max-height: 95vh;
   }
-
   .modal-header {
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
-
+    height: 40px;
   }
 
-  .modal-header h2 {
-    font-size: 16px;
+  .modal-overlay .modal-content .modal-header h2 {
+    font-size: 1.2rem;
   }
-
   .preview_image {
-    max-width: 300px;
+    width: 30%;
+    height: 70%;
   }
-
   .preview_image img {
-    max-height: 150px;
+    width: 100%;
+    object-fit: cover;
   }
-
-  .detail-item {
-    padding: 6px 0;
+  .modal-overlay .modal-content .invoice-details {
+    width: 60%;
+    padding: 10px 15px;
   }
 
   .detail-item .label {
     width: 110px;
-    font-size: 13px;
+    font-size: 12px;
   }
 
-  .detail-item .value {
-    font-size: 13px;
-  }
-
-  .invoice-table th,
-  .invoice-table td {
-    padding: 6px;
-    font-size: 13px;
-  }
-
-  .modal-footer {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .modal-footer button {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-  }
-}
-
-@media screen and (max-width: 375px) {
-  .modal-overlay .modal-content {
-    padding: 0.5rem;
-    width: 100%;
-    max-height: 98vh;
-  }
-
-  .modal-header h2 {
-    font-size: 15px;
-  }
-
-  .detail-item .label,
   .detail-item .value {
     font-size: 12px;
   }
 
-  .invoice-table th,
+  .modal-overlay .modal-content .table-container .invoice-table {
+    min-width: 100%;
+  }
+
+  .modal-overlay .modal-content .table-container .invoice-table th,
+  .modal-overlay .modal-content .table-container .invoice-table td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  .modal-overlay .modal-content .modal-footer {
+    width: 100%;
+  }
+
+  .modal-overlay .modal-content .modal-footer button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
+@media screen and (max-width: 480px) {
+  .modal-content {
+    padding: 10px;
+  }
+
+  .modal-header h2 {
+    font-size: 18px;
+  }
+
+  .preview_and_invoice_details_wrapper {
+    flex-direction: column;
+    height: 350px;
+    padding: 10px 0px;
+  }
+
+  .preview_image {
+    height: 40%;
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .preview_image img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+  }
+  .modal-overlay .modal-content .invoice-details {
+    padding: 1rem;
+    border-radius: 6px;
+    width: 100%;
+  }
+  .modal-overlay .modal-content .invoice-details .detail-item span {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 376px) {
+  /* .modal-overlay .modal-content {
+    padding: 0.5rem;
+    width: 100%;
+    max-height: 98vh;
+  } */
+
+  /* .modal-header h2 {
+    font-size: 15px;
+  } */
+
+  /* .detail-item .label,
+  .detail-item .value {
+    font-size: 12px;
+  } */
+
+  /* .invoice-table th,
   .invoice-table td {
     padding: 5px;
+    font-size: 12px;
+  } */
+
+  .modal-overlay .modal-content .table-container .invoice_list_heading {
+    font-size: 16px;
+  }
+
+  .modal-overlay .modal-content .table-container .invoice-table {
+    min-width: 90%;
+  }
+
+  .modal-overlay .modal-content .table-container .invoice-table th,
+  .modal-overlay .modal-content .table-container .invoice-table td {
+    padding: 8px 5px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
     font-size: 12px;
   }
 }

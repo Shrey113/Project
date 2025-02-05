@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-
 import LoginRegisterOwener from "./Components/Owener/Login_Register.js";
 import LoginRegisterClient from "./Components/Client/login_register.js";
 import ShowLoder from "./Components/Owener/sub_components/show_loder.js";
@@ -83,29 +82,25 @@ function App() {
   }
 
 
-  useEffect(() => {
-    // Initial setup
-    const handleResize = () => {
-      const isMobileView = window.innerWidth <= 1200;
-      dispatch({
-        type: 'SET_USER_Owner', 
-        payload: {
-          isMobile: isMobileView,
-          // Close sidebar automatically on mobile, keep open on desktop
-          isSidebarOpen: !isMobileView
-        }
-      });
-    };
+// useEffect(() => {
+//   const handleResize = () => {
+//     const isMobileView = window.innerWidth <= 1200;
+//     dispatch({
+//       type: "SET_USER_Owner",
+//       payload: {
+//         isMobile: isMobileView,
+//         isSidebarOpen: !isMobileView,
+//       },
+//     });
+//   };
 
-    // Call once on mount to set initial state
-    handleResize();
-
-    // Add event listener for window resize
-    window.addEventListener("resize", handleResize);
-    
-    // Cleanup event listener on unmount
-    return () => window.removeEventListener("resize", handleResize);
-  }, [dispatch]);
+//   handleResize(); // Call initially
+//   window.addEventListener("resize", handleResize);
+  
+//   return () => {
+//     window.removeEventListener("resize", handleResize);
+//   };
+// }, []); // No dependencies since `dispatch` is stable in Redux
 
 
 

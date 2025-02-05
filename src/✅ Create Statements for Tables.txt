@@ -1,0 +1,76 @@
+✅ Invoice Tables 
+
+CREATE TABLE owner_main_invoice(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_email VARCHAR(100),
+    max_invoice_id INT ,
+    invoice_logo LONGTEXT
+);
+
+
+CREATE TABLE invoices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    invoice_id VARCHAR(50) NOT NULL,
+    user_email VARCHAR(100) NOT NULL,
+    date varchar(255),
+    sub_total varchar(255),
+    gst varchar(255),
+    total varchar(255),
+    invoice_to VARCHAR(255) NOT NULL,
+    as_draft tinyint,
+    invoice_logo LONGTEXT
+    FOREIGN KEY (user_email) REFERENCES owner_main_invoice(user_email) ON DELETE CASCADE
+);
+
+
+
+CREATE TABLE invoice_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_email VARCHAR(100) NOT NULL,
+    invoice_id INT NOT NULL,
+    item VARCHAR(255) NOT NULL,
+    quantity VARCHAR(255),
+    price VARCHAR(255),
+    amount VARCHAR(255),
+    invoice_to_address VARCHAR(255),
+    invoice_to_email VARCHAR(100),
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
+);
+
+
+
+✅ for Event Management
+
+CREATE TABLE event_request (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_request_type VARCHAR(50) NOT NULL,
+    
+    -- Package details
+    package_name VARCHAR(255) DEFAULT NULL,
+    service VARCHAR(255) DEFAULT NULL,
+    description TEXT DEFAULT NULL,
+    price DECIMAL(10,2) DEFAULT NULL,
+    
+    -- Equipment details
+    event_name VARCHAR(255) DEFAULT NULL,
+    equipment_name VARCHAR(255) DEFAULT NULL,
+    equipment_company VARCHAR(255) DEFAULT NULL,
+    equipment_type VARCHAR(255) DEFAULT NULL,
+    equipment_description TEXT DEFAULT NULL,
+    equipment_price_per_day DECIMAL(10,2) DEFAULT NULL,
+    
+    -- Other details
+    location VARCHAR(255) DEFAULT NULL,
+    requirements TEXT DEFAULT NULL,
+    days_required INT DEFAULT NULL,
+    total_amount DECIMAL(10,2) DEFAULT NULL,
+
+    -- User details (foreign keys)
+    sender_email VARCHAR(255) NOT NULL,
+    receiver_email VARCHAR(255) NOT NULL,
+
+    CONSTRAINT fk_sender FOREIGN KEY (sender_email) REFERENCES owner(user_email) ON DELETE CASCADE,
+    CONSTRAINT fk_receiver FOREIGN KEY (receiver_email) REFERENCES owner(user_email) ON DELETE CASCADE
+);
+
+

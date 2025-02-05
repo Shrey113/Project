@@ -25,8 +25,8 @@
   height: 100%;
   width: 100%;
   gap: 20px;
-  /* background-color: rebeccapurple; */
   overflow: hidden;
+  position: relative;
 }
 
 .packages-container .package-cards-container {
@@ -157,8 +157,6 @@
   overflow: hidden;
 }
 
-
-
 .packages-container
   .package-cards-container
   .packages-grid
@@ -269,7 +267,6 @@
   color: black;
   position: relative;
   overflow: hidden;
-  
 }
 .packages-container
   .package-cards-container
@@ -277,7 +274,7 @@
   .package-card
   .package_all_details
   .package_Services
-.service-item::after {
+  .service-item::after {
   content: "";
   position: absolute;
   top: 0;
@@ -287,6 +284,30 @@
   background: var(--shine-background-services);
   transform: skewX(-20deg);
   animation: shineEffect var(--shine-duration-packages) infinite linear;
+}
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_all_details
+  .package_Services
+  .service-item
+  .services {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+.packages-container
+  .package-cards-container
+  .packages-grid
+  .package-card
+  .package_all_details
+  .package_Services
+  .service-item
+  .services
+  .delete_button:hover {
+  cursor: pointer;
 }
 .packages-container .package-cards-container .tooltip-container {
   position: absolute;
@@ -362,14 +383,23 @@
   margin-bottom: 15px;
   color: #333;
 }
-.packages-container .package-form-modal .package-form .form_lables_input .two_input_field{
+.packages-container
+  .package-form-modal
+  .package-form
+  .form_lables_input
+  .two_input_field {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
   /* background: rebeccapurple; */
 }
-.packages-container .package-form-modal .package-form .form_lables_input .two_input_field label{
+.packages-container
+  .package-form-modal
+  .package-form
+  .form_lables_input
+  .two_input_field
+  label {
   width: 50%;
 }
 .packages-container .package-form-modal .package-form .form_lables_input label {
@@ -647,6 +677,25 @@
   overflow: hidden;
 }
 
+.package-cards-container .packages-grid .package-card .actions_button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  /* padding: 0px 0px 10px 0px; */
+  margin-bottom: 10px;
+  /* background-color: rebeccapurple; */
+}
+.package-cards-container .packages-grid .package-card .actions_button button {
+  background-color: lightgrey;
+  border: none;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
 .color-palette {
   display: flex;
   gap: 15px;
@@ -704,6 +753,49 @@
   color: #333;
   text-align: center;
 }
+.packages-container .package-cards-container .modal {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+.packages-container .package-cards-container .modal .modal_content {
+  position: absolute;
+  background-color: rgb(255, 255, 255);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+.packages-container .package-cards-container .modal .modal_content p {
+  font-size: 20px;
+}
+.packages-container
+  .package-cards-container
+  .modal
+  .modal_content
+  .delete_confirmation {
+  align-self: flex-end;
+  display: flex;
+  gap: 15px;
+}
+.packages-container
+  .package-cards-container
+  .modal
+  .modal_content
+  .delete_confirmation
+  button {
+  padding: 5px 15px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+}
 
 @media (max-width: 992px) {
   .packages-container {
@@ -735,7 +827,7 @@
     top: 0;
     /* left: 0; */
   }
-  .packages-container .package-cards-container .tooltip-container{
+  .packages-container .package-cards-container .tooltip-container {
     background: red;
     position: absolute;
     top: 10px;
@@ -778,6 +870,3 @@
     padding: 6px 8px;
   }
 }
-
-
-

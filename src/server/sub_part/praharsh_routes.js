@@ -100,7 +100,6 @@ router.post("/api/owner-all-details", (req, res) => {
       db.query(equipmentQuery, [user_email], (err, result) => {
         if (err) reject(err);
         else {
-          console.log("Equipment Query Result:", result);
           resolve(result);
         }
       });
@@ -109,7 +108,6 @@ router.post("/api/owner-all-details", (req, res) => {
       db.query(packagesQuery, [user_email], (err, result) => {
         if (err) reject(err);
         else {
-          console.log("Packages Query Result:", result);
           resolve(result);
         }
       });
@@ -118,7 +116,6 @@ router.post("/api/owner-all-details", (req, res) => {
       db.query(photoFilesQuery, [user_email], (err, result) => {
         if (err) reject(err);
         else {
-          console.log("Photo Files Query Result:", result); // Log the result of the query
           resolve(result);
         }
       });
@@ -355,6 +352,76 @@ router.post("/get-invoice-logo", (req, res) => {
   });
 });
 
+app.post("/api/addService", (req, res) => {
+  const { packageId, service } = req.body;
+
+  if (!packageId || !service) {
+    return res
+      .status(400)
+      .json({ message: "Package ID and service name are required" });
+  }
+
+  // SQL query to fetch the package
+  const getPackageQuery = "SELECT * FROM packages WHERE id = ?";
+  db.query(getPackageQuery, [packageId], (err, results) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Error fetching package", error: err });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Package not found" });
+    }
+
+    const package = results[0];
+
+    // Add the new service to the existing services array (as a string, or you can store it as a JSON array depending on your schema)
+    const updatedServices = package.service
+      ? [...JSON.parse(package.service), service]
+      : [service];
+
+    // SQL query to update the package's service column
+    const updatePackageQuery = "UPDATE packages SET service = ? WHERE id = ?";
+    db.query(
+      updatePackageQuery,
+      [JSON.stringify(updatedServices), packageId],
+      (err, updateResults) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ message: "Error updating package", error: err });
+        }
+
+        res
+          .status(200)
+          .json({ message: "Service added successfully", packageId });
+      }
+    );
+  });
+});
+
+router.delete("/api/packages/:id", (req, res) => {
+  const packageId = req.params.id;
+
+  if (!packageId) {
+    res.status(200).json({ message: "Package not found" });
+  }
+
+  const sql = "DELETE FROM packages WHERE id = ?";
+  db.query(sql, [packageId], (err, result) => {
+    if (err) {
+      console.error("Error deleting package:", err);
+      return res.status(200).json({ message: "Server error" });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(200).json({ message: "Package not found" });
+    }
+
+    res.json({ message: "Package deleted successfully" });
+  });
+});
+
 router.put("/api/update_package", async (req, res) => {
   const {
     id,
@@ -371,6 +438,15 @@ router.put("/api/update_package", async (req, res) => {
     return res.status(400).json({ error: "Missing required fields." });
   }
 
+  // Process service field (ensure it’s a JSON string or NULL if empty)
+  let formattedService = service;
+  if (Array.isArray(service)) {
+    const filteredServices = service.filter((s) => s.trim() !== ""); // Remove empty services
+    formattedService = filteredServices.length
+      ? JSON.stringify(filteredServices)
+      : null;
+  }
+
   // Extract the updated fields
   const updates = [];
   const values = [];
@@ -379,9 +455,9 @@ router.put("/api/update_package", async (req, res) => {
     updates.push("package_name = ?");
     values.push(package_name);
   }
-  if (service !== undefined) {
+  if (formattedService !== undefined) {
     updates.push("service = ?");
-    values.push(service);
+    values.push(formattedService);
   }
   if (description !== undefined) {
     updates.push("description = ?");
@@ -404,7 +480,7 @@ router.put("/api/update_package", async (req, res) => {
       UPDATE packages 
       SET ${updates.join(", ")} 
       WHERE id = ? AND user_email = ?
-    `;
+  `;
   values.push(id, user_email);
 
   try {
@@ -850,7 +926,6 @@ router.post("/get-invoice-items", (req, res) => {
     }
 
     if (items && items.length > 0) {
-      console.log("items", items);
       res.status(200).json({
         success: true,
         items: items,
