@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './CheckUserPage.css';
 import back_img from './sub_img/back.png';
-import { Server_url } from '../../../../../redux/AllData';
+import { Server_url, showRejectToast, showAcceptToast } from '../../../../../redux/AllData';
 import edit_icon from './../../../../Owener/img/pencil.png'
 
 function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
@@ -76,10 +76,10 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
     .then(data => {
         setIsLoading(false);
         if(data.message === 'Status updated'){
-            console.log('Response:', data);
             closeOneOwnerData();
+            showAcceptToast({message: 'Status updated' });
         }else{
-            alert(data)
+            showRejectToast({message: data });
         }
     })
     .catch(error => {
@@ -335,6 +335,7 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
       </div>
 
       </div>
+
     </div>
   );
 }

@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
-import { Server_url } from '../../../../../redux/AllData';
+import { Server_url, showRejectToast, showAcceptToast } from '../../../../../redux/AllData';
 function ShowContextMenuForCalendar({contextMenuPosition, contextMenuEvent,
     setEvents, events, setShowContextMenu, setIsEditing,
      setShowEventDetails, setSelectedEvent}) {
@@ -20,6 +20,8 @@ function ShowContextMenuForCalendar({contextMenuPosition, contextMenuEvent,
   };
 
 
+
+
   const handleDeleteEvent = async () => {
     try {
         const response = await fetch(`${Server_url}/calendar/events/${contextMenuEvent.id}`, {
@@ -33,8 +35,9 @@ function ShowContextMenuForCalendar({contextMenuPosition, contextMenuEvent,
         if(data.message === 'Event deleted successfully'){
           setEvents(events.filter(event => event.id !== contextMenuEvent.id));
           setShowContextMenu(false);
+          showAcceptToast({message: 'Event deleted successfully' });
         }else if(data.error){
-          alert(data.error)
+          showRejectToast({message: data.error });
         }
 
     } catch (err) {

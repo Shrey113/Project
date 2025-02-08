@@ -7,7 +7,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import dayjs from 'dayjs';
 import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
-import { Server_url } from '../../../../../redux/AllData';
+import { Server_url, showAcceptToast, showRejectToast } from '../../../../../redux/AllData';
 
 const EventDetailsPop = ({ setShowEventDetails, selectedEvent,setEvents, events,isEditing,setIsEditing }) => {
 
@@ -26,8 +26,9 @@ const EventDetailsPop = ({ setShowEventDetails, selectedEvent,setEvents, events,
           if(data.message === 'Event deleted successfully'){
             setEvents(events.filter(event => event.id !== eventId));
             setShowEventDetails(false);
+            showAcceptToast({message: 'Event deleted successfully' });
           }else if(data.error){
-            alert(data.error)
+            showRejectToast({message: data.error });
           }
 
       } catch (err) {
@@ -92,10 +93,10 @@ const EventDetailsPop = ({ setShowEventDetails, selectedEvent,setEvents, events,
               setIsEditing(false);
               setShowEventDetails(false);
           } else if(data.error){
-            alert(data.error)
+            showRejectToast({message: data.error });
           }
       } catch (err) {
-          console.error('Error saving event:', err.message);
+          showRejectToast({message: err.message });
       }
   };
   
@@ -288,6 +289,7 @@ const EventDetailsPop = ({ setShowEventDetails, selectedEvent,setEvents, events,
           </div>
         </div>
       </div>
+
     </div>
   )
 }

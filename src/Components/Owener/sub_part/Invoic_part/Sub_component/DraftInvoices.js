@@ -3,7 +3,7 @@ import { React, useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import "./DraftInvoices.css";
 import { useSelector } from "react-redux";
-import { Server_url } from "../../../../../redux/AllData";
+import { Server_url, showRejectToast, showAcceptToast } from "../../../../../redux/AllData";
 import DraftInvoiceLayout from "./DraftInvoiceLayout";
 import { useCount } from "../../../../../redux/CountContext";
 
@@ -15,6 +15,8 @@ function DraftInvoices() {
   const [DraftInvoiceChange, setDraftInvoiceChange] = useState(false);
   const [selectedInvoiceData, setSelectedInvoiceData] = useState(null);
   const { decrementCount } = useCount();
+
+
 
   const user = useSelector((state) => state.user);
 
@@ -147,14 +149,14 @@ function DraftInvoices() {
       const result = await response.json();
       if (result.success) {
         decrementCount();
-        alert(result.message);
+        showAcceptToast({message: result.message });
         fetchInvoicesWithDraft(user.user_email);
       } else {
-        throw new Error(result.message || "Failed to delete invoice");
+        showRejectToast({message: result.message || "Failed to delete invoice" });
       }
     } catch (error) {
       console.error("Error deleting invoice:", error);
-      alert("Failed to delete invoice. Please try again.");
+      showRejectToast({message: "Failed to delete invoice. Please try again." });
     } finally {
       closeDeleteModal();
     }
@@ -266,6 +268,7 @@ function DraftInvoices() {
           )}
         </div>
       )}
+
     </div>
   );
 }

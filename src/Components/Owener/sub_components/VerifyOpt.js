@@ -5,7 +5,7 @@ import ShowLoder from './../sub_components/show_loder.js';
 // import {local_storage_key} from './sub_component/All_data.js'
 import close_button from './../../../Assets/Owener/cross.png'
 
-import {localstorage_key_for_jwt_user_side_key,Server_url} from './../../../redux/AllData.js'
+import {localstorage_key_for_jwt_user_side_key,Server_url,showAcceptToast,showRejectToast,ConfirmMessage} from './../../../redux/AllData.js'
 
 function VerifyOpt({ user_name,
   user_email,
@@ -17,6 +17,17 @@ function VerifyOpt({ user_name,
   , close_function }) {
   const [show_loder, set_show_loder] = useState(false);
 
+ 
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({
+    isVisible: false,
+    message_title: "",
+    message: "",
+    button_text: "",
+    onConfirm: () => {},
+  });
+
+
 
   const [OTP, set_OTP] = useState('');
 
@@ -25,10 +36,15 @@ function VerifyOpt({ user_name,
   }
 
   function close_me(){
-    let user_result = window.confirm("are you sore you need to close")
-    if (user_result){
-      close_function()
-    }
+    setShowDeleteConfirm({
+      isVisible: true,
+      message_title: "Are you sure you want to close?",
+      message: "OTP will not be verified if you close",
+      button_text: "Close",
+      onConfirm: () => {
+        close_function()
+      }
+    });
   }
 
   const verify_opt = (e) => {
@@ -62,14 +78,15 @@ function VerifyOpt({ user_name,
           setTimeout(() => {
             set_show_loder(false);
             if(data.user_key){
+              showAcceptToast({message: "OTP verified successfully" });
               localStorage.setItem(localstorage_key_for_jwt_user_side_key,data.user_key)                
             }else{
-              alert("Not able to store a Data")
+              showRejectToast({message: "Not able to store a Data" });
             }
             window.location.reload();
           }, 1000);
-        } else {
-          alert("OTP NOT match")
+        } else {  
+          showRejectToast({message: "OTP NOT match" });
           console.log("Message not matched:", data.message);
         }
       })
@@ -96,6 +113,14 @@ function VerifyOpt({ user_name,
         <img src={close_button} alt="close me" />
       </div>
       </form>
+
+      {
+        showDeleteConfirm.isVisible && (
+          <ConfirmMessage message_title={showDeleteConfirm.message_title} message={showDeleteConfirm.message} 
+          onCancel={() => setShowDeleteConfirm({...showDeleteConfirm, isVisible:false})} onConfirm={showDeleteConfirm.onConfirm} 
+          button_text={showDeleteConfirm.button_text}/>
+        )
+      }
 
     </div>
   );

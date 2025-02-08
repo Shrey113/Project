@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Server_url } from '../../../../../redux/AllData';
+import { Server_url, showRejectToast, showAcceptToast } from '../../../../../redux/AllData';
 const AccessLevelOption = ({ accessType, description, formData, handleInputChange }) => (
   <label className={formData.access_type === accessType ? 'active' : ''}>
     <div className="radio-option">
@@ -32,11 +32,12 @@ function AddingAdmin({ handleClosePopup,is_update,
     access_type: new_Access_type || 'Read Write',
   });
 
+
   const [form_error,set_form_error] = useState('');
 
   const Add_New_Admin = () => {
     if (!(formData.admin_name && formData.admin_email && formData.access_type)) {
-      alert('Please fill all fields!');
+      set_form_error('Please fill all fields!');
       return;
     }
 
@@ -57,13 +58,16 @@ function AddingAdmin({ handleClosePopup,is_update,
     .then(data => {
    console.log(data);
    if(data.message === 'Admin added successfully'){
+    showAcceptToast({message: 'Admin added successfully' });
     go_for_re_fetch_data();
     handleClosePopup();
    }else if(data.message === 'Admin with this email already exists'){
     set_form_error(data.message)
+    showRejectToast({message: data.message });
    }
    else{
     set_form_error("Admin update error")
+    showRejectToast({message: "Admin update error" });
    }
    
     })

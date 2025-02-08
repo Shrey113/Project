@@ -7,9 +7,10 @@ import drone_icon from './test_img_equipment/drone.png'
 import tripod_icon from './test_img_equipment/Tripod.png'
 import lens_icon from './test_img_equipment/lens.png'
 
-import { Server_url } from '../../../../redux/AllData';
+import { Server_url, showRejectToast, ConfirmMessage } from '../../../../redux/AllData';
 
 function AddEquipment() {
+
 
   function getImgByType(type){
     if(type === 'Camera') return camera_icon;
@@ -157,7 +158,7 @@ function AddEquipment() {
         getEquipmentItems(user.user_email);
         setShowAddForm(false);
       }else{
-        alert('Failed to add equipment');
+        showRejectToast({message: 'Failed to add equipment'});
       }
     
       return result;
@@ -268,22 +269,12 @@ function AddEquipment() {
       </div>
 
       {showDeleteConfirm && (
-        <div className="popup-overlay">
-          <div className="popup-content">
-            <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete this equipment?</p>
-            <div className="popup-buttons">
-              <button onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
-              <button 
-                className="delete-confirm-btn"
-                onClick={confirmDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+       
+          <ConfirmMessage message_title="Confirm Delete" message="Are you sure you want to delete this equipment?" 
+            onCancel={() => setShowDeleteConfirm(false)} onConfirm={confirmDelete}/>
+
       )}
+     
     </div>
   )
 }

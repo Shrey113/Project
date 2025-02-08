@@ -17,8 +17,11 @@
 }
 .rbc-day-bg {
     border: var(--rbc-border-color) !important;
+    /* z-index: 10;     */
 }
-
+.rbc-day-bg:hover{
+    background-color: #b7b7b730;
+}
 
 /* Event Styles */
 .rbc-event {

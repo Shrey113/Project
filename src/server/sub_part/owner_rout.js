@@ -1,248 +1,296 @@
-const express = require('express');
-const mysql = require('mysql2'); 
+const express = require("express");
+const mysql = require("mysql2");
 
 const router = express.Router();
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
+const {
+  server_request_mode,
+  write_log_file,
+  error_message,
+  info_message,
+  success_message,
+  normal_message,
+} = require("./../modules/_all_help");
+const {
+  generate_otp,
+  get_otp,
+  clear_otp,
+} = require("./../modules/OTP_generate");
+const JWT_SECRET_KEY = "Jwt_key_for_photography_website";
+const { create_users_folders } = require("./../Google_Drive/data");
 
-const {server_request_mode,write_log_file,error_message,info_message,success_message,normal_message} = require('./../modules/_all_help');
-const { generate_otp, get_otp, clear_otp } = require('./../modules/OTP_generate');
-const JWT_SECRET_KEY = 'Jwt_key_for_photography_website';
-const {create_users_folders} = require('./../Google_Drive/data');
+function create_jwt_token(user_email, user_name) {
+  let data_for_jwt = { user_name, user_email };
+  let jwt_token = jwt.sign(data_for_jwt, JWT_SECRET_KEY);
+  return jwt_token;
+}
 
-
-function create_jwt_token(user_email,user_name){
-    let data_for_jwt = {user_name,user_email}
-    let jwt_token = jwt.sign(data_for_jwt,JWT_SECRET_KEY)
-    return jwt_token;
-  }
-  
-
-  const db = mysql.createConnection({
-    host: 'localhost', 
-    user: 'root',      
-    password: '12345',      
-    database: 'Trevita_Project_1', 
-    authPlugins: {
-        mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
-    }
-  });
-
-  
-
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "12345",
+  database: "Trevita_Project_1",
+  authPlugins: {
+    mysql_native_password: () =>
+      require("mysql2/lib/auth_plugins").mysql_native_password,
+  },
+});
 
 router.post("/add_owner", (req, res) => {
+  const {
+    user_name,
+    user_email,
+    user_password,
+    business_name,
+    business_address,
+    mobile_number,
+    GST_number,
+  } = req.body;
 
-    const { user_name, user_email, user_password, business_name, business_address, mobile_number, GST_number } = req.body;
-  
-    const checkEmailQuery = 'SELECT * FROM owner WHERE user_email = ?';
-    const checkUserQuery = 'SELECT * FROM owner WHERE user_name = ?';
-    
-    
-    db.query(checkEmailQuery, [user_email], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ error: 'Database error' });
-        }
-        else if (result.length > 0) {
-            return res.status(200).json({ error: 'Email already exists' });
-        }
-        db.query(checkUserQuery, [user_name], (err, result) => {
-          if (err) {
-              console.log(err);
-              return res.status(500).json({ error: 'Database error' });
-          }else
-          if (result.length > 0) {
-              return res.status(200).json({ error: 'user name already exists' });
-          }
+  const checkEmailQuery = "SELECT * FROM owner WHERE user_email = ?";
+  const checkUserQuery = "SELECT * FROM owner WHERE user_name = ?";
 
-          return res.status(200).json({ message: 'go for otp' });
+  db.query(checkEmailQuery, [user_email], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ error: "Database error" });
+    } else if (result.length > 0) {
+      return res.status(200).json({ error: "Email already exists" });
+    }
+    db.query(checkUserQuery, [user_name], (err, result) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ error: "Database error" });
+      } else if (result.length > 0) {
+        return res.status(200).json({ error: "user name already exists" });
+      }
 
-          
+      return res.status(200).json({ message: "go for otp" });
+    });
+  });
+});
+
+router.post("/login", (req, res) => {
+  const { user_email, user_password } = req.body;
+
+  if (!user_email || !user_password) {
+    return res.status(200).json({ error: "Email and password are required" });
+  }
+
+  const query =
+    "SELECT * FROM trevita_project_1.owner WHERE user_email = ? AND user_password = ?";
+
+  db.query(query, [user_email, user_password], (err, results) => {
+    if (err) {
+      console.error("Database error:", err.message);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    if (results.length > 0) {
+      const user_name = results[0].user_name;
+      const token = create_jwt_token(user_email, user_name);
+      return res.status(200).json({
+        message: "Login successful",
+        user: results[0],
+        user_key: token,
       });
-    
-    });
-
-    
-  });
-
-  router.post("/login", (req, res) => {
-    const { user_email, user_password } = req.body;
-  
-  
-    if (!user_email || !user_password) {
-      return res.status(200).json({ error: "Email and password are required" });
+    } else {
+      return res
+        .status(200)
+        .json({ error: "Invalid email or password", status: "login-fail" });
     }
-  
-    const query =
-      "SELECT * FROM trevita_project_1.owner WHERE user_email = ? AND user_password = ?";
-  
-    
-    db.query(query, [user_email, user_password], (err, results) => {
-      if (err) {
-        console.error("Database error:", err.message);
-        return res.status(500).json({ error: "Internal server error" });
-      }
-  
-      if (results.length > 0) {
-  
-        const user_name = results[0].user_name;
-       const token =  create_jwt_token(user_email,user_name);
-        return res.status(200).json({ message: "Login successful", user: results[0], user_key: token });
-  
-      } else {
-        return res.status(200).json({ error: "Invalid email or password",status:"login-fail" });
-      }
-    });
   });
-  
-  router.delete("/delete-by-email", (req, res) => {
-    const { user_email } = req.body;
-  
-    if (!user_email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
-  
-    const query = "DELETE FROM trevita_project_1.owner WHERE user_email = ?";
-  
-    db.query(query, [user_email], (err, result) => {
-      if (err) {
-        console.error("Database error:", err.message);
-        return res.status(500).json({ error: "Internal server error" });
-      }
-  
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "No user found with this email" });
-      }
-  
-      res.status(200).json({ message: "User deleted successfully" });
-    });
-  });
+});
 
-  function getNotifications(notification_type, notification_message, notification_title, callback) {
-    const query = `
+router.delete("/delete-by-email", (req, res) => {
+  const { user_email } = req.body;
+
+  if (!user_email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  const query = "DELETE FROM trevita_project_1.owner WHERE user_email = ?";
+
+  db.query(query, [user_email], (err, result) => {
+    if (err) {
+      console.error("Database error:", err.message);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "No user found with this email" });
+    }
+
+    res.status(200).json({ message: "User deleted successfully" });
+  });
+});
+
+function getNotifications(
+  notification_type,
+  notification_message,
+  notification_title,
+  callback
+) {
+  const query = `
     INSERT INTO notification (notification_type, notification_message, notification_title, created_at) 
     VALUES (?, ?, ?, NOW())`;
 
-// Execute the query with placeholders for security
-db.query(query, [notification_type, notification_message, notification_title], (err, results) => {
-    if (err) {
-        console.error('Error executing query:', err);
+  // Execute the query with placeholders for security
+  db.query(
+    query,
+    [notification_type, notification_message, notification_title],
+    (err, results) => {
+      if (err) {
+        console.error("Error executing query:", err);
         return callback(err, null);
-    }
-    callback(null, results);
-});
-  }
-
-
-  router.post("/verify_otp_owner", async (req, res) => {
-    const {type,user_send_otp , user_name, user_email, user_password, business_name, business_address, mobile_number, GST_number } = req.body;
-  
-    if (!user_email || !user_send_otp || !type) {
-      error_message("verify_otp say : Email and OTP are required")
-      return res.status(400).json({ error: "Email and OTP are required" });
-    }
-    try {
-      let storedOtp;
-      if(type == "owner"){
-        storedOtp = get_otp(user_email,"owner")
-      }else{
-        storedOtp = get_otp(user_email,"client")
       }
-      if (storedOtp && storedOtp === user_send_otp) {
-        
+      callback(null, results);
+    }
+  );
+}
 
-  
-      const insertQuery = 'INSERT INTO owner (user_name, user_email, user_password, business_name, business_address, mobile_number, GST_number) VALUES ( ?, ?, ?, ?, ?, ?, ?)';
-      db.query(insertQuery, [user_name, user_email, user_password, business_name, business_address, mobile_number, GST_number], (err, result) => {
-            if (err) {
-                console.log(err);
-                return res.status(500).json({ error: 'Database error' });
-            }
-            let token = create_jwt_token(user_email,user_name);
-            getNotifications("padding_owner",`new request on ${user_email}`, "padding request", (err, results) => {
+router.post("/verify_otp_owner", async (req, res) => {
+  const {
+    type,
+    user_send_otp,
+    user_name,
+    user_email,
+    user_password,
+    business_name,
+    business_address,
+    mobile_number,
+    GST_number,
+  } = req.body;
+
+  if (!user_email || !user_send_otp || !type) {
+    error_message("verify_otp say : Email and OTP are required");
+    return res.status(400).json({ error: "Email and OTP are required" });
+  }
+  try {
+    let storedOtp;
+    if (type == "owner") {
+      storedOtp = get_otp(user_email, "owner");
+    } else {
+      storedOtp = get_otp(user_email, "client");
+    }
+    if (storedOtp && storedOtp === user_send_otp) {
+      const insertQuery =
+        "INSERT INTO owner (user_name, user_email, user_password, business_name, business_address, mobile_number, GST_number) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
+      db.query(
+        insertQuery,
+        [
+          user_name,
+          user_email,
+          user_password,
+          business_name,
+          business_address,
+          mobile_number,
+          GST_number,
+        ],
+        (err, result) => {
+          if (err) {
+            console.log(err);
+            return res.status(500).json({ error: "Database error" });
+          }
+          let token = create_jwt_token(user_email, user_name);
+          getNotifications(
+            "padding_owner",
+            `new request on ${user_email}`,
+            "padding request",
+            (err, results) => {
               if (err) {
-                  return res.status(500).json({ error: 'Failed to fetch notifications' });
+                return res
+                  .status(500)
+                  .json({ error: "Failed to fetch notifications" });
               }
               console.log("all set at notification");
-              res.status(200).json({ message: 'OTP verified successfully', user_key : token });
-              
-            });
-            
-        });
-      } else {
-        res.status(200).json({ error: "Invalid OTP" });
-      }
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      res.status(500).json({ error: "Failed to verify OTP" });
-    }
-  });
-
-  router.post("/reset_password_verify_otp", async (req, res) => {
-    const body_otp = req.body.user_send_otp;
-    const user_email = req.body.user_email;
-    if (body_otp === get_otp(user_email,"owner")) {
-      return res.status(200).json({ message: "user pass with OTP", status: "verify-pass" });
+              res.status(200).json({
+                message: "OTP verified successfully",
+                user_key: token,
+              });
+            }
+          );
+        }
+      );
     } else {
-      return res.status(200).json({ message: "OTP does not match", status: "verify-fail" });
+      res.status(200).json({ error: "Invalid OTP" });
     }
-  });
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    res.status(500).json({ error: "Failed to verify OTP" });
+  }
+});
 
-  router.post('/set_new_password', (req, res) => {
-    const { email, new_password } = req.body;
-  
-    if (!email || !new_password) {
-      return res.status(400).json({ error: 'Email and password are required' });
-    }
+router.post("/reset_password_verify_otp", async (req, res) => {
+  const body_otp = req.body.user_send_otp;
+  const user_email = req.body.user_email;
+  if (body_otp === get_otp(user_email, "owner")) {
+    return res
+      .status(200)
+      .json({ message: "user pass with OTP", status: "verify-pass" });
+  } else {
+    return res
+      .status(200)
+      .json({ message: "OTP does not match", status: "verify-fail" });
+  }
+});
+
+router.post("/set_new_password", (req, res) => {
+  const { email, new_password } = req.body;
+
+  if (!email || !new_password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
   //1 --
-    const findUserQuery = `SELECT user_name FROM owner WHERE user_email = ?`;
-  
-    db.query(findUserQuery, [email], (err, result) => {
-      if (err) {
-        console.error('Database error while finding user:', err);
-        return res.status(500).json({ error: 'Database error' });
+  const findUserQuery = `SELECT user_name FROM owner WHERE user_email = ?`;
+
+  db.query(findUserQuery, [email], (err, result) => {
+    if (err) {
+      console.error("Database error while finding user:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "User not found", status: "user-not-found" });
+    }
+
+    const user_name = result[0].user_name;
+
+    //2 --
+    const updateQuery = `UPDATE owner SET user_password = ? WHERE user_email = ?`;
+
+    db.query(updateQuery, [new_password, email], (updateErr, updateResult) => {
+      if (updateErr) {
+        console.error("Database error while updating password:", updateErr);
+        return res.status(500).json({ error: "Database error" });
       }
-      
-      if (result.length === 0) {
-        return res.status(404).json({ message: 'User not found', status: 'user-not-found' });
+
+      if (updateResult.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ message: "User not found", status: "user-not-found" });
       }
-  
-      const user_name = result[0].user_name;
-  
-      //2 --
-      const updateQuery = `UPDATE owner SET user_password = ? WHERE user_email = ?`;
-  
-      db.query(updateQuery, [new_password, email], (updateErr, updateResult) => {
-        if (updateErr) {
-          console.error('Database error while updating password:', updateErr);
-          return res.status(500).json({ error: 'Database error' });
-        }
-  
-        if (updateResult.affectedRows === 0) {
-          return res.status(404).json({ message: 'User not found', status: 'user-not-found' });
-        }
-  
-        //  3 /--
-        const token = create_jwt_token(email, user_name);
-        info_message(`Email ${email} has updated their password`)
-  
-        // Send the response
-        res.status(200).json({ message: 'Password updated successfully', status: 'password-updated', user_key: token });
+
+      //  3 /--
+      const token = create_jwt_token(email, user_name);
+      info_message(`Email ${email} has updated their password`);
+
+      // Send the response
+      res.status(200).json({
+        message: "Password updated successfully",
+        status: "password-updated",
+        user_key: token,
       });
     });
   });
-
-
-
-
-  
-  
-  
+});
 
 // profile part 2-------------
 
-router.get('/get-all-owners', (req, res) => {
+router.get("/get-all-owners", (req, res) => {
   const query = `
   SELECT 
     user_name,
@@ -258,23 +306,21 @@ router.get('/get-all-owners', (req, res) => {
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error('Error fetching owners:', err);
-      return res.status(500).json({ error: 'An error occurred while fetching owners.' });
+      console.error("Error fetching owners:", err);
+      return res
+        .status(500)
+        .json({ error: "An error occurred while fetching owners." });
     }
 
     res.status(200).json(results);
   });
 });
 
-
-
-
-
-router.post('/get-owners', (req, res) => {
+router.post("/get-owners", (req, res) => {
   const { user_email } = req.body;
 
   if (!user_email) {
-    return res.status(400).json({ error: 'Email is required' });
+    return res.status(400).json({ error: "Email is required" });
   }
 
   // Corrected SQL query without trailing comma
@@ -292,25 +338,27 @@ router.post('/get-owners', (req, res) => {
 
   db.query(query, [user_email], (err, results) => {
     if (err) {
-      console.error('Error fetching owner data:', err);
-      return res.status(500).json({ error: 'An error occurred while fetching owner data.' });
+      console.error("Error fetching owner data:", err);
+      return res
+        .status(500)
+        .json({ error: "An error occurred while fetching owner data." });
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ error: 'No owner found with this email' });
+      return res.status(404).json({ error: "No owner found with this email" });
     }
 
     res.status(200).json({ owners: results[0] });
   });
 });
 
-
-  
-router.put('/update-owner', (req, res) => {
+router.put("/update-owner", (req, res) => {
   const email = req.body.user_email; // Find by this email
 
   if (!email) {
-    return res.status(400).json({ error: 'Email is required to update the record.' });
+    return res
+      .status(400)
+      .json({ error: "Email is required to update the record." });
   }
 
   // Initialize an empty object for the data to be updated
@@ -322,41 +370,48 @@ router.put('/update-owner', (req, res) => {
   if (req.body.user_email) updateData.user_email = req.body.user_email;
   if (req.body.user_password) updateData.user_password = req.body.user_password;
   if (req.body.business_name) updateData.business_name = req.body.business_name;
-  if (req.body.business_address) updateData.business_address = req.body.business_address;
+  if (req.body.business_address)
+    updateData.business_address = req.body.business_address;
   if (req.body.mobile_number) updateData.mobile_number = req.body.mobile_number;
   if (req.body.gst_number) updateData.gst_number = req.body.gst_number;
   if (req.body.user_Status) updateData.user_Status = req.body.user_Status;
   if (req.body.admin_message) updateData.admin_message = req.body.admin_message;
-  if (req.body.set_status_by_admin) updateData.set_status_by_admin = req.body.set_status_by_admin;
+  if (req.body.set_status_by_admin)
+    updateData.set_status_by_admin = req.body.set_status_by_admin;
 
   // Check if there is any data to update
   if (Object.keys(updateData).length === 0) {
-    return res.status(400).json({ error: 'No data provided to update.' });
+    return res.status(400).json({ error: "No data provided to update." });
   }
 
-  const query = 'UPDATE owner SET ? WHERE user_email = ?';
+  const query = "UPDATE owner SET ? WHERE user_email = ?";
 
   db.query(query, [updateData, email], (err, result) => {
     if (err) {
-      console.error('Error updating data:', err);
-      return res.status(500).json({ error: 'An error occurred while updating the record.' });
+      console.error("Error updating data:", err);
+      return res
+        .status(500)
+        .json({ error: "An error occurred while updating the record." });
     }
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'No user found with the provided email.' });
+      return res
+        .status(404)
+        .json({ message: "No user found with the provided email." });
     }
 
-    res.status(200).json({ message: 'Record updated successfully.', result });
+    res.status(200).json({ message: "Record updated successfully.", result });
   });
 });
 
-
-router.post('/update-status', async (req, res) => {
+router.post("/update-status", async (req, res) => {
   const { user_email, user_Status, message, set_status_by_admin } = req.body;
 
   // Validate required fields
   if (!user_email || !user_Status) {
-    return res.status(400).json({ message: 'Missing required fields: user_email or user_Status' });
+    return res
+      .status(400)
+      .json({ message: "Missing required fields: user_email or user_Status" });
   }
 
   // Set default values for optional fields if they're undefined
@@ -365,24 +420,24 @@ router.post('/update-status', async (req, res) => {
 
   // Retrieve admin information if an admin email is provided
   if (safeAdminEmail) {
-    const getAdminIdQuery = 'SELECT admin_id FROM admins WHERE admin_email = ?';
+    const getAdminIdQuery = "SELECT admin_id FROM admins WHERE admin_email = ?";
     db.execute(getAdminIdQuery, [safeAdminEmail], async (err, adminResult) => {
       if (err) {
         console.log(err);
-        return res.status(500).json({ message: 'Database error when fetching admin' });
+        return res
+          .status(500)
+          .json({ message: "Database error when fetching admin" });
       }
 
       if (adminResult.length === 0) {
-        return res.status(400).json({ message: 'Admin not found' });
+        return res.status(400).json({ message: "Admin not found" });
       }
 
       const admin_id = adminResult[0].admin_id;
 
-
-
-      if(user_Status == "Accept"){
-        const folder =  await create_users_folders(user_email);
-        console.log("folder",folder);
+      if (user_Status == "Accept") {
+        const folder = await create_users_folders(user_email);
+        console.log("folder", folder);
       }
 
       // Update the user's status in the 'users' table
@@ -391,17 +446,21 @@ router.post('/update-status', async (req, res) => {
         SET user_Status = ?, admin_message = ?, set_status_by_admin = ?
         WHERE user_email = ?
       `;
-      
-      db.execute(updateStatusQuery, [user_Status, safeMessage, admin_id, user_email], (err, result) => {
-        if (err) {
-          console.log(err);
-          return res.status(500).json({ message: 'Database error while updating user status' });
+
+      db.execute(
+        updateStatusQuery,
+        [user_Status, safeMessage, admin_id, user_email],
+        (err, result) => {
+          if (err) {
+            console.log(err);
+            return res
+              .status(500)
+              .json({ message: "Database error while updating user status" });
+          }
+
+          return res.json({ message: "Status updated" });
         }
-
-
-
-        return res.json({ message: 'Status updated' });
-      });
+      );
     });
   } else {
     // If no admin email is provided, update the status without an admin_id
@@ -410,41 +469,64 @@ router.post('/update-status', async (req, res) => {
       SET user_Status = ?, admin_message = ?, set_status_by_admin = NULL
       WHERE user_email = ?
     `;
-    db.execute(updateStatusQuery, [user_Status, safeMessage, user_email], (err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ message: 'Database error while updating user status' });
-      }
+    db.execute(
+      updateStatusQuery,
+      [user_Status, safeMessage, user_email],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+          return res
+            .status(500)
+            .json({ message: "Database error while updating user status" });
+        }
 
-      return res.json({ message: 'Status updated' });
-    });
+        return res.json({ message: "Status updated" });
+      }
+    );
   }
 });
 
-router.post('/update-owner', (req, res) => {
-  const { user_email,
-     user_name,
-      first_name,
-     last_name,
-     gender,
-      social_media } = req.body;
-
+router.post("/update-owner", (req, res) => {
+  const { user_email, user_name, first_name, last_name, gender, social_media } =
+    req.body;
 
   const query = `UPDATE owner SET user_name = ?, first_name = ?, last_name = ?, gender = ?, social_media = ? WHERE user_email = ?`;
-  db.query(query, [user_name, first_name, last_name, gender, social_media, user_email], (err, result) => {
-    if (err) {
-      console.error('Error updating owner:', err);
-      return res.status(500).json({ error: 'An error occurred while updating the owner.' });
+  db.query(
+    query,
+    [user_name, first_name, last_name, gender, social_media, user_email],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating owner:", err);
+        return res
+          .status(500)
+          .json({ error: "An error occurred while updating the owner." });
+      }
+      res.status(200).json({ message: "Owner updated successfully." });
     }
-    res.status(200).json({ message: 'Owner updated successfully.' });
-  });
+  );
 });
 
-router.post('/update-business', (req, res) => {
-  const { business_name, business_email, gst_number, business_address, website, services, user_email } = req.body;
+router.post("/update-business", (req, res) => {
+  const {
+    business_name,
+    business_email,
+    gst_number,
+    business_address,
+    website,
+    services,
+    user_email,
+  } = req.body;
 
-  if (!business_name || !business_email || !gst_number || !business_address || !website || !services || !user_email) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (
+    !business_name ||
+    !business_email ||
+    !gst_number ||
+    !business_address ||
+    !website ||
+    !services ||
+    !user_email
+  ) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
   const query = `
@@ -455,26 +537,41 @@ router.post('/update-business', (req, res) => {
 
   const servicesJson = JSON.stringify(services);
 
-  db.query(query, [business_name, business_email, gst_number, business_address, website, servicesJson, user_email], (err, result) => {
-    if (err) {
-      console.error('Error updating business data:', err);
-      return res.status(500).json({ error: 'Error updating business data' });
-    }
+  db.query(
+    query,
+    [
+      business_name,
+      business_email,
+      gst_number,
+      business_address,
+      website,
+      servicesJson,
+      user_email,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating business data:", err);
+        return res.status(500).json({ error: "Error updating business data" });
+      }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Business not found or no changes made' });
-    }
+      if (result.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ error: "Business not found or no changes made" });
+      }
 
-    res.status(200).json({ message: 'Business updated successfully' });
-  });
+      res.status(200).json({ message: "Business updated successfully" });
+    }
+  );
 });
 
-
-router.post('/add-equipment', (req, res) => {
-  const equipmentItems = req.body; 
+router.post("/add-equipment", (req, res) => {
+  const equipmentItems = req.body;
 
   if (!Array.isArray(equipmentItems)) {
-    return res.status(400).json({ message: 'Expected an array of equipment items' });
+    return res
+      .status(400)
+      .json({ message: "Expected an array of equipment items" });
   }
 
   const query = `
@@ -482,73 +579,90 @@ router.post('/add-equipment', (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?)`;
 
   equipmentItems.forEach((item) => {
-    const { user_email, name, equipment_company, equipment_type, equipment_description, equipment_price_per_day } = item;
+    const {
+      user_email,
+      name,
+      equipment_company,
+      equipment_type,
+      equipment_description,
+      equipment_price_per_day,
+    } = item;
 
-    db.query(query, [user_email, name, equipment_company, equipment_type, equipment_description, equipment_price_per_day], (err, result) => {
-      if (err) {
-        console.error('Error adding equipment:', err);
-        return res.status(500).json({ message: 'Error adding equipment' });
+    db.query(
+      query,
+      [
+        user_email,
+        name,
+        equipment_company,
+        equipment_type,
+        equipment_description,
+        equipment_price_per_day,
+      ],
+      (err, result) => {
+        if (err) {
+          console.error("Error adding equipment:", err);
+          return res.status(500).json({ message: "Error adding equipment" });
+        }
       }
-    });
+    );
   });
 
-  res.status(200).json({ message: 'Equipment added successfully' });
+  res.status(200).json({ message: "Equipment added successfully" });
 });
 
-
-
-router.post('/equipment', (req, res) => {
+router.post("/equipment", (req, res) => {
   const { user_email } = req.body;
 
-  const query = 'SELECT * FROM equipment WHERE user_email = ?';
+  const query = "SELECT * FROM equipment WHERE user_email = ?";
 
   db.query(query, [user_email], (err, result) => {
     if (err) {
-      console.error('Error fetching equipment:', err);
-      return res.status(500).json({ message: 'Error fetching equipment' });
+      console.error("Error fetching equipment:", err);
+      return res.status(500).json({ message: "Error fetching equipment" });
     }
 
     if (result.length === 0) {
-      return res.status(404).json({ message: 'No equipment found' });
+      return res.status(404).json({ message: "No equipment found" });
     }
 
     res.status(200).json(result);
   });
 });
 
-router.post('/remove-equipment', (req, res) => {
+router.post("/remove-equipment", (req, res) => {
   const { user_email, user_equipment_id } = req.body;
 
   if (!user_email || !user_equipment_id) {
-    console.log("missing user_email or equipment_id",user_email,user_equipment_id);
-    return res.status(400).json({ message: 'Missing user_email or equipment_id' });
+    console.log(
+      "missing user_email or equipment_id",
+      user_email,
+      user_equipment_id
+    );
+    return res
+      .status(400)
+      .json({ message: "Missing user_email or equipment_id" });
   }
 
-  const query = 'DELETE FROM equipment WHERE user_email = ? AND user_equipment_id = ?';
+  const query =
+    "DELETE FROM equipment WHERE user_email = ? AND user_equipment_id = ?";
 
   db.query(query, [user_email, user_equipment_id], (err, result) => {
     if (err) {
-      console.error('Error removing equipment:', err);
-      return res.status(500).json({ message: 'Error removing equipment' });
+      console.error("Error removing equipment:", err);
+      return res.status(500).json({ message: "Error removing equipment" });
     }
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'No matching equipment found for removal' });
+      return res
+        .status(404)
+        .json({ message: "No matching equipment found for removal" });
     }
 
-    res.status(200).json({ message: 'Equipment removed successfully' });
+    res.status(200).json({ message: "Equipment removed successfully" });
   });
 });
 
-
-
-
-
-
-
-
-
-router.post('/add-one-equipment', (req, res) => {
+router.post("/add-one-equipment", (req, res) => {
   const {
     user_email,
     user_equipment_id,
@@ -560,8 +674,15 @@ router.post('/add-one-equipment', (req, res) => {
   } = req.body;
 
   // Validate required fields
-  if (!user_email || !user_equipment_id || !name || !equipment_company || !equipment_type || !equipment_price_per_day) {
-    return res.status(400).json({ message: 'Missing required fields' });
+  if (
+    !user_email ||
+    !user_equipment_id ||
+    !name ||
+    !equipment_company ||
+    !equipment_type ||
+    !equipment_price_per_day
+  ) {
+    return res.status(400).json({ message: "Missing required fields" });
   }
 
   const query = `
@@ -570,30 +691,27 @@ router.post('/add-one-equipment', (req, res) => {
 
   db.query(
     query,
-    [user_email, user_equipment_id, name, equipment_company, equipment_type, equipment_description, equipment_price_per_day],
+    [
+      user_email,
+      user_equipment_id,
+      name,
+      equipment_company,
+      equipment_type,
+      equipment_description,
+      equipment_price_per_day,
+    ],
     (err, result) => {
       if (err) {
-        console.error('Error adding equipment:', err);
-        return res.status(500).json({ message: 'Error adding equipment' });
+        console.error("Error adding equipment:", err);
+        return res.status(500).json({ message: "Error adding equipment" });
       }
-      res.status(200).json({ message: 'Equipment added successfully', equipmentId: result.insertId });
+      res.status(200).json({
+        message: "Equipment added successfully",
+        equipmentId: result.insertId,
+      });
     }
   );
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 router.get("/search", (req, res) => {
   const searchTerm = req.query.term;
@@ -655,13 +773,12 @@ router.get("/search", (req, res) => {
   );
 });
 
-
 // Add photos to a folder - Modified to store Google Drive file IDs
-router.post('/portfolio/add-photos', (req, res) => {
+router.post("/portfolio/add-photos", (req, res) => {
   const { folder_id, user_email, photos } = req.body;
 
   if (!folder_id || !user_email || !Array.isArray(photos)) {
-    return res.status(400).json({ error: 'Invalid request data' });
+    return res.status(400).json({ error: "Invalid request data" });
   }
 
   // Expecting photos array with format: [{ name: 'photo1.jpg', file_id: 'google_drive_file_id' }]
@@ -670,34 +787,38 @@ router.post('/portfolio/add-photos', (req, res) => {
     VALUES (?, ?, ?, ?, NOW())
   `;
 
-  const insertPromises = photos.map(photo => {
+  const insertPromises = photos.map((photo) => {
     return new Promise((resolve, reject) => {
       // Store the Google Drive file ID in photo_path
-      db.query(query, [folder_id, user_email, photo.name, photo.file_id], (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
-      });
+      db.query(
+        query,
+        [folder_id, user_email, photo.name, photo.file_id],
+        (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        }
+      );
     });
   });
 
   Promise.all(insertPromises)
     .then(() => {
-      res.status(201).json({ message: 'Photos added successfully' });
+      res.status(201).json({ message: "Photos added successfully" });
     })
-    .catch(err => {
-      console.error('Error adding photos:', err);
-      res.status(500).json({ error: 'Error adding photos' });
+    .catch((err) => {
+      console.error("Error adding photos:", err);
+      res.status(500).json({ error: "Error adding photos" });
     });
 });
 
-
-
 // Delete specific photos
-router.delete('/portfolio/delete-photos', async (req, res) => {
+router.delete("/portfolio/delete-photos", async (req, res) => {
   const { photo_ids, user_email } = req.body;
 
   if (!Array.isArray(photo_ids) || !user_email) {
-    return res.status(400).json({ error: 'Photo IDs array and user email are required' });
+    return res
+      .status(400)
+      .json({ error: "Photo IDs array and user email are required" });
   }
 
   try {
@@ -707,28 +828,32 @@ router.delete('/portfolio/delete-photos', async (req, res) => {
       WHERE photo_id IN (?) AND user_email = ?
     `;
 
-    const [photos] = await db.promise().query(getFileIdsQuery, [photo_ids, user_email]);
-    
+    const [photos] = await db
+      .promise()
+      .query(getFileIdsQuery, [photo_ids, user_email]);
+
     // Delete the photos from database
     const deletePhotosQuery = `
       DELETE FROM portfolio_photos 
       WHERE photo_id IN (?) AND user_email = ?
     `;
 
-    const [result] = await db.promise().query(deletePhotosQuery, [photo_ids, user_email]);
+    const [result] = await db
+      .promise()
+      .query(deletePhotosQuery, [photo_ids, user_email]);
 
     // Here you would add your Google Drive deletion logic
     // const fileIds = photos.map(photo => photo.photo_path);
     // await deleteFilesFromGoogleDrive(fileIds);
 
-    res.status(200).json({ 
-      message: 'Photos deleted successfully',
+    res.status(200).json({
+      message: "Photos deleted successfully",
       deletedCount: result.affectedRows,
-      deletedFileIds: photos.map(photo => photo.photo_path)
+      deletedFileIds: photos.map((photo) => photo.photo_path),
     });
   } catch (err) {
-    console.error('Error deleting photos:', err);
-    res.status(500).json({ error: 'Error deleting photos' });
+    console.error("Error deleting photos:", err);
+    res.status(500).json({ error: "Error deleting photos" });
   }
 });
 
@@ -737,7 +862,7 @@ router.delete('/portfolio/delete-photos', async (req, res) => {
 //   const { user_email } = req.params;
 
 //   const query = `
-//     SELECT f.*, 
+//     SELECT f.*,
 //            COUNT(p.photo_id) as photo_count
 //     FROM portfolio_folders f
 //     LEFT JOIN portfolio_photos p ON f.folder_id = p.folder_id
@@ -757,12 +882,12 @@ router.delete('/portfolio/delete-photos', async (req, res) => {
 // });
 
 // Get all photos in a folder
-router.get('/portfolio/photos/:folder_id', (req, res) => {
+router.get("/portfolio/photos/:folder_id", (req, res) => {
   const { folder_id } = req.params;
   const { user_email } = req.query;
 
   if (!user_email) {
-    return res.status(400).json({ error: 'User email is required' });
+    return res.status(400).json({ error: "User email is required" });
   }
 
   const query = `
@@ -779,16 +904,13 @@ router.get('/portfolio/photos/:folder_id', (req, res) => {
 
   db.query(query, [folder_id, user_email], (err, results) => {
     if (err) {
-      console.error('Error fetching photos:', err);
-      return res.status(500).json({ error: 'Error fetching photos' });
+      console.error("Error fetching photos:", err);
+      return res.status(500).json({ error: "Error fetching photos" });
     }
 
     res.status(200).json(results);
   });
 });
-
-
-
 
 router.post("/update-user-profile-image", (req, res) => {
   const { user_email, userProfileImage } = req.body;
@@ -810,7 +932,7 @@ router.post("/update-user-profile-image", (req, res) => {
       return res.status(404).send("Owner not found.");
     }
 
-    res.json({message:"User profile image updated successfully."});
+    res.json({ message: "User profile image updated successfully." });
   });
 });
 
@@ -818,20 +940,22 @@ router.post("/remove-profile-image-type", (req, res) => {
   const { user_email, type } = req.body;
 
   if (!user_email || !type) {
-    return res.status(400).send("Missing required fields. 'user_email' and 'type' are required.");
+    return res
+      .status(400)
+      .send("Missing required fields. 'user_email' and 'type' are required.");
   }
 
   let column;
   if (type === "user") {
     column = "user_profile_image_base64";
   } else if (type === "business") {
-    column = "business_profile_base64"; 
+    column = "business_profile_base64";
   } else {
     return res.status(400).send("Invalid type. Use 'user' or 'business'.");
   }
 
   const query = `UPDATE owner SET ${column} = NULL WHERE user_email = ?`;
-  
+
   db.query(query, [user_email], (err, result) => {
     if (err) {
       console.error(err);
@@ -842,7 +966,7 @@ router.post("/remove-profile-image-type", (req, res) => {
       return res.status(404).send("Owner not found.");
     }
 
-    res.json({message: `${type} profile image removed successfully.`});
+    res.json({ message: `${type} profile image removed successfully.` });
   });
 });
 
@@ -851,7 +975,9 @@ router.get("/fetch-profile-image", (req, res) => {
   const { user_email, type } = req.query;
 
   if (!user_email || !type) {
-    return res.status(400).send("Missing required fields. 'user_email' and 'type' are required.");
+    return res
+      .status(400)
+      .send("Missing required fields. 'user_email' and 'type' are required.");
   }
 
   let column;
@@ -864,7 +990,7 @@ router.get("/fetch-profile-image", (req, res) => {
   }
 
   const query = `SELECT ${column} FROM owner WHERE user_email = ?`;
-  
+
   db.query(query, [user_email], (err, results) => {
     if (err) {
       console.error(err);
@@ -904,19 +1030,18 @@ router.post("/update-business-profile-image", (req, res) => {
       return res.status(404).send("Owner not found.");
     }
 
-    res.json({message:"Business profile image updated successfully."});
+    res.json({ message: "Business profile image updated successfully." });
   });
 });
 
-
-
-
 // Create a new folder
-router.post('/owner-folders/create', (req, res) => {
+router.post("/owner-folders/create", (req, res) => {
   const { folder_name, user_email, cover_page_base64 } = req.body;
 
   if (!folder_name || !user_email) {
-    return res.status(400).json({ error: 'Folder name and user email are required' });
+    return res
+      .status(400)
+      .json({ error: "Folder name and user email are required" });
   }
 
   const query = `
@@ -924,21 +1049,25 @@ router.post('/owner-folders/create', (req, res) => {
     VALUES (?, ?, ?)
   `;
 
-  db.query(query, [folder_name, user_email, cover_page_base64], (err, result) => {
-    if (err) {
-      console.error('Error creating folder:', err);
-      return res.status(500).json({ error: 'Error creating folder' });
-    }
+  db.query(
+    query,
+    [folder_name, user_email, cover_page_base64],
+    (err, result) => {
+      if (err) {
+        console.error("Error creating folder:", err);
+        return res.status(500).json({ error: "Error creating folder" });
+      }
 
-    res.status(201).json({
-      message: 'Folder created successfully.',
-      folder_id: result.insertId
-    });
-  });
+      res.status(201).json({
+        message: "Folder created successfully.",
+        folder_id: result.insertId,
+      });
+    }
+  );
 });
 
 // Get all folders for a user
-router.get('/owner-folders/:user_email', (req, res) => {
+router.get("/owner-folders/:user_email", (req, res) => {
   const { user_email } = req.params;
 
   const query = `
@@ -952,8 +1081,8 @@ router.get('/owner-folders/:user_email', (req, res) => {
 
   db.query(query, [user_email], (err, results) => {
     if (err) {
-      console.error('Error fetching folders:', err);
-      return res.status(500).json({ error: 'Error fetching folders' });
+      console.error("Error fetching folders:", err);
+      return res.status(500).json({ error: "Error fetching folders" });
     }
 
     res.status(200).json(results);
@@ -961,11 +1090,11 @@ router.get('/owner-folders/:user_email', (req, res) => {
 });
 
 // Upload files to a folder
-router.post('/owner-folders/upload', (req, res) => {
+router.post("/owner-folders/upload", (req, res) => {
   const { folder_id, files } = req.body;
 
   if (!folder_id || !Array.isArray(files)) {
-    return res.status(400).json({ error: 'Invalid request data' });
+    return res.status(400).json({ error: "Invalid request data" });
   }
 
   const query = `
@@ -973,27 +1102,31 @@ router.post('/owner-folders/upload', (req, res) => {
     VALUES (?, ?, ?, ?)
   `;
 
-  const insertPromises = files.map(file => {
+  const insertPromises = files.map((file) => {
     return new Promise((resolve, reject) => {
-      db.query(query, [folder_id, file.name, file.type, file.data], (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
-      });
+      db.query(
+        query,
+        [folder_id, file.name, file.type, file.data],
+        (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        }
+      );
     });
   });
 
   Promise.all(insertPromises)
     .then(() => {
-      res.status(201).json({ message: 'Files uploaded successfully' });
+      res.status(201).json({ message: "Files uploaded successfully" });
     })
-    .catch(err => {
-      console.error('Error uploading files:', err);
-      res.status(500).json({ error: 'Error uploading files' });
+    .catch((err) => {
+      console.error("Error uploading files:", err);
+      res.status(500).json({ error: "Error uploading files" });
     });
 });
 
 // Get all files in a folder
-router.get('/owner-folders/files/:folder_id', (req, res) => {
+router.get("/owner-folders/files/:folder_id", (req, res) => {
   const { folder_id } = req.params;
 
   const query = `
@@ -1005,19 +1138,16 @@ router.get('/owner-folders/files/:folder_id', (req, res) => {
 
   db.query(query, [folder_id], (err, results) => {
     if (err) {
-      console.error('Error fetching files:', err);
-      return res.status(500).json({ error: 'Error fetching files' });
+      console.error("Error fetching files:", err);
+      return res.status(500).json({ error: "Error fetching files" });
     }
 
     res.status(200).json(results);
   });
 });
 
-
-
-
 // Delete a folder and its files
-router.delete('/owner-folders/:folder_id', (req, res) => {
+router.delete("/owner-folders/:folder_id", (req, res) => {
   const { folder_id } = req.params;
   const { user_email } = req.body;
 
@@ -1029,12 +1159,14 @@ router.delete('/owner-folders/:folder_id', (req, res) => {
 
   db.query(verifyQuery, [folder_id, user_email], (err, results) => {
     if (err) {
-      console.error('Error verifying folder ownership:', err);
-      return res.status(500).json({ error: 'Database error' });
+      console.error("Error verifying folder ownership:", err);
+      return res.status(500).json({ error: "Database error" });
     }
 
     if (results.length === 0) {
-      return res.status(403).json({ error: 'Unauthorized or folder not found' });
+      return res
+        .status(403)
+        .json({ error: "Unauthorized or folder not found" });
     }
 
     // Delete the folder (cascade will handle file deletion)
@@ -1042,22 +1174,28 @@ router.delete('/owner-folders/:folder_id', (req, res) => {
 
     db.query(deleteQuery, [folder_id], (err, result) => {
       if (err) {
-        console.error('Error deleting folder:', err);
-        return res.status(500).json({ error: 'Error deleting folder' });
+        console.error("Error deleting folder:", err);
+        return res.status(500).json({ error: "Error deleting folder" });
       }
 
-      res.status(200).json({ message: 'Folder and files deleted successfully' });
+      res
+        .status(200)
+        .json({ message: "Folder and files deleted successfully" });
     });
   });
 });
 
 // Delete specific files
-router.post('/owner-folders-files/delete', (req, res) => {
-
+router.post("/owner-folders-files/delete", (req, res) => {
   const { file_ids, folder_id, user_email } = req.body;
 
-  if (!Array.isArray(file_ids) || file_ids.length === 0 || !folder_id || !user_email) {
-    return res.status(400).json({ error: 'Invalid request data' });
+  if (
+    !Array.isArray(file_ids) ||
+    file_ids.length === 0 ||
+    !folder_id ||
+    !user_email
+  ) {
+    return res.status(400).json({ error: "Invalid request data" });
   }
 
   // Verify the user owns this folder
@@ -1068,12 +1206,14 @@ router.post('/owner-folders-files/delete', (req, res) => {
 
   db.query(verifyQuery, [folder_id, user_email], (err, results) => {
     if (err) {
-      console.error('Error verifying folder ownership:', err);
-      return res.status(500).json({ error: 'Database error' });
+      console.error("Error verifying folder ownership:", err);
+      return res.status(500).json({ error: "Database error" });
     }
 
     if (results.length === 0) {
-      return res.status(403).json({ error: 'Unauthorized or folder not found' });
+      return res
+        .status(403)
+        .json({ error: "Unauthorized or folder not found" });
     }
 
     // Delete the specified files
@@ -1084,19 +1224,19 @@ router.post('/owner-folders-files/delete', (req, res) => {
 
     db.query(deleteQuery, [file_ids, folder_id], (err, result) => {
       if (err) {
-        console.error('Error deleting files:', err);
-        return res.status(500).json({ error: 'Error deleting files' });
+        console.error("Error deleting files:", err);
+        return res.status(500).json({ error: "Error deleting files" });
       }
 
       if (result.affectedRows > 0) {
         res.status(200).json({
-          message: 'Files deleted successfully',
-          deletedCount: result.affectedRows
+          message: "Files deleted successfully",
+          deletedCount: result.affectedRows,
         });
       } else {
         res.status(404).json({
-          message: 'No files found to delete',
-          deletedCount: 0
+          message: "No files found to delete",
+          deletedCount: 0,
         });
       }
     });
@@ -1104,20 +1244,22 @@ router.post('/owner-folders-files/delete', (req, res) => {
 });
 
 // Add package request
-router.post('/add-package-request', (req, res) => {
+router.post("/add-package-request", (req, res) => {
   // Extract only the needed fields (ignore extra error fields).
   const {
     package_name,
     service,
     description,
     price,
-    event_name,       // required for package requests
+    event_name,
     location,
     requirements,
     days_required,
     total_amount,
     sender_email,
-    receiver_email
+    receiver_email,
+    start_date,
+    end_date
   } = req.body;
 
   console.log("package request.........................", req.body);
@@ -1134,83 +1276,87 @@ router.post('/add-package-request', (req, res) => {
     isNaN(days_required) ||
     isNaN(total_amount) ||
     !sender_email ||
-    !receiver_email
+    !receiver_email ||
+    !start_date ||
+    !end_date
   ) {
-    return res.status(400).json({ error: 'Invalid or missing fields' });
+    return res.status(400).json({ error: "Invalid or missing fields" });
   }
 
   // If service is an array, convert it to a comma-separated string.
-  const serviceString = Array.isArray(service) ? service.join(', ') : service;
+  const serviceString = Array.isArray(service) ? service.join(", ") : service;
 
+  
+  const formattedStartDate = new Date(start_date).toISOString().slice(0, 19).replace("T", " ");
+  const formattedEndDate = new Date(end_date).toISOString().slice(0, 19).replace("T", " ");
   // Build the parameterized INSERT query.
   const query = `
     INSERT INTO event_request (
-      event_request_type,      -- varchar(50)
-      package_name,            -- varchar(255)
-      service,                 -- varchar(255)
-      description,             -- text
-      price,                   -- decimal(10,2)
-      event_name,              -- varchar(255)
-      equipment_name,          -- varchar(255)
-      equipment_company,       -- varchar(255)
-      equipment_type,          -- varchar(255)
-      equipment_description,   -- text
-      equipment_price_per_day, -- decimal(10,2)
-      location,                -- varchar(255)
-      requirements,            -- text
-      days_required,           -- int
-      total_amount,            -- decimal(10,2)
-      sender_email,            -- varchar(255)
-      receiver_email,          -- varchar(255)
-      event_status             -- varchar(255)
+      event_request_type,      
+      package_name,            
+      service,                 
+      description,             
+      price,                
+      event_name,              
+      equipment_name,          
+      equipment_company,       
+      equipment_type,          
+      equipment_description,   
+      equipment_price_per_day, 
+      location,                
+      requirements,            
+      days_required,           
+      total_amount,            
+      sender_email,            
+      receiver_email,          
+      event_status, 
+      start_date,  
+      end_date        
     ) VALUES (
-      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?
     )
   `;
 
-  // Build the values array. Notice that:
-  // - 'package' is used for event_request_type.
-  // - Equipment-related fields are passed as NULL.
-  // - 'Pending' is used for event_status.
+ 
   const values = [
-    'package',                  // event_request_type
-    package_name,               // package_name
-    serviceString,              // service
-    description,                // description
-    parseFloat(price),          // price
-    event_name,                 // event_name
-    null,                       // equipment_name (unused)
-    null,                       // equipment_company (unused)
-    null,                       // equipment_type (unused)
-    null,                       // equipment_description (unused)
-    null,                       // equipment_price_per_day (unused)
-    location,                   // location
-    requirements,               // requirements
-    parseInt(days_required, 10),// days_required
-    parseFloat(total_amount),   // total_amount
-    sender_email,               // sender_email
-    receiver_email,             // receiver_email
-    'Pending'                   // event_status
+    "package", // event_request_type
+    package_name, // package_name
+    serviceString, // service
+    description, // description
+    parseFloat(price), // price
+    event_name, // event_name
+    null, // equipment_name (unused)
+    null, // equipment_company (unused)
+    null, // equipment_type (unused)
+    null, // equipment_description (unused)
+    null, // equipment_price_per_day (unused)
+    location, // location
+    requirements, // requirements
+    parseInt(days_required, 10), // days_required
+    parseFloat(total_amount), // total_amount
+    sender_email, // sender_email
+    receiver_email,
+    "Pending",
+    formattedStartDate,
+    formattedEndDate,
   ];
 
   // Execute the query.
   db.query(query, values, (err, result) => {
     if (err) {
-      console.error('Error adding package request:', err);
-      return res.status(500).json({ error: 'Error adding package request' });
+      console.error("Error adding package request:", err);
+      return res.status(500).json({ error: "Error adding package request" });
     }
 
     res.status(201).json({
-      message: 'Package request added successfully',
-      request_id: result.insertId
+      message: "Package request added successfully",
+      request_id: result.insertId,
     });
   });
 });
 
-
-
 // Add equipment request
-router.post('/add-equipment-request', (req, res) => {
+router.post("/add-equipment-request", (req, res) => {
   const {
     event_name,
     equipment_name,
@@ -1223,18 +1369,34 @@ router.post('/add-equipment-request', (req, res) => {
     days_required,
     total_amount,
     sender_email,
-    receiver_email
+    receiver_email,
+    start_date,
+    end_date,
   } = req.body;
 
   // Ensure all required fields exist and are valid
   if (
-    !event_name || !equipment_name || !equipment_company || !equipment_type ||
-    !equipment_description || isNaN(equipment_price_per_day) ||
-    !location || !requirements || isNaN(days_required) || isNaN(total_amount) ||
-    !sender_email || !receiver_email
+    !event_name ||
+    !equipment_name ||
+    !equipment_company ||
+    !equipment_type ||
+    !equipment_description ||
+    isNaN(equipment_price_per_day) ||
+    !location ||
+    !requirements ||
+    isNaN(days_required) ||
+    isNaN(total_amount) ||
+    !sender_email ||
+    !receiver_email ||
+    !start_date ||
+    !end_date
   ) {
-    return res.status(400).json({ error: 'Invalid or missing fields' });
+    return res.status(400).json({ error: "Invalid or missing fields" });
   }
+
+  
+  const formattedStartDate = new Date(start_date).toISOString().slice(0, 19).replace("T", " ");
+  const formattedEndDate = new Date(end_date).toISOString().slice(0, 19).replace("T", " ");
 
   const query = `
     INSERT INTO event_request (
@@ -1251,12 +1413,13 @@ router.post('/add-equipment-request', (req, res) => {
       total_amount,
       sender_email,
       receiver_email,
-      event_status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      event_status,start_date,
+      end_date
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
-    'equipment',
+    "equipment",
     event_name,
     equipment_name,
     equipment_company,
@@ -1269,46 +1432,69 @@ router.post('/add-equipment-request', (req, res) => {
     parseFloat(total_amount),
     sender_email,
     receiver_email,
-    'Pending'
+    "Pending",
+    formattedStartDate,
+    formattedEndDate,
   ];
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.error('Error adding equipment request:', err);
-      return res.status(500).json({ error: 'Error adding equipment request' });
+      console.error("Error adding equipment request:", err);
+      return res.status(500).json({ error: "Error adding equipment request" });
     }
 
     res.status(201).json({
-      message: 'Equipment request added successfully',
-      request_id: result.insertId
+      message: "Equipment request added successfully",
+      request_id: result.insertId,
     });
   });
 });
 
-
-router.get('/get-package-details/:receiver_email', (req, res) => {
+router.get("/get-package-details/:receiver_email", (req, res) => {
   const { receiver_email } = req.params;
-  const query = `SELECT * FROM event_request WHERE receiver_email = ?`;
+  const query = `SELECT * FROM event_request WHERE receiver_email = ? and event_request_type=?`;
   db.query(query, [receiver_email], (err, results) => {
-    if(err){
-      console.error('Error fetching package details:', err);
-      return res.status(500).json({ error: 'Error fetching package details' });
+    if (err) {
+      console.error("Error fetching package details:", err);
+      return res.status(500).json({ error: "Error fetching package details" });
     }
     res.json(results);
   });
 });
 
-router.get('/get-equipment-details-by/:receiver_email', (req, res) => {
+router.get("/get-equipment-details-by/:receiver_email", (req, res) => {
   const { receiver_email } = req.params;
-  const query = `SELECT * FROM event_request WHERE receiver_email = ?`;
-  db.query(query, [receiver_email], (err, results) => {
-    if(err){
-      console.error('Error fetching equipment details:', err);
-      return res.status(500).json({ error: 'Error fetching equipment details' });
+
+  // Query to select event requests for 'package' type
+  const query_packageData =
+    "SELECT * FROM event_request WHERE receiver_email = ? AND event_request_type = 'package'";
+
+  // Query to select event requests for 'equipment' type
+  const query_equipmentData =
+    "SELECT * FROM event_request WHERE receiver_email = ? AND event_request_type = 'equipment'";
+
+  // Run both queries in sequence
+  db.query(query_packageData, [receiver_email], (err, packageResults) => {
+    if (err) {
+      console.error("Error fetching package details:", err);
+      return res.status(500).json({ error: "Error fetching package details" });
     }
-    res.json(results);
+
+    db.query(query_equipmentData, [receiver_email], (err, equipmentResults) => {
+      if (err) {
+        console.error("Error fetching equipment details:", err);
+        return res
+          .status(500)
+          .json({ error: "Error fetching equipment details" });
+      }
+
+      // Respond with the results in the desired structure
+      res.json({
+        package: packageResults,
+        equipment: equipmentResults,
+      });
+    });
   });
 });
 
 module.exports = router;
-

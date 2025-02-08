@@ -68,6 +68,7 @@ CREATE TABLE event_request (
     -- User details (foreign keys)
     sender_email VARCHAR(255) NOT NULL,
     receiver_email VARCHAR(255) NOT NULL,
+    event_status VARCHAR(255) NOT NULL,
 
     CONSTRAINT fk_sender FOREIGN KEY (sender_email) REFERENCES owner(user_email) ON DELETE CASCADE,
     CONSTRAINT fk_receiver FOREIGN KEY (receiver_email) REFERENCES owner(user_email) ON DELETE CASCADE

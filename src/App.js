@@ -54,6 +54,7 @@ import {BeforeAccept,PendingStatus,RejectedStatus} from "./Components/Owener/bef
 import TableToggleButtons from "./Components/Owener/sub_part/Invoic_part/Sub_component/TableToggleButtons.js";
 import InvoicePage2 from "./Components/Owener/sub_part/Invoic_part/invoicePage2.js";
 import DraftInvoices from "./Components/Owener/sub_part/Invoic_part/Sub_component/DraftInvoices.js";
+import { Toaster } from "react-hot-toast";
 // import Calendar from "./Components/Owener/sub_part/Calendar/Calendar.js";
 
 
@@ -129,10 +130,10 @@ function App() {
       setSelectedTable("draftTable");
     } else if (location === "/Owner/Packages") {
       setActiveIndex(4);
-    } else if (location === "/Owner/calendar") {
+    } else if (location === "/Owner/search_photographer") {
       setActiveIndex(5);
     } else if (location === "/Owner/Profile") {
-      setActiveIndex(6);
+      setActiveIndex(7);
     }
   }, [dispatch]);
 
@@ -419,7 +420,8 @@ const SetOwnerPage = ({ ActivePage }) => {
         <OwnerSideBar />
       )}
 
-  
+    <Toaster position="top-right" />
+
     </Router>
   );
 }

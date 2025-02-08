@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 
+
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -55,6 +56,7 @@ import offerPhotography from "./../../Assets/BeforeLogin/offerPhotography.png";
 
 import ContactPage from "./sub_parts/ContactPage";
 import FAQ from "./sub_parts/FAQ";
+import { showWarningToast } from "../../redux/AllData";
 
 function BeforeLogin() {
   const [showPopup, setShowPopup] = useState(false);
@@ -69,6 +71,7 @@ function BeforeLogin() {
     setSelectedOption(e.target.value);
   };
 
+ 
   const handleSelectClick = () => {
     // Redirect based on selected option
     if (selectedOption === "Hire a Photographer") {
@@ -76,7 +79,7 @@ function BeforeLogin() {
     } else if (selectedOption === "Offer Photography Services") {
       window.location.href = "/owner";
     } else {
-      alert("Please select an option before proceeding.");
+      showWarningToast({message: "Please select an option before proceeding."})
     }
   };
 
@@ -591,6 +594,7 @@ function BeforeLogin() {
           <img src={mouseCursor} alt="top" />
         </button>
       )}
+
     </div>
   );
 }

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './subPortfolio.css';
-import { Server_url } from '../../../../redux/AllData';
+import { Server_url,showWarningToast } from '../../../../redux/AllData';
 import { useSelector } from 'react-redux';
 
 import back_icon from './../../img/back.png'
 
 
+
 function SubPortfolio({ Folder_name, folder_id, onBack }) {
   const user = useSelector(state => state.user);
   const [message, setMessage] = useState('');
+
   const [files, setFiles] = useState([]);
   const fileInputRef = React.useRef(null);
 
@@ -87,7 +89,7 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
 
     const handleDelete = async () => {
       if (!file.file_id) {
-        alert("File ID is missing.");
+        showWarningToast({message: 'File ID is missing.'});
         return;
       }
       let confirm = window.confirm("Are you sure you want to delete this file?");
@@ -192,6 +194,7 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
       </div>
 
       {message && <p className="message">{message}</p>}
+
     </div>
   );
 }

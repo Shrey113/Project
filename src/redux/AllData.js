@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
 import "./AllData.css";
-import tick_mark from "./tick-mark.png";
-import close from "./close.png";
-import warning from "./warning.png";
+import toast from "react-hot-toast";
+
 
 export const localstorage_key_for_jwt_user_side_key =
   "Jwt_user_localstorage_key_on_photography_website";
@@ -16,98 +14,64 @@ export const localstorage_key_for_client = "localstorage_key_for_client";
 export const localstorage_key_for_admin_settings =
   "localstorage_key_for_admin_settings";
 
-export const SuccessMessage = ({ message, setState }) => {
-  const [successMessage] = useState(message);
-  const [isVisible, setIsVisible] = useState(false);
 
-  useEffect(() => {
-    if (message) {
-      setIsVisible(true);
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-        setTimeout(() => {
-          setState();
-        }, 600);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message, setState]);
 
-  return successMessage ? (
-    <div className={`success_message ${isVisible ? "show" : "hide"}`}>
-      <img src={tick_mark} alt="" />
-      <div className="content_for_success">
-        <div style={{ fontSize: "18px", fontWeight: "bold", color: "#5a7252" }}>
-          SUCCESS!
-        </div>
-        <div style={{ fontSize: "14px", color: "#94a68d" }}>
-          {successMessage}
-        </div>
+export const ConfirmMessage = ({ message_title,message, onCancel, onConfirm,button_text }) => {
+  return (
+    
+    <div className="confirm-popup-overlay">
+    <div className="confirm-popup-content">
+      <h3>{message_title}</h3>
+      <p>{message}</p>
+      <div className="confirm-popup-buttons">
+        <button onClick={onCancel}>Cancel</button>
+        <button 
+          className="delete-confirm-btn"
+          onClick={onConfirm}
+        >
+          {button_text|| "Delete"}
+        </button>
       </div>
     </div>
-  ) : null;
+  </div>
+  );
 };
 
-export const RejectMessage = ({ message, setState }) => {
-  const [rejectMessage] = useState(message);
-  const [isVisible, setIsVisible] = useState(false);
 
-  useEffect(() => {
-    if (message) {
-      setIsVisible(true);
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-        setTimeout(() => {
-          setState();
-        }, 600);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message, setState]);
 
-  return rejectMessage ? (
-    <div className={`reject_message ${isVisible ? "show" : "hide"}`}>
-      <img src={close} alt="" />
-      <div className="content_for_reject">
-        <div style={{ fontSize: "18px", fontWeight: "bold", color: "#ba453f" }}>
-          REJECT!
-        </div>
-        <div style={{ fontSize: "14px", color: "#c7605b" }}>
-          {rejectMessage}
-        </div>
-      </div>
-    </div>
-  ) : null;
+export const showAcceptToast = ({message}) => {
+  toast.success(message, {
+    duration: 4000, 
+    position: 'top-right',
+    style: {
+      background: '#4caf50',
+      color: '#fff',
+      fontWeight: 'bold',
+    },
+  });
 };
 
-export const WarningMessage = ({ message, setState }) => {
-  const [warningMessage] = useState(message);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (message) {
-      setIsVisible(true);
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-        setTimeout(() => {
-          setState();
-        }, 600);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message, setState]);
-
-  return warningMessage ? (
-    <div className={`warning_message ${isVisible ? "show" : "hide"}`}>
-      <img src={warning} alt="" />
-      <div className="content_for_warning">
-        <div style={{ fontSize: "18px", fontWeight: "bold", color: "#97702e" }}>
-          WARNING!
-        </div>
-        <div style={{ fontSize: "14px", color: "#b79f6d" }}>
-          {warningMessage}
-        </div>
-      </div>
-    </div>
-  ) : null;
+export const showRejectToast = ({message}) => {
+  toast.error(message, {
+    duration: 4000,
+    position: 'top-right',
+    style: {
+      background: '#f44336',
+      color: '#fff',
+      fontWeight: 'bold',
+    },
+  });
 };
+
+export const showWarningToast = ({message}) => {
+  toast.error(message, {
+    duration: 4000,
+    position: 'top-right',
+    style: {
+      background: '#ff9800',
+      color: '#fff',
+      fontWeight: 'bold',
+    },
+  });
+};
+

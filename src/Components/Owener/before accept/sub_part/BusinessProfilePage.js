@@ -4,7 +4,7 @@ import "./BusinessProfilePage.css"
 
 import { FaCamera } from 'react-icons/fa'
 
-import { Server_url } from './../../../../redux/AllData';
+import { Server_url, showRejectToast, showAcceptToast } from './../../../../redux/AllData';
 
 function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
   const user = useSelector(state => state.user);
@@ -313,11 +313,12 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
       if (response.ok) {
         setIs_Page2(true);
         setCurrentStep(3);
+        showAcceptToast({message: 'Business data updated' });
       } else {
-        alert(result.error);
+        showRejectToast({message: result.error });
       }
     } catch (error) {
-      alert(error);
+      showRejectToast({message: error });
     }
   };
 
@@ -543,6 +544,7 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
             <button type="submit" className="ok-button">Save And Next</button>
         </div>
       </form>
+
     </div>
   )
 }

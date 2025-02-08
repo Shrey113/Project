@@ -9,7 +9,7 @@ import user_img_2 from './profile_pic/user2.jpg';
 import user_img_3 from './profile_pic/user3.jpg';
 import user_img_4 from './profile_pic/user4.jpg';
 import ForgotPasswordPopup from './sub_part/ForgotPasswordPopup';
-import { localstorage_key_for_admin_login,Server_url } from '../../../../redux/AllData';
+import { localstorage_key_for_admin_login,Server_url,showRejectToast,showAcceptToast,ConfirmMessage } from '../../../../redux/AllData';
 
 
 function AdminProfile({admin_email}) {
@@ -23,6 +23,16 @@ function AdminProfile({admin_email}) {
     join_date: '',
     last_login: ''
   };
+
+
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({
+    isVisible: false,
+    message_title:"",
+    message:"",
+    onConfirm:()=>{}
+  });
+
 
 
   const [data_error, set_data_error] = useState({
@@ -207,7 +217,7 @@ function AdminProfile({admin_email}) {
       const data = await response.json();
 
       if (data.error) {
-        alert('Error saving data: ' + data.error);
+        showRejectToast({message: 'Error saving data: ' + data.error });
         return false;
       }
       set_data_error({
@@ -223,7 +233,7 @@ function AdminProfile({admin_email}) {
       return true;
     } catch (error) {
       console.error('Error making request:', error);
-      alert('Error saving data. Please try again.');
+      showRejectToast({message: 'Error saving data. Please try again.' });
       return false;
     } finally {
       setIsLoading(false);
@@ -303,9 +313,14 @@ function is_valid_account_details(fields) {
 
 const handleRoleChange = (e) => {
   if (basic_info.role === 'Full' && e.target.value === 'Read Write') {
-    if (window.confirm('Are you sure you want to change the role to Read Write?\nAfter save This action cannot be reverted.')) {
-      handle_input_change('role', e.target.value);
-    }
+    setShowDeleteConfirm({
+      isVisible: true,
+      message_title: "Confirm Role Change",
+      message: "Are you sure you want to change the role to Read Write?\nAfter save This action cannot be reverted.",
+      onConfirm: () => {
+        handle_input_change('role', e.target.value);
+      }
+    });
   } else {
     handle_input_change('role', e.target.value);
   }
@@ -429,16 +444,18 @@ const handleDeleteAccount = () => {
       })
       .then(response => response.json())
       .then(data => {
-        console.log(data);
         if(data.message === 'No admin account found with this email'){
-          alert("Your account not found with this email");
+          showRejectToast({message: "Your account not found with this email" });
         }else if(data.message === 'Incorrect password'){
           setDeletePasswordError("Your password is incorrect");
+          showRejectToast({message: "Your password is incorrect" });
         }
 
         if(data.status === 'success'){
           setShowDeleteAccount(false);
+          showAcceptToast({message: 'Account deleted successfully' });
         }
+
       });
     }
   };
@@ -598,7 +615,7 @@ const handleForgotPasswordSubmit = (e) => {
   .then(response => response.json())
   .then(data => {
     if (data.status === 'success') {
-      alert('Password changed successfully!');
+      showAcceptToast({message: 'Password changed successfully!' });
       setShowChangePassword(false);
 
       setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
@@ -644,14 +661,15 @@ const handleForgotPasswordSubmit = (e) => {
 };
 
 const logout_as_admin = () => {
-
-  const isConfirmed = window.confirm("Are you sure you want to log out?");
-
-
-  if (isConfirmed) {
-    localStorage.removeItem(localstorage_key_for_admin_login); // Remove admin token from localStorage
-    window.location.reload(); // Reload the page to reset the app state
-  }
+  setShowDeleteConfirm({
+    isVisible: true,
+    message_title: "Confirm Logout",
+    message: "Are you sure you want to log out?",
+    onConfirm: () => {
+      localStorage.removeItem(localstorage_key_for_admin_login); // Remove admin token from localStorage
+      window.location.reload(); // Reload the page to reset the app state
+    }
+  });
 };
 
 
@@ -997,6 +1015,12 @@ const logout_as_admin = () => {
           closeFunction={() => setShowForgotPasswordPopup(false)}
           admin_email={basic_info.email}
         />
+      )}
+
+   
+      {showDeleteConfirm.isVisible && (
+        <ConfirmMessage message_title={showDeleteConfirm.message_title} message={showDeleteConfirm.message} 
+          onCancel={() => setShowDeleteConfirm({...showDeleteConfirm, isVisible:false})} onConfirm={showDeleteConfirm.onConfirm} button_text="Logout"/>
       )}
     </div>
   );

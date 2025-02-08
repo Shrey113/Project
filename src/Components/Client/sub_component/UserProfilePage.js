@@ -4,6 +4,8 @@ import "./CSS Files/UserProfilePage.css";
 import {
   localstorage_key_for_client,
   Server_url,
+  showRejectToast,
+  showAcceptToast
 } from "./../../../redux/AllData";
 
 import ProfilePageBackground from "./../../../Assets/AfterLogin/ProfilePageBackground.png";
@@ -32,6 +34,7 @@ function UserProfilePage() {
   const [user_data_popup, set_user_data_popup] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [showSaveInfo, setShowSaveInfo] = useState(false);
+
 
   const [update_cancel_toggle, set_update_cancel_toggle] = useState(true);
   const [mainPage, setMainPage] = useState("userProfile");
@@ -150,18 +153,19 @@ function UserProfilePage() {
       const result = await response.json();
 
       if (response.ok) {
-        // alert("Profile updated successfully!");
+        
         setInitialUserName(userName);
         setInitialPhone(phone);
         setInitialAddress(address);
         setInitialGender(gender);
         setShowSaveInfo(false);
+        showAcceptToast({message: "Profile updated successfully!" });
       } else {
-        alert(result.message || "Failed to update profile.");
+        showRejectToast({message: result.message || "Failed to update profile." });
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Error updating profile.");
+      showRejectToast({message: "Error updating profile." });
     }
     set_user_data_popup(true);
     setTimeout(() => {
@@ -186,7 +190,7 @@ function UserProfilePage() {
     setIsEditable(false);
     setShowSaveInfo(false);
     set_update_cancel_toggle(true);
-    // alert("Changes saved successfully!");
+
 
     // Update initial values to match saved changes
     setInitialUserName(userName);

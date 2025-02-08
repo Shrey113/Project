@@ -1,10 +1,44 @@
-import React, { useState } from 'react'
-import './SeletedCard.css'
-import { Server_url } from '../../../../../redux/AllData';
-import { useSelector } from 'react-redux';
+import React, { useState } from "react";
+import "./SeletedCard.css";
+import { Server_url } from "../../../../../redux/AllData";
+import { useSelector } from "react-redux";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import dayjs from "dayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-function SeletedCard({type, onClose, selectedData,selectedOwner}) {
-    const user = useSelector(state => state.user);
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#4f46e5",
+    },
+  },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: "8px",
+          "&:hover": {
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#4f46e5",
+            },
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: "#6b7280",
+        },
+      },
+    },
+  },
+});
+
+function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
+  const user = useSelector((state) => state.user);
   const [formData, setFormData] = useState({
     // package
     package_name: selectedData.package_name,
@@ -20,33 +54,39 @@ function SeletedCard({type, onClose, selectedData,selectedOwner}) {
     equipment_description: selectedData.equipment_description,
     equipment_price_per_day: selectedData.equipment_price_per_day,
 
-    location:'',
-    location_error: '',
-    requirements: '',
-    requirements_error: '',
+    start_date: new Date(),
+    end_date: new Date(),
+    location: "",
+    location_error: "",
+    requirements: "",
+    requirements_error: "",
     days_required: 1,
-    days_required_error: '',
-    total_amount: type === 'equipment' ? selectedData.equipment_price_per_day : (selectedData.price * 1)
+    days_required_error: "",
+    total_amount:
+      type === "equipment"
+        ? selectedData.equipment_price_per_day
+        : selectedData.price * 1,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    if (name === 'days_required') {
+
+    if (name === "days_required") {
       const days = parseInt(value) || 0;
-      
+
       setFormData({
         ...formData,
         [name]: days,
-        days_required_error: days < 1 ? 'Days must be at least 1' : '',
-        total_amount: type === 'equipment' 
-          ? (days * formData.equipment_price_per_day) 
-          : (days * formData.price)
+        days_required_error: days < 1 ? "Days must be at least 1" : "",
+        total_amount:
+          type === "equipment"
+            ? days * formData.equipment_price_per_day
+            : days * formData.price,
       });
     } else {
       setFormData({
         ...formData,
-        [name]: value
+        [name]: value,
       });
     }
   };
@@ -56,25 +96,29 @@ function SeletedCard({type, onClose, selectedData,selectedOwner}) {
       ...formData,
       event_name: type,
       sender_email: user.user_email,
-      receiver_email: selectedOwner.user_email
+      receiver_email: selectedOwner.user_email,
     };
+    console.log("form data", data);
 
     try {
-      const response = await fetch(`${Server_url}/owner/add-equipment-request`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      
+      const response = await fetch(
+        `${Server_url}/owner/add-equipment-request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
       if (!response.ok) {
-        throw new Error('Request failed');
+        throw new Error("Request failed");
       }
-      
+
       onClose();
     } catch (error) {
-      console.error('Error adding equipment request:', error);
+      console.error("Error adding equipment request:", error);
     }
   };
 
@@ -83,63 +127,123 @@ function SeletedCard({type, onClose, selectedData,selectedOwner}) {
       ...formData,
       event_name: type,
       sender_email: user.user_email,
-      receiver_email: selectedOwner.user_email
+      receiver_email: selectedOwner.user_email,
     };
 
     try {
       const response = await fetch(`${Server_url}/owner/add-package-request`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        throw new Error('Request failed');
+        throw new Error("Request failed");
       }
 
       onClose();
     } catch (error) {
-      console.error('Error adding package request:', error);
+      console.error("Error adding package request:", error);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate location
     if (!formData.location.trim()) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        location_error: 'Location is required'
+        location_error: "Location is required",
       }));
       return;
     }
 
-    if (type === 'equipment') {
+    if (type === "equipment") {
       await add_equipment_request();
-    } else if (type === 'package') {
+    } else if (type === "package") {
       await add_package_request();
     }
   };
+  const handleDateChange = (name, newValue) => {
+    if (newValue) {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: dayjs(newValue).toISOString(), // Converts to '2025-02-13T18:30:13.017Z'
+      }));
+    }
+  };
+  
+  
 
   return (
-    <div className="selected_overlay" onClick={(e) => {onClose();}}>
-      <div className='on_close' onClick={onClose}>
+    <div
+      className="owner-selected-overlay-container"
+      onClick={(e) => {
+        onClose();
+      }}
+      style={{ zIndex: "1" }}
+    >
+      <div className="on_close" onClick={onClose}>
         <i className="fa-solid fa-xmark"></i>
       </div>
-      <div className='selected-card-container' onClick={(e) => {e.stopPropagation();}}>
-
+      <div
+        className="selected-card-container"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         {type === "equipment" && (
-          <div className='equipment-card-container-selected'>
-            <div className='equipment-card-title-selected'>Equipment Booking</div>
+          <div className="equipment-card-container-selected">
+            <div className="equipment-card-title-selected">
+              Equipment Booking
+            </div>
             <form onSubmit={handleSubmit} className="booking-form">
               {/* Information Display Section */}
               <div className="info-section">
                 <div className="info-group">
                   <label>Equipment Name</label>
                   <div className="info-value">{formData.name}</div>
+                </div>
+
+                <div className="date-time-container">
+                  <ThemeProvider theme={theme}>
+                    <div className="date-input-group">
+                      <label className="form-label">Start Date:</label>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                           value={formData.start_date ? dayjs(formData.start_date) : null}
+                          onChange={(newValue) =>
+                            handleDateChange("start_date", newValue)
+                          }
+                          minDate={dayjs()}
+                          format="DD-MM-YYYY"
+                          renderInput={(params) => (
+                            <input {...params} className="form-input" />
+                          )}
+                        />
+                      </LocalizationProvider>
+                    </div>
+
+                    <div className="date-input-group">
+                      <label className="form-label">End Date:</label>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          value={formData.end_date ? dayjs(formData.end_date) : null}
+                          onChange={(newValue) =>
+                            handleDateChange("end_date", newValue)
+                          }
+                          minDate={dayjs()}
+                          format="DD-MM-YYYY"
+                          renderInput={(params) => (
+                            <input {...params} className="form-input" />
+                          )}
+                        />
+                      </LocalizationProvider>
+                    </div>
+                  </ThemeProvider>
                 </div>
                 <div className="info-group">
                   <label>Company</label>
@@ -151,52 +255,114 @@ function SeletedCard({type, onClose, selectedData,selectedOwner}) {
                 </div>
                 <div className="info-group">
                   <label>Description</label>
-                  <div className="info-value">{formData.equipment_description}</div>
+                  <div className="info-value">
+                    {formData.equipment_description}
+                  </div>
                 </div>
                 <div className="info-group">
                   <label>Price per Day</label>
-                  <div className="info-value">{formData.equipment_price_per_day}</div>
+                  <div className="info-value">
+                    {formData.equipment_price_per_day}
+                  </div>
                 </div>
-                
               </div>
 
               {/* User Input Section */}
               <div className="form-group">
-                  <label>Number of Days Required</label>
-                  <input  type="number" name="days_required" value={formData.days_required} onChange={handleChange} min="1" required />
-                  {formData.days_required_error && (
-                    <div className="error-message">{formData.days_required_error}</div>
-                  )}
-                </div>
-                <div className="info-group total-amount">
-                  <label>Total Amount</label>
-                  <div className="info-value">₹{formData.total_amount}</div>
-                </div>
+                <label>Number of Days Required</label>
+                <input
+                  type="number"
+                  name="days_required"
+                  value={formData.days_required}
+                  onChange={handleChange}
+                  min="1"
+                  required
+                />
+                {formData.days_required_error && (
+                  <div className="error-message">
+                    {formData.days_required_error}
+                  </div>
+                )}
+              </div>
+              <div className="info-group total-amount">
+                <label>Total Amount</label>
+                <div className="info-value">₹{formData.total_amount}</div>
+              </div>
 
               <div className="form-group">
                 <label>Location</label>
-                <input  type="text"  name="location" value={formData.location} onChange={handleChange} required
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
                 />
               </div>
 
               <div className="form-group">
                 <label>Requirements (Optional)</label>
-                <textarea  name="requirements" value={formData.requirements} onChange={handleChange} rows="3"/>
+                <textarea
+                  name="requirements"
+                  value={formData.requirements}
+                  onChange={handleChange}
+                  rows="3"
+                />
               </div>
 
-              <button type="submit" className="submit-btn">Book Now</button>
+              <button type="submit" className="submit-btn">
+                Book Now
+              </button>
             </form>
           </div>
         )}
+
         {type === "package" && (
-          <div className='package-card-container-selected'>
-            <div className='package-card-title-selected'>Package Booking</div>
+          <div className="package-card-container-selected">
+            <div className="package-card-title-selected">Package Booking</div>
             <form onSubmit={handleSubmit} className="booking-form">
               {/* Information Display Section */}
               <div className="info-section">
                 <div className="info-group">
                   <label>Package Name</label>
                   <div className="info-value">{formData.package_name}</div>
+                </div>
+                <div className="date-time-container">
+                  <ThemeProvider theme={theme}>
+                    <div className="date-input-group">
+                      <label className="form-label">Start Date:</label>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          value={formData.start_date ? dayjs(formData.start_date) : null}
+                          onChange={(newValue) =>
+                            handleDateChange("start_date", newValue)
+                          }
+                          minDate={dayjs()}
+                          format="DD-MM-YYYY"
+                          renderInput={(params) => (
+                            <input {...params} className="form-input" />
+                          )}
+                        />
+                      </LocalizationProvider>
+                    </div>
+
+                    <div className="date-input-group">
+                      <label className="form-label">End Date:</label>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          value={formData.end_date ? dayjs(formData.end_date) : null}
+                          onChange={(newValue) =>
+                            handleDateChange("end_date", newValue)
+                          }
+                          minDate={dayjs()}
+                          format="DD-MM-YYYY"
+                          renderInput={(params) => (
+                            <input {...params} className="form-input" />
+                          )}
+                        />
+                      </LocalizationProvider>
+                    </div>
+                  </ThemeProvider>
                 </div>
                 <div className="info-group">
                   <label>Service</label>
@@ -213,34 +379,56 @@ function SeletedCard({type, onClose, selectedData,selectedOwner}) {
               </div>
 
               {/* User Input Section */}
-                <div className="form-group">
-                  <label>Number of Days Required</label>
-                  <input  type="number" name="days_required" value={formData.days_required} onChange={handleChange} min="1" required />
-                  {formData.days_required_error && (
-                    <div className="error-message">{formData.days_required_error}</div>
-                  )}
-                </div>
-                <div className="info-group total-amount">
-                  <label>Total Amount</label>
-                  <div className="info-value">₹{formData.total_amount}</div>
-                </div>
+              <div className="form-group">
+                <label>Number of Days Required</label>
+                <input
+                  type="number"
+                  name="days_required"
+                  value={formData.days_required}
+                  onChange={handleChange}
+                  min="1"
+                  required
+                />
+                {formData.days_required_error && (
+                  <div className="error-message">
+                    {formData.days_required_error}
+                  </div>
+                )}
+              </div>
+              <div className="info-group total-amount">
+                <label>Total Amount</label>
+                <div className="info-value">₹{formData.total_amount}</div>
+              </div>
               <div className="form-group">
                 <label>Location</label>
-                <input  type="text"  name="location" value={formData.location} onChange={handleChange} required />
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                />
               </div>
 
               <div className="form-group">
                 <label>Requirements (Optional)</label>
-                <textarea  name="requirements" value={formData.requirements} onChange={handleChange} rows="3" />
+                <textarea
+                  name="requirements"
+                  value={formData.requirements}
+                  onChange={handleChange}
+                  rows="3"
+                />
               </div>
 
-              <button type="submit" className="submit-btn">Book Package</button>
+              <button type="submit" className="submit-btn">
+                Book Package
+              </button>
             </form>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default SeletedCard
+export default SeletedCard;

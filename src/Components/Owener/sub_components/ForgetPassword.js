@@ -4,7 +4,7 @@ import close_button from './../../../Assets/Owener/cross.png'
 
 import {useState} from 'react';
 import ShowLoder from './../sub_components/show_loder.js';
-import {localstorage_key_for_jwt_user_side_key,Server_url} from './../../../redux/AllData.js'
+import {localstorage_key_for_jwt_user_side_key,Server_url,showAcceptToast} from './../../../redux/AllData.js'
 
 function ForgetPassword({page_close_function,last_enter_email,user_name}) {
   
@@ -20,7 +20,7 @@ function ForgetPassword({page_close_function,last_enter_email,user_name}) {
 
   const [current_form, setcurrent_form] = useState(1);
   const [show_loder,set_show_loder] = useState(false);
-
+ 
 
 
 
@@ -163,7 +163,7 @@ function ForgetPassword({page_close_function,last_enter_email,user_name}) {
       }).then(data => {
 
         if (data.status === 'password-updated') {
-          window.alert("Your password will be reset")
+          showAcceptToast({message: "Your password will be reset"});
           if(data.user_key){
             localStorage.setItem(localstorage_key_for_jwt_user_side_key,data.user_key)
             window.location.reload();

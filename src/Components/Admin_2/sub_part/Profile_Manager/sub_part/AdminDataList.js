@@ -13,7 +13,8 @@ import user4_icon from './profile_pic/user4.jpg';
 import AskQuestion from './AskQuestion';
 import AddingAdmin from './AddingAdmin';
 
-import { Server_url } from '../../../../../redux/AllData';
+import { Server_url, showRejectToast, showAcceptToast } from '../../../../../redux/AllData';
+
 
 function AdminDataList({admin_email,accessType}) {
 
@@ -131,8 +132,9 @@ function AdminDataList({admin_email,accessType}) {
               console.log('Admin deleted:', data);  // Handle success
               if(data.message === 'Admin deleted successfully'){
                 go_for_re_fetch_data();
+                showAcceptToast({message: 'Admin deleted successfully' });
               }else{
-                alert("Admin delete error")
+                showRejectToast({message: "Admin delete error" });
               }
           })
           .catch(error => {
@@ -349,6 +351,7 @@ function AdminDataList({admin_email,accessType}) {
           closeButton={show_question_data.closeButton}
         />
       )}
+   
     </div>
   );
 }

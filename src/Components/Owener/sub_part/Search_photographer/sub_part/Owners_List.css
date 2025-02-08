@@ -164,7 +164,7 @@
     text-align: center;
   }
 
-  .owner-info .email,
+  .owner-list-container  .owner-info .email,
   .owner-list-container .owner-info .location {
     justify-content: center;
   }
@@ -180,11 +180,11 @@
   }
 }
 
-.skeleton {
+ .owner-list-container  .skeleton {
   pointer-events: none;
 }
 
-.skeleton-animation {
+ .owner-list-container  .skeleton-animation {
   background: linear-gradient(
     to right,
     #f0f0f0 8%,
@@ -195,29 +195,29 @@
   animation: shimmer 1.5s infinite linear;
 }
 
-.skeleton-image {
+ .owner-list-container  .skeleton-image {
   background: #f0f0f0;
   height: 140px;
   width: 140px;
   border-radius: 12px;
 }
 
-.skeleton-text {
+ .owner-list-container  .skeleton-text {
   height: 16px;
   margin: 8px 0;
   border-radius: 4px;
   width: 80%;
 }
 
-.skeleton-text:first-child {
+ .owner-list-container  .skeleton-text:first-child {
   width: 60%;
 }
 
-.skeleton-text:last-child {
+ .owner-list-container  .skeleton-text:last-child {
   width: 70%;
 }
 
-.skeleton-button {
+ .owner-list-container  .skeleton-button {
   width: 100px;
   height: 40px;
   border-radius: 8px;
@@ -225,13 +225,13 @@
 
 /* Adjust skeleton for mobile */
 @media (max-width: 480px) {
-  .skeleton-image {
+   .owner-list-container  .skeleton-image {
     width: 100px;
     height: 100px;
   }
 }
 
-.no-photographers {
+ .no-photographers {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -246,19 +246,19 @@
   max-width: 500px;
 }
 
-.no-results-icon {
+ .no-results-icon {
   font-size: 4rem;
   margin-bottom: 1rem;
   animation: bounce 2s infinite;
 }
 
-.no-photographers h2 {
+ .no-photographers h2 {
   color: #1e293b;
   margin-bottom: 1rem;
   font-size: 1.5rem;
 }
 
-.no-photographers p {
+ .no-photographers p {
   color: #64748b;
   margin: 0.5rem 0;
   font-size: 1rem;
@@ -275,20 +275,20 @@
 }
 
 @media (max-width: 480px) {
-  .no-photographers {
+   .no-photographers {
     margin: 1rem;
     min-height: 300px;
   }
   
-  .no-results-icon {
+   .no-results-icon {
     font-size: 3rem;
   }
   
-  .no-photographers h2 {
+   .no-photographers h2 {
     font-size: 1.25rem;
   }
   
-  .no-photographers p {
+   .no-photographers p {
     font-size: 0.9rem;
   }
 }

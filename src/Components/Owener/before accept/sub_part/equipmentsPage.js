@@ -7,9 +7,11 @@ import drone_icon from './test_img_equipment/drone.png'
 import tripod_icon from './test_img_equipment/Tripod.png'
 import lens_icon from './test_img_equipment/lens.png'
 
-import { Server_url } from '../../../../redux/AllData';
+import { Server_url, showRejectToast, showAcceptToast } from '../../../../redux/AllData';
 
 function EquipmentsPage() {
+
+
 
   function getImgByType(type){
     if(type === 'Camera') return camera_icon;
@@ -105,7 +107,7 @@ function EquipmentsPage() {
       // Check if the request was successful
       if (!response.ok) {
         const errorData = await response.json();
-        alert(errorData.error || errorData.message);
+        showRejectToast({message: errorData.error || errorData.message });
         return;
       }
   
@@ -115,7 +117,7 @@ function EquipmentsPage() {
       }
     } catch (error) {
       console.error('Error updating user status:', error);
-      alert('An error occurred while updating the user status.');
+      showRejectToast({message: 'An error occurred while updating the user status.' });
     }
   }
   
@@ -136,7 +138,7 @@ function EquipmentsPage() {
     .then(data => {
       if(data.message === 'Equipment removed successfully'){
         getEquipmentItems(user.user_email)
-        // alert('Equipment removed successfully');
+        showAcceptToast({message: 'Equipment removed successfully' });
       }
     })
     .catch(error => console.error('Error:', error));
@@ -194,7 +196,7 @@ function EquipmentsPage() {
         getEquipmentItems(user.user_email)
 
     } catch (error) {
-        alert('Failed to add equipment: ' + error.message);
+        showRejectToast({message: 'Failed to add equipment: ' + error.message });
     }
   };
 
@@ -316,6 +318,7 @@ function EquipmentsPage() {
               </button>
           </div>
       )}
+
     </div>
   )
 }

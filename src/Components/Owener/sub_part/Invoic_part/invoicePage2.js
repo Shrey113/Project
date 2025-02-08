@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 
 import html2pdf from "html2pdf.js";
 import { useSelector } from "react-redux";
-import { Server_url } from "../../../../redux/AllData";
+import { Server_url,showAcceptToast,showWarningToast,showRejectToast } from "../../../../redux/AllData";
 import { useCount } from "../../../../redux/CountContext";
 import "./Invoice.css";
+
 
 function InvoicePage2() {
   const [emailError, setEmailError] = useState("");
@@ -15,6 +16,9 @@ function InvoicePage2() {
   const inputRef = useRef(null);
   const addressRef = useRef(null);
   const emailRef = useRef(null);
+
+
+
 
   const { incrementCount, setCount } = useCount();
   const [invoice_id, setInvoice_id] = useState(null);
@@ -48,7 +52,7 @@ function InvoicePage2() {
       setInvoice_id(data.invoice_id);
     } catch (error) {
       console.error("Error fetching new invoice ID:", error);
-      alert("Failed to create a new invoice. Please try again.");
+      showRejectToast({message: "Failed to create a new invoice. Please try again." });
     }
   };
 
@@ -208,7 +212,7 @@ function InvoicePage2() {
       invoice.invoice_to_address === "" ||
       invoice.invoice_to_email === ""
     ) {
-      alert("Please fill in all required fields");
+      showWarningToast({message: "Please fill in all required fields" });
       return;
     }
 
@@ -219,7 +223,7 @@ function InvoicePage2() {
         isNaN(item.amount) ||
         item.amount <= 0
       ) {
-        alert("Please ensure all items have a name and a valid amount.");
+        showWarningToast({message: "Please ensure all items have a name and a valid amount." });
         return;
       }
     }
@@ -257,16 +261,14 @@ function InvoicePage2() {
       generateInvoice(user.user_email);
       handleNewInvoice();
       fetchInvoicesWithDraft(user.user_email);
-      alert("Invoice generated successfully!");
+      showAcceptToast({message: "Invoice generated successfully!" });
       generatePDF();
     } catch (error) {
       console.error("Error adding invoice:", error);
       if (error.message.includes("Failed to fetch")) {
-        alert(
-          "Server connection error. Please check if the server is running."
-        );
+        showRejectToast({message: "Server connection error. Please check if the server is running." });
       } else {
-        alert("Error generating invoice. Please try again.");
+        showRejectToast({message: "Error generating invoice. Please try again." });
       }
     } finally {
       button.disabled = false;
@@ -464,7 +466,7 @@ function InvoicePage2() {
 
   const handleSaveDraft = async () => {
     if (!invoice_id || !user.user_email || !invoice.invoice_to) {
-      alert("Cannot save draft without invoice ID or user email.");
+      showWarningToast({message: "Cannot save draft without invoice ID or user email." });
       return;
     }
 
@@ -499,14 +501,14 @@ function InvoicePage2() {
         data.message === "Invoice with draft added successfully"
       ) {
         incrementCount();
-        alert("Draft saved successfully!");
+        showAcceptToast({message: "Draft saved successfully!" });
         handleNewInvoice();
         generateInvoice(user.user_email);
         fetchInvoicesWithDraft(user.user_email);
       }
     } catch (error) {
       console.error("Error saving draft:", error);
-      alert("Error saving draft. Please try again.");
+      showRejectToast({message: "Error saving draft. Please try again." });
     }
   };
 
@@ -526,7 +528,7 @@ function InvoicePage2() {
 
   const uploadBase64Image = async () => {
     if (!base64Image) {
-      alert("Please upload an image first.");
+      showWarningToast({message: "Please upload an image first." });
       return;
     }
 
@@ -548,10 +550,10 @@ function InvoicePage2() {
 
       const data = await response.json();
       console.log(data);
-      alert("Image uploaded successfully!");
+      showAcceptToast({message: "Image uploaded successfully!" });
     } catch (error) {
       console.error("Error uploading image:", error);
-      alert("Error uploading image. Please try again.");
+      showRejectToast({message: "Error uploading image. Please try again." });
     }
   };
 

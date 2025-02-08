@@ -4,7 +4,7 @@ import CustomInputField from "./sub_component/CustomInputField.js";
 import close from "./../../Assets/Client/close.png";
 import leftArrow from "./../../Assets/Client/left-arrow.png";
 import { data } from "react-router-dom";
-import { Server_url } from "../../redux/AllData.js";
+import { Server_url,ConfirmMessage,showRejectToast,showAcceptToast } from "../../redux/AllData.js";
 function ForgetPassword({ set_show_forget_password }) {
   const [forget_email, set_forget_email] = useState("");
   const [forget_email_error, set_forget_email_error] = useState("");
@@ -24,6 +24,18 @@ function ForgetPassword({ set_show_forget_password }) {
     const email_pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return email_pattern.test(email);
   };
+
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({
+    isVisible: false,
+    message_title: "",
+    message: "",
+    button_text: "",
+    onConfirm: () => {},
+  });
+
+
+
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -55,19 +67,19 @@ function ForgetPassword({ set_show_forget_password }) {
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
-            alert(data.message);
+            showAcceptToast({message: data.message });
             set_forget_first(false);
           } else {
-            alert(data.message);
+            showRejectToast({message: data.message });
           }
         } else {
           const errorText = await data.message;
           console.error("Error response:", errorText);
-          alert("An error occurred while verifying the email.");
+          showRejectToast({message: "An error occurred while verifying the email." });
         }
       } catch (e) {
         console.log("error occured while fetching data", e);
-        alert("error occured while fetching data");
+        showRejectToast({message: "error occured while fetching data" });
       }
 
       console.log("validated");
@@ -117,36 +129,44 @@ function ForgetPassword({ set_show_forget_password }) {
           if (data.success) {
             console.log(data.message);
 
-            alert("Password changed Successfuly");
+            showAcceptToast({message: "Password changed Successfuly" });
             set_show_forget_password(false);
           } else {
-            alert(data.message);
+            showRejectToast({message: data.message });
           }
         } else {
           console.error("response error");
-          alert("response error");
+          showRejectToast({message: "response error" });
         }
       } catch (e) {
         console.error("error occurred while fetching data", e);
-        alert("error occurred while fetching data");
+        showRejectToast({message: "error occurred while fetching data" });
       }
     }
   }
 
   const handle_second_close = () => {
     if (password === "" && confirm_password === "") {
-      let userResult = window.confirm("Are you sure you want to quit?");
-      if (userResult) {
-        set_show_forget_password(false);
-      }
+      setShowDeleteConfirm({
+        isVisible: true,
+        message_title: "Are you sure you want to close?",
+        message: "Password will not be changed if you close",
+        button_text: "Quit",
+        onConfirm: () => {
+          set_show_forget_password(false);
+        }
+      });
     }
     if (password && confirm_password) {
-      let userResult = window.confirm(
-        "Password will not be changed if you close"
-      );
-      if (userResult) {
-        set_show_forget_password(false);
-      }
+      setShowDeleteConfirm({
+        isVisible: true,
+        message_title: "Are you sure you want to close?",
+        message: "Password will not be changed if you close",
+        button_text: "Quit",
+        onConfirm: () => {
+          set_show_forget_password(false);
+        }
+      });
     }
   };
 
@@ -177,19 +197,19 @@ function ForgetPassword({ set_show_forget_password }) {
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
-            alert("Email exists in the system.");
+            showAcceptToast({message: "Email exists in the system." });
             set_is_email_valid(true);
           } else {
-            alert(data.message);
+            showRejectToast({message: data.message });
           }
         } else {
           const errorText = await response.text();
           console.error("Error response:", errorText);
-          alert("An error occurred while verifying the email.");
+          showRejectToast({message: "An error occurred while verifying the email." });
         }
       } catch (error) {
         console.error("Error verifying email:", error);
-        alert("An error occurred. Please try again later.");
+        showRejectToast({message: "An error occurred. Please try again later." });
       }
     }
   };
@@ -301,6 +321,13 @@ function ForgetPassword({ set_show_forget_password }) {
           </form>
         )}
       </div>
+
+
+      {showDeleteConfirm.isVisible && (
+        <ConfirmMessage message_title={showDeleteConfirm.message_title} message={showDeleteConfirm.message} 
+          onCancel={() => setShowDeleteConfirm({...showDeleteConfirm, isVisible:false})} onConfirm={showDeleteConfirm.onConfirm} 
+          button_text={showDeleteConfirm.button_text}/>
+      )}
     </div>
   );
 }

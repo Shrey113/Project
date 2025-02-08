@@ -3,9 +3,10 @@ import './AddPortfolio.css';
 import { useSelector } from 'react-redux';
 import SubPortfolio from './subPortfolio';
 
-import { Server_url } from '../../../../redux/AllData';
+import { Server_url ,showAcceptToast,showRejectToast,showWarningToast} from '../../../../redux/AllData';
 
 import not_find_data from './../../img/not_find_data.jpg';
+
 
 function AddPortfolio() {
   const user = useSelector((state) => state.user);
@@ -20,7 +21,8 @@ function AddPortfolio() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
-
+  
+ 
   const fetchGalleryData = async (user_email) => {
     try {
       const response = await fetch(`${Server_url}/owner_drive/get_portfolio`, {
@@ -111,7 +113,7 @@ function AddPortfolio() {
     
     if (!newFolderName.trim()) {
       setIsUploading(false);
-      alert('Please enter a folder name');
+      showWarningToast({message: "Please enter a folder name" });
       return;
     }
 
@@ -141,12 +143,12 @@ function AddPortfolio() {
         const foldersData = await fetchFoldersResponse.json();
         setFolderData(foldersData);
       } else {
-        alert(data.error || 'Failed to create folder');
+        showRejectToast({message: data.error || 'Failed to create folder' });
       }
       setIsUploading(false);
     } catch (error) {
       console.error('Error creating folder:', error);
-      alert('Failed to create folder. Please try again.');
+      showRejectToast({message: "Failed to create folder. Please try again." });
       setIsUploading(false);
     }
   };
@@ -170,7 +172,7 @@ function AddPortfolio() {
         const base64Content = reader.result;
 
         if (!file) {
-          alert("Please select an image to upload.");
+          showWarningToast({message: "Please select an image to upload." });
           return;
         }
 
@@ -195,11 +197,11 @@ function AddPortfolio() {
 
             // Update gallery or perform other actions after successful upload
           } else {
-            alert("Failed to add photo to database");
+            showRejectToast({message: "Failed to add photo to database" });
           }
         } catch (error) {
           console.error("Error uploading photo:", error);
-          alert("An error occurred while uploading the photo");
+          showRejectToast({message: "An error occurred while uploading the photo" });
         }
       };
       reader.readAsDataURL(file);
@@ -249,7 +251,7 @@ function AddPortfolio() {
         setGalleryData((prev) =>
           prev.filter((photo) => photo.photo_id !== photo_id)
         );
-        // alert("Photo deleted successfully!");
+        showAcceptToast({message: "Photo deleted successfully!" });
       } else {
         console.error("Failed to delete the photo");
       }
@@ -471,6 +473,7 @@ function AddPortfolio() {
           </div>
         </div>
       )}
+      
     </div>
   );
 }

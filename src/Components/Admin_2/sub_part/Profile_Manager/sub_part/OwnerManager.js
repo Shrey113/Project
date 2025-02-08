@@ -7,8 +7,7 @@ import info from './sub_img/letter-i.png';
 import PopupMenu from '../../Dashboard/question/PopupMenu';
 
 
-
-import { Server_url } from '../../../../../redux/AllData';
+import { Server_url, showRejectToast, showAcceptToast } from '../../../../../redux/AllData';
 import CheckUserPage from './CheckUserPage';
  
 function OwnerManager({admin_email}) {
@@ -24,6 +23,7 @@ function OwnerManager({admin_email}) {
     email: null,
     handleClose: () => {}
   });
+
 
 
 
@@ -176,7 +176,7 @@ function updateUserStatus(email, status, message = null, set_status_by_admin = n
   })
   .then(data => {
     if(data.message === 'Status updated'){
-      console.log('Response:', data);
+      showAcceptToast({message: 'Status updated' });
       get_admin_data();
       getRejectedUsers(); // Refresh rejected users list
       getAllOwners(); // Refresh all owners list
@@ -184,7 +184,7 @@ function updateUserStatus(email, status, message = null, set_status_by_admin = n
         setShowPopup(false);
       }
     }else{
-      alert(data)
+      showRejectToast({message: data.message });
     }
   })
   .catch(error => {
@@ -655,6 +655,8 @@ function getAllOwners() {
           <CheckUserPage closeOneOwnerData={closeOneOwnerData} email={selected_email} admin_email={admin_email}/>
         )
       }
+
+
 
     </div>
   );

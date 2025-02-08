@@ -3,14 +3,12 @@ import { useSelector } from 'react-redux';
 import './UserProfilePage.css'
 import { FaCamera } from 'react-icons/fa'
 
-import { Server_url } from './../../../../redux/AllData';
+import { Server_url, showWarningToast } from './../../../../redux/AllData';
 
 
 function UserProfilePage({setIs_Page1,setCurrentStep}) {
   const user = useSelector((state) => state.user);
   const [profileImage, setProfileImage] = useState(null);
-  
-  // const [ownerData, setOwnerData] = useState(null);
 
 
   const [formData, setFormData] = useState({
@@ -156,7 +154,7 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
           setIs_Page1(true);
           setCurrentStep(2);
         }else{
-          alert(data.error);
+         showWarningToast({message: data.error})
         }
       });
     }
@@ -301,6 +299,7 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
             <button type="submit" className="ok-button" onClick={handleSubmit}>Save And Next</button>
         </div>
       </form>
+
     </div>
   )
 }

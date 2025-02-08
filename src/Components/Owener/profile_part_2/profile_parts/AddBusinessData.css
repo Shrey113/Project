@@ -19,7 +19,10 @@
 
 
   }
-
+  #AddProfileDataPopup .error{
+    color: red;
+    font-size: 12px;
+  }
 
   
   #AddProfileDataPopup  .close-btn {

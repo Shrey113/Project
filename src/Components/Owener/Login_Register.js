@@ -17,12 +17,13 @@ import Register_page_4 from "./../../Assets/Owener/Register_page_4.jpg";
 import VerifyOpt from './sub_components/VerifyOpt.js';
 import ForgetPassword from "./sub_components/ForgetPassword.js";
 import ShowLoder from "./sub_components/show_loder.js";
-import {localstorage_key_for_jwt_user_side_key,Server_url,localstorage_key_for_admin_login} from './../../redux/AllData.js'
+import {localstorage_key_for_jwt_user_side_key,Server_url,localstorage_key_for_admin_login,showRejectToast} from './../../redux/AllData.js'
 
 
 
 const CustomInputField = ({ id, type, value, onChange, label, error, name }) => {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
 
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
@@ -72,6 +73,9 @@ function LoginRegisterOwener() {
   const [login_email_error, set_login_email_error] = useState("");
   const [login_password, set_login_password] = useState("");
   const [login_password_error, set_login_password_error] = useState("");
+
+  
+ 
 
   const [is_register, toggle_register_login] = useState(false);
   const [is_page_1register, toggle_is_page_1register] = useState(true);
@@ -175,7 +179,6 @@ function LoginRegisterOwener() {
           localStorage.setItem(localstorage_key_for_admin_login, data.token);
         
           window.location.href = '/';
-          // alert("admin login successful")
           
         }
       } else {
@@ -414,7 +417,7 @@ function LoginRegisterOwener() {
                     
                   } else {
                     set_show_loder(false);
-                    alert("server error at /send otp email");
+                    showRejectToast({message: "server error at /send otp email" });
                   }
                 })
                 .catch((error) => {
@@ -424,7 +427,7 @@ function LoginRegisterOwener() {
             }else{
               set_show_loder(false);
               set_show_verify_page(false);
-              alert("server error at /owner/add_owner");
+              showRejectToast({message: "server error at /owner/add_owner" });
             }
           }
         } else {
@@ -582,6 +585,7 @@ function LoginRegisterOwener() {
       { show_forget_password ? <ForgetPassword last_enter_email={login_email} page_close_function={()=>
          {set_show_forget_password(!show_forget_password);
          }} /> : ''}
+
    </>
   );
   

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useSelector,useDispatch } from 'react-redux';
 import './AddBusinessData.css'
 import { FaCamera } from 'react-icons/fa'
-import { Server_url } from '../../../../redux/AllData';
+import { Server_url,showAcceptToast,showRejectToast,showWarningToast } from '../../../../redux/AllData';
 
 
 // import edit_icon from './../../img/pencil.png'
@@ -22,6 +22,8 @@ function AddProfileData({onInputChange }) {
     socialMedia: user.social_media
   });
 
+
+
   useEffect(() => {
     setProfileImage(user.user_profile_image_base64);
   }, [user.user_profile_image_base64]);
@@ -39,8 +41,56 @@ function AddProfileData({onInputChange }) {
     socialMedia: ''
   });
 
+
+
   
-  // Add useEffect to fetch profile image when component mounts
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (validateForm()) {
+      const data = {
+        user_email: user.user_email,
+        user_name: formData.userName,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        gender: formData.gender,
+        social_media: formData.socialMedia
+      }
+
+      try {
+        const response = await fetch(`${Server_url}/owner/update-owner`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const responseData = await response.json();
+
+        if (responseData.message === 'Owner updated successfully.') {
+          // Update Redux state with new user data
+          dispatch({
+            type: "SET_USER_Owner",
+            payload: {
+              user_name: formData.userName,
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+              gender: formData.gender,
+              social_media: formData.socialMedia
+            }
+          });
+          showAcceptToast({ message: "Profile updated successfully" });
+        } else {
+          showWarningToast({ message: responseData.error });
+        }
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        showRejectToast({ message: "Failed to update profile. Please try again." });
+      }
+    }
+  };
+  
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -48,14 +98,14 @@ function AddProfileData({onInputChange }) {
     // Validate file type
     const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
     if (!file || !validImageTypes.includes(file.type)) {
-      alert('Please select a valid image file (JPEG, PNG, or GIF)');
+      showWarningToast({message: "Please select a valid image file (JPEG, PNG, or GIF)" });
       return;
     }
 
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (file.size > maxSize) {
-      alert('Image size should be less than 5MB');
+      showWarningToast({message: "Image size should be less than 5MB" });
       return;
     }
 
@@ -88,23 +138,23 @@ function AddProfileData({onInputChange }) {
 
           const data = await response.json();
           if(data.message === "User profile image updated successfully."){
-            console.log("Profile image updated successfully");
+            showAcceptToast({message: "Profile image updated successfully" });
           }
         } catch (error) {
           console.error('Error updating profile image:', error);
-          alert('Failed to update profile image. Please try again.');
+          showRejectToast({message: "Failed to update profile image. Please try again." });
         }
       };
 
       reader.onerror = () => {
-        alert('Error reading file. Please try again.');
+        showRejectToast({message: "Error reading file. Please try again." });
       };
 
       reader.readAsDataURL(file);
       
     } catch (error) {
       console.error('Error handling image upload:', error);
-      alert('An unexpected error occurred. Please try again.');
+      showRejectToast({message: "An unexpected error occurred. Please try again." });
     }
   };
 
@@ -143,10 +193,12 @@ function AddProfileData({onInputChange }) {
         });
       }
 
+      showAcceptToast({message: "Profile image removed successfully" });
+
 
     } catch (error) {
       console.error('Error deleting profile image:', error);
-      alert('Failed to delete profile image');
+      showRejectToast({message: "Failed to delete profile image" });
     }
   };
 
@@ -164,6 +216,63 @@ function AddProfileData({onInputChange }) {
     }));
 
     if (onInputChange) onInputChange();
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {};
+
+    // Validate userName
+    if (!formData.userName.trim()) {
+      newErrors.userName = 'Username is required';
+      showWarningToast({ message: "Username is required" });
+      isValid = false;
+    } else if (formData.userName.length < 3) {
+      newErrors.userName = 'Username must be at least 3 characters';
+      showWarningToast({ message: "Username must be at least 3 characters" });
+      isValid = false;
+    }
+
+    // Validate firstName
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+      showWarningToast({ message: "First name is required" });
+      isValid = false;
+    }
+
+    // Validate lastName
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
+      showWarningToast({ message: "Last name is required" });
+      isValid = false;
+    }
+
+    // Validate gender
+    if (!formData.gender) {
+      newErrors.gender = 'Please select a gender';
+      showWarningToast({ message: "Please select a gender" });
+      isValid = false;
+    }
+
+    // Validate social media (optional, but if provided should be a valid URL)
+    if (formData.socialMedia && !isValidURL(formData.socialMedia)) {
+      newErrors.socialMedia = 'Please enter a valid URL';
+      showWarningToast({ message: "Please enter a valid social media URL" });
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  // Helper function to validate URLs
+  const isValidURL = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
   };
 
   return (
@@ -301,7 +410,7 @@ function AddProfileData({onInputChange }) {
         </div>
 
         <div className="form-group">
-            <button className="ok-button">Save Changes</button>
+            <button className="ok-button" onClick={handleSubmit}>Save Changes</button>
         </div>
       </form>
     </div>

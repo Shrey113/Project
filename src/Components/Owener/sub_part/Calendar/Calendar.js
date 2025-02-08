@@ -4,7 +4,7 @@ import { Calendar as BigCalendar, dateFnsLocalizer, Views } from 'react-big-cale
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
 import { useSelector } from 'react-redux';
-import { Server_url } from '../../../../redux/AllData';
+import { Server_url, showWarningToast } from '../../../../redux/AllData';
 import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
@@ -47,8 +47,6 @@ function Calendar() {
   const user = useSelector(state => state.user);
 
   const [events, setEvents] = useState([])
-
-
   const [showEventModal, setShowEventModal] = useState(false)
   const [showEventDetails, setShowEventDetails] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
@@ -136,7 +134,7 @@ function Calendar() {
     currentDate.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
 
     if (slotInfo.start < currentDate) {
-      alert("You cannot create events in the past");
+      showWarningToast({message: "You cannot select past dates" });
       return; // Prevent creating events in the past
     }
 
@@ -149,6 +147,13 @@ function Calendar() {
   }
 
   const handleSelectEvent = (event) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
+
+    if (event.start < currentDate) {
+      showWarningToast({message: "You cannot select past events" });
+      return; // Prevent creating events in the past
+    }
     const formattedEvent = {
       ...event,
       start: new Date(event.start),
@@ -172,73 +177,89 @@ function Calendar() {
     currentDate.setHours(0, 0, 0, 0); 
     
     if (start < currentDate) {
-        alert("You cannot move events to past dates");
+        showWarningToast({message: "You cannot drop past events" });
         return; // Keep the event in its original position
     }
 
     // Update the event locally
-    // const updatedEvent = { ...event, start, end };
-    // const updatedEvents = events.map((e) => 
-    //     e.id === event.id ? updatedEvent : e
-    // );
-    // setEvents(updatedEvents);
+    const updatedEvent = { ...event, start, end };
+    const updatedEvents = events.map((e) => 
+        e.id === event.id ? updatedEvent : e
+    );
+    setEvents(updatedEvents);
 
-    // try {
-    //     const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
-    //         method: 'PUT',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             ...updatedEvent,
-    //             id: event.id,
-    //         }),
-    //     });
+    try {
+        const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ...updatedEvent,
+                id: event.id,
+            }),
+        });
 
-    //     const data = await response.json();
-    //     if (!response.ok) {
-    //         console.error(data.error || 'Failed to update event on server');
-    //     }
-    // } catch (err) {
-    //     console.error('Failed to save updated event:', err.message);
-    // }
+        const data = await response.json();
+        if (!response.ok) {
+            console.error(data.error || 'Failed to update event on server');
+        }
+    } catch (err) {
+        console.error('Failed to save updated event:', err.message);
+    }
 
 
 };
 
 const handleEventResize = async ({ event, start, end }) => {
-  return;
+  // return;
   // Update the event locally
-  // const updatedEvent = { ...event, start, end };
-  // const updatedEvents = events.map((e) => 
-  //     e.id === event.id ? updatedEvent : e
-  // );
-  // setEvents(updatedEvents);
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0); 
 
 
-  // try {
-  //     const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
-  //         method: 'PUT',
-  //         headers: {
-  //             'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({
-  //             ...updatedEvent,
-  //             id: event.id,
-  //         }),
-  //     });
+  if (start < currentDate) {
+    showWarningToast({message: "You cannot resize past events" });
+    return; // Keep the event in its original position
+}
+  const updatedEvent = { ...event, start, end };
+  const updatedEvents = events.map((e) => 
+      e.id === event.id ? updatedEvent : e
+  );
+  setEvents(updatedEvents);
 
-  //     const data = await response.json();
-  //     if (!response.ok) {
-  //         console.error(data.error || 'Failed to update event on server');
-  //     }
-  // } catch (err) {
-  //     console.error('Failed to save updated event:', err.message);
-  // }
+
+  try {
+      const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              ...updatedEvent,
+              id: event.id,
+          }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+          console.error(data.error || 'Failed to update event on server');
+      }
+  } catch (err) {
+      console.error('Failed to save updated event:', err.message);
+  }
 };
 
 
   const handleEventContextMenu = (event, e) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
+
+    if (event.start < currentDate) {
+      showWarningToast({message: "You cannot edit past events" });
+      return; // Prevent creating events in the past
+    }
+
     e.preventDefault();
     setContextMenuEvent(event);
     setContextMenuPosition({ x: e.clientX, y: e.clientY });
@@ -268,7 +289,7 @@ const handleEventResize = async ({ event, start, end }) => {
 
 
   return (
-    <div className='calendar_main_container'>
+    <div className='owner-calendar-main-container'>
       {view === 'year' ? (
         <CustomYearView 
           date={new Date()} 
@@ -386,6 +407,7 @@ const handleEventResize = async ({ event, start, end }) => {
         setIsEditing={setIsEditing}
         />
       )}
+
     </div>
   )
 }

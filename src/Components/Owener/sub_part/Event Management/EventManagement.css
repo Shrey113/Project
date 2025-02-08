@@ -1,19 +1,76 @@
-#EventManagement{
-  /* background: rgba(255, 0, 0, 0.201); */
+#owner-main-container-EventManagement {
   height: 100%;
   width: 100%;
   padding: 20px;
-  background-color: #f5f5f5;
+  /* background-color: #f5f5f5; */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 35px;
+  min-height: fit-content;
+  position: relative;
 }
 
-#EventManagement .owner-requests {
+/* Table Toggle Buttons */
+#owner-main-container-EventManagement .toggle_button_con_event_management {
+  width: 400px;
+  position: relative;
+  border-radius: 8px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  align-self: center;
+}
+#owner-main-container-EventManagement
+  .toggle_button_con_event_management
+  .active_button {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 200px;
+  height: 40px;
+  background: rgba(169, 169, 169, 0.368);
+  border-radius: 8px;
+  transition: left 0.3s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#owner-main-container-EventManagement
+  .toggle_button_con_event_management
+  button {
+  flex: 1;
+  position: relative;
+  background: transparent;
+  border: none;
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1;
+  transition: color 0.3s ease-in-out;
+}
+
+/* Active Button Text */
+#owner-main-container-EventManagement
+  .toggle_button_con_event_management
+  button:focus,
+#owner-main-container-EventManagement
+  .toggle_button_con_event_management
+  button:hover {
+  color: #333;
+}
+
+#owner-main-container-EventManagement .owner-requests {
   padding: 20px;
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-#EventManagement h2 {
+#owner-main-container-EventManagement h2 {
   color: #333;
   margin-bottom: 20px;
   font-size: 24px;
@@ -21,13 +78,13 @@
   padding-bottom: 10px;
 }
 
-#EventManagement .tab-buttons {
+#owner-main-container-EventManagement .tab-buttons {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
 }
 
-#EventManagement .tab-buttons button {
+#owner-main-container-EventManagement .tab-buttons button {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -38,58 +95,420 @@
   font-weight: 500;
 }
 
-#EventManagement .tab-buttons button:hover {
+#owner-main-container-EventManagement .tab-buttons button:hover {
   background-color: #e0e0e0;
 }
 
-#EventManagement .tab-buttons button.active {
+#owner-main-container-EventManagement .tab-buttons button.active {
   background-color: #007bff;
   color: white;
 }
 
-#EventManagement .table-container {
-  margin-bottom: 30px;
-  overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+#owner-main-container-EventManagement .received_request,
+#owner-main-container-EventManagement .sent_request {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
 }
 
-#EventManagement table {
+#owner-main-container-EventManagement .received_request #EventManagement,
+#owner-main-container-EventManagement .sent_request #EventManagement {
+  min-width: 100%;
+  padding: 20px;
+}
+
+/* selected sent item css */
+
+/* .details-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+.details-modal {
+  background: linear-gradient(145deg, #ffffff, #f5f7fa);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: modalSlideIn 0.3s ease-out;
+}
+.modal-header {
+  color: #2c3e50;
+  font-size: 24px;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e8ecef;
+  text-align: center;
+}
+.modal-content p {
+  padding: 0.8rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+.modal-content strong {
+  color: #3498db;
+  font-weight: 600;
+}
+.close-button {
+  padding: 0.8rem 2rem;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+.close-button:hover {
+  background: linear-gradient(135deg, #2980b9, #3498db);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+@keyframes modalSlideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.status.pending {
+  color: #f39c12;
+}
+.status.approved {
+  color: #27ae60;
+}
+.status.rejected {
+  color: #e74c3c;
+} */
+
+.details-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.details-modal {
+  background: white;
+  width: 70%;
+  max-width: 900px;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  text-align: left;
+  font-size: 1.7rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.modal-content-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Left Side */
+.modal-left {
+  flex: 1;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+.modal-left .details-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: #f3f3f3;
+}
+
+.modal-left p {
+  margin: 5px 0;
+}
+
+/* Right Side */
+.modal-right {
+  flex: 1;
+  border-radius: 8px;
+}
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: #fff;
+
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.details-table tbody {
+  border: 1px solid #e0e0e0;
+}
+.details-table {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+}
+
+.details-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+
+.details-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.details-table td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 16px;
+  color: #333;
+  text-align: left;
+}
+
+.details-table td:first-child {
+  font-weight: bold;
+  width: 40%;
+  background: #f7f7f7;
+}
+
+.details-table td:last-child {
+  color: #555;
+}
+
+/* Team Members Box */
+.team-members-box {
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+.rejection-box .event_date,
+.team-members-box .event_date {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.team-members-box p {
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  padding: 5px;
+  border-radius: 5px;
+}
+.team-members-box p:hover {
+  background: #e0e0e0;
+}
+
+.team-members-box .assigned_team_member {
+  transition: all 0.3s ease;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+.team-members-box .assigned_team_member:hover {
+  background: #e0e0e0;
+}
+
+.team-members-box ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.team-members-box li {
+  padding: 5px 0;
+}
+
+.pending-box {
+  border-radius: 5px;
+  text-align: center;
+}
+
+/* Rejection Box */
+.rejection-box {
+  /* background: #ffcccc; */
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  width: 100%;
+}
+.rejection-box .reason_for_reject {
+  background: #ffcccc;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Close Button */
+.close-button {
+  display: block;
+  width: 100px;
+  margin: 20px auto 0;
+  padding: 8px;
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.close-button:hover {
+  background: #e60000;
+}
+
+/* all packages and equipment styling */
+
+#owner-main-container-EventManagement .category-selector {
+  margin: 20px 0;
+  font-family: Arial, sans-serif;
+}
+
+#owner-main-container-EventManagement .category-selector label {
+  font-size: 18px;
+  font-weight: bold;
+  color: #444;
+  margin-right: 10px;
+}
+
+#owner-main-container-EventManagement .category-selector select {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  color: #555;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  width: 200px;
+}
+
+#owner-main-container-EventManagement .category-selector select:focus {
+  outline: none;
+  border-color: #6c63ff;
+  box-shadow: 0 0 5px rgba(108, 99, 255, 0.4);
+}
+
+#owner-main-container-EventManagement .category-selector select option {
+  padding: 10px;
+  background-color: #fff;
+}
+
+#owner-main-container-EventManagement .category-selector select:hover {
+  border-color: #6c63ff;
+  background-color: #f2f2f2;
+}
+
+#owner-main-container-EventManagement .category-selector select:focus option {
+  background-color: #e1e1e1;
+}
+
+/* end of all packages and equipment styling */
+
+#owner-main-container-EventManagement .table-container {
+  overflow-x: auto;
+  /* border-radius: 8px; */
+  width: 100%;
+  background-color: transparent;
+}
+
+#owner-main-container-EventManagement table {
   width: 100%;
   border-collapse: collapse;
   background-color: white;
+  /* border: 1px solid black; */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
 }
 
-#EventManagement thead tr {
+#owner-main-container-EventManagement thead tr {
   background-color: #f8f9fa;
 }
 
-#EventManagement th {
+#owner-main-container-EventManagement th {
   padding: 15px;
   text-align: left;
   color: #495057;
   font-weight: 600;
   border-bottom: 2px solid #dee2e6;
   white-space: nowrap;
+  text-align: left;
 }
 
-#EventManagement td {
+#owner-main-container-EventManagement td {
   padding: 12px 15px;
   border-bottom: 1px solid #dee2e6;
   color: #666;
+  text-align: left;
 }
 
-#EventManagement tbody tr:hover {
+#owner-main-container-EventManagement .table-container .status.pending span {
+  border-radius: 20px;
+  padding: 5px 10px;
+  background: #ffede9;
+  color: #faa691;
+  border: 1px solid #faa691;
+}
+#owner-main-container-EventManagement .table-container .status.accepted span {
+  border-radius: 20px;
+  padding: 5px 10px;
+  background: #dffff3;
+  color: #5cd7ae;
+  border: 1px solid #5cd7ae;
+}
+#owner-main-container-EventManagement .table-container .status.rejected span {
+  border-radius: 20px;
+  padding: 5px 10px;
+  background: #fbe4e4;
+  color: #e13131;
+  border: 1px solid #e13131;
+}
+
+#owner-main-container-EventManagement tbody tr:hover {
   background-color: #f8f9fa;
 }
 
-#EventManagement .action-buttons {
+#owner-main-container-EventManagement .action-buttons {
   display: flex;
   gap: 8px;
   justify-content: center;
 }
 
-#EventManagement .action-buttons button {
+#owner-main-container-EventManagement .action-buttons button {
   border: none;
   background: none;
   cursor: pointer;
@@ -98,102 +517,105 @@
   transition: all 0.3s ease;
 }
 
-#EventManagement .action-buttons button:hover {
+#owner-main-container-EventManagement .action-buttons button:hover {
   background-color: #f0f0f0;
 }
 
-#EventManagement .action-buttons img {
+#owner-main-container-EventManagement .action-buttons img {
   width: 20px;
   height: 20px;
 }
 
-#EventManagement .approve-btn:hover {
+#owner-main-container-EventManagement .approve-btn:hover {
   background-color: #e8f5e9;
 }
 
-#EventManagement .reject-btn:hover {
+#owner-main-container-EventManagement .reject-btn:hover {
   background-color: #ffebee;
 }
 
-#EventManagement .info-btn:hover {
+#owner-main-container-EventManagement .info-btn:hover {
   background-color: #e3f2fd;
 }
 
-#EventManagement td:nth-last-child(2) {
+#owner-main-container-EventManagement td:nth-last-child(2) {
   font-weight: 500;
 }
 
-#EventManagement .pagination {
+#owner-main-container-EventManagement .pagination {
   margin-top: 20px;
   display: flex;
   justify-content: center;
   gap: 5px;
 }
 
-#EventManagement .pagination button {
+#owner-main-container-EventManagement .pagination button {
   padding: 5px 10px;
   border: 1px solid #ddd;
   background: white;
   cursor: pointer;
 }
 
-#EventManagement .pagination button.active {
+#owner-main-container-EventManagement .pagination button.active {
   background: #007bff;
   color: white;
   border-color: #007bff;
 }
 
-#EventManagement .prev-btn, .next-btn {
+#owner-main-container-EventManagement .prev-btn,
+.next-btn {
   background: #f8f9fa;
 }
 
 .action-buttons img {
-    width: 20px;
-    height: 20px;
-    vertical-align: middle;
-  }
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  #EventManagement .table-container {
+  #owner-main-container-EventManagement .table-container {
     margin: 10px -20px;
     border-radius: 0;
   }
-  
-  #EventManagement .tab-buttons {
+
+  #owner-main-container-EventManagement .tab-buttons {
     flex-wrap: wrap;
   }
-  
-  #EventManagement .tab-buttons button {
+
+  #owner-main-container-EventManagement .tab-buttons button {
     flex: 1;
     min-width: 120px;
   }
 }
 
 /* Scrollbar Styling */
-#EventManagement .table-container::-webkit-scrollbar {
+#owner-main-container-EventManagement .table-container::-webkit-scrollbar {
   height: 8px;
 }
 
-#EventManagement .table-container::-webkit-scrollbar-track {
+#owner-main-container-EventManagement
+  .table-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
 }
 
-#EventManagement .table-container::-webkit-scrollbar-thumb {
+#owner-main-container-EventManagement
+  .table-container::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 4px;
 }
 
-#EventManagement .table-container::-webkit-scrollbar-thumb:hover {
+#owner-main-container-EventManagement
+  .table-container::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 
 /* Empty State Styling */
-#EventManagement tbody:empty::after {
+#owner-main-container-EventManagement tbody:empty::after {
   content: "No data available";
   display: block;
-  text-align: center;
   padding: 20px;
   color: #666;
   font-style: italic;
@@ -211,7 +633,7 @@
   }
 }
 
-#EventManagement tbody tr {
+#owner-main-container-EventManagement tbody tr {
   animation: fadeIn 0.3s ease-out forwards;
 }
 
@@ -220,12 +642,15 @@
   margin: 0 auto;
 }
 
-.section-container {
+#owner-main-container-EventManagement .section-container {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
   padding: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .section-header {
@@ -336,7 +761,7 @@ tr:hover {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .filter-container {
     width: 100%;
   }
@@ -408,7 +833,7 @@ tr:hover {
   .toggle-buttons {
     min-width: 250px;
   }
-  
+
   .toggle-btn {
     padding: 8px 15px;
     font-size: 13px;

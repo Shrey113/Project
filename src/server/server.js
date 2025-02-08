@@ -119,6 +119,37 @@ app.use('/reviews', reviews_rout);
 app.use('/calendar', calendarRoutes);
 
 
+app.post('/add_profile_by_email', (req, res) => {
+  const { email,business_profile_base64,user_profile_image_base64 } = req.body;
+  console.log(email);
+  db.query(`SELECT * FROM owner WHERE user_email = ?`, [email], (err, result) => {
+    if (err) {
+      console.error('Error fetching photographer data:', err.message);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Photographer not found' });
+    }
+
+
+    db.query(`Update owner set business_profile_base64 = ?, user_profile_image_base64 = ? where user_email = ?`, [business_profile_base64, user_profile_image_base64, email], (err, result) => {
+      if (err) {
+        console.error('Error adding photographer profile:', err.message);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      db.query(`SELECT * FROM owner WHERE user_email = ?`, [email], (err, result) => {
+        if (err) {
+          console.error('Error fetching photographer data:', err.message);
+          return res.status(500).json({ error: 'Internal server error' });
+        }
+        res.json(result);
+      });
+
+    });
+  });
+});
+
 
 
 // @shrey11_  End ---- 

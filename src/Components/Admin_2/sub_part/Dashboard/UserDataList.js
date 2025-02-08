@@ -1,6 +1,6 @@
 import React, { useState ,useEffect} from 'react';
 import './UserDateList.css';
-
+import { showRejectToast,showAcceptToast } from '../../../../redux/AllData';
 
 import accept from './sub_img/correct.png';
 import reject from './sub_img/remove.png';
@@ -128,13 +128,13 @@ function get_admin_data(){
     })
     .then(data => {
       if(data.message === 'Status updated'){
-  
+        showAcceptToast({message: 'Email Status updated' });
         get_admin_data();
         if(showPopup){
           setShowPopup(false)
         }
       }else{
-        alert(data)
+        showRejectToast({message: data });
       }
         
     })
@@ -281,6 +281,8 @@ function get_admin_data(){
                     </div>
                 </div>
             )}
+
+ 
             
     </div>
   );

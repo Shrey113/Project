@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import './PopupMenu.css';
-
+import { showRejectToast } from '../../../../../redux/AllData';
 const PopupMenu = ({ email, handleClose, onSuccess, admin_email }) => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+
 
   const updateUserStatus = async () => {
     if (isSubmitting) return;
@@ -14,7 +16,7 @@ const PopupMenu = ({ email, handleClose, onSuccess, admin_email }) => {
       handleClose();
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to update status: ' + error.message);
+        showRejectToast({message: 'Failed to update status: ' + error.message})
     } finally {
       setIsSubmitting(false);
     }
@@ -48,6 +50,7 @@ const PopupMenu = ({ email, handleClose, onSuccess, admin_email }) => {
           </button>
         </div>
       </div>
+
     </div>
   );
 };

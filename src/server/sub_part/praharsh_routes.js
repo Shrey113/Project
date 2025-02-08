@@ -40,6 +40,98 @@ const bodyParser = require("body-parser");
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
+router.post("/add-team-members", (req, res) => {
+  const { user_email, team_members, event_id } = req.body;
+
+  if (
+    !user_email ||
+    !Array.isArray(team_members) ||
+    team_members.length === 0
+  ) {
+    return res.status(400).json({ message: "No team members to assign" });
+  }
+
+  const assignedMemberNames = team_members.map((member) => member.member_name);
+  // Convert team members array to JSON string
+  const assignedMembersJson = JSON.stringify(assignedMemberNames);
+
+  // Update event_request table (Assuming latest event for this user)
+  const sql = `UPDATE event_request SET assigned_team_member = ?, event_status= 'Accepted' WHERE receiver_email = ? AND id= ?`;
+
+  db.query(sql, [assignedMembersJson, user_email, event_id], (err, result) => {
+    if (err) {
+      console.error("Error updating team members:", err);
+      return res.status(500).json({ message: "Failed to assign team members" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "No matching event found." });
+    }
+
+    console.log("Team members assigned successfully ✅");
+    res.json({ message: "Team members assigned successfully" });
+  });
+});
+
+router.post("/request-update-status", (req, res) => {
+  // const { id } = req.params;
+  const { event_status, reason, id } = req.body;
+
+  // SQL Query to update the request
+  const sql = `UPDATE event_request SET event_status = ?, reason = ? WHERE id = ?`;
+
+  db.query(sql, [event_status, reason, id], (err, result) => {
+    if (err) {
+      console.error("Error updating request:", err);
+      return res.status(200).json({ message: "Internal server error" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(200).json({ message: "Request not found" });
+    }
+
+    res.status(200).json({
+      message: "Status updated successfully",
+      status: "true",
+      id: id,
+      reason: reason,
+    });
+  });
+});
+
+router.get("/get-sent-all-details-by/:sender_email", (req, res) => {
+  const { sender_email } = req.params;
+
+  // Query for "package" type
+  const query_packageData = `SELECT * FROM event_request WHERE sender_email = ? AND event_request_type = 'package'`;
+
+  // Query for "equipment" type
+  const query_equipmentData = `SELECT * FROM event_request WHERE sender_email = ? AND event_request_type = 'equipment'`;
+
+  // Run both queries
+  db.query(query_packageData, [sender_email], (err, packageResults) => {
+    if (err) {
+      console.error("Error fetching package details:", err);
+      return res.status(500).json({ error: "Error fetching package details" });
+    }
+
+    db.query(query_equipmentData, [sender_email], (err, equipmentResults) => {
+      if (err) {
+        console.error("Error fetching equipment details:", err);
+        return res
+          .status(500)
+          .json({ error: "Error fetching equipment details" });
+      }
+
+      // Send the results in a structured response
+      res.json({
+        package: packageResults,
+        equipment: equipmentResults,
+      });
+    });
+  });
+});
+
 router.get("/api/equipment/:email", (req, res) => {
   const email = req.params.email;
 
@@ -139,12 +231,6 @@ router.post("/api/owner-all-details", (req, res) => {
       console.error("Error fetching owner details:", error);
       res.status(500).json({ error: "Internal Server Error" });
     });
-});
-
-// Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 });
 
 router.post("/api/owners", (req, res) => {

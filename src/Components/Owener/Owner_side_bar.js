@@ -27,10 +27,17 @@ import Packages_no_active_icon from './img/no_active/photo.png'
 
 import logout_icon from './img/logout.png'
 
-import { localstorage_key_for_jwt_user_side_key } from './../../redux/AllData.js';
+import { ConfirmMessage, localstorage_key_for_jwt_user_side_key } from './../../redux/AllData.js';
 
 function OwnerSideBar() {
   const dispatch = useDispatch();
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({
+    isVisible: false,
+    message_title: "",
+    message: "",
+    onConfirm: () => {}
+  });
 
     const user = useSelector((state) => state.user);
     const isMobile = useSelector((state) => state.user.isMobile);
@@ -107,10 +114,15 @@ useEffect(() => {
 
   
   const handleLogout = () => {
-    localStorage.removeItem(localstorage_key_for_jwt_user_side_key);
-
-    window.location.reload();
-    console.log("User logged out successfully!");
+    setShowDeleteConfirm({
+      isVisible: true,
+      message_title: "Confirm Logout",
+      message: "Are you sure you want to log out?",
+      onConfirm: () => {
+        localStorage.removeItem(localstorage_key_for_jwt_user_side_key); // Remove admin token from localStorage
+        window.location.reload(); // Reload the page to reset the app state
+      }
+    });
   };
 
 
@@ -204,16 +216,17 @@ useEffect(() => {
         className="logout_button"
         onClick={(e) => {
           e.stopPropagation();
-          let confirm = window.confirm("Are you sure you want to logout?");
-          if(confirm){
             handleLogout();
-          }
         }}
       >
         <img src={logout_icon} alt="Logout" />
       </button>
     </div>
 
+    {showDeleteConfirm.isVisible && ( 
+        <ConfirmMessage message_title={showDeleteConfirm.message_title} message={showDeleteConfirm.message} 
+          onCancel={() => setShowDeleteConfirm({...showDeleteConfirm, isVisible:false})} onConfirm={showDeleteConfirm.onConfirm} button_text="Logout"/>
+      )}
 
   </div>
   </>

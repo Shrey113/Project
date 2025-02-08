@@ -104,7 +104,7 @@ function DetailedView() {
   }, [showSelectedCard, selectedData]);
 
   return (
-    <div className="all_user_data_list">
+    <div className="all_user_data_list" id="owner_DetailedView_container" >
       <h1>{type === "packages" ? "Packages" : "Equipments"}</h1>
 
       <div className="filters-container">

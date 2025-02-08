@@ -5,12 +5,15 @@ import { Server_url } from "./../../../../../redux/AllData";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FaEnvelope, FaMapMarkerAlt, FaSearch } from "react-icons/fa";
+
+
 const SkeletonCard = () => (
-  <div className="owner-card skeleton">
-    <div className="image_container skeleton-image">
-      <div className="skeleton-animation"></div>
+  <div  className="owner-card skeleton">
+    <div  className="image_container skeleton-image">
+      <div  className="skeleton-animation"></div>
+
     </div>
-    <div className="owner-info">
+    <div  className="owner-info">
       <div className="skeleton-text skeleton-animation"></div>
       <div className="skeleton-text skeleton-animation"></div>
       <div className="skeleton-text skeleton-animation"></div>
@@ -21,7 +24,10 @@ const SkeletonCard = () => (
   </div>
 );
 
-const OwnerList = ({ owners, filteredUsers, isLoading }) => {
+
+
+
+const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
   const [selectedOwner, setSelectedOwner] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -79,6 +85,28 @@ const OwnerList = ({ owners, filteredUsers, isLoading }) => {
     }
   };
 
+  const filterOwnersByLocation = (ownersArray) => {
+    if (!selectedLocation || selectedLocation === 'all') {
+      return ownersArray;
+    }
+    
+    return ownersArray.filter(owner => {
+      const businessAddress = (owner?.business_address || "").toLowerCase();
+      const location = selectedLocation?.toLowerCase();
+      
+      // Handle special case for Delhi NCR
+      if (location === 'delhi-ncr') {
+        return businessAddress.includes('delhi') || 
+               businessAddress.includes('ncr') || 
+               businessAddress.includes('gurgaon') || 
+               businessAddress.includes('noida') ||
+               businessAddress.includes('ghaziabad');
+      }
+      
+      return businessAddress.includes(location);
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="owner-list-container">
@@ -90,9 +118,24 @@ const OwnerList = ({ owners, filteredUsers, isLoading }) => {
   }
 
   if (filteredUsers && filteredUsers.owners && filteredUsers.owners.length > 0) {
+    const filteredByLocation = filterOwnersByLocation(filteredUsers.owners);
+    
+    if (filteredByLocation.length === 0) {
+      return (
+        <div className="no-photographers">
+          <div className="no-results-icon">
+            <FaSearch className="icon" />
+          </div>
+          <h2>No Photographers Found in This Location</h2>
+          <p>We couldn't find any photographers in the selected location.</p>
+          <p>Try selecting a different location or removing the location filter.</p>
+        </div>
+      );
+    }
+
     return (
       <div className="owner-list-container">
-        {filteredUsers.owners.map((owner, index) => (
+        {filteredByLocation.map((owner, index) => (
           <div
             key={index}
             className="owner-card"
@@ -142,9 +185,24 @@ const OwnerList = ({ owners, filteredUsers, isLoading }) => {
     );
   }
 
+  const filteredByLocation = filterOwnersByLocation(owners);
+  
+  if (filteredByLocation.length === 0) {
+    return (
+      <div className="no-photographers">
+        <div className="no-results-icon">
+          <FaSearch className="icon" />
+        </div>
+        <h2>No Photographers Found in This Location</h2>
+        <p>We couldn't find any photographers in the selected location.</p>
+        <p>Try selecting a different location or removing the location filter.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="owner-list-container">
-      {owners.map((owner, index) => (
+      {filteredByLocation.map((owner, index) => (
         <div
           key={index}
           className="owner-card"

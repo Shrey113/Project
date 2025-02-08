@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./CSS File/login_register.css";
 import { CustomInputField } from "./sub_component/CustomInputField";
 
+
 import ForgetPassword from "./ForgetPassword";
 
 import Login_page_photo1 from "./../../Assets/Client/Login_page_photo1.jpg";
@@ -22,7 +23,7 @@ import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/autoplay";
 
-import { localstorage_key_for_client, Server_url } from "./../../redux/AllData";
+import { localstorage_key_for_client, Server_url, showRejectToast, showAcceptToast } from "./../../redux/AllData";
 
 function LoginRegisterClient() {
   const [isLoginVisible, setIsLoginVisible] = useState(true);
@@ -31,6 +32,8 @@ function LoginRegisterClient() {
   const [login_password_error, set_login_password_error] = useState("");
   const [login_email, set_login_email] = useState("");
   const [login_email_error, set_login_email_error] = useState("");
+
+
 
   const [register_username, set_register_username] = useState("");
   const [register_username_error, set_register_username_error] = useState("");
@@ -126,9 +129,10 @@ function LoginRegisterClient() {
           // Perform actions after successful login
           set_login_password_error("");
           set_login_email_error("");
+          showAcceptToast({message: "Login successful" });
 
           if (!data.jwt_token) {
-            alert("jwt not available");
+            showRejectToast({message: "jwt not available" });
           }
           localStorage.setItem(localstorage_key_for_client, data.jwt_token);
           setIsShowLoader(true);
@@ -146,11 +150,11 @@ function LoginRegisterClient() {
           set_login_password_error("Invalid email or password");
         } else {
           console.error("Server-side error occurred");
-          alert("An error occurred on the server. Please try again later.");
+          showRejectToast({message: "An error occurred on the server. Please try again later." });
         }
       } catch (error) {
         console.error("Error occurred on the client side:", error);
-        alert("Failed to connect to the server. Please check your connection.");
+        showRejectToast({message: "Failed to connect to the server. Please check your connection." });
       }
     }
   };

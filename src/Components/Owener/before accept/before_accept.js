@@ -10,7 +10,8 @@ import UserProfilePage from './sub_part/UserProfilePage'
 
 import Status_Pending from './../../../Assets/Owener/file.gif';
 import Status_rejected from './../../../Assets/Owener/rejected.gif';
-import {Server_url,localstorage_key_for_client} from './../../../redux/AllData.js';
+import {Server_url,localstorage_key_for_client,showWarningToast} from './../../../redux/AllData.js';
+
 
 
 const ComonPopup = ({showPopup,setShowPopup}) => {
@@ -175,8 +176,8 @@ export const PendingStatus = () => {
 
 
 export const BeforeAccept = () => {
-  const user = useSelector((state) => state.user);
   const [currentStep, setCurrentStep] = useState(1);
+
 
 
   const [is_Page1, setIs_Page1] = useState(true);
@@ -193,7 +194,7 @@ export const BeforeAccept = () => {
         if (is_Page1) {
           setCurrentStep(2);
         } else {
-          alert("Please complete the User Profile section first!");
+          showWarningToast({message: "Please complete the User Profile section first!" });
         }
         break;
       case 3:
@@ -201,9 +202,9 @@ export const BeforeAccept = () => {
           setCurrentStep(3);
         } else {
           if (!is_Page1) {
-            alert("Please complete the User Profile section first!");
+            showWarningToast({message: "Please complete the User Profile section first!" });
           } else if (!is_Page2) {
-            alert("Please complete the Business Profile section first!");
+            showWarningToast({message: "Please complete the Business Profile section first!" });
           }
         }
         break;
@@ -212,11 +213,11 @@ export const BeforeAccept = () => {
           setCurrentStep(4);
         } else {
           if (!is_Page1) {
-            alert("Please complete the User Profile section first!");
+            showWarningToast({message: "Please complete the User Profile section first!" });
           } else if (!is_Page2) {
-            alert("Please complete the Business Profile section first!");
+            showWarningToast({message: "Please complete the Business Profile section first!" });
           } else if (!is_Page3) {
-            alert("Please complete the Portfolio section first!");
+            showWarningToast({message: "Please complete the Portfolio section first!" });
           }
         }
         break;
@@ -229,9 +230,6 @@ export const BeforeAccept = () => {
 
 
       <div className="content_section">
-      <h1>Hi {user.user_name}👋, Let's complete your profile!</h1>
-      <br />
-      <br />
         
       <div className='progress_bar'>
         <div className='step_item'>
@@ -283,6 +281,7 @@ export const BeforeAccept = () => {
         {currentStep === 3 && <PortfolioPage  setIs_Page3={setIs_Page3} setCurrentStep={setCurrentStep}/>}
         {currentStep === 4 && <EquipmentsPage  setCurrentStep={setCurrentStep}/>}
       </div>
+
     </div>
   )
 }

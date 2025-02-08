@@ -3,13 +3,16 @@ import "./Packages.css";
 import default_image from "./Images/default_image.png";
 import "./sub_parts/DefaultPage.css";
 import "./Packages_responsive.css";
-import { RejectMessage, Server_url } from "./../../../../redux/AllData";
 import { useSelector } from "react-redux";
 import MobilePackageView from "./MobilePackageView";
-// import { SuccessMessage, WarningMessage } from "./../../../../redux/AllData";
-import { IoClose } from "react-icons/io5";
+import {Server_url, showAcceptToast, showRejectToast, showWarningToast } from "./../../../../redux/AllData";
+import { IoClose, IoAdd } from "react-icons/io5";
+
 
 const Packages = () => {
+
+ 
+
   const user = useSelector((state) => state.user);
   const [formVisible, setFormVisible] = useState(false);
   const [packages, setPackages] = useState([]);
@@ -21,6 +24,8 @@ const Packages = () => {
     price: "",
     card_color: "#ff6f61",
   });
+
+
 
   const [mobile_view, setMobile_view] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
@@ -140,8 +145,6 @@ const Packages = () => {
 
       if (response.ok) {
         const data = await response.json();
-        alert("Package added successfully");
-
         setFormData({
           package_name: "",
           service: [],
@@ -152,16 +155,16 @@ const Packages = () => {
         });
         setPackages([...packages, data.results]);
         setFormVisible(false);
-        alert(data.message);
+        showAcceptToast({message: data.message || "Package added successfully!"})
         console.log(data.results);
       } else {
         const errorData = await response.json();
         console.error("Error adding package:", errorData);
-        alert(errorData.error);
+        showRejectToast({message: errorData.error || "Failed to add package"})
       }
     } catch (err) {
       console.error("Error connecting to the server:", err);
-      alert("Failed to add package");
+      showRejectToast({message: "Failed to add package"})
     }
   };
 
@@ -199,7 +202,7 @@ const Packages = () => {
     if (selectedPackage.isEditing) {
       // Validate package name
       if (!selectedPackage.package_name.trim()) {
-        alert("Package name cannot be empty");
+        showWarningToast({message: "Package name cannot be empty"})
         return;
       }
 
@@ -208,7 +211,7 @@ const Packages = () => {
         !Array.isArray(selectedPackage.service) ||
         selectedPackage.service.some((s) => !s.trim())
       ) {
-        alert("Server input cannot be empty");
+        showWarningToast({message: "Server input cannot be empty"})
         return;
       }
 
@@ -244,15 +247,14 @@ const Packages = () => {
               i === index ? { ...pkg, isEditing: false } : pkg
             )
           );
-
-          alert(data.message || "Package updated successfully!");
+          showAcceptToast({message: data.message || "Package updated successfully! 2"})
         } else {
           const errorData = await response.json();
-          alert(errorData.error || "Failed to update package");
+          showRejectToast({message: errorData.error || "Failed to update package"})
         }
       } catch (err) {
         console.error("Error connecting to the server:", err);
-        alert("Failed to update package");
+        showRejectToast({message: "Failed to update package"})
       }
     } else {
       // Entering edit mode
@@ -269,11 +271,11 @@ const Packages = () => {
       prevPackages.map((pkg, i) =>
         i === packageIndex
           ? {
-              ...pkg,
-              service: pkg.service.map((srv, idx) =>
-                idx === serviceIndex ? value : srv
-              ),
-            }
+            ...pkg,
+            service: pkg.service.map((srv, idx) =>
+              idx === serviceIndex ? value : srv
+            ),
+          }
           : pkg
       )
     );
@@ -292,7 +294,7 @@ const Packages = () => {
   const handleMobilePackageUpdate = async (updatedPackage) => {
     // Validate package name
     if (!updatedPackage.package_name.trim()) {
-      alert("Package name cannot be empty");
+      showWarningToast({message: "Package name cannot be empty"})
       return false;
     }
 
@@ -328,17 +330,16 @@ const Packages = () => {
               : pkg
           )
         );
-
-        alert(data.message || "Package updated successfully!");
+        showAcceptToast({message: data.message || "Package updated successfully!"})
         return true;
       } else {
         const errorData = await response.json();
-        alert(errorData.error || "Failed to update package");
+        showRejectToast({message: errorData.error || "Failed to update package"})
         return false;
       }
     } catch (err) {
       console.error("Error connecting to the server:", err);
-      alert("Failed to update package");
+      showRejectToast({message: "Failed to update package"})
       return false;
     }
   };
@@ -349,14 +350,28 @@ const Packages = () => {
     setShowConfirm(true);
   };
 
-  const delete_serveice_by_id = (packageIndex, serviceIndex) => {
+  const add_service = (packageIndex) => {
     setPackages((prevPackages) =>
       prevPackages.map((pkg, i) =>
         i === packageIndex
           ? {
               ...pkg,
-              service: pkg.service.filter((_, idx) => idx !== serviceIndex), // Filter out the service at the given index
+              service: [...pkg.service, ""], // Add an empty service at the end
             }
+          : pkg
+      )
+    );
+  };
+  
+
+  const delete_serveice_by_id = (packageIndex, serviceIndex) => {
+    setPackages((prevPackages) =>
+      prevPackages.map((pkg, i) =>
+        i === packageIndex
+          ? {
+            ...pkg,
+            service: pkg.service.filter((_, idx) => idx !== serviceIndex), // Filter out the service at the given index
+          }
           : pkg
       )
     );
@@ -384,7 +399,7 @@ const Packages = () => {
         );
         setShowConfirm(false);
       } else {
-        <RejectMessage message={data.message} />;
+        showRejectToast({message: data.message});
         console.error("Error deleting package:", data.message);
       }
     } catch (error) {
@@ -393,7 +408,7 @@ const Packages = () => {
   };
 
   return (
-    <div className="packages-container">
+    <div className="owner-packages-container">
       {packages.length === 0 && !formVisible && (
         <div className="default-page">
           <img src={default_image} alt="default" />
@@ -425,6 +440,7 @@ const Packages = () => {
         <div className="package-cards-container">
           <div className="packages-header">
             <h1>Your Packages</h1>
+            
           </div>
           {!isMobileView ? (
             <div className="packages-grid">
@@ -477,9 +493,6 @@ const Packages = () => {
                             }
                             style={{
                               width: "80px",
-                              padding: "5px",
-                              border: "1px solid #ccc",
-                              borderRadius: "5px",
                             }}
                           />
                         ) : (
@@ -500,10 +513,8 @@ const Packages = () => {
                     <div className="package_Services">
                       {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
                         pkg.service.map((srv, idx) => (
-                          <div
-                            key={idx}
-                            className="service-item"
-                            style={{
+                          <>
+                          <div key={idx} className="service-item" style={{
                               backgroundColor:
                                 idx % 2 === 0
                                   ? lightenColor(pkg.card_color, 20)
@@ -515,17 +526,7 @@ const Packages = () => {
                             {pkg.isEditing ? (
                               <div className="services">
                                 <input
-                                  style={{
-                                    height: "30px",
-                                    border: "none",
-                                    backgroundColor:
-                                      idx % 2 === 0
-                                        ? lightenColor(pkg.card_color, 20)
-                                        : "#ffffff",
-                                    boxShadow:
-                                      "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-                                    padding: "10px",
-                                  }}
+                                  
                                   type="text"
                                   value={srv}
                                   onChange={(e) =>
@@ -536,14 +537,8 @@ const Packages = () => {
                                     )
                                   }
                                 />
-
                                 {idx >= 1 && (
-                                  <div
-                                    className="delete_button"
-                                    onClick={() => {
-                                      delete_serveice_by_id(index, idx);
-                                    }}
-                                  >
+                                  <div className="delete_button" onClick={() => { delete_serveice_by_id(index, idx);}}>
                                     <IoClose />
                                   </div>
                                 )}
@@ -553,6 +548,12 @@ const Packages = () => {
                               srv.slice(1).toLowerCase()
                             )}
                           </div>
+                          {pkg.isEditing && idx === pkg.service.length - 1 && pkg.service.length < 6 && (
+                            <div className="add_button" onClick={() => add_service(index)}>
+                              Add More <IoAdd />
+                            </div>
+                          )}
+                          </>
                         ))
                       ) : (
                         <span>No services available</span>
@@ -671,54 +672,20 @@ const Packages = () => {
               <div className="two_input_field">
                 <label>
                   Package Name:
-                  <input
-                    type="text"
-                    name="package_name"
-                    value={formData.package_name}
-                    onChange={handleChange}
-                    required
-                  />
+                  <input type="text" name="package_name" value={formData.package_name} onChange={handleChange} required />
                 </label>
                 <label>
                   Price/Day:
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    required
-                  />
+                  <input type="number" name="price" value={formData.price} onChange={handleChange} required />
                 </label>
               </div>
               <label>
-                Service:
-                <div
-                  className="all_services"
-                  style={{
-                    height: "fit-content",
-                    minHeight: "40px",
-                    display: "flex",
-                    alignItems: "flex-start",
-                    justifyContent: "flex-start",
-                    gap: "10px",
-                    borderRadius: "8px",
-                    padding: "5px",
-                    lineHeight: -1,
-                  }}
-                >
-                  {formData.service.map((service, index) => (
+                Selected Services
+                <div className="all_services">
+                  {formData.service.length > 0 ? formData.service.map((service, index) => (
                     <div
                       key={index}
                       className="service-item"
-                      style={{
-                        height: "fit-content",
-                        padding: "5px",
-                        borderRadius: "5px",
-                        display: "flex",
-                        gap: "8px",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
                     >
                       <span
                         style={{
@@ -740,7 +707,7 @@ const Packages = () => {
                         </span>
                       </span>
                     </div>
-                  ))}
+                  )) : <div className="no_services_available">No services Selected</div>}
                 </div>
                 <div className="service-input">
                   <input
@@ -760,7 +727,7 @@ const Packages = () => {
               </label>
 
               <label>
-                Description:
+                Descriptio
                 <textarea
                   name="description"
                   value={formData.description}
@@ -768,26 +735,18 @@ const Packages = () => {
                   required
                   cols="30"
                   rows="8"
-                  style={{
-                    maxHeight: "150px",
-                    width: "100%",
-                    resize: "vertical",
-                    border: "1px solid #ddd",
-                    padding: "5px 6px",
-                  }}
                   placeholder="Enter Description "
                 ></textarea>
               </label>
 
               <label>
-                Select Theme:
+                Select Theme
                 <div className="color-palette">
                   {themeOptions.map((theme, index) => (
                     <div
                       key={index}
-                      className={`theme-option ${
-                        formData.card_color === theme.headerBg ? "selected" : ""
-                      }`}
+                      className={`theme-option ${formData.card_color === theme.headerBg ? "selected" : ""
+                        }`}
                       onClick={() =>
                         setFormData({ ...formData, card_color: theme.headerBg })
                       }
@@ -863,10 +822,11 @@ const Packages = () => {
                 ></div>
               </div>
 
+
               <div className="package_all_details">
                 <div className="package_Services">
                   {Array.isArray(formData.service) &&
-                  formData.service.length > 0 ? (
+                    formData.service.length > 0 ? (
                     formData.service.map((srv, idx) => (
                       <div
                         key={idx}
