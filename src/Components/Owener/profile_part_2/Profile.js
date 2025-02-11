@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import './Profile.css';
 
 import AddProfileData from './profile_parts/AddProfileData2'
-// import AddServicesData2 from './profile_parts/AddServicesData2';
 import AddBusinessData from './profile_parts/AddBusinessData';
 import AddPortfolio from './profile_parts/AddPortfolio';
 import AddEquipment from './profile_parts/AddEquipment';
 import AddReviews from './profile_parts/AddReviews';
+import AddBusinessServices from './profile_parts/AddBusinessServices';
+import OwnerUrlList from './profile_parts/owner_url_components/OwnerUrlList';
 
 
 
@@ -18,7 +19,7 @@ function Profile() {
   const [activeSection, setActiveSection] = useState('User Profile');
   const [showMenu, setShowMenu] = useState(false);
 
-  const sections = ['User Profile', 'Business Profile', 'portfolio', "Equipment's", "Reviews"];
+  const sections = ['User Profile', 'Business Profile',"Business services", 'portfolio', "Equipment's", "Reviews", "Owner Url List"];
 
   return (
     <div className="profile-container-after-accept">
@@ -47,9 +48,11 @@ function Profile() {
    
         {activeSection === 'User Profile' && <AddProfileData/>}
         {activeSection === 'Business Profile' && <AddBusinessData/>}
+        {activeSection === "Business services" && <AddBusinessServices/>}
         {activeSection === 'portfolio' && <AddPortfolio/>}
         {activeSection === "Equipment's" && <AddEquipment/>}
         {activeSection === "Reviews" && <AddReviews/>}
+        {activeSection === "Owner Url List" && <OwnerUrlList/>}
         </div>
   
       </div>

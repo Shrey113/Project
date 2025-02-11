@@ -71,67 +71,37 @@ const RequestDetailPopup = ({
 
   // Helper function to render Package Details
   const renderPackageDetails = () => (
-    <>
-      <h3>ID: {requestData.id}</h3>
-      <p>
-        <strong>Package Name:</strong> {requestData.package_name}
-      </p>
-      <p>
-        <strong>Service:</strong> {requestData.service}
-      </p>
-      <p>
-        <strong>Description:</strong> {requestData.description}
-      </p>
-      <p>
-        <strong>Price:</strong> {requestData.price || "N/A"}
-      </p>
-      <p>
-        <strong>Location:</strong> {requestData.location}
-      </p>
-      <p>
-        <strong>Status:</strong> {requestData.event_status}
-      </p>
-
-      {requestData.reason && (
-        <p>
-          <strong>Rejection Reason:</strong> {requestData.reason}
-        </p>
-      )}
-    </>
+    <table className="details-table">
+      <tbody>
+        <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr>
+        <tr><td><strong>Package Name:</strong></td><td>{requestData.package_name}</td></tr>
+        <tr><td><strong>Service:</strong></td><td>{requestData.service}</td></tr>
+        <tr><td><strong>Description:</strong></td><td>{requestData.description}</td></tr>
+        <tr><td><strong>Price:</strong></td><td>{requestData.price || "N/A"}</td></tr>
+        <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
+        <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>
+        {requestData.reason && <tr><td><strong>Rejection Reason:</strong></td><td>{requestData.reason}</td></tr>}
+      </tbody>
+    </table>
   );
-
+  
   const renderEquipmentDetails = () => (
-    <>
-      <h3>ID: {requestData.id}</h3>
-      <p>
-        <strong>Equipment Name:</strong> {requestData.equipment_name}
-      </p>
-      <p>
-        <strong>Company:</strong> {requestData.equipment_company}
-      </p>
-      <p>
-        <strong>Type:</strong> {requestData.equipment_type}
-      </p>
-      <p>
-        <strong>Days Required:</strong> {requestData.days_required}
-      </p>
-      <p>
-        <strong>Description:</strong> {requestData.equipment_description}
-      </p>
-      <p>
-        <strong>Price:</strong> {requestData.equipment_price_per_day || "N/A"}
-      </p>
-      <p>
-        <strong>Location:</strong> {requestData.location}
-      </p>
-      <p>
-        <strong>Status:</strong> {requestData.event_status}
-      </p>
-      <p>
-        <strong>Rejection Reason:</strong> {requestData.reason}
-      </p>
-    </>
+    <table className="details-table">
+      <tbody>
+        <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr>
+        <tr><td><strong>Equipment Name:</strong></td><td>{requestData.equipment_name}</td></tr>
+        <tr><td><strong>Company:</strong></td><td>{requestData.equipment_company}</td></tr>
+        <tr><td><strong>Type:</strong></td><td>{requestData.equipment_type}</td></tr>
+        <tr><td><strong>Days Required:</strong></td><td>{requestData.days_required}</td></tr>
+        <tr><td><strong>Description:</strong></td><td>{requestData.equipment_description}</td></tr>
+        <tr><td><strong>Price:</strong></td><td>{requestData.equipment_price_per_day || "N/A"}</td></tr>
+        <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
+        <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>
+        {requestData.reason && <tr><td><strong>Rejection Reason:</strong></td><td>{requestData.reason}</td></tr>}
+      </tbody>
+    </table>
   );
+  
 
   return (
     <div className="popup-overlay">
@@ -148,11 +118,11 @@ const RequestDetailPopup = ({
             {requestData.package_name
               ? renderPackageDetails()
               : renderEquipmentDetails()}
-
-            {requestData.event_status !== "Rejected" && (
+            {requestData.event_status !== "Rejected" && requestData.event_status !== "Accepted" && (
               <button
                 onClick={() => setPopupType("reject")}
                 className="reject-btn"
+
               >
                 Reject Request
               </button>

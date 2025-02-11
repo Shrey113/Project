@@ -63,4 +63,21 @@ async function send_forgot_password_email(email, new_password) {
     }
 }
 
-module.exports = { send_welcome_page, send_otp_page,send_forgot_password_email };
+async function send_event_confirmation_email(email, event_name, event_date, event_time, event_description, event_location, organizer_name) {
+    try {
+        const event_confirmation_html = await fs.readFile('src/server/modules/event_confirmation.html', 'utf8');
+        const email_html = event_confirmation_html.replace('{event_name}', event_name)
+            .replace('{event_start}', event_date)
+            .replace('{event_end}', event_time)
+            .replace('{event_description}', event_description)
+            .replace('{event_location}', event_location)
+            .replace('{organizer_name}', organizer_name);
+
+
+        await send_email(email, 'Event Confirmation', email_html);
+    } catch (error) {
+        error_message('Failed to send event confirmation email:', error);
+    }
+}
+
+module.exports = { send_welcome_page, send_otp_page,send_forgot_password_email,send_event_confirmation_email };

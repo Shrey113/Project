@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import './AddPortfolio.css';
-import { useSelector } from 'react-redux';
-import SubPortfolio from './subPortfolio';
+import React, { useState, useEffect } from "react";
+import "./AddPortfolio.css";
+import { useSelector } from "react-redux";
+import SubPortfolio from "./subPortfolio";
 
-import { Server_url ,showAcceptToast,showRejectToast,showWarningToast} from '../../../../redux/AllData';
+import {
+  Server_url,
+  showAcceptToast,
+  showRejectToast,
+  showWarningToast,
+} from "../../../../redux/AllData";
 
-import not_find_data from './../../img/not_find_data.jpg';
-
+import not_find_data from "./../../img/not_find_data.jpg";
 
 function AddPortfolio() {
   const user = useSelector((state) => state.user);
@@ -15,14 +19,12 @@ function AddPortfolio() {
   const [isUploading, setIsUploading] = useState(false);
   const [folderData, setFolderData] = useState([]);
   const [showFolderPopup, setShowFolderPopup] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
+  const [newFolderName, setNewFolderName] = useState("");
   const [folderCover, setFolderCover] = useState(null);
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
-  
- 
   const fetchGalleryData = async (user_email) => {
     try {
       const response = await fetch(`${Server_url}/owner_drive/get_portfolio`, {
@@ -34,12 +36,12 @@ function AddPortfolio() {
       });
 
       const result = await response.json();
-      console.log(result);
+      // console.log(result);
 
       if (result.success) {
         setGalleryData(result.files || []);
       } else {
-        console.error("Failed to fetch gallery data:", result.message);
+        console.log("Failed to fetch gallery data:", result.message);
       }
     } catch (error) {
       console.error("Error fetching gallery data:", error);
@@ -47,20 +49,20 @@ function AddPortfolio() {
   };
   const fetch_files = async (user_email) => {
     try {
-      const response = await fetch(`${Server_url}/owner/owner-folders/${user_email}`);
+      const response = await fetch(
+        `${Server_url}/owner/owner-folders/${user_email}`
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch folders');
+        throw new Error("Failed to fetch folders");
       }
       const data = await response.json();
       setFolderData(data);
     } catch (error) {
-      console.error('Error fetching folders:', error);
+      console.error("Error fetching folders:", error);
     }
   };
-  
+
   useEffect(() => {
-
-
     if (user?.user_email) {
       fetch_files(user.user_email);
       fetchGalleryData(user.user_email);
@@ -74,7 +76,7 @@ function AddPortfolio() {
   //     const reader = new FileReader();
   //     reader.onload = async () => {
   //       const base64Content = reader.result.split(',')[1];
-        
+
   //       try {
   //         const response = await fetch(`${Server_url}/owner_drive/add_portfolio`, {
   //           method: 'POST',
@@ -82,7 +84,7 @@ function AddPortfolio() {
   //             'Content-Type': 'application/json',
   //           },
   //           body: JSON.stringify({
-  //             user_email: user.user_email, 
+  //             user_email: user.user_email,
   //             file_name: file.name,
   //             file_type: file.type,
   //             file_content: base64Content
@@ -105,50 +107,52 @@ function AddPortfolio() {
   //   }
   // };
 
-
-
   const handleFolderSubmit = async (e) => {
     e.preventDefault();
     setIsUploading(true);
-    
+
     if (!newFolderName.trim()) {
       setIsUploading(false);
-      showWarningToast({message: "Please enter a folder name" });
+      showWarningToast({ message: "Please enter a folder name" });
       return;
     }
 
     try {
       const response = await fetch(`${Server_url}/owner/owner-folders/create`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           folder_name: newFolderName,
           user_email: user.user_email,
-          cover_page_base64: folderCover
-        })
+          cover_page_base64: folderCover,
+        }),
       });
 
       const data = await response.json();
-      
+
       if (data.message === "Folder created successfully.") {
         // Reset form and close popup
-        setNewFolderName('');
+        setNewFolderName("");
         setFolderCover(null);
         setShowFolderPopup(false);
-        
+
         // Refresh the folders list
-        const fetchFoldersResponse = await fetch(`${Server_url}/owner/owner-folders/${user.user_email}`);
+        const fetchFoldersResponse = await fetch(
+          `${Server_url}/owner/owner-folders/${user.user_email}`
+        );
         const foldersData = await fetchFoldersResponse.json();
         setFolderData(foldersData);
       } else {
-        showRejectToast({message: data.error || 'Failed to create folder' });
+        showRejectToast({ message: data.error || "Failed to create folder" });
       }
       setIsUploading(false);
     } catch (error) {
-      console.error('Error creating folder:', error);
-      showRejectToast({message: "Failed to create folder. Please try again." });
+      console.error("Error creating folder:", error);
+      showRejectToast({
+        message: "Failed to create folder. Please try again.",
+      });
       setIsUploading(false);
     }
   };
@@ -172,7 +176,7 @@ function AddPortfolio() {
         const base64Content = reader.result;
 
         if (!file) {
-          showWarningToast({message: "Please select an image to upload." });
+          showWarningToast({ message: "Please select an image to upload." });
           return;
         }
 
@@ -197,17 +201,18 @@ function AddPortfolio() {
 
             // Update gallery or perform other actions after successful upload
           } else {
-            showRejectToast({message: "Failed to add photo to database" });
+            showRejectToast({ message: "Failed to add photo to database" });
           }
         } catch (error) {
           console.error("Error uploading photo:", error);
-          showRejectToast({message: "An error occurred while uploading the photo" });
+          showRejectToast({
+            message: "An error occurred while uploading the photo",
+          });
         }
       };
       reader.readAsDataURL(file);
     }
   };
-
 
   // const fetch_folders = async (user_email) => {
   //   try {
@@ -219,87 +224,184 @@ function AddPortfolio() {
   //   }
   // };
 
-
-
-
   const handleDeleteClick = (item, type) => {
     setItemToDelete({
       item: item,
-      type: type
+      type: type,
     });
     setShowDeleteConfirm(true);
   };
 
+  // const handleDelete = async () => {
+  //   if (itemToDelete.type === "folder") {
+  //     console.log("folder details", itemToDelete.item);
+  //     try {
+  //       if (!itemToDelete) return;
+
+  //       const folder_id = itemToDelete.item.folder_id;
+
+  //       const response = await fetch(
+  //         `${Server_url}/owner-folders/${folder_id}`,
+  //         {
+  //           method: "DELETE",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify({
+  //             user_email: user.user_email,
+  //           }),
+  //         }
+  //       );
+
+  //       if (response.ok) {
+  //         setGalleryData((prev) =>
+  //           prev.filter((folder) => folder.folder_id !== folder_id)
+  //         );
+  //         showAcceptToast({ message: "Folder deleted successfully!" });
+  //       } else {
+  //         console.error("Failed to delete the folder");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error deleting the folder:", error);
+  //     } finally {
+  //       setShowDeleteConfirm(false); // Hide delete confirmation modal
+  //       setItemToDelete(null); // Reset the state
+  //     }
+  //   } else if (itemToDelete.type === "file") {
+  //     try {
+  //       if (!itemToDelete) return;
+
+  //       const photo_id = itemToDelete.item.photo_id;
+
+  //       const response = await fetch(`${Server_url}/owner_drive/delete-photo`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           user_email: user.user_email,
+  //           photo_id: photo_id,
+  //         }),
+  //       });
+
+  //       if (response.ok) {
+  //         setGalleryData((prev) =>
+  //           prev.filter((photo) => photo.photo_id !== photo_id)
+  //         );
+  //         showAcceptToast({ message: "Photo deleted successfully!" });
+  //       } else {
+  //         console.error("Failed to delete the photo");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error deleting the photo:", error);
+  //     } finally {
+  //       setShowDeleteConfirm(false); // Hide the delete confirmation modal
+  //       setItemToDelete(null); // Reset the itemToDelete state
+  //     }
+  //   }
+  // };
+
   const handleDelete = async () => {
+    if (!itemToDelete) return;
+
     try {
-      if (!itemToDelete) return;
+      if (itemToDelete.type === "folder") {
+        console.log("Deleting folder:", itemToDelete.item);
 
-      const photo_id = itemToDelete.item.photo_id;
+        const folder_id = itemToDelete.item.folder_id;
 
-      const response = await fetch(`${Server_url}/owner_drive/delete-photo`, {
-        method: "POST", // Changed to POST
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_email: user.user_email,
-          photo_id: photo_id,
-        }),
-      });
-
-      if (response.ok) {
-        setGalleryData((prev) =>
-          prev.filter((photo) => photo.photo_id !== photo_id)
+        const response = await fetch(
+          `${Server_url}/owner/owner-folders/${folder_id}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_email: user.user_email,
+            }),
+          }
         );
-        showAcceptToast({message: "Photo deleted successfully!" });
-      } else {
-        console.error("Failed to delete the photo");
+
+        if (response.ok) {
+          fetch_files(user.user_email);
+          showAcceptToast({ message: "Folder deleted successfully!" });
+        } else {
+          const errorMessage = await response.text();
+          console.error("Failed to delete the folder:", errorMessage);
+        }
+      } else if (itemToDelete.type === "file") {
+        console.log("Deleting file:", itemToDelete.item);
+
+        const photo_id = itemToDelete.item.photo_id;
+
+        const response = await fetch(`${Server_url}/owner_drive/delete-photo`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_email: user.user_email,
+            photo_id: photo_id,
+          }),
+        });
+
+        if (response.ok) {
+          setGalleryData((prev) =>
+            prev.filter((photo) => photo.photo_id !== photo_id)
+          );
+          showAcceptToast({ message: "Photo deleted successfully!" });
+        } else {
+          const errorMessage = await response.text();
+          console.error("Failed to delete the photo:", errorMessage);
+        }
       }
     } catch (error) {
-      console.error("Error deleting the photo:", error);
+      console.error("Error during deletion:", error);
     } finally {
-      setShowDeleteConfirm(false); // Hide the delete confirmation modal
-      setItemToDelete(null); // Reset the itemToDelete state
+      setShowDeleteConfirm(false); // Hide confirmation modal
+      setItemToDelete(null); // Reset the state
     }
   };
 
   return (
     <div className="AddPortfolio">
-      
       {!selectedFolder && (
-      <div className="media-stats">
-        <span>
-          <div onClick={() => setSelectedFolder(null)}>Portfolio</div>
-    
-        </span>
-     
-        <div className="action-buttons">
-        <button
-            onClick={() => document.getElementById("photo-upload").click()}
-            className="add-btn_"
-          >
-            Add Photos
-          </button>
-          <button onClick={() => setShowFolderPopup(true)} className="add-btn_">
-            Create Folder
-          </button>
+        <div className="media-stats">
+          <span>
+            <div onClick={() => setSelectedFolder(null)}>Portfolio</div>
+          </span>
+
+          <div className="action-buttons">
+            <button
+              onClick={() => document.getElementById("photo-upload").click()}
+              className="add-btn_"
+            >
+              Add Photos
+            </button>
+            <button
+              onClick={() => setShowFolderPopup(true)}
+              className="add-btn_"
+            >
+              Create Folder
+            </button>
+          </div>
+          <input
+            id="photo-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleAddToGallery}
+            style={{ display: "none" }}
+          />
         </div>
-        <input
-          id="photo-upload"
-          type="file"
-          accept="image/*"
-          onChange={handleAddToGallery}
-          style={{ display: 'none' }}
-        />
-      </div>
-           )}
+      )}
 
       {selectedFolder ? (
-        <SubPortfolio 
-        Folder_name={selectedFolder.folder_name} 
-        folder_id={selectedFolder.folder_id} 
-        user_email={user.user_email}
-        onBack={() => setSelectedFolder(null)}
+        <SubPortfolio
+          Folder_name={selectedFolder.folder_name}
+          folder_id={selectedFolder.folder_id}
+          user_email={user.user_email}
+          onBack={() => setSelectedFolder(null)}
         />
       ) : (
         <>
@@ -309,36 +411,50 @@ function AddPortfolio() {
               <h3 className="section-title">Folders</h3>
               <div className="folders-grid">
                 {folderData.length > 0 ? (
-                  folderData.map((folder,index) => (
+                  folderData.map((folder, index) => (
                     <div
                       key={index}
                       className="folder-item"
                       onClick={(e) => {
-                        if (e.target.closest('.delete-btn')) return;
+                        if (e.target.closest(".delete-btn")) return;
                         setSelectedFolder(folder);
                       }}
                     >
-                      <button 
+                      <button
                         className="delete-btn"
-                        onClick={(e) => handleDeleteClick(folder, 'folder')}
+                        onClick={(e) => handleDeleteClick(folder, "folder")}
                       >
                         ×
                       </button>
                       <div className="folder-cover">
-                        {typeof folder.cover_page_base64 === 'string' && folder.cover_page_base64.startsWith('data:image') ? (
-                          <img src={folder.cover_page_base64} alt={folder.folder_name} />
+                        {typeof folder.cover_page_base64 === "string" &&
+                        folder.cover_page_base64.startsWith("data:image") ? (
+                          <img
+                            src={folder.cover_page_base64}
+                            alt={folder.folder_name}
+                          />
                         ) : (
                           <div className="folder-icon">📂</div>
                         )}
                       </div>
                       <div className="folder-info">
                         <span>{folder.folder_name}</span>
-                        <span className="photo-count">{folder.photo_count} items</span>
+                        <span className="photo-count">
+                          {folder.photo_count} items
+                        </span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className='not-found-data'>No folders created yet. <span onClick={() => setShowFolderPopup(true)} style={{color: '#1E90FF', cursor: 'pointer'}}>Click to create</span></p>
+                  <p className="not-found-data">
+                    No folders created yet.{" "}
+                    <span
+                      onClick={() => setShowFolderPopup(true)}
+                      style={{ color: "#1E90FF", cursor: "pointer" }}
+                    >
+                      Click to create
+                    </span>
+                  </p>
                 )}
               </div>
             </div>
@@ -374,16 +490,16 @@ function AddPortfolio() {
                   ))
                 ) : (
                   <p className="not-found-data">
-                  No portfolio items added yet.{" "}
-                  <span
-                    onClick={() => {
-                      document.getElementById("photo-upload").click();
-                    }}
-                    style={{ color: "#1E90FF", cursor: "pointer" }}
-                  >
-                    Click to adds
-                  </span>
-                </p>
+                    No portfolio items added yet.{" "}
+                    <span
+                      onClick={() => {
+                        document.getElementById("photo-upload").click();
+                      }}
+                      style={{ color: "#1E90FF", cursor: "pointer" }}
+                    >
+                      Click to adds
+                    </span>
+                  </p>
                 )}
               </div>
             </div>
@@ -394,9 +510,9 @@ function AddPortfolio() {
                 <div className="popup-content">
                   <form onSubmit={handleFolderSubmit}>
                     <h3>Create New Folder</h3>
-                    
+
                     <div className="form-group">
-                      <label className='text_left'>Folder Name:</label>
+                      <label className="text_left">Folder Name:</label>
                       <input
                         type="text"
                         value={newFolderName}
@@ -407,7 +523,7 @@ function AddPortfolio() {
                     </div>
 
                     <div className="form-group">
-                      <label className='text_left'>Folder Cover:</label>
+                      <label className="text_left">Folder Cover:</label>
                       <label htmlFor="cover-upload" className="cover-preview">
                         {folderCover ? (
                           <img src={folderCover} alt="Cover preview" />
@@ -418,7 +534,10 @@ function AddPortfolio() {
                           </div>
                         )}
                       </label>
-                      <label htmlFor="cover-upload" className="cover-upload-btn">
+                      <label
+                        htmlFor="cover-upload"
+                        className="cover-upload-btn"
+                      >
                         Choose Cover Image
                       </label>
 
@@ -427,13 +546,16 @@ function AddPortfolio() {
                         type="file"
                         accept="image/*"
                         onChange={handleFolderCoverUpload}
-                        style={{ display: 'none' }}
+                        style={{ display: "none" }}
                       />
                     </div>
 
                     <div className="popup-buttons">
                       <button type="submit">Create</button>
-                      <button type="button" onClick={() => setShowFolderPopup(false)}>
+                      <button
+                        type="button"
+                        onClick={() => setShowFolderPopup(false)}
+                      >
                         Cancel
                       </button>
                     </div>
@@ -447,12 +569,12 @@ function AddPortfolio() {
 
       {isUploading && (
         <div className="upload-overlay">
-            <div className="loader-container">
+          <div className="loader-container">
             <svg viewBox="25 25 50 50">
               <circle r="20" cy="50" cx="50"></circle>
             </svg>
-                <p>Uploading your file, please wait...</p>
-            </div>
+            <p>Uploading your file, please wait...</p>
+          </div>
         </div>
       )}
 
@@ -460,20 +582,22 @@ function AddPortfolio() {
         <div className="popup-overlay">
           <div className="popup-content">
             <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete {itemToDelete?.type === 'folder' ? 'folder' : 'file'} "{itemToDelete?.item?.folder_name || itemToDelete?.item?.name}"?</p>
+            <p>
+              Are you sure you want to delete{" "}
+              {itemToDelete?.type === "folder" ? "folder" : "file"} "
+              {itemToDelete?.item?.folder_name || itemToDelete?.item?.name}"?
+            </p>
             <div className="popup-buttons">
-              <button onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
-              <button 
-                className="delete-confirm-btn"
-                onClick={handleDelete}
-              >
+              <button onClick={() => setShowDeleteConfirm(false)}>
+                Cancel
+              </button>
+              <button className="delete-confirm-btn" onClick={handleDelete}>
                 Delete
               </button>
             </div>
           </div>
         </div>
       )}
-      
     </div>
   );
 }

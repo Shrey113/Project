@@ -39,6 +39,17 @@ export const ConfirmMessage = ({ message_title,message, onCancel, onConfirm,butt
 
 
 
+export const showNeutralToast = (message) => {
+  toast(message, {
+    duration: 4000,
+    position: 'top-right',
+    style: {
+      background: '#607d8b',
+      color: '#fff',
+      fontWeight: 'bold',
+    },
+  });
+};
 export const showAcceptToast = ({message}) => {
   toast.success(message, {
     duration: 4000, 

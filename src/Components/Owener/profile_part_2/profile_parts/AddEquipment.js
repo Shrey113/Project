@@ -202,8 +202,8 @@ function AddEquipment() {
               <span>
               <input type="text" name="equipment_company" placeholder="Company" value={newEquipment.equipment_company} onChange={handleInputChange} />
               <select name="type" value={newEquipment.type} onChange={handleInputChange} >
-                {equipmentTypes.map((type) => (
-                  <option key={type.type} value={type.type}>
+                {equipmentTypes.map((type,index) => (
+                  <option key={index} value={type.type}>
                     {type.type}
                   </option>
                 ))}
@@ -249,8 +249,8 @@ function AddEquipment() {
           </div>
         )}
 
-        { equipmentItems.length > 0 ? equipmentItems.map((equipment) => (
-          <div className="equipment-card" key={equipment.id}>
+        { equipmentItems.length > 0 ? equipmentItems.map((equipment,index) => (
+          <div className="equipment-card" key={index}>
             <div className="equipment-img">
               <img src={getImgByType(equipment.equipment_type)} alt={equipment.name} />
             </div>

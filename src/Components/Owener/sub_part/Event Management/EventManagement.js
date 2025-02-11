@@ -42,7 +42,11 @@ function EventManagement() {
     description: "",
     backgroundColor: "#6366F1",
     titleError: "",
+    event_request_type: "",
+    sender_email: "",
+    event_location: "",
   });
+
 
   const TRow = ({ label, value }) => {
     return (
@@ -56,7 +60,7 @@ function EventManagement() {
   };
 
   function set_data(item) {
-    console.log("this is strat date", item.start_date);
+
 
     if (item.event_request_type === "package") {
       setNewEvent({
@@ -65,14 +69,24 @@ function EventManagement() {
         start: item.start_date,
         end: item.end_date,
         description: item.requirements,
+        event_request_type:item.event_request_type,
+        sender_email:item.sender_email,
+        event_location:item.location
+
+
       });
     } else if (item.event_request_type === "equipment") {
       setNewEvent({
+
         id: item.id,
         title: `equipment - ${item.equipment_name}`,
         start: item.start_date,
         end: item.end_date,
         description: item.requirements,
+        event_request_type:item.event_request_type,
+        sender_email:item.sender_email,
+        event_location:item.location
+
       });
     }
 
@@ -119,7 +133,7 @@ function EventManagement() {
           `${Server_url}/get-sent-all-details-by/${user.user_email}`
         );
         if (!response.error) {
-          console.log(response);
+   
 
           set_sent_package_data(response.data.package);
           set_sent_equipment_data(response.data.equipment);
@@ -674,6 +688,7 @@ function EventManagement() {
                 set_receiver_package_data={set_receiver_package_data}
                 set_receiver_equipment_data={set_receiver_equipment_data}
               />
+
             )}
           </div>
         </div>

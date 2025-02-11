@@ -22,20 +22,10 @@ function AddBusinessData() {
     onConfirm: () => {},
   });
 
-  const [selectedTypes, setSelectedTypes] = useState([]);
   
-  useEffect(() => {
-    setSelectedTypes(user?.services || []);
-  }, [user?.services]);
-
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [otherServiceDescription, setOtherServiceDescription] = useState('');
-  const [customServices, setCustomServices] = useState([]);
 
   const [profileImage, setProfileImage] = useState(null);
 
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
 
   const [formData, setFormData] = useState({
     businessName: user?.business_name || '',
@@ -44,6 +34,12 @@ function AddBusinessData() {
     businessLocation: user?.business_address || '',
     businessWebsite: user?.website || '',
     services: user?.services || '',
+
+    businessName_error: '',
+    businessEmail_error: '',
+    gstNumber_error: '',
+    businessLocation_error: '',
+    businessWebsite_error: '',
   });
 
   useEffect(() => {
@@ -101,20 +97,42 @@ function AddBusinessData() {
   };
 
   const validateForm = () => {
+    setFormData(prevState => ({
+      ...prevState,
+      businessName_error: '',
+      businessEmail_error: '',
+      gstNumber_error: '',
+      businessLocation_error: '',
+      businessWebsite_error: '',
+    }));
+    
+
     // Business Name validation
     if (!formData.businessName.trim()) {
       showWarningToast({ message: 'Business name is required' });
+      setFormData(prevState => ({
+        ...prevState,
+        businessName_error: 'Business name is required'
+      }));
       return false;
     }
 
     // Business Email validation
     if (!formData.businessEmail.trim()) {
       showWarningToast({ message: 'Business email is required' });
+      setFormData(prevState => ({
+        ...prevState,
+        businessEmail_error: 'Business email is required'
+      }));
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.businessEmail)) {
       showWarningToast({ message: 'Please enter a valid business email' });
+      setFormData(prevState => ({
+        ...prevState,
+        businessEmail_error: 'Please enter a valid business email'
+      }));
       return false;
     }
 
@@ -123,6 +141,10 @@ function AddBusinessData() {
       const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
       if (!gstRegex.test(formData.gstNumber)) {
         showWarningToast({ message: 'Please enter a valid GST number' });
+        setFormData(prevState => ({
+          ...prevState,
+          gstNumber_error: 'Please enter a valid GST number'
+        }));
         return false;
       }
     }
@@ -130,6 +152,10 @@ function AddBusinessData() {
     // Business Location validation
     if (!formData.businessLocation.trim()) {
       showWarningToast({ message: 'Business location is required' });
+      setFormData(prevState => ({
+        ...prevState,
+        businessLocation_error: 'Business location is required'
+      }));
       return false;
     }
 
@@ -138,15 +164,15 @@ function AddBusinessData() {
       const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
       if (!urlRegex.test(formData.businessWebsite)) {
         showWarningToast({ message: 'Please enter a valid website URL' });
+        setFormData(prevState => ({
+          ...prevState,
+          businessWebsite_error: 'Please enter a valid website URL'
+        }));
         return false;
       }
     }
 
-    // Services validation
-    if (selectedTypes.length === 0 && customServices.length === 0) {
-      showWarningToast({ message: 'Please add at least one business service' });
-      return false;
-    }
+
 
     return true;
   };
@@ -162,7 +188,7 @@ function AddBusinessData() {
         gst_number: formData.gstNumber,
         business_address: formData.businessLocation,
       website: formData.businessWebsite,
-      services: [...selectedTypes, ...customServices]
+      services: null
     }
 
     try {
@@ -236,30 +262,6 @@ function AddBusinessData() {
     }
   };
 
-
-  const handleAddCustomService = () => {
-    if (otherServiceDescription.trim()) {
-      setCustomServices(prev => [...prev, otherServiceDescription.trim()]);
-      setOtherServiceDescription('');
-    }
-  };
-
-
-  const removeCustomService = (index, isSelectedType = false) => {
-    if (isSelectedType) {
-      setSelectedTypes(prev => prev.filter((_, i) => i !== index));
-    } else {
-      setCustomServices(prev => prev.filter((_, i) => i !== index));
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent form submission
-      handleAddCustomService();
-    }
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -268,173 +270,6 @@ function AddBusinessData() {
     }));
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    if (!selectedTypes.includes(suggestion)) {
-      setSelectedTypes(prevTypes => [...prevTypes, suggestion]);
-      setOtherServiceDescription('');
-      setShowSuggestions(false);
-      setSelectedIndex(-1);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (!showSuggestions || filteredSuggestions.length === 0) return;
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < filteredSuggestions.length - 1 ? prev + 1 : 0
-        );
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev > 0 ? prev - 1 : filteredSuggestions.length - 1
-        );
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (selectedIndex >= 0) {
-          handleSuggestionClick(filteredSuggestions[selectedIndex]);
-        }
-        break;
-      case 'Escape':
-        setShowSuggestions(false);
-        setSelectedIndex(-1);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleInputBlur = (e) => {
-    setTimeout(() => {
-      setShowSuggestions(false);
-      setSelectedIndex(-1);
-    }, 200);
-  };
-
-  const photography_services = [
-    'aesthetic photography',
-    'Portrait Photography',
-    'Landscape Photography',
-    'Event Photography',
-    'Architectural Photography',
-    'Fashion Photography',
-    'Wildlife Photography',
-    'Sports Photography',
-    'Aerial Photography',
-    'Wedding Photography',
-    'Product Photography',
-    'Macro Photography',
-    'Food Photography',
-    'Travel Photography',
-    'Documentary Photography',
-    'Black and White Photography',
-    'Street Photography',
-    'Underwater Photography',
-    'Astrophotography',
-    'Fine Art Photography',
-    'Real Estate Photography',
-    'Medical Photography',
-    'Commercial Photography',
-    'Boudoir Photography',
-    'Adventure Photography',
-    'Action Photography',
-    'Time-Lapse Photography',
-    'Still Life Photography',
-    'Photojournalism',
-    'Advertising Photography',
-    'Candid Photography',
-    'Drone Photography',
-    'Equestrian Photography',
-    'Headshot Photography',
-    'Family Photography',
-    'Pet Photography',
-    'Night Photography',
-    'Industrial Photography',
-    'Concert Photography',
-    'Nature Photography',
-    'Fashion Editorial Photography',
-    'Branding Photography',
-    'Lifestyle Photography',
-    'E-commerce Photography',
-    'Underwater Wildlife Photography',
-    'Scientific Photography',
-    'Stock Photography',
-    'Vintage Photography',
-    'Abstract Photography',
-    'Corporate Photography',
-    'Medical Equipment Photography',
-    'Museum and Artifact Photography',
-    'Cultural Heritage Photography',
-    'Car Photography',
-    'Marine Photography',
-    'Infant and Newborn Photography',
-    'Maternity Photography',
-    'Engagement Photography',
-    'Proposal Photography',
-    'Seasonal Photography (e.g., Autumn, Winter)',
-    'Cinematic Photography',
-    '3D Photography',
-    'Thermal Imaging Photography',
-    'Editorial Photography',
-    'Prom Photography',
-    'Graduation Photography',
-    'Fashion Runway Photography',
-    'Gym and Fitness Photography',
-    'Self-Portrait Photography',
-    'Surveillance Photography',
-    'Illustrative Photography',
-    'Glamour Photography',
-    'Scenic Photography',
-    'Minimalist Photography',
-    'Conceptual Photography',
-    'Monochrome Photography',
-    'Film Photography',
-    'Retro Photography',
-    'Bokeh Photography',
-    'Architectural Detail Photography',
-    'Paparazzi Photography',
-    'Street Vendor Photography',
-    'Social Media Content Photography',
-    'Charity Event Photography',
-    'VR and 360° Photography',
-    'Science Fiction Photography',
-    'Park and Garden Photography',
-    'Culinary Art Photography',
-    'Performance Photography',
-    'Photo Restoration Services',
-    'Digital Manipulation Photography',
-    'Exhibition Photography',
-    'Advertising Campaign Photography',
-    'Annual Report Photography',
-    'Aviation Photography',
-    'Art Reproduction Photography',
-    'Tattoo Photography',
-    'Event Highlight Photography',
-    'Experimental Photography',
-    'Environmental Portraits',
-    'Cosplay Photography',
-    'Festival Photography',
-    'Hospitality Photography',
-    'Insurance Claim Photography',
-    'Custom Album Design Services',
-    'Virtual Tour Photography'
-  ];
-
-  const handleServiceInputChange = (e) => {
-    const value = e.target.value;
-    setOtherServiceDescription(value);
-    
-    // Filter suggestions based on input
-    const filtered = photography_services.filter(service =>
-      service.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredSuggestions(filtered);
-    setShowSuggestions(value.length > 0);
-  };
 
   return (
     <div className="profile-container" id='AddBusinessDataPopup'>
@@ -493,6 +328,7 @@ function AddBusinessData() {
             onChange={handleInputChange}
             placeholder="Business Name" 
           />
+          {formData.businessName_error && <p className="error">{formData.businessName_error}</p>}
         </div>
       
         <div className="inputs-group">
@@ -504,6 +340,7 @@ function AddBusinessData() {
             onChange={handleInputChange}
             placeholder="Add Email here" 
           />
+          {formData.businessEmail_error && <p className="error">{formData.businessEmail_error}</p>}
         </div>
         </div>
 
@@ -519,6 +356,7 @@ function AddBusinessData() {
             onChange={handleInputChange}
             placeholder="Add GST Number here" 
           />
+          {formData.gstNumber_error && <p className="error">{formData.gstNumber_error}</p>}
         </div>
 
         <div className="form-group">
@@ -530,6 +368,7 @@ function AddBusinessData() {
             onChange={handleInputChange}
             placeholder="Add Location here" 
           />
+          {formData.businessLocation_error && <p className="error">{formData.businessLocation_error}</p>}
         </div>
 
         <div className="form-group">
@@ -541,76 +380,8 @@ function AddBusinessData() {
             onChange={handleInputChange}
             placeholder="(website, social page, blog, etc.)" 
           />
+          {formData.businessWebsite_error && <p className="error">{formData.businessWebsite_error}</p>}
         </div>
-
-        
-        
-   
-        <div className="other-input-container">
-          <div className="form-group_with_button">
-            <label>Business Services</label>
-            <div className="input-suggestions-container">
-              <input
-                placeholder="Tell us about your service..."
-                value={otherServiceDescription}
-                onChange={handleServiceInputChange}
-                onKeyDown={handleKeyDown}
-                onKeyPress={handleKeyPress}
-                onBlur={handleInputBlur}
-                className="other-input"
-              />
-              {showSuggestions && filteredSuggestions.length > 0 && (
-                <div className="suggestions-list">
-                  {filteredSuggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className={`suggestion-item ${index === selectedIndex ? 'selected' : ''}`}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                    >
-                      {suggestion}
-                    </div>
-                  ))}
-                </div>
-              )}
-              <button 
-                className="add-button" 
-                onClick={handleAddCustomService} 
-                disabled={!otherServiceDescription.trim()}
-              >
-                Add Service
-              </button>
-            </div>
-
-
-            {(selectedTypes.length > 0 || customServices.length > 0) && (
-        <div className="selected-services">
-          <h3>Your Selected Services:</h3>
-          <div className="selected-items">
-            {selectedTypes.map((service, index) => (
-              <div key={`selected-${index}`} className="selected-item">
-                <span>{service}</span>
-                <div className="delete-button" onClick={() => removeCustomService(index, true)}>x</div>
-              </div>
-            ))}
-            {customServices.map((service, index) => (
-              <div key={`custom-${index}`} className="selected-item">
-                <span>{service}</span>
-                <div className="delete-button" onClick={() => removeCustomService(index)}>x</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-
-      
-
-
-
-          </div>
-        </div>
-
-
 
         <div className="form-group">
             <button className="ok-button">Save Changes</button>

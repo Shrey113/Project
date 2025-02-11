@@ -1,11 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./DraftInvoiceLayout.css";
 import { useSelector } from "react-redux";
-import { Server_url,showAcceptToast,showWarningToast,showRejectToast } from "../../../../../redux/AllData";
+import {
+  Server_url,
+  showAcceptToast,
+  showWarningToast,
+  showRejectToast,
+} from "../../../../../redux/AllData";
 import { FaArrowLeft } from "react-icons/fa";
 import html2pdf from "html2pdf.js";
 import { useCount } from "../../../../../redux/CountContext";
-
 
 function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
   const [toggle_recipient_input, setToggle_recipient_input] = useState(false);
@@ -14,7 +18,6 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
   const [emailError, setEmailError] = useState("");
   const user = useSelector((state) => state.user);
   const [isSavedraft, setIsSavedraft] = useState(false);
-
 
   const { decrementCount } = useCount();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
@@ -462,7 +465,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
       invoice.invoice_to_address === "" ||
       invoice.invoice_to_email === ""
     ) {
-      showWarningToast({message: "Please fill in all required fields" });
+      showWarningToast({ message: "Please fill in all required fields" });
       return;
     }
 
@@ -473,7 +476,9 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
         isNaN(item.amount) ||
         item.amount <= 0
       ) {
-        showWarningToast({message: "Please ensure all items have a name and a valid amount." });
+        showWarningToast({
+          message: "Please ensure all items have a name and a valid amount.",
+        });
         return;
       }
     }
@@ -510,14 +515,20 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
       console.log(data);
       decrementCount();
       fetchInvoicesWithDraft(user.user_email);
-      showAcceptToast({message: "Invoice generated successfully!" });
+      showAcceptToast({ message: "Invoice generated successfully!" });
+      setDraftInvoiceChange(false);
       generatePDF();
     } catch (error) {
       console.error("Error adding invoice:", error);
       if (error.message.includes("Failed to fetch")) {
-        showRejectToast({message: "Server connection error. Please check if the server is running." });
+        showRejectToast({
+          message:
+            "Server connection error. Please check if the server is running.",
+        });
       } else {
-        showRejectToast({message: "Error generating invoice. Please try again." });
+        showRejectToast({
+          message: "Error generating invoice. Please try again.",
+        });
       }
     } finally {
       button.disabled = false;
@@ -529,7 +540,9 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
     if (isSavedraft) return;
 
     if (!invoice.invoice_id || !user.user_email || !invoice.invoice_to) {
-      showWarningToast({message: "Cannot save draft without invoice ID or user email." });
+      showWarningToast({
+        message: "Cannot save draft without invoice ID or user email.",
+      });
       return;
     }
 
@@ -559,21 +572,22 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
 
       const data = await response.json();
       if (data?.message?.includes("successfully")) {
-        showAcceptToast({message: "Draft saved successfully!" });
+        showAcceptToast({ message: "Draft saved successfully!" });
         fetchInvoicesWithDraft(user.user_email);
+        setDraftInvoiceChange(false);
       } else {
-        showRejectToast({message: "Unexpected response from server." });
+        showRejectToast({ message: "Unexpected response from server." });
       }
     } catch (error) {
       console.error("Error saving draft:", error);
-      showRejectToast({message: "Error saving draft. Please try again." });
+      showRejectToast({ message: "Error saving draft. Please try again." });
     } finally {
       setIsSavedraft(false);
     }
   };
   const uploadBase64ImageDraft = async () => {
     if (!logoPreview) {
-      showWarningToast({message: "Please upload an image first." });
+      showWarningToast({ message: "Please upload an image first." });
       return;
     }
 
@@ -595,11 +609,11 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
       }
 
       const data = await response.json();
-      showAcceptToast({message: "Image uploaded successfully!" });
+      showAcceptToast({ message: "Image uploaded successfully!" });
       console.log("Server response:", data);
     } catch (error) {
       console.error("Error uploading image:", error);
-      showRejectToast({message: "Error uploading image. Please try again." });
+      showRejectToast({ message: "Error uploading image. Please try again." });
     }
   };
 
@@ -1061,8 +1075,6 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
           </div>
         </div>
       </div>
-
-
     </div>
   );
 }

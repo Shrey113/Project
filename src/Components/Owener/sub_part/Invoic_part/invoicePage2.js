@@ -2,10 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 
 import html2pdf from "html2pdf.js";
 import { useSelector } from "react-redux";
-import { Server_url,showAcceptToast,showWarningToast,showRejectToast } from "../../../../redux/AllData";
+import {
+  Server_url,
+  showAcceptToast,
+  showWarningToast,
+  showRejectToast,
+} from "../../../../redux/AllData";
 import { useCount } from "../../../../redux/CountContext";
 import "./Invoice.css";
-
 
 function InvoicePage2() {
   const [emailError, setEmailError] = useState("");
@@ -17,13 +21,23 @@ function InvoicePage2() {
   const addressRef = useRef(null);
   const emailRef = useRef(null);
 
-
-
-
   const { incrementCount, setCount } = useCount();
   const [invoice_id, setInvoice_id] = useState(null);
   const [logoPreview, setLogoPreview] = useState("");
   const [base64Image, setBase64Image] = useState("");
+
+  const services = [
+    "Web Design",
+    "Graphic Design",
+    "SEO Optimization",
+    "Social Media Management",
+    "Content Writing",
+    "Photography",
+    "Videography",
+  ];
+
+  const [filtered_Services_in_invoice, set_Filtered_Services_in_invoice] =
+    useState(services);
 
   const [is_mobile, set_is_mobile] = useState(true);
 
@@ -52,7 +66,9 @@ function InvoicePage2() {
       setInvoice_id(data.invoice_id);
     } catch (error) {
       console.error("Error fetching new invoice ID:", error);
-      showRejectToast({message: "Failed to create a new invoice. Please try again." });
+      showRejectToast({
+        message: "Failed to create a new invoice. Please try again.",
+      });
     }
   };
 
@@ -139,23 +155,79 @@ function InvoicePage2() {
   //   getInvoiceId(user.user_email);
   // }, [user.user_email]);
 
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+
+  //   if (
+  //     name.startsWith("item_") ||
+  //     name.startsWith("quantity_") ||
+  //     name.startsWith("price_")
+  //   ) {
+  //     const index = parseInt(name.split("_")[1], 10); // Extract index
+  //     const field = name.split("_")[0]; // Extract field name
+  //     const updatedItems = [...invoice.items];
+  //     updatedItems[index][field] =
+  //       field === "price" || field === "quantity" ? Number(value) : value; // Update value
+  //     updatedItems[index].amount =
+  //       updatedItems[index].quantity * updatedItems[index].price; // Recalculate amount
+  //     const subTotal = updatedItems.reduce((acc, item) => acc + item.amount, 0);
+  //     const gstAmount = (subTotal * 18) / 100;
+  //     setInvoice({
+  //       ...invoice,
+  //       items: updatedItems,
+  //       sub_total: subTotal,
+  //       gst: gstAmount,
+  //       total: subTotal + gstAmount,
+  //     });
+  //   } else if (
+  //     name === "invoice_to" ||
+  //     name === "invoice_to_address" ||
+  //     name === "invoice_to_email"
+  //   ) {
+  //     // Handle recipient details fields
+  //     setInvoice((prevInvoice) => ({
+  //       ...prevInvoice,
+  //       [name]: value,
+  //     }));
+  //   } else {
+  //     // Update other main invoice fields
+  //     setInvoice((prevInvoice) => ({
+  //       ...prevInvoice,
+  //       [name]: value,
+  //     }));
+  //   }
+  // };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (
-      name.startsWith("item_") ||
-      name.startsWith("quantity_") ||
-      name.startsWith("price_")
-    ) {
-      const index = parseInt(name.split("_")[1], 10); // Extract index
-      const field = name.split("_")[0]; // Extract field name
+    if (name.startsWith("item_")) {
+      const index = parseInt(name.split("_")[1], 10);
       const updatedItems = [...invoice.items];
-      updatedItems[index][field] =
-        field === "price" || field === "quantity" ? Number(value) : value; // Update value
+
+      updatedItems[index].item = value; // Update input value
+
+      // **Filter services dynamically**
+      const newFilteredServices = services.filter((service) =>
+        service.toLowerCase().includes(value.toLowerCase())
+      );
+      set_Filtered_Services_in_invoice(newFilteredServices);
+
+      setInvoice({
+        ...invoice,
+        items: updatedItems,
+      });
+    } else if (name.startsWith("quantity_") || name.startsWith("price_")) {
+      const index = parseInt(name.split("_")[1], 10);
+      const field = name.split("_")[0];
+      const updatedItems = [...invoice.items];
+      updatedItems[index][field] = Number(value);
       updatedItems[index].amount =
-        updatedItems[index].quantity * updatedItems[index].price; // Recalculate amount
+        updatedItems[index].quantity * updatedItems[index].price;
+
       const subTotal = updatedItems.reduce((acc, item) => acc + item.amount, 0);
       const gstAmount = (subTotal * 18) / 100;
+
       setInvoice({
         ...invoice,
         items: updatedItems,
@@ -164,24 +236,19 @@ function InvoicePage2() {
         total: subTotal + gstAmount,
       });
     } else if (
-      name === "invoice_to" ||
-      name === "invoice_to_address" ||
-      name === "invoice_to_email"
+      ["invoice_to", "invoice_to_address", "invoice_to_email"].includes(name)
     ) {
-      // Handle recipient details fields
       setInvoice((prevInvoice) => ({
         ...prevInvoice,
         [name]: value,
       }));
     } else {
-      // Update other main invoice fields
       setInvoice((prevInvoice) => ({
         ...prevInvoice,
         [name]: value,
       }));
     }
   };
-
   const handleNewInvoice = async () => {
     setInvoice({
       invoice_id: invoice_id,
@@ -212,7 +279,7 @@ function InvoicePage2() {
       invoice.invoice_to_address === "" ||
       invoice.invoice_to_email === ""
     ) {
-      showWarningToast({message: "Please fill in all required fields" });
+      showWarningToast({ message: "Please fill in all required fields" });
       return;
     }
 
@@ -223,7 +290,9 @@ function InvoicePage2() {
         isNaN(item.amount) ||
         item.amount <= 0
       ) {
-        showWarningToast({message: "Please ensure all items have a name and a valid amount." });
+        showWarningToast({
+          message: "Please ensure all items have a name and a valid amount.",
+        });
         return;
       }
     }
@@ -261,14 +330,19 @@ function InvoicePage2() {
       generateInvoice(user.user_email);
       handleNewInvoice();
       fetchInvoicesWithDraft(user.user_email);
-      showAcceptToast({message: "Invoice generated successfully!" });
+      showAcceptToast({ message: "Invoice generated successfully!" });
       generatePDF();
     } catch (error) {
       console.error("Error adding invoice:", error);
       if (error.message.includes("Failed to fetch")) {
-        showRejectToast({message: "Server connection error. Please check if the server is running." });
+        showRejectToast({
+          message:
+            "Server connection error. Please check if the server is running.",
+        });
       } else {
-        showRejectToast({message: "Error generating invoice. Please try again." });
+        showRejectToast({
+          message: "Error generating invoice. Please try again.",
+        });
       }
     } finally {
       button.disabled = false;
@@ -466,7 +540,9 @@ function InvoicePage2() {
 
   const handleSaveDraft = async () => {
     if (!invoice_id || !user.user_email || !invoice.invoice_to) {
-      showWarningToast({message: "Cannot save draft without invoice ID or user email." });
+      showWarningToast({
+        message: "Cannot save draft without invoice ID or user email.",
+      });
       return;
     }
 
@@ -501,14 +577,14 @@ function InvoicePage2() {
         data.message === "Invoice with draft added successfully"
       ) {
         incrementCount();
-        showAcceptToast({message: "Draft saved successfully!" });
+        showAcceptToast({ message: "Draft saved successfully!" });
         handleNewInvoice();
         generateInvoice(user.user_email);
         fetchInvoicesWithDraft(user.user_email);
       }
     } catch (error) {
       console.error("Error saving draft:", error);
-      showRejectToast({message: "Error saving draft. Please try again." });
+      showRejectToast({ message: "Error saving draft. Please try again." });
     }
   };
 
@@ -528,7 +604,7 @@ function InvoicePage2() {
 
   const uploadBase64Image = async () => {
     if (!base64Image) {
-      showWarningToast({message: "Please upload an image first." });
+      showWarningToast({ message: "Please upload an image first." });
       return;
     }
 
@@ -550,10 +626,10 @@ function InvoicePage2() {
 
       const data = await response.json();
       console.log(data);
-      showAcceptToast({message: "Image uploaded successfully!" });
+      showAcceptToast({ message: "Image uploaded successfully!" });
     } catch (error) {
       console.error("Error uploading image:", error);
-      showRejectToast({message: "Error uploading image. Please try again." });
+      showRejectToast({ message: "Error uploading image. Please try again." });
     }
   };
 
@@ -640,7 +716,7 @@ function InvoicePage2() {
                 <strong>Date</strong> : {invoice.date}
               </div>
               <div className="recipient-input" ref={inputRef}>
-                <strong>Bill to:</strong>
+                {/* <strong>Bill to:</strong> */}
                 {toggle_recipient_input ? (
                   <>
                     <input
@@ -669,6 +745,7 @@ function InvoicePage2() {
                       placeholder="Enter Address"
                       name="invoice_to_address"
                       autoFocus
+                      cols={30}
                     />
                     <button
                       onClick={handleToggleAddressInput}
@@ -825,7 +902,7 @@ function InvoicePage2() {
               {invoice.items &&
                 invoice.items.length > 0 &&
                 invoice.items.map((item, index) => (
-                  <tr key={index}>
+                  <tr key={index} style={{ padding: "30px" }}>
                     <td className="name_of_item">
                       <input
                         type="text"
@@ -833,7 +910,35 @@ function InvoicePage2() {
                         value={item.item}
                         onChange={handleChange}
                         placeholder="Enter name"
+                        onFocus={(e) => {
+                          set_Filtered_Services_in_invoice(services);
+                          e.target.nextSibling.style.display = "block";
+                        }}
+                        onBlur={(e) =>
+                          setTimeout(
+                            () => (e.target.nextSibling.style.display = "none"),
+                            200
+                          )
+                        }
+                        autoFocus={true}
                       />
+                      <ul className="dropdown">
+                        {filtered_Services_in_invoice.map((service, i) => (
+                          <li
+                            key={i}
+                            onMouseDown={() =>
+                              handleChange({
+                                target: {
+                                  name: `item_${index}`,
+                                  value: service,
+                                },
+                              })
+                            }
+                          >
+                            {service}
+                          </li>
+                        ))}
+                      </ul>
                     </td>
                     <td>
                       <input

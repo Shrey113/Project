@@ -411,6 +411,11 @@ const SetOwnerPage = ({ ActivePage }) => {
 
         {/* -------------------------------------------------------------------------------------------------------------- */}
 
+        <Route path="/Owner_profile/search_photographer/:owner_email" 
+        
+        element={<SetOwnerPage ActivePage={OwnerDetails} />} />
+
+
         {/* 404 Page */}
         <Route path="*" element={<PageNotFound />} />
 

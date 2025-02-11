@@ -68,7 +68,6 @@ router.post("/add-team-members", (req, res) => {
       return res.status(404).json({ message: "No matching event found." });
     }
 
-    console.log("Team members assigned successfully ✅");
     res.json({ message: "Team members assigned successfully" });
   });
 });
@@ -135,11 +134,11 @@ router.get("/get-sent-all-details-by/:sender_email", (req, res) => {
 router.get("/api/equipment/:email", (req, res) => {
   const email = req.params.email;
 
-  const query = "SELECT * FROM packages WHERE user_email = ?";
+  const query = "SELECT * FROM equipment WHERE user_email = ?";
 
   db.query(query, [email], (err, results) => {
     if (err) {
-      console.error("Error fetching packages:", err);
+      console.error("Error fetching equipment:", err);
       return res.status(500).send("Server error");
     }
     res.json(results);
@@ -149,11 +148,11 @@ router.get("/api/equipment/:email", (req, res) => {
 router.get("/api/packages/:email", (req, res) => {
   const email = req.params.email;
 
-  const query = "SELECT * FROM equipment WHERE user_email = ?";
+  const query = "SELECT * FROM packages WHERE user_email = ?";
 
   db.query(query, [email], (err, results) => {
     if (err) {
-      console.error("Error fetching equipment:", err);
+      console.error("Error fetching packages:", err);
       return res.status(500).send("Server error");
     }
     res.json(results);
@@ -214,12 +213,6 @@ router.post("/api/owner-all-details", (req, res) => {
     }),
   ])
     .then(([equipmentResult, packagesResult, photoFilesResult]) => {
-      console.log("All data fetched:", {
-        equipment: equipmentResult,
-        packages: packagesResult,
-        photo_files: photoFilesResult,
-      });
-
       // Send the combined data as JSON
       res.json({
         equipment: equipmentResult,
@@ -292,7 +285,7 @@ router.post("/owner_drive/get_portfolio", (req, res) => {
       res.json({ success: true, files: results });
     } else {
       res
-        .status(404)
+        .status(200)
         .json({ success: false, message: "No portfolio found for this user." });
     }
   });
@@ -1036,7 +1029,7 @@ router.post("/api/delete-invoice", (req, res) => {
 
   const deleteQuery =
     "DELETE FROM invoices WHERE invoice_id = ? and user_email = ?";
-  console.log("Delete Query", deleteQuery);
+
   db.query(deleteQuery, [invoice_id, user_email], (err, result) => {
     if (err) {
       console.error("Error deleting invoice:", err);
@@ -1192,7 +1185,6 @@ router.post("/check_email_owner", (req, res) => {
           console.log("insertErr", insertErr);
           return res.status(200).json({ error: insertErr.message });
         }
-        console.log("insertResult", insertResult);
         return res.json([
           {
             user_email: user_email,
@@ -1607,7 +1599,6 @@ router.post("/verify_otp_client", async (req, res) => {
 // Route for registration of client
 router.post("/client/register_user", async (req, res) => {
   const { user_name, user_email, user_password } = req.body;
-  console.log(user_email, user_name, user_password);
 
   try {
     // Check if the email already exists
@@ -1717,7 +1708,6 @@ router.post("/api/update-profile", (req, res) => {
         res
           .status(200)
           .json({ message: "Profile updated successfully!", results });
-        console.log(results);
       }
     );
   } catch (err) {
@@ -1741,7 +1731,6 @@ router.post("/get-invoice-items", (req, res) => {
     }
 
     if (items && items.length > 0) {
-      console.log("items", items);
       res.status(200).json({
         success: true,
         items: items,

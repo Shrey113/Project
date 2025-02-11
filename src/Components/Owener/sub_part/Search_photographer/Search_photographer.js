@@ -5,82 +5,87 @@ import OwnerList from "./sub_part/Owners_List";
 import { Server_url , showRejectToast, showWarningToast} from "../../../../redux/AllData";
 import { TfiLocationPin } from "react-icons/tfi";
 import { BiLoaderAlt } from "react-icons/bi";
+import { TbLocationCancel } from "react-icons/tb";
 
-
-import banglore from './all_data/banglore.png'
-import chennai from './all_data/chennai.png'
-import goa from './all_data/goa.png'
-import hyderabad from './all_data/hyderabad.png'
-import jaipur from './all_data/jaipur.png'
 import delhi from './all_data/delhi.png'
-import pune from './all_data/delhi.png'
-import lucknow from './all_data/banglore.png'
-import bombay from './all_data/bombay.png' 
-import kolkata from './all_data/chennai.png'
+import bombay from './all_data/bombay.png'
+import bangalore from './all_data/banglore.png'
+import hyderabad from './all_data/hyderabad.png'
+import chennai from './all_data/chennai.png'
+import kolkata from './all_data/kolkata.png'
+import pune from './all_data/pune.png'
+import jaipur from './all_data/jaipur.png'
+import lucknow from './all_data/lucknow.png'
+import goa from './all_data/goa.png'
+import chandigarh from './all_data/chandigarh.png'
+import bhopal from './all_data/bhopal.png'
+import indore from './all_data/indore.png'
+import nagpur from './all_data/nagpur.png'
+import visakhapatnam from './all_data/visakhapatnam.png'
+import patna from './all_data/patna.png'
+import dehradun from './all_data/dehradun.png'
+import coimbatore from './all_data/coimbatore.png'
+import mysore from './all_data/mysore.png'
+import guwahati from './all_data/guwahati.png'
+import bhubaneswar from './all_data/bhubaneswar.png'
+import shimla from './all_data/shimla.png'
+import shillong from './all_data/shillong.png'
+
+
+
+
 
 
 const locations = [
-  {
-    id: 1,
-    name: 'Delhi NCR',
-    value: 'delhi-ncr',
-    image: delhi
-  },
-  {
-    id: 2,
-    name: 'Mumbai',
-    value: 'mumbai',
-    image: bombay
-  },
-  {
-    id: 3,
-    name: 'Bangalore',
-    value: 'bangalore',
-    image: banglore
-  },
-  {
-    id: 4,
-    name: 'Hyderabad',
-    value: 'hyderabad',
-    image: hyderabad
-  },
-  {
-    id: 5,
-    name: 'Chennai',
-    value: 'chennai',
-    image: chennai
-  },
-  {
-    id: 6,
-    name: 'Goa',
-    value: 'goa',
-    image: goa
-  },
-  {
-    id: 7,
-    name: 'Jaipur',
-    value: 'jaipur',
-    image: jaipur
-  },
-  {
-    id: 8,
-    name: 'Pune',
-    value: 'pune',
-    image: pune
-  },
-  {
-    id: 9,
-    name: 'Kolkata',
-    value: 'kolkata',
-    image: kolkata
-  },
-  {
-    id: 10,
-    name: 'Lucknow',
-    value: 'lucknow',
-    image: lucknow
-  }
+  // Major Cities in India
+  { name: 'Delhi NCR', value: 'delhi-ncr', image: delhi },
+  { name: 'Mumbai', value: 'mumbai', image: bombay },
+  { name: 'Bangalore', value: 'bangalore', image: bangalore },
+  { name: 'Hyderabad', value: 'hyderabad', image: hyderabad },
+  { name: 'Chennai', value: 'chennai', image: chennai },
+  { name: 'Kolkata', value: 'kolkata', image: kolkata },
+  { name: 'Pune', value: 'pune', image: pune },
+  { name: 'Jaipur', value: 'jaipur', image: jaipur },
+  { name: 'Lucknow', value: 'lucknow', image: lucknow },
+  { name: 'Goa', value: 'goa', image: goa },
+  { name: 'Chandigarh', value: 'chandigarh', image: chandigarh },
+  { name: 'Bhopal', value: 'bhopal', image: bhopal },
+  { name: 'Indore', value: 'indore', image: indore },
+  { name: 'Nagpur', value: 'nagpur', image: nagpur },
+  { name: 'Visakhapatnam', value: 'visakhapatnam', image: visakhapatnam },
+  { name: 'Patna', value: 'patna', image: patna },
+  { name: 'Dehradun', value: 'dehradun', image: dehradun },
+  { name: 'Coimbatore', value: 'coimbatore', image: coimbatore },
+  { name: 'Mysore', value: 'mysore', image: mysore },
+  { name: 'Guwahati', value: 'guwahati', image: guwahati },
+  { name: 'Bhubaneswar', value: 'bhubaneswar', image: bhubaneswar },
+  { name: 'Shimla', value: 'shimla', image: shimla },
+  { name: 'Shillong', value: 'shillong', image: shillong },
+
+  // // Major Cities in Gujarat
+  // { name: 'Ahmedabad', value: 'ahmedabad', image: ahmedabad },
+  // { name: 'Surat', value: 'surat', image: surat },
+  // { name: 'Vadodara', value: 'vadodara', image: vadodara },
+  // { name: 'Rajkot', value: 'rajkot', image: rajkot },
+  // { name: 'Bhavnagar', value: 'bhavnagar', image: bhavnagar },
+  // { name: 'Jamnagar', value: 'jamnagar', image: jamnagar },
+  // { name: 'Gandhinagar', value: 'gandhinagar', image: gandhinagar },
+  // { name: 'Junagadh', value: 'junagadh', image: junagadh },
+  // { name: 'Anand', value: 'anand', image: anand },
+  // { name: 'Navsari', value: 'navsari', image: navsari },
+  // { name: 'Mehsana', value: 'mehsana', image: mehsana },
+  // { name: 'Morbi', value: 'morbi', image: morbi },
+  // { name: 'Nadiad', value: 'nadiad', image: nadiad },
+  // { name: 'Gandhidham', value: 'gandhidham', image: gandhidham },
+  // { name: 'Bhuj', value: 'bhuj', image: bhuj },
+  // { name: 'Palanpur', value: 'palanpur', image: palanpur },
+  // { name: 'Valsad', value: 'valsad', image: valsad },
+  // { name: 'Bharuch', value: 'bharuch', image: bharuch },
+  // { name: 'Dahod', value: 'dahod', image: dahod },
+  // { name: 'Porbandar', value: 'porbandar', image: porbandar }
 ];
+
+
 
 function Search_photographer() {
   const user = useSelector((state) => state.user);
@@ -142,7 +147,8 @@ function Search_photographer() {
         },
         (error) => {
           console.error("Error getting location:", error);
-          showRejectToast({ message: "Please enable location to use location filters" });
+          showRejectToast({ message: "Please enable system location to use location filters" });
+          // showNeutralToast("GO > Settings > Location > Enable Location");
         },
         { enableHighAccuracy: true }
       );
@@ -220,11 +226,6 @@ function Search_photographer() {
   }, [user.user_email]);
 
   const handleLocationSelect = (value) => {
-    if (!isLocationPermissionGranted && value !== 'all') {
-      showWarningToast({ message: "Please enable location access to use location filters" });
-      return;
-    }
-
     // If selecting from popup, update the displayed locations
     const selectedLocationObj = locations.find(loc => loc.value === value);
     if (selectedLocationObj) {
@@ -290,12 +291,21 @@ function Search_photographer() {
           {!locationData ? (
             <div className="location-circle current-location">
               <div className="location-image-wrapper current-location-wrapper">
-                <BiLoaderAlt className="loading-spinner" />
+                {isLocationPermissionGranted ? (
+                  <BiLoaderAlt className="loading-spinner" />
+                ) : (
+                  <TbLocationCancel />
+                )}
               </div>
               <div className="location-details">
-                <span className="location-name">Loading location...</span>
+                {isLocationPermissionGranted ? (
+                  <span className="location-name">Loading location...</span>
+                ) : (
+                  <span className="location-name">not granted</span>
+                )}
               </div>
             </div>
+
           ) : (
             <div
               className={`location-circle current-location ${selectedLocation}`}
@@ -318,7 +328,6 @@ function Search_photographer() {
             </div>
           )}
 
-          {/* Modified locations mapping - use displayedLocations instead of locations.slice(0, 4) */}
           {displayedLocations.map((location) => (
             <div
               key={location.id}
@@ -326,10 +335,11 @@ function Search_photographer() {
               onClick={() => handleLocationSelect(location.value)}
               style={{
                 opacity: selectedLocation && selectedLocation !== location.value ? 0.55 : 1,
-                cursor: isLocationPermissionGranted ? 'pointer' : 'not-allowed',
+                cursor: 'pointer',
                 transition: 'all 0.3s ease'
               }}
             >
+
               <div className="location-image-wrapper">
                 <img
                   src={location.image}
@@ -350,10 +360,11 @@ function Search_photographer() {
               onClick={handleOthersClick}
               style={{
                 opacity: selectedLocation ? 0.55 : 1,
-                cursor: isLocationPermissionGranted ? 'pointer' : 'not-allowed',
+                cursor: 'pointer',
                 transition: 'all 0.3s ease'
               }}
             >
+
               <div className="location-image-wrapper">
                 <div className="others-count">+{locations.length - 4}</div>
               </div>

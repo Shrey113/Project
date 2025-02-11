@@ -12,7 +12,7 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
 
 
   const [formData, setFormData] = useState({
-    userName: user.user_name || ''  ,
+    userName: user.user_name || '',
     firstName: user.first_name || '',
     lastName: user.last_name || '',
     email: user.user_email || '',
@@ -103,8 +103,8 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
       isValid = false;
     }
 
-    // Gender validation
-    if (!formData.gender) {
+    // Gender validation - check for empty string or null
+    if (!formData.gender || formData.gender === '') {
       newErrors.gender = 'Please select a gender';
       isValid = false;
     }
@@ -263,7 +263,6 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
             value={formData.gender}
             onChange={handleInputChange}
           >
-            <option value="">Select Gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>

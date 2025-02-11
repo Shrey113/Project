@@ -223,27 +223,51 @@ function AddProfileData({onInputChange }) {
     const newErrors = {};
 
     // Validate userName
-    if (!formData.userName.trim()) {
+    if (!formData.userName || !formData.userName.trim()) {
       newErrors.userName = 'Username is required';
       showWarningToast({ message: "Username is required" });
+      setFormData(prevState => ({
+        ...prevState,
+        userName_error: 'Username is required'
+      }));
       isValid = false;
     } else if (formData.userName.length < 3) {
       newErrors.userName = 'Username must be at least 3 characters';
       showWarningToast({ message: "Username must be at least 3 characters" });
+      setFormData(prevState => ({
+        ...prevState,
+        userName_error: 'Username must be at least 3 characters'
+      }));
       isValid = false;
     }
 
     // Validate firstName
-    if (!formData.firstName.trim()) {
+    if (!formData.firstName || !formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
       showWarningToast({ message: "First name is required" });
+      setFormData(prevState => ({
+        ...prevState,
+        firstName_error: 'First name is required'
+      }));
       isValid = false;
     }
 
     // Validate lastName
-    if (!formData.lastName.trim()) {
+    if (!formData.lastName || !formData.lastName.trim()) {
       newErrors.lastName = 'Last name is required';
       showWarningToast({ message: "Last name is required" });
+      setFormData(prevState => ({
+        ...prevState,
+        lastName_error: 'Last name is required'
+      }));
+      isValid = false;
+    } else if (formData.lastName.length < 3) {
+      newErrors.lastName = 'Last name must be at least 3 characters';
+      showWarningToast({ message: "Last name must be at least 3 characters" });
+      setFormData(prevState => ({
+        ...prevState,
+        lastName_error: 'Last name must be at least 3 characters'
+      }));
       isValid = false;
     }
 
@@ -251,6 +275,10 @@ function AddProfileData({onInputChange }) {
     if (!formData.gender) {
       newErrors.gender = 'Please select a gender';
       showWarningToast({ message: "Please select a gender" });
+      setFormData(prevState => ({
+        ...prevState,
+        gender_error: 'Please select a gender'
+      }));
       isValid = false;
     }
 
@@ -258,6 +286,10 @@ function AddProfileData({onInputChange }) {
     if (formData.socialMedia && !isValidURL(formData.socialMedia)) {
       newErrors.socialMedia = 'Please enter a valid URL';
       showWarningToast({ message: "Please enter a valid social media URL" });
+      setFormData(prevState => ({
+        ...prevState,
+        socialMedia_error: 'Please enter a valid URL'
+      }));
       isValid = false;
     }
 

@@ -32,6 +32,12 @@
   display: flex;
 }
 
+.modal-overlay_add_event .add_event_modal.set_equipment_event{
+  max-width: fit-content;
+  width: fit-content;
+}
+
+
 .modal-content h2 {
   margin-bottom: 1.5rem;
   color: #1f2937;

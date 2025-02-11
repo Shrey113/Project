@@ -8,16 +8,14 @@ import { IoArrowBack } from "react-icons/io5";
 import { FaUser, FaEnvelope, FaMapMarkerAlt, FaStar } from "react-icons/fa";
 import SeletedCard from "./SeletedCard";
 import { MdOutlineInsertLink, MdOutlineDesignServices } from "react-icons/md";
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
-import { isWithinInterval, parseISO } from 'date-fns';
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import { isWithinInterval, parseISO } from "date-fns";
 
-import camera_icon from './test_img_equipment/camera.png'
-import drone_icon from './test_img_equipment/drone.png'
-import tripod_icon from './test_img_equipment/Tripod.png'
-import lens_icon from './test_img_equipment/lens.png'
-
-
+import camera_icon from "./test_img_equipment/camera.png";
+import drone_icon from "./test_img_equipment/drone.png";
+import tripod_icon from "./test_img_equipment/Tripod.png";
+import lens_icon from "./test_img_equipment/lens.png";
 
 const OwnerDetails = () => {
   const equipmentTypes = [
@@ -27,6 +25,15 @@ const OwnerDetails = () => {
     { type: "Lens", icon: lens_icon },
   ];
 
+  function get_img_by_name(name) {
+    if (!name) return camera_icon; // Default to Camera if name is not provided
+
+    const equipment = equipmentTypes.find(
+      (equipment) => equipment.type.toLowerCase() === name.toLowerCase()
+    );
+
+    return equipment ? equipment.icon : camera_icon; // Default to Camera icon if no match
+  }
 
   const [packagesMoreThan4, setpackagesMoreThan4] = useState(false);
   const [equipmentMoreThan4, setEquipmentMoreThan4] = useState(false);
@@ -65,14 +72,13 @@ const OwnerDetails = () => {
 
   // ];
 
-
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const response = await fetch(`${Server_url}/calendar/events_by_user`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ user_email: selectedOwner.user_email }),
         });
@@ -81,19 +87,18 @@ const OwnerDetails = () => {
 
         if (response.ok) {
           // setEvents(data);
-          const formated_data = data?.map(event => ({
+          const formated_data = data?.map((event) => ({
             ...event,
             start: new Date(event.start),
-            end: new Date(event.end)
+            end: new Date(event.end),
           }));
           setEvents(formated_data);
           console.log(formated_data);
-
         } else {
-          console.log(data.error || 'An error occurred while fetching events');
+          console.log(data.error || "An error occurred while fetching events");
         }
       } catch (err) {
-        console.log('Failed to fetch events: ' + err.message);
+        console.log("Failed to fetch events: " + err.message);
       }
     };
 
@@ -102,49 +107,42 @@ const OwnerDetails = () => {
     }
   }, [selectedOwner.user_email]);
 
-
   const getTileClassName = ({ date }) => {
-    const event = events.find(event =>
+    const event = events.find((event) =>
       isWithinInterval(date, {
-        start: event.start instanceof Date ? event.start : parseISO(event.start),
-        end: event.end instanceof Date ? event.end : parseISO(event.end)
+        start:
+          event.start instanceof Date ? event.start : parseISO(event.start),
+        end: event.end instanceof Date ? event.end : parseISO(event.end),
       })
     );
-    return event ? `has-event event-${event?.title?.toLowerCase()?.replace(/\s+/g, '-')}` : '';
+    return event
+      ? `has-event event-${event?.title?.toLowerCase()?.replace(/\s+/g, "-")}`
+      : "";
   };
 
   const getTileStyle = ({ date }) => {
-    const event = events.find(event =>
+    const event = events.find((event) =>
       isWithinInterval(date, {
-        start: event.start instanceof Date ? event.start : parseISO(event.start),
-        end: event.end instanceof Date ? event.end : parseISO(event.end)
+        start:
+          event.start instanceof Date ? event.start : parseISO(event.start),
+        end: event.end instanceof Date ? event.end : parseISO(event.end),
       })
     );
-    return event ? {
-      backgroundColor: event.color,
-      color: '#000000',
-      fontWeight: 'bold'
-    } : null;
+    return event
+      ? {
+          backgroundColor: event.color,
+          color: "#000000",
+          fontWeight: "bold",
+        }
+      : null;
   };
 
   useEffect(() => {
-    console.log('showSelectedCard:', showSelectedCard);
-    console.log('selectedData:', selectedData);
+    console.log("showSelectedCard:", showSelectedCard);
+    console.log("selectedData:", selectedData);
   }, [showSelectedCard, selectedData]);
 
-
-
-
   useEffect(() => {
-    // console.log(
-    //   "Data in owner details owner data.........................",
-    //   ownerData
-    // );
-    // console.log(
-    //   "Data in owner details selected owner.........................",
-    //   selectedOwner
-    // );
-
     if (ownerData?.packages?.length > 4) {
       setpackagesMoreThan4(true);
     } else {
@@ -252,39 +250,41 @@ const OwnerDetails = () => {
       .slice(1)}`;
   };
 
-
   return (
     <div className="owner-details-container">
-      <div className="owner-info-details">
+      <nav className="back_with_owner_title">
+        <button
+          className="back-button"
+          onClick={() => {
+            set_owner_full_screen(false);
+            navigate(`/Owner/search_photographer`);
+            set_is_full_screen(true);
+          }}
+        >
+          <IoArrowBack className="icon" />
+        </button>
         <div className="owner-header">
-          <button
-            className="back-button"
-            onClick={() => {
-              set_owner_full_screen(false);
-              navigate(`/Owner/search_photographer`);
-              set_is_full_screen(true);
-            }}
-          >
-            <IoArrowBack className="icon" /> Back
-          </button>
           <h2 className="owner-title">
             Owner Details for {selectedOwner.user_name}
           </h2>
         </div>
-
+      </nav>
+      <div className="owner-info-details">
         <div className="owner-profile-container">
           <div className="owner-profile-left">
             <div className="owner_details_img_container">
               <img
                 src={
-                  selectedOwner?.user_profile_image_base64 || "/default-user.jpg"
+                  selectedOwner?.user_profile_image_base64 ||
+                  "/default-user.jpg"
                 }
                 alt="Owner"
                 className="owner-profile-img"
               />
             </div>
             <div className="owner-status">
-              <span className="status-badge">Active</span>
+              <p>{selectedOwner?.user_name || "Not Available"}</p>
+              {/* <span className="status-badge">Active</span> */}
               <span className="rating">
                 <FaStar className="icon star" />
                 4.8/5.0
@@ -294,101 +294,146 @@ const OwnerDetails = () => {
 
           <div className="owner-profile-right">
             <div className="info-card">
-              <div className="info-item">
-                <div className="icon-container">
-                  <FaUser className="icon" />
+              <div className="email_business_website">
+                <div className="details_1">
+                  <div className="info-card">
+                    <div className="info-item">
+                      <div className="icon-container">
+                        <FaEnvelope className="icon" />
+                      </div>
+                      <div>
+                        <label>Email</label>
+                        <p>{selectedOwner?.user_email}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="info-card">
+                    <div className="info-item">
+                      <div className="icon-container">
+                        <FaMapMarkerAlt className="icon" />
+                      </div>
+                      <div>
+                        <label>Business Address</label>
+                        <p>
+                          {selectedOwner.business_address || "Not Available"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label>Name</label>
-                  <p>{selectedOwner?.user_name || "Not Available"}</p>
+                <div className="details_2">
+                  <div className="info-card">
+                    <div className="info-item">
+                      <div className="icon-container">
+                        <MdOutlineInsertLink className="icon" />
+                      </div>
+                      <div>
+                        <label>Business Name</label>
+                        <p>{selectedOwner?.business_name || "Not Available"}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="info-card">
+                    <div className="info-item">
+                      <div className="icon-container">
+                        <MdOutlineInsertLink className="icon" />
+                      </div>
+                      <div>
+                        <label>Website</label>
+                        <p>{selectedOwner?.website || "Not Available"}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              <div className="info-item">
-                <div className="icon-container">
-                  <FaEnvelope className="icon" />
-                </div>
-                <div>
-                  <label>Email</label>
-                  <p>{selectedOwner?.user_email}</p>
-                </div>
-              </div>
-
-              <div className="info-item">
-                <div className="icon-container">
-                  <FaMapMarkerAlt className="icon" />
-                </div>
-                <div>
-                  <label>Business Address</label>
-                  <p>{selectedOwner.business_address || "Not Available"}</p>
+              <div className="services_in_profile">
+                <div className="info-item">
+                  <div
+                    className="icon-container"
+                    style={{ marginLeft: "20px" }}
+                  >
+                    <MdOutlineDesignServices className="icon" />
+                  </div>
+                  <div className="service-list">
+                    {/* <label>Services</label> */}
+                    {selectedOwner?.services ? (
+                      selectedOwner.services.map((service, index) => (
+                        <p className="service-item" key={index}>
+                          {service}
+                        </p>
+                      ))
+                    ) : (
+                      <p>No services available</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="info-card">
-              <div className="info-item">
-                <div className="icon-container">
-                  <MdOutlineInsertLink className="icon" />
-                </div>
-                <div>
-                  <label>Website</label>
-                  <p>{selectedOwner?.website || "Not Available"}</p>
-                </div>
-              </div>
-              <div className="info-item">
-                <div className="icon-container">
-                  <MdOutlineDesignServices className="icon" />
-                </div>
-                <div>
-                  <label>Services</label>
-                  {selectedOwner?.services ? (
-                    selectedOwner.services.map((service, index) => (
-                      <p className="service-item" key={index}>{service}</p>
-                    ))
-                  ) : (
-                    <p>No services available</p>
-                  )}
-                </div>
-              </div>
-            </div>
             <div className="info-card">
               <div className="calendar-wrapper">
                 <div className="calendar-title">
-                  <label>Availability - {value.toLocaleString('default', { month: 'long' })}</label>
+                  <label>
+                    Availability -{" "}
+                    {value.toLocaleString("default", { month: "long" })}
+                  </label>
                 </div>
                 <Calendar
                   value={value}
                   tileClassName={getTileClassName}
                   tileStyle={getTileStyle}
                   formatShortWeekday={(locale, date) =>
-                    ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'][date.getDay()]
+                    ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"][date.getDay()]
                   }
                   className="modern-calendar"
-                  minDate={new Date(new Date().getFullYear(), new Date().getMonth(), 1)}
-                  maxDate={new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)}
+                  minDate={
+                    new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+                  }
+                  maxDate={
+                    new Date(
+                      new Date().getFullYear(),
+                      new Date().getMonth() + 1,
+                      0
+                    )
+                  }
                   showNavigation={false}
                 />
               </div>
             </div>
-
           </div>
         </div>
       </div>
 
       {/* Photos Section */}
+      {/* <div className="section photo_section">
+        {ownerData.photo_files?.length > 0 ? (
+          <div className="photos-container" style={{ flexDirection: "column" }}>
+            <div className="profile_preview_photos_title">
+              <div className="photos-card-title">Photos</div>
+              {packagesMoreThan4 && (
+                <button onClick={() => {}}>Show All</button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="no_equipments">
+            <img src={NoDataForEquipment} alt="" />
+            <p className="no-data">NO PHOTOS AVAILABLE</p>
+          </div>
+        )}
+      </div> */}
+
       <div className="section photo_section">
         {ownerData.photo_files?.length > 0 ? (
           <div className="photos-container" style={{ flexDirection: "column" }}>
             <div className="profile_preview_photos_title">
               <div className="photos-card-title">Photos</div>
               {packagesMoreThan4 && (
-                <button onClick={() => { }}>
-                  Show All
-                </button>
+                <button onClick={() => {}}>Show All</button>
               )}
             </div>
             <div className="profile_preview_images">
-              {ownerData.photo_files.map((photo, index) => (
+              {ownerData.photo_files.slice(0, 3).map((photo, index) => (
                 <img
                   key={index}
                   src={photo.photo}
@@ -410,7 +455,7 @@ const OwnerDetails = () => {
       {/* Equipment Section */}
       <div className="section equipment_section">
         {ownerData.equipment?.length > 0 ? (
-          <ul className="equipment-list" >
+          <ul className="equipment-list">
             <div className="profile_preview_equipment_title">
               <div className="equipment-card-title">Equipment</div>
 
@@ -420,43 +465,38 @@ const OwnerDetails = () => {
                 </button>
               )}
             </div>
-            <div className="equipment_items_container" >
-              {ownerData.equipment.slice(0, 4).map((item, index) => (
+            <div className="equipment_items_container">
+              {ownerData.equipment.slice(0, 3).map((item, index) => (
                 <li
                   key={index}
                   className="equipment_item"
-                  onClick={() => handleItemClick(item, 'equipment')}
-                  style={{ cursor: 'pointer'}}
+                  onClick={() => handleItemClick(item, "equipment")}
+                  style={{ cursor: "pointer" }}
                 >
                   <div className="photo_container_for_equipment">
-                    <img src={equipmentTypes.find(type => type.type === item.equipment_type)?.icon} alt="Equipment" />
-                    <p>
-                      <strong>Name:</strong> {item.name || "Not Available"}
-                    </p>
+                    <img
+                      src={get_img_by_name(item.equipment_type)}
+                      alt={item.equipment_type}
+                    />
+                    <p>{item.name || "Not Available"}</p>
                   </div>
                   <div className="other_details_for_equipment">
-                    <p>
-                      <strong>Company:</strong>{" "}
-                      {item.equipment_company || "Not Available"}
-                    </p>
-                    <p>
-                    <strong>Type:</strong>{" "}
-                    {item.equipment_type || "Not Available"}
-                  </p>
+                    <div>{item.equipment_company || "Not Available"}</div>
+                    <div>• {item.equipment_type || "Not Available"}</div>
                   </div>
 
-                  
-                  
-                  
-                  <p>
-                    <strong>Price per Day:</strong> $
-                    {item.equipment_price_per_day || "Not Available"}
-                  </p>
+                  <div className="equipment_price_container">
+                    <p>
+                      Rs. {item.equipment_price_per_day || "Not Available"} /Day
+                    </p>
+                  </div>
+                  <div className="equipment_description">
+                    <strong>Details:</strong>
+                    <p>{item.equipment_description || "Not Available"}</p>
+                  </div>
                 </li>
               ))}
             </div>
-
-
           </ul>
         ) : (
           <div className="no_equipments">
@@ -475,12 +515,10 @@ const OwnerDetails = () => {
               Show All
             </button>
           )}
-
         </div>
         <div className="packages-grid">
-
           {ownerData.packages?.length > 0 ? (
-            ownerData.packages.slice(0, 4).map((pkg, index) => (
+            ownerData.packages.slice(0, 3).map((pkg, index) => (
               <div
                 key={pkg.id || index}
                 className="package-card"
@@ -502,8 +540,12 @@ const OwnerDetails = () => {
                       color: "#fff",
                     }}
                   >
-                    <div className="package_name">{pkg.package_name || "Not Available"}</div>
-                    <div className="package_price">₹{pkg.price || "Not Available"}</div>
+                    <div className="package_name">
+                      {pkg.package_name || "Not Available"}
+                    </div>
+                    <div className="package_price">
+                      ₹{pkg.price || "Not Available"}
+                    </div>
                   </div>
                   <div
                     className="third_container"
@@ -526,12 +568,14 @@ const OwnerDetails = () => {
                             key={idx}
                             className="service-item"
                             style={{
-                              backgroundColor: idx % 2 === 0 ? lightColor : "#ffffff",
+                              backgroundColor:
+                                idx % 2 === 0 ? lightColor : "#ffffff",
                               width: "100%",
                               padding: "8px 10px",
                             }}
                           >
-                            {srv?.charAt(0)?.toUpperCase() + srv?.slice(1)?.toLowerCase()}
+                            {srv?.charAt(0)?.toUpperCase() +
+                              srv?.slice(1)?.toLowerCase()}
                           </div>
                         );
                       })
@@ -551,8 +595,6 @@ const OwnerDetails = () => {
         </div>
       </div>
 
-
-
       {showSelectedCard && selectedData && (
         <SeletedCard
           type={selectedType}
@@ -565,7 +607,6 @@ const OwnerDetails = () => {
           selectedData={selectedData}
         />
       )}
-
     </div>
   );
 };

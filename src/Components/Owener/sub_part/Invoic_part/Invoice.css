@@ -201,7 +201,7 @@
   border: 1px solid var(--border-color);
   border-radius: 4px;
   transition: all 0.2s ease;
-  margin: 10px;
+  /* margin: 10px; */
 }
 
 .invoice_and_table_container .invoice_form .invoice_generator input:focus {
@@ -490,6 +490,7 @@
   border: none;
   outline: 1px solid #ddd;
   border-radius: 4px;
+  resize: none;
 }
 .invoice_and_table_container
   .invoice_form
@@ -649,8 +650,51 @@
   tbody
   tr
   .name_of_item {
-  width: 400px;
+  min-width: 320px;
+  position: relative;
 }
+.invoice_and_table_container
+  .invoice_form
+  .invoice_generator
+  tbody
+  tr
+  .name_of_item
+  .dropdown {
+  position: absolute;
+  width: 95%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  list-style: none;
+  margin: 5px 0 0;
+  z-index: 100;
+}
+.invoice_and_table_container
+  .invoice_form
+  .invoice_generator
+  tbody
+  tr
+  .name_of_item
+  .dropdown
+  li {
+  padding: 10px;
+  margin-top: 3px;
+  /* background-color: lightgray; */
+  transition: all 0.2s ease-in-out;
+}
+.invoice_and_table_container
+  .invoice_form
+  .invoice_generator
+  tbody
+  tr
+  .name_of_item
+  .dropdown
+  li:hover {
+  background-color: #d6d6d63f;
+}
+
 .invoice_and_table_container .invoice_form table tbody tr td input {
   height: 28px;
   width: 100%;
@@ -888,7 +932,6 @@
 }
 .invoice_and_table_container table th,
 .invoice_and_table_container table td {
-  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   max-width: 150px; /* Adjust as needed */

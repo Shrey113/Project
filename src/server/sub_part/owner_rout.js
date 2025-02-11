@@ -513,7 +513,6 @@ router.post("/update-business", (req, res) => {
     gst_number,
     business_address,
     website,
-    services,
     user_email,
   } = req.body;
 
@@ -523,7 +522,6 @@ router.post("/update-business", (req, res) => {
     !gst_number ||
     !business_address ||
     !website ||
-    !services ||
     !user_email
   ) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -531,23 +529,13 @@ router.post("/update-business", (req, res) => {
 
   const query = `
     UPDATE owner
-    SET business_name = ?, business_email = ?, gst_number = ?, business_address = ?, website = ?, services = ?
+    SET business_name = ?, business_email = ?, gst_number = ?, business_address = ?, website = ?
     WHERE user_email = ?
   `;
 
-  const servicesJson = JSON.stringify(services);
-
   db.query(
     query,
-    [
-      business_name,
-      business_email,
-      gst_number,
-      business_address,
-      website,
-      servicesJson,
-      user_email,
-    ],
+    [business_name, business_email, gst_number, business_address, website, user_email],
     (err, result) => {
       if (err) {
         console.error("Error updating business data:", err);
@@ -1494,6 +1482,241 @@ router.get("/get-equipment-details-by/:receiver_email", (req, res) => {
         equipment: equipmentResults,
       });
     });
+  });
+});
+
+// Add a new service
+router.post("/add-service", (req, res) => {
+  const { service_name, price_per_day, description, user_email } = req.body;
+
+  // Validate required fields
+  if (!service_name || !price_per_day || !user_email) {
+    return res.status(400).json({ 
+      error: "Service name, price per day, and user email are required" 
+    });
+  }
+
+  const query = `
+    INSERT INTO owner_services 
+    (service_name, price_per_day, description, user_email)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  db.query(
+    query,
+    [service_name, price_per_day, description || null, user_email],
+    (err, result) => {
+      if (err) {
+        console.error("Error adding service:", err);
+        return res.status(500).json({ error: "Error adding service" });
+      }
+
+      res.status(201).json({
+        message: "Service added successfully",
+        service_id: result.insertId
+      });
+    }
+  );
+});
+
+// Get services by user email
+router.get("/services/:user_email", (req, res) => {
+  const { user_email } = req.params;
+
+  const query = `
+    SELECT * FROM owner_services 
+    WHERE user_email = ?
+    ORDER BY service_name
+  `;
+
+  db.query(query, [user_email], (err, results) => {
+    if (err) {
+      console.error("Error fetching services:", err);
+      return res.status(500).json({ error: "Error fetching services" });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+// Remove service by ID
+router.delete("/remove-service/:id", (req, res) => {
+  const { id } = req.params;
+  const { user_email } = req.body; // For security verification
+
+  // First verify the user owns this service
+  const verifyQuery = `
+    SELECT id FROM owner_services 
+    WHERE id = ? AND user_email = ?
+  `;
+
+  db.query(verifyQuery, [id, user_email], (err, results) => {
+    if (err) {
+      console.error("Error verifying service ownership:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(403).json({ 
+        error: "Unauthorized or service not found" 
+      });
+    }
+
+    // Delete the service
+    const deleteQuery = `DELETE FROM owner_services WHERE id = ?`;
+
+    db.query(deleteQuery, [id], (err, result) => {
+      if (err) {
+        console.error("Error deleting service:", err);
+        return res.status(500).json({ error: "Error deleting service" });
+      }
+
+      res.status(200).json({ 
+        message: "Service deleted successfully" 
+      });
+    });
+  });
+});
+
+// Add social media link(s)
+router.post("/add-social-media-links", (req, res) => {
+  const { user_email, links } = req.body;
+
+  if (!user_email || !Array.isArray(links)) {
+    return res.status(400).json({ 
+      error: "User email and array of links are required" 
+    });
+  }
+
+  // First get existing links
+  const getQuery = "SELECT social_media_links FROM owner WHERE user_email = ?";
+  
+  db.query(getQuery, [user_email], (err, results) => {
+    if (err) {
+      console.error("Error fetching existing links:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    let existingLinks = [];
+    if (results[0]?.social_media_links) {
+      try {
+        // Handle both string and array formats
+        existingLinks = typeof results[0].social_media_links === 'string' ? 
+          [results[0].social_media_links] :
+          Array.isArray(results[0].social_media_links) ?
+            results[0].social_media_links : [];
+      } catch (e) {
+        console.error("Error processing existing links:", e);
+      }
+    }
+
+    // Combine existing and new links, removing duplicates
+    const updatedLinks = [...new Set([...existingLinks, ...links])];
+
+    // Store as JSON string
+    const linksJson = JSON.stringify(updatedLinks);
+
+    // Update the database with combined links
+    const updateQuery = "UPDATE owner SET social_media_links = ? WHERE user_email = ?";
+    
+    db.query(updateQuery, [linksJson, user_email], (err, result) => {
+      if (err) {
+        console.error("Error updating social media links:", err);
+        return res.status(500).json({ error: "Error updating links" });
+      }
+
+      res.status(200).json({
+        message: "Social media links updated successfully",
+        links: updatedLinks
+      });
+    });
+  });
+});
+
+// Delete specific social media link(s)
+router.delete("/remove-social-media-links", (req, res) => {
+  const { user_email, links } = req.body;
+
+  if (!user_email || !Array.isArray(links)) {
+    return res.status(400).json({ 
+      error: "User email and array of links to remove are required" 
+    });
+  }
+
+  // First get existing links
+  const getQuery = "SELECT social_media_links FROM owner WHERE user_email = ?";
+  
+  db.query(getQuery, [user_email], (err, results) => {
+    if (err) {
+      console.error("Error fetching existing links:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (!results[0]?.social_media_links) {
+      return res.status(404).json({ error: "No social media links found" });
+    }
+
+    let existingLinks = [];
+    try {
+      existingLinks = JSON.parse(results[0].social_media_links);
+    } catch (e) {
+      console.error("Error parsing existing links:", e);
+      return res.status(500).json({ error: "Error processing existing links" });
+    }
+
+    // Filter out the links to be removed
+    const updatedLinks = existingLinks.filter(link => !links.includes(link));
+
+    // Update the database with remaining links
+    const updateQuery = "UPDATE owner SET social_media_links = ? WHERE user_email = ?";
+    
+    db.query(updateQuery, [JSON.stringify(updatedLinks), user_email], (err, result) => {
+      if (err) {
+        console.error("Error updating social media links:", err);
+        return res.status(500).json({ error: "Error updating links" });
+      }
+
+      res.status(200).json({
+        message: "Social media links removed successfully",
+        links: updatedLinks
+      });
+    });
+  });
+});
+
+// Get all social media links for a user
+router.get("/social-media-links/:user_email", (req, res) => {
+  const { user_email } = req.params;
+
+  const query = "SELECT social_media_links FROM owner WHERE user_email = ?";
+  
+  db.query(query, [user_email], (err, results) => {
+    if (err) {
+      console.error("Error fetching social media links:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (!results[0]) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    let links = [];
+    if (results[0].social_media_links) {
+      try {
+        // Handle both string and array formats
+        links = typeof results[0].social_media_links === 'string' ?
+          JSON.parse(results[0].social_media_links) :
+          Array.isArray(results[0].social_media_links) ?
+            results[0].social_media_links : [];
+      } catch (e) {
+        console.error("Error processing social media links:", e);
+        // If JSON parsing fails, try to handle as a single link
+        links = typeof results[0].social_media_links === 'string' ?
+          [results[0].social_media_links] : [];
+      }
+    }
+
+    res.status(200).json({ links });
   });
 });
 

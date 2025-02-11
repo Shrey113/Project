@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mysql = require("mysql2");
+const { send_event_confirmation_email } = require("../modules/send_server_email");
 
 const db = mysql.createConnection({
   host: "localhost",
@@ -12,6 +13,12 @@ const db = mysql.createConnection({
       require("mysql2/lib/auth_plugins").mysql_native_password,
   },
 });
+
+function formatDate(isoString) {
+  const date = new Date(isoString);
+  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+  return date.toLocaleString('en-US', options);
+}
 
 // Create a new event
 router.post("/add-event", (req, res) => {
@@ -37,7 +44,7 @@ router.post("/add-event", (req, res) => {
   );
 });
 router.post("/add-event-with-success", (req, res) => {
-  const { title, start, end, description, backgroundColor, user_email } =
+  const { title, start, end, description, backgroundColor, user_email,sender_email,event_location } =
     req.body;
 
   // Directly insert the event, assuming user_email is valid and exists in the owner table
@@ -52,6 +59,13 @@ router.post("/add-event-with-success", (req, res) => {
         console.error("Error creating event:", err);
         return res.status(500).json({ error: "Failed to create event" });
       }
+      console.log(sender_email, title, formatDate(start), formatDate(end), description, user_email);
+      send_event_confirmation_email(sender_email, title, formatDate(start), formatDate(end), description,event_location, user_email);
+
+
+
+
+
       res
         .status(201)
         .json({ id: result.insertId, message: "Event created successfully" });

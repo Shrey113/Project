@@ -52,67 +52,76 @@ router.post("/filtered_team_member", (req, res) => {
   const { user_email, start_date, end_date } = req.body;
 
   const query = `
-      SELECT start_date, end_date, assigned_team_member 
-      FROM event_request 
-      WHERE receiver_email = ? 
-      AND start_date >= ? 
-      AND end_date <= ?;
-    `;
+    SELECT assigned_team_member 
+    FROM event_request 
+    WHERE receiver_email = ? 
+    AND (
+      (? BETWEEN start_date AND end_date) OR
+      (? BETWEEN start_date AND end_date) OR
+      (start_date BETWEEN ? AND ?) OR
+      (end_date BETWEEN ? AND ?)
+    );
+  `;
 
   // Execute the query
-  db.query(query, [user_email, start_date, end_date], (err, results) => {
-    if (err) {
-      console.error("Error fetching team members:", err);
-      return res.status(500).json({ message: "Database error", error: err });
-    }
+  db.query(
+    query,
+    [user_email, start_date, end_date, start_date, end_date, start_date, end_date],
+    (err, results) => {
+      if (err) {
+        console.error("Error fetching team members:", err);
+        return res.status(500).json({ message: "Database error", error: err });
+      }
 
-    console.log("Query Params:", user_email, start_date, end_date);
+      console.log("Query Params:", user_email, start_date, end_date);
 
-    if (results.length === 0) {
-      return res.status(200).json({ message: "No data found", results: [] });
-    }
+      const assignedTeamMembers = new Set();
 
-    const assignedTeamMembers = new Set(); // Store unique team members
+      results.forEach((result) => {
+        let assignedTeamMember = result.assigned_team_member;
 
-    // Format results properly
-    const formattedResults = results.map((result) => {
-      let assignedTeamMember = result.assigned_team_member;
-
-      // Handle possible JSON string stored in DB
-      if (typeof assignedTeamMember === "string") {
-        try {
-          assignedTeamMember = JSON.parse(assignedTeamMember);
-        } catch (error) {
-          console.error("Error parsing assigned team members:", error);
-          assignedTeamMember = [];
+        // Handle possible JSON string stored in DB
+        if (typeof assignedTeamMember === "string") {
+          try {
+            assignedTeamMember = JSON.parse(assignedTeamMember);
+          } catch (error) {
+            console.error("Error parsing assigned team members:", error);
+            assignedTeamMember = [];
+          }
         }
-      }
 
-      // Ensure it's always an array
-      if (!Array.isArray(assignedTeamMember)) {
-        assignedTeamMember = [];
-      }
+        if (Array.isArray(assignedTeamMember)) {
+          assignedTeamMember.forEach((member) => assignedTeamMembers.add(member));
+        }
+      });
 
-      // Add team members to Set
-      assignedTeamMember.forEach((member) => assignedTeamMembers.add(member));
+      const busyTeamMembers = [...assignedTeamMembers];
 
-      return {
-        start_date: result.start_date,
-        end_date: result.end_date,
-        assigned_team_member: assignedTeamMember,
-      };
-    });
+      // Fetch all team members from another table (assuming you have a `team_members` table)
+      const allTeamQuery = `SELECT * FROM team_member`;
 
-    // Convert Set to array to remove duplicates
-    const response = {
-      results: formattedResults,
-      assignedTeamMembers: [...assignedTeamMembers],
-    };
+      db.query(allTeamQuery, [], (err, teamResults) => {
+        if (err) {
+          console.error("Error fetching all team members:", err);
+          return res.status(500).json({ message: "Database error", error: err });
+        }
 
-    console.log("Final Response:", response);
-    return res.status(200).json(response);
-  });
+        const allTeamMembers = teamResults.map((row) => row.team_member);
+
+        // Find free team members
+        const freeTeamMembers = allTeamMembers.filter(
+          (member) => !busyTeamMembers.includes(member)
+        );
+
+        return res.status(200).json({
+          assignedTeamMembers: busyTeamMembers,
+          freeTeamMembers: freeTeamMembers,
+        });
+      });
+    }
+  );
 });
+
 
 router.post("/add_members", (req, res) => {
   const {
