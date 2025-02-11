@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './OwnerUrlList.css';
-import { FaInstagram, FaFacebook, FaPinterest, FaGlobe, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaInstagram, FaFacebook, FaPinterest, FaGlobe, FaPlus, FaTrash, FaYoutube } from 'react-icons/fa';
 import { ConfirmMessage,Server_url} from '../../../../../redux/AllData';
 import { useSelector } from 'react-redux';
 
@@ -30,6 +30,7 @@ function OwnerUrlList() {
     if (domain.includes('instagram')) return <FaInstagram className="url-icon instagram" />;
     if (domain.includes('facebook')) return <FaFacebook className="url-icon facebook" />;
     if (domain.includes('pinterest')) return <FaPinterest className="url-icon pinterest" />;
+    if (domain.includes('youtube')) return <FaYoutube className="url-icon youtube" />;
     return <FaGlobe className="url-icon website" />;
   };
 
@@ -99,7 +100,9 @@ function OwnerUrlList() {
 
   return (
     <div className='owner-url-list'>
-      <h1>My Links</h1>
+           <div className="profile-header">
+        <h2>Social Media Links</h2>
+      </div>
       
       <form className="url-input-form" onSubmit={handleAddUrl}>
         <input
