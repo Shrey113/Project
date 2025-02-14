@@ -154,8 +154,14 @@ function AddBusinessServices() {
     if (formData.serviceName.length < 3) {
       newErrors.serviceName = 'Service name must be at least 3 characters long.';
     }
-    if (formData.description.length < 10) {
-      newErrors.description = 'Description must be at least 10 characters long.';
+    if (formData.description.length < 3) {
+      newErrors.description = 'Description must be at least 3 characters long.';
+    }
+    if (formData.description.length > 200) {
+      newErrors.description = 'Description must be less than 200 characters long.';
+    }
+    if (formData.pricePerDay.length > 6) {
+      newErrors.pricePerDay = 'Price per day must be less than 6 digits.';
     }
     return newErrors;
   };
@@ -253,7 +259,7 @@ function AddBusinessServices() {
   return (
     <div className='add-business-services-container'>
       <div className='services-header'>
-        <h1>Business Services</h1>
+        <h2>Business Services</h2>
         <button className='add-service-btn' onClick={handleAddService}>
           + Add Service
         </button>
@@ -296,6 +302,7 @@ function AddBusinessServices() {
                 value={formData.pricePerDay}
                 onChange={handleChange}
               />
+              {errors.pricePerDay && <p className='error'>{errors.pricePerDay}</p>}
             </div>
             <div className='form-group'>
               <textarea

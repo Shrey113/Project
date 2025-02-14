@@ -9,7 +9,8 @@ import dayjs from 'dayjs';
 import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
 import { Server_url, showAcceptToast, showRejectToast } from '../../../../../redux/AllData';
 
-const EventDetailsPop = ({ setShowEventDetails, selectedEvent,setEvents, events,isEditing,setIsEditing }) => {
+const EventDetailsPop = ({ setShowEventDetails, selectedEvent,setEvents,
+   events,isEditing,setIsEditing,is_button_disabled }) => {
 
     const [editedEvent, setEditedEvent] = useState({ ...selectedEvent });
 
@@ -277,6 +278,7 @@ const EventDetailsPop = ({ setShowEventDetails, selectedEvent,setEvents, events,
                 </button>
               </div>
             ) : (
+              is_button_disabled && (
               <div className="button-group">
                 <button className="edit-btn" onClick={() => setIsEditing(true)}>
                   Edit Event
@@ -285,6 +287,7 @@ const EventDetailsPop = ({ setShowEventDetails, selectedEvent,setEvents, events,
                   Delete Event
                 </button>
               </div>
+              )
             )}
           </div>
         </div>

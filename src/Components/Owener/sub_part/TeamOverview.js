@@ -15,28 +15,22 @@ import { Server_url } from "../../../redux/AllData";
 
 const PopUp = ({ action, member, onClose, onSave }) => {
   const user = useSelector((state) => state.user);
-
   const [formData, setFormData] = useState({
     member_id: member?.member_id || "",
     member_name: member?.member_name || "",
     member_role: member?.member_role || "",
-    member_event_assignment: member?.member_event_assignment || "",
-    member_status: member?.member_status || "Active",
     member_profile_img: member?.member_profile_img || profile_pic_user1,
   });
 
   const [formErrors, setFormErrors] = useState({
     member_name: "",
     member_role: "",
-    member_event_assignment: "",
   });
 
   const validateForm = () => {
     const errors = {};
     if (!formData.member_name) errors.member_name = "Name is required";
     if (!formData.member_role) errors.member_role = "Role is required";
-    if (!formData.member_event_assignment)
-      errors.member_event_assignment = "Event Assignment is required";
 
     setFormErrors(errors);
 
@@ -66,10 +60,9 @@ const PopUp = ({ action, member, onClose, onSave }) => {
           body: JSON.stringify({
             owner_email: user.user_email,
             member_name: formData.member_name,
-            member_profile_img: profile_pic_user1,
+            member_profile_img:
+              formData.member_profile_img || profile_pic_user1,
             member_role: formData.member_role,
-            member_event_assignment: formData.member_event_assignment,
-            member_status: formData.member_status,
           }),
         });
 
@@ -92,19 +85,18 @@ const PopUp = ({ action, member, onClose, onSave }) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              member_id: formData.member_id, // Unique ID
+              member_id: formData.member_id,
               owner_email: user.user_email,
               member_name: formData.member_name,
               member_profile_img: formData.member_profile_img,
               member_role: formData.member_role,
-              member_event_assignment: formData.member_event_assignment,
-              member_status: formData.member_status,
             }),
           }
         );
 
         if (response.ok) {
           onSave(formData);
+          
         } else {
           console.error("Failed to update member");
         }
@@ -156,7 +148,8 @@ const PopUp = ({ action, member, onClose, onSave }) => {
                 <div className="error">{formErrors.member_role}</div>
               )}
             </label>
-            <label>
+
+            {/* <label>
               Event Assignment:
               <input
                 type="text"
@@ -169,8 +162,8 @@ const PopUp = ({ action, member, onClose, onSave }) => {
                   {formErrors.member_event_assignment}
                 </div>
               )}
-            </label>
-            <label>
+            </label> */}
+            {/* <label>
               Status:
               <select
                 name="member_status"
@@ -180,7 +173,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </select>
-            </label>
+            </label> */}
 
             <label className="pro_title">Profile Picture:</label>
             <div className="profile-pic-selection">
@@ -242,18 +235,18 @@ const PopUp = ({ action, member, onClose, onSave }) => {
                   </td>
                   <td>{formData.member_role}</td>
                 </tr>
-                <tr>
+                {/* <tr>
                   <td className="label">
                     <strong>Event Assignment:</strong>
                   </td>
                   <td>{formData.member_event_assignment || "Unassigned"}</td>
-                </tr>
-                <tr>
+                </tr> */}
+                {/* <tr>
                   <td className="label">
                     <strong>Status:</strong>
                   </td>
                   <td>{formData.member_status}</td>
-                </tr>
+                </tr> */}
               </tbody>
             </table>
           </div>
@@ -385,7 +378,7 @@ const ActionMenu = ({ member, onEdit, onRemove, onView }) => {
 const TeamOverview = () => {
   const user = useSelector((state) => state.user);
   const [teamData, setTeamData] = useState([]);
-  const fetchTeamMembers = async () => {
+  const fetchTeamMembers = async (user_email) => {
     try {
       const response = await fetch(`${Server_url}/team_members/get_members`, {
         method: "POST",
@@ -393,7 +386,7 @@ const TeamOverview = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          user_email: user.user_email,
+          user_email: user_email,
         }),
       });
       const data = await response.json();
@@ -403,8 +396,8 @@ const TeamOverview = () => {
     }
   };
   useEffect(() => {
-    fetchTeamMembers();
-  }, []);
+    fetchTeamMembers(user.user_email);
+  }, [user.user_email]);
 
   const [popupState, setPopupState] = useState({
     show: false,
@@ -427,9 +420,9 @@ const TeamOverview = () => {
   const handleSave = (newData) => {
     if (popupState.action === "Add") {
       setTeamData([...teamData, newData]);
-      fetchTeamMembers();
+      fetchTeamMembers(user.user_email);
     } else if (popupState.action === "Edit") {
-      fetchTeamMembers();
+      fetchTeamMembers(user.user_email);
     }
   };
 
@@ -448,7 +441,7 @@ const TeamOverview = () => {
       });
 
       if (response.ok) {
-        fetchTeamMembers();
+        fetchTeamMembers(user.user_email);
       } else {
         console.error("Failed to delete member");
       }
@@ -501,8 +494,8 @@ const TeamOverview = () => {
               <th>No</th>
               <th>Name</th>
               <th>Role</th>
-              <th>Event Assignment</th>
-              <th>Status</th>
+              {/* <th>Event Assignment</th> */}
+              {/* <th>Status</th> */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -519,10 +512,10 @@ const TeamOverview = () => {
                   </div>
                 </td>
                 <td data-label="Role">{member.member_role}</td>
-                <td data-label="Event Assignment">
+                {/* <td data-label="Event Assignment">
                   {member.member_event_assignment || "Unassigned"}
-                </td>
-                <td data-label="Status">{member.member_status}</td>
+                </td> */}
+                {/* <td data-label="Status">{member.member_status}</td> */}
                 <td data-label="Actions">
                   <ActionMenu
                     member={member}

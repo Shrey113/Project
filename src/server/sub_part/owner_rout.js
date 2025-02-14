@@ -1658,19 +1658,36 @@ router.delete("/remove-social-media-links", (req, res) => {
 
     let existingLinks = [];
     try {
-      existingLinks = JSON.parse(results[0].social_media_links);
+      // Handle both string and array formats
+      const storedLinks = results[0].social_media_links;
+      if (typeof storedLinks === 'string') {
+        // Try parsing as JSON first
+        try {
+          existingLinks = JSON.parse(storedLinks);
+        } catch (e) {
+          // If not valid JSON, treat as single link string
+          existingLinks = [storedLinks];
+        }
+      } else if (Array.isArray(storedLinks)) {
+        existingLinks = storedLinks;
+      }
     } catch (e) {
-      console.error("Error parsing existing links:", e);
+      console.error("Error processing existing links:", e);
       return res.status(500).json({ error: "Error processing existing links" });
     }
 
     // Filter out the links to be removed
     const updatedLinks = existingLinks.filter(link => !links.includes(link));
 
+    // Store as JSON string if multiple links, or plain string if single link
+    const linksToStore = updatedLinks.length === 1 ? 
+      updatedLinks[0] : 
+      JSON.stringify(updatedLinks);
+
     // Update the database with remaining links
     const updateQuery = "UPDATE owner SET social_media_links = ? WHERE user_email = ?";
     
-    db.query(updateQuery, [JSON.stringify(updatedLinks), user_email], (err, result) => {
+    db.query(updateQuery, [linksToStore, user_email], (err, result) => {
       if (err) {
         console.error("Error updating social media links:", err);
         return res.status(500).json({ error: "Error updating links" });

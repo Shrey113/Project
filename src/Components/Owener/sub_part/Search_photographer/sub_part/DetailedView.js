@@ -113,10 +113,10 @@ function DetailedView() {
   }
 
   // Add console.log to debug state changes
-  useEffect(() => {
-    console.log("showSelectedCard:", showSelectedCard);
-    console.log("selectedData:", selectedData);
-  }, [showSelectedCard, selectedData]);
+  // useEffect(() => {
+  //   console.log("showSelectedCard:", showSelectedCard);
+  //   console.log("selectedData:", selectedData);
+  // }, [showSelectedCard, selectedData]);
 
   const lightenColor = (color, percent) => {
     let num = parseInt(color.replace("#", ""), 16),

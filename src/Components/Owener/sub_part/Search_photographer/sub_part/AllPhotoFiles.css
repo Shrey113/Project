@@ -1,0 +1,20 @@
+.all_photos_container {
+  height: 100vh;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  overflow-y: scroll;
+}
+.all_photos_container .photos_grid {
+  /* display: grid; */
+  /* grid-template-columns: repeat(3, 1fr); */
+  gap: 10px;
+  padding: 10px;
+  column-width: 450px;
+}
+.all_photos_container img {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}

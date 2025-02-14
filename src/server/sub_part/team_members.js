@@ -272,4 +272,32 @@ router.put("/update_member", (req, res) => {
   );
 });
 
+router.post("/team_status", (req, res) => {
+  const { owner_email } = req.body;
+
+  const query = `
+    SELECT 
+      COUNT(*) as total_members,
+      SUM(CASE WHEN member_status = 'Active' THEN 1 ELSE 0 END) as active_members,
+      SUM(CASE WHEN member_status = 'Inactive' THEN 1 ELSE 0 END) as inactive_members
+    FROM team_member 
+    WHERE owner_email = ?
+  `;
+
+  db.query(query, [owner_email], (err, results) => {
+    if (err) {
+      console.error("Error fetching team status:", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+
+    const status = results[0];
+    // console.log(status);
+    res.json({
+      total_members: status.total_members,
+      active_members: status.active_members,
+      inactive_members: status.inactive_members
+    });
+  });
+});
+
 module.exports = router;

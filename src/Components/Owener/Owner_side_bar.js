@@ -4,30 +4,40 @@ import { useNavigate } from 'react-router-dom';
 
 import './css/Owner_side_bar.css';
 
-import user4 from './img/user4.jpg';
+// import user4 from './img/user4.jpg';
 import app_icon from './img/app-store.png';
 
-import close_menu from './img/close.png'
+// import close_menu from './img/close.png'
 
-import dashboard_icon from './img/active/dashboard.png';
-import dashboard_no_active_icon from './img/no_active/dashboard.png';
+// import dashboard_icon from './img/active/dashboard.png';
+// import dashboard_no_active_icon from './img/no_active/dashboard.png';
 
-import Event_icon from './img/active/calendar.png'
-import Event_no_active_icon  from './img/no_active/calendar.png'
+// import Event_icon from './img/active/calendar.png'
+// import Event_no_active_icon  from './img/no_active/calendar.png'
 
 
-import Team_icon from './img/active/group.png'
-import Team_no_active_icon from './img/no_active/group.png'
+// import Team_icon from './img/active/group.png'
+// import Team_no_active_icon from './img/no_active/group.png'
 
-import client_icon from './img/active/client.png'
-import client_no_active_icon from './img/no_active/client.png'
+// import client_icon from './img/active/client.png'
+// import client_no_active_icon from './img/no_active/client.png'
 
-import Packages_icon from './img/active/photo.png'
-import Packages_no_active_icon from './img/no_active/photo.png'
+// import Packages_icon from './img/active/photo.png'
+// import Packages_no_active_icon from './img/no_active/photo.png'
 
-import logout_icon from './img/logout.png'
+// import logout_icon from './img/logout.png'
 
 import { ConfirmMessage, localstorage_key_for_jwt_user_side_key } from './../../redux/AllData.js';
+
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import EventIcon from '@mui/icons-material/Event';
+import GroupsIcon from '@mui/icons-material/Groups';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import SearchIcon from '@mui/icons-material/Search';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 
 function OwnerSideBar() {
   const dispatch = useDispatch();
@@ -85,16 +95,34 @@ useEffect(() => {
   };
 
     const menuItems = [
-        { name: 'Dashboard', icon:dashboard_icon  ,active_icon:dashboard_no_active_icon, path: '/Owner'},
-        { name: 'Event Management', icon: Event_icon, active_icon: Event_no_active_icon, path: '/Owner/Event' },
-        { name: 'Team Management', icon: Team_icon, active_icon: Team_no_active_icon, path: '/Owner/Team' },
-        { name: 'Invoice Management', icon: client_icon ,active_icon: client_no_active_icon, path: '/Owner/Invoice'},
-        { name: 'Packages and Pricing', icon: Packages_icon,active_icon: Packages_no_active_icon, path: '/Owner/Packages' },
-        // { name: 'calendar ', icon: Packages_icon,active_icon: Packages_no_active_icon, path: '/Owner/calendar' },
+        { 
+          name: 'Dashboard', 
+          icon: <DashboardIcon className={`menu-icon ${activeIndex === 0 ? 'active' : ''}`} />,
+          path: '/Owner'
+        },
+        { 
+          name: 'Event Management', 
+          icon: <EventIcon className={`menu-icon ${activeIndex === 1 ? 'active' : ''}`} />,
+          path: '/Owner/Event' 
+        },
+        { 
+          name: 'Team Management', 
+          icon: <GroupsIcon className={`menu-icon ${activeIndex === 2 ? 'active' : ''}`} />,
+          path: '/Owner/Team' 
+        },
+        { 
+          name: 'Invoice Management', 
+          icon: <ReceiptIcon className={`menu-icon ${activeIndex === 3 ? 'active' : ''}`} />,
+          path: '/Owner/Invoice'
+        },
+        { 
+          name: 'Packages and Pricing', 
+          icon: <LocalOfferIcon className={`menu-icon ${activeIndex === 4 ? 'active' : ''}`} />,
+          path: '/Owner/Packages' 
+        },
         {
-          name: "Search Photographer ",
-          icon: Packages_icon,
-          active_icon: Packages_no_active_icon,
+          name: "Search Photographer",
+          icon: <SearchIcon className={`menu-icon ${activeIndex === 5 ? 'active' : ''}`} />,
           path: "/Owner/search_photographer",
         },
       ];
@@ -146,7 +174,7 @@ useEffect(() => {
     {isMobile ? 
       <div className={`close_side_bar_button ${isSidebarOpen ? "active" : ""}`} 
       onClick={() => set_is_sidebar_open(!isSidebarOpen)}>
-        <img src={close_menu} alt="Close" />
+        <MenuOpenIcon />
     </div>
 
       :
@@ -184,15 +212,7 @@ useEffect(() => {
           onClick={() => handleItemClick(index)}
         >
           <div className="icon">
-            {item.active_icon ? (
-              activeIndex === index ? (
-                <img src={item.active_icon} alt={item.name} />
-              ) : (
-                <img src={item.icon} alt={item.name} />
-              )
-            ) : (
-              <img src={item.icon} alt={item.name} />
-            )}
+            {item.icon}
           </div>
             <div className={`text`}>
               {item.name}
@@ -206,7 +226,10 @@ useEffect(() => {
         navigate('/Owner/Profile');
     }}>
       <div className="user_icon_1">
-        <img src={user.user_profile_image_base64 || user4} alt="" />
+        {user.user_profile_image_base64 ? 
+          <img src={user.user_profile_image_base64} alt="" /> :
+          <PersonIcon className="default-avatar" />
+        }
       </div>
       <div className="user_data">
         <div className="user_name">{user.user_name}</div>
@@ -219,7 +242,7 @@ useEffect(() => {
             handleLogout();
         }}
       >
-        <img src={logout_icon} alt="Logout" />
+        <LogoutIcon />
       </button>
     </div>
 

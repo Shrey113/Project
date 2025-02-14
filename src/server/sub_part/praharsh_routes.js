@@ -73,7 +73,6 @@ router.post("/add-team-members", (req, res) => {
 });
 
 router.post("/request-update-status", (req, res) => {
-  // const { id } = req.params;
   const { event_status, reason, id } = req.body;
 
   // SQL Query to update the request
@@ -273,7 +272,7 @@ router.post("/owner_drive/get_portfolio", (req, res) => {
   const { email } = req.body;
 
   // SQL query to fetch portfolio files based on user_email
-  const query = "SELECT * FROM Photo_files  WHERE user_email = ?";
+  const query = "SELECT * FROM photo_files  WHERE user_email = ?";
 
   db.query(query, [email], (err, results) => {
     if (err) {
@@ -291,21 +290,73 @@ router.post("/owner_drive/get_portfolio", (req, res) => {
   });
 });
 
+router.post("/owner_drive/get_folder_images", (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Owner email is required" });
+  }
+
+  const folderQuery =
+    "SELECT folder_id, folder_name FROM owner_folders WHERE user_email = ?";
+
+  db.execute(folderQuery, [email], (err, folderResults) => {
+    if (err) {
+      console.error("Error fetching folders:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    if (folderResults.length === 0) {
+      return res.json({ message: "No folders found for this user." });
+    }
+
+    // Create an array of folder objects
+    let folders = folderResults.map((folder) => ({
+      folder_id: folder.folder_id,
+      folder_name: folder.folder_name,
+      images: [], // Will be populated with images
+    }));
+
+    let completedRequests = 0;
+
+    // Fetch images for each folder
+    folders.forEach((folder, index) => {
+      const imageQuery =
+        "SELECT file_name,file_data FROM owner_folders_files WHERE folder_id = ?";
+
+      db.execute(imageQuery, [folder.folder_id], (err, imageResults) => {
+        if (err) {
+          console.error("Error fetching images:", err);
+          return res.status(500).json({ error: "Internal Server Error" });
+        }
+
+        folders[index].images = imageResults.map((image) => ({
+          file_name: image.file_name,
+          file_path: image.file_path,
+          file_image: image.file_data,
+        }));
+
+        completedRequests++;
+        if (completedRequests === folders.length) {
+          return res.json({ folders });
+        }
+      });
+    });
+  });
+});
+
 router.post("/api/upload-photo", (req, res) => {
   const { photoData, name, type, user_email } = req.body;
 
-  // Validate input
   if (!photoData || !name || !type) {
     return res
       .status(400)
       .json({ success: false, message: "Missing required fields" });
   }
 
-  // SQL query to insert photo into the database
   const query =
     "INSERT INTO Photo_files (photo_name, photo_type, photo,user_email) VALUES (?, ?, ?,?)";
 
-  // Insert the data into the database
   db.execute(query, [name, type, photoData, user_email], (err, result) => {
     if (err) {
       console.error("Error inserting photo into the database:", err);
@@ -670,21 +721,19 @@ router.post("/save-draft-invoice", (req, res) => {
   const queryInvoice = `
       UPDATE invoices 
       SET 
-        user_email = ?, 
         date = ?, 
         sub_total = ?, 
         gst = ?, 
         total = ?, 
         invoice_to = ?, 
         as_draft = ? 
-      WHERE invoice_id = ?;
+      WHERE invoice_id = ? and user_email=?;
     `;
 
   // Update invoice details in the database
   db.query(
     queryInvoice,
     [
-      user_email,
       date || null,
       sub_total || null,
       gst || null,
@@ -692,6 +741,7 @@ router.post("/save-draft-invoice", (req, res) => {
       invoice_to || null,
       as_draft,
       invoice_id,
+      user_email,
     ],
     (err, result) => {
       if (err) {

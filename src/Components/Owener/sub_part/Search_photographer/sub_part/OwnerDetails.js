@@ -5,7 +5,7 @@ import "./OwnerDetails.css";
 import NoDataForEquipment from "./NoDataForEquipment.png";
 import { Server_url } from "../../../../../redux/AllData";
 import { IoArrowBack } from "react-icons/io5";
-import { FaUser, FaEnvelope, FaMapMarkerAlt, FaStar } from "react-icons/fa";
+import { FaEnvelope, FaMapMarkerAlt, FaStar } from "react-icons/fa";
 import SeletedCard from "./SeletedCard";
 import { MdOutlineInsertLink, MdOutlineDesignServices } from "react-icons/md";
 import Calendar from "react-calendar";
@@ -26,8 +26,7 @@ const OwnerDetails = () => {
   ];
 
   function get_img_by_name(name) {
-    if (!name) return camera_icon; // Default to Camera if name is not provided
-
+    if (!name) return camera_icon;
     const equipment = equipmentTypes.find(
       (equipment) => equipment.type.toLowerCase() === name.toLowerCase()
     );
@@ -137,10 +136,9 @@ const OwnerDetails = () => {
       : null;
   };
 
-  useEffect(() => {
-    console.log("showSelectedCard:", showSelectedCard);
-    console.log("selectedData:", selectedData);
-  }, [showSelectedCard, selectedData]);
+  // useEffect(() => {
+  //   console.log("selectedData:", selectedData);
+  // }, [showSelectedCard, selectedData]);
 
   useEffect(() => {
     if (ownerData?.packages?.length > 4) {
@@ -180,6 +178,7 @@ const OwnerDetails = () => {
       console.error("Error fetching equipment:", error);
     }
   };
+
   const handleShowAllClick = async (type) => {
     const email = selectedOwner?.user_email;
 
@@ -188,13 +187,17 @@ const OwnerDetails = () => {
 
       if (type === "packages") {
         fetchedData = await fetchPackagesData();
+        navigate(`/Owner/search_photographer/${email}/${type}`, {
+          state: { data: fetchedData, dataType: type },
+        });
       } else if (type === "equipments") {
         fetchedData = await fetchEquipmentData();
+        navigate(`/Owner/search_photographer/${email}/${type}`, {
+          state: { data: fetchedData, dataType: type },
+        });
+      } else if (type === "all_photos") {
+        navigate(`/Owner/search_photographer/${email}/${type}`);
       }
-
-      navigate(`/Owner/search_photographer/${email}/${type}`, {
-        state: { data: fetchedData, dataType: type },
-      });
     }
   };
 
@@ -404,32 +407,19 @@ const OwnerDetails = () => {
         </div>
       </div>
 
-      {/* Photos Section */}
-      {/* <div className="section photo_section">
-        {ownerData.photo_files?.length > 0 ? (
-          <div className="photos-container" style={{ flexDirection: "column" }}>
-            <div className="profile_preview_photos_title">
-              <div className="photos-card-title">Photos</div>
-              {packagesMoreThan4 && (
-                <button onClick={() => {}}>Show All</button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="no_equipments">
-            <img src={NoDataForEquipment} alt="" />
-            <p className="no-data">NO PHOTOS AVAILABLE</p>
-          </div>
-        )}
-      </div> */}
-
       <div className="section photo_section">
         {ownerData.photo_files?.length > 0 ? (
           <div className="photos-container" style={{ flexDirection: "column" }}>
             <div className="profile_preview_photos_title">
               <div className="photos-card-title">Photos</div>
               {packagesMoreThan4 && (
-                <button onClick={() => {}}>Show All</button>
+                <button
+                  onClick={() => {
+                    handleShowAllClick("all_photos");
+                  }}
+                >
+                  Show All
+                </button>
               )}
             </div>
             <div className="profile_preview_images">

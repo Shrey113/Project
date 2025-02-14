@@ -12,6 +12,8 @@ import dayjs from "dayjs";
 import { Server_url,showAcceptToast,showRejectToast,showWarningToast } from "../../../../redux/AllData";
 import "./../Calendar/part/AddDetailsPop.css";
 
+// import socket from "../../../../redux/socket";
+
 const COLOR_OPTIONS = [
   { id: "purple", value: "#6366F1", label: "Purple", default: true },
   { id: "green", value: "#22C55E", label: "Green", default: false },
@@ -81,9 +83,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   const [assignedMembers, setAssignedMembers] = useState([]);
   const [DisabledTeamMembers, setDisabledTeamMembers] = useState([]);
 
-  useEffect(() => {
-    console.log(newEvent);
-  }, [newEvent]);
+
 
   // Set default color
 
@@ -149,22 +149,64 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     }
   };
 
-  const confirmEquipmentEvent = async (eventId) => {
-    const response = await fetch(`${Server_url}/confirm-equipment-event`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        event_id: eventId,
-        user_email: user.user_email
-      })
-    });
-    const data = await response.json();
-    if (data.message !== "Equipment event confirmed successfully") {
-      alert("Failed to confirm equipment event");
-      throw new Error("Failed to confirm equipment event");
-    }
 
+  const confirmEquipmentEvent = async (eventId) => {
+    try {
+      // First confirm the equipment event
+      const response = await fetch(`${Server_url}/confirm-equipment-event`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event_id: eventId,
+          user_email: user.user_email,
+          sender_email: newEvent.sender_email
+        })
+      });
+      const data = await response.json();
+      
+      if (data.message !== "Equipment event confirmed successfully") {
+        showRejectToast({message: "Failed to confirm equipment event"});
+        throw new Error("Failed to confirm equipment event");
+      }
+      
+      // Then create the calendar event
+      const calendarResponse = await fetch(`${Server_url}/calendar/add-event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_email: user.user_email, 
+          title: newEvent.title + " from " + newEvent.sender_email,
+          start: newEvent.start,
+          end: newEvent.end,
+          description: newEvent.description,
+          backgroundColor: newEvent.backgroundColor,
+          sender_email: newEvent.sender_email,
+          event_location: newEvent.event_location
+        })
+      });
+      
+      const calendarData = await calendarResponse.json();
+      
+      if (calendarData.message === 'Event created successfully') {
+        showAcceptToast({message: "Equipment event confirmed successfully"});
+        setShowEventModal(false);
+        setNewEvent({
+          title: '',
+          start: new Date(),
+          end: new Date(),
+          description: '',
+          backgroundColor: '#6366F1',
+          titleError: ''
+        });
+      } else {
+        throw new Error("Failed to create calendar event");
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showRejectToast({message: error.message || "An error occurred while processing the equipment event"});
+    }
   };
+
 
   const handleAddEvent = async (e) => {
     e.preventDefault();
@@ -273,6 +315,8 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
 
     fetchTeamMembers();
   }, [user.user_email, newEvent.start, newEvent.end]);
+
+
 
   const removeAssignedMember = (member) => {
     setTeamMembers([...teamMembers, member]);

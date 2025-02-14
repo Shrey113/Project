@@ -70,6 +70,8 @@
 .modal-overlay .modal-content .invoice-details .detail-item {
   display: flex;
   margin-bottom: 0.5rem;
+  align-items: center;
+  gap: 20px;
 }
 
 .modal-overlay .modal-content .invoice-details .detail-item .label {
@@ -79,8 +81,8 @@
   align-items: center;
   justify-content: space-between;
   color: #f8f7f7;
-  margin-right: 20px;
-  text-wrap: nowrap;
+  margin-right: 5px;
+  text-wrap: wrap;
 }
 
 .modal-overlay .modal-content .invoice-details .detail-item .value {
@@ -332,6 +334,7 @@
   .modal-overlay .modal-content .invoice-details {
     width: 60%;
     padding: 10px 15px;
+    max-height: 250px;
   }
 
   .detail-item .label {
@@ -396,32 +399,11 @@
     width: 100%;
   }
   .modal-overlay .modal-content .invoice-details .detail-item span {
-    font-size: 14px;
+    font-size: 12px;
   }
 }
 
 @media screen and (max-width: 376px) {
-  /* .modal-overlay .modal-content {
-    padding: 0.5rem;
-    width: 100%;
-    max-height: 98vh;
-  } */
-
-  /* .modal-header h2 {
-    font-size: 15px;
-  } */
-
-  /* .detail-item .label,
-  .detail-item .value {
-    font-size: 12px;
-  } */
-
-  /* .invoice-table th,
-  .invoice-table td {
-    padding: 5px;
-    font-size: 12px;
-  } */
-
   .modal-overlay .modal-content .table-container .invoice_list_heading {
     font-size: 16px;
   }
@@ -432,10 +414,14 @@
 
   .modal-overlay .modal-content .table-container .invoice-table th,
   .modal-overlay .modal-content .table-container .invoice-table td {
-    padding: 8px 5px;
+    padding: 6px 4px;
     text-align: left;
     border-bottom: 1px solid #eee;
-    font-size: 12px;
+    font-size: 9px;
+    text-wrap: wrap;
+  }
+  .modal-overlay .modal-content .invoice-details .detail-item .label {
+    max-width: 80px;
   }
 }
 

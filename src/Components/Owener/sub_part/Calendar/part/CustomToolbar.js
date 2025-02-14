@@ -49,7 +49,7 @@ const CustomToolbar = (toolbar) => {
             <div className="calendar-month">{format(new Date(), 'MMM')}</div>
             <div className="calendar-day">{format(new Date(), 'd')}</div>
           </div>
-          <span className="today-text">Today</span>
+          {/* <span className="today-text">Today</span> */}
         </button>
         <div className="navigation-buttons">
           <button 

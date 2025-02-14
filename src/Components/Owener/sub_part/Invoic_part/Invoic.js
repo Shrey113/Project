@@ -4,8 +4,6 @@ import "./Invoice.css";
 import { useSelector } from "react-redux";
 import { Server_url } from "../../../../redux/AllData";
 import EditInvoiceModal from "./Sub_component/EditInvoiceModal";
-// import InvoicePage2 from "./invoicePage2";
-// import view_icon from "./Images/letter-i.png";
 import { VscOpenPreview } from "react-icons/vsc";
 import { IoInformation } from "react-icons/io5";
 
@@ -21,45 +19,22 @@ const InvoiceForm = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // Handle Change
+  const onePageContent = 10;
+  const totalPages = Math.ceil(invoices.length / onePageContent);
+  const [current_page, set_current_page] = useState(1);
+  const start = current_page * onePageContent;
+  const end = start + onePageContent;
 
+  // Handle Change
   const handleRowClick = (invoice) => {
     setSelectedInvoice(invoice);
     setIsEditModalOpen(true);
   };
 
-  // const fetchInvoiceItems = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const response = await fetch(`${Server_url}/invoice-items`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         invoice_id: selectedInvoice,
-  //         user_email: user.user_email,
-  //       }),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error("Failed to fetch invoice details");
-  //     }
-
-  //     const data = await response.json();
-  //     setSelectedInvoice((prev) => ({ ...prev, pdfItems: data.items }));
-  //   } catch (error) {
-  //     console.error("Error fetching invoice details:", error);
-  //     setError("Failed to load invoice details. Please try again.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const checkEmail = async (user_email) => {
     try {
       setLoading(true);
-     await fetch(`${Server_url}/check_email_owner`, {
+      await fetch(`${Server_url}/check_email_owner`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +42,6 @@ const InvoiceForm = () => {
         body: JSON.stringify({ user_email: user_email }),
       });
       // const data = await response.json();
-
     } catch (error) {
       console.error("Error fetching invoices:", error);
       setError("Failed to load invoices. Please try again later.");
@@ -75,7 +49,6 @@ const InvoiceForm = () => {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     const initialize = async () => {
@@ -89,30 +62,28 @@ const InvoiceForm = () => {
           },
           body: JSON.stringify({ user_email: user.user_email }),
         });
-  
+
         if (!response.ok) {
           throw new Error("Failed to fetch invoices");
         }
-  
+
         const data = await response.json();
         const without_draft = Array.isArray(data.without_draft)
           ? [...data.without_draft].sort((a, b) => a.invoice_id - b.invoice_id)
           : [];
-  
+
         setInvoices(without_draft);
       } catch (error) {
         console.error("Error fetching invoices without draft:", error);
         setError("Failed to load invoices. Please try again later.");
-        setInvoices([]); // Reset invoices on error
+        setInvoices([]);
       } finally {
         setLoading(false);
       }
     };
-  
+
     initialize();
   }, [user.user_email]);
-  
-
 
   function formatDateTime(isoString) {
     const date = new Date(isoString);
@@ -133,6 +104,8 @@ const InvoiceForm = () => {
       time: date.toLocaleTimeString(), // Extracts the time part as '14:30:00 PM'
     };
   }
+
+  const formatAmount = (amount) => parseFloat(amount).toFixed(2);
 
   const generatePDFPreview = (invoice) => {
     const element = document.createElement("div");
@@ -292,9 +265,9 @@ const InvoiceForm = () => {
                         <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${
                           item.price
                         }</td>
-                        <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${
+                        <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
                           item.quantity * item.price
-                        }</td>
+                        )}</td>
                       </tr>
                     `
                           )
@@ -326,7 +299,7 @@ const InvoiceForm = () => {
                   padding: 8px 0;
                 ">
                   <span>GST (18%):</span>
-                  <span>₹${invoice.gst}</span>
+                  <span>₹${formatAmount(invoice.gst)}</span>
                 </div>
                 <div style="
                   display: flex;
@@ -337,7 +310,7 @@ const InvoiceForm = () => {
                   margin-top: 12px;
                 ">
                   <span>Total:</span>
-                  <span>₹${invoice.total}</span>
+                  <span>₹${formatAmount(invoice.total)}</span>
                 </div>
               </div>
     
@@ -359,6 +332,12 @@ const InvoiceForm = () => {
 
     previewWindow.document.write(element.innerHTML);
     previewWindow.document.close();
+  };
+
+  const handle_page_change = (page_no) => {
+    setTimeout(() => {
+      set_current_page(page_no);
+    }, 50);
   };
 
   return (
@@ -394,7 +373,7 @@ const InvoiceForm = () => {
                     </td>
                   </tr>
                 ) : (
-                  invoices.map((inv, index) => (
+                  invoices.slice(start, end).map((inv, index) => (
                     <tr
                       key={index}
                       // onClick={() => handleRowClick(inv)}
@@ -402,17 +381,17 @@ const InvoiceForm = () => {
                     >
                       <td>{index + 1}</td>
                       <td>{inv.invoice_id}</td>
-                      <td>{inv.user_email}</td>
+                      <td style={{ minWidth: "200px" }}>{inv.user_email}</td>
                       <td>{formatDateTime(inv.date).date}</td>
-                      <td>{inv.sub_total}</td>
-                      <td>{inv.gst}</td>
-                      <td>{inv.total}</td>
+                      <td>{formatAmount(inv.sub_total)}</td>
+                      <td>{formatAmount(inv.gst)}</td>
+                      <td>{formatAmount(inv.total)}</td>
                       <td>{inv.invoice_to}</td>
                       <td
                         style={{
                           display: "flex",
                           alignItems: "center",
-                       
+
                           gap: "10px",
                         }}
                       >
@@ -453,6 +432,23 @@ const InvoiceForm = () => {
                 )}
               </tbody>
             </table>
+            <div className="total_pages">
+              {[...Array(totalPages).keys()].map((ind) => {
+                return (
+                  <div
+                    key={ind}
+                    className={`digit_container ${
+                      current_page === ind ? "active" : ""
+                    }`}
+                    onClick={() => {
+                      handle_page_change(ind);
+                    }}
+                  >
+                    {ind + 1}
+                  </div>
+                );
+              })}
+            </div>
             {isEditModalOpen && (
               <EditInvoiceModal
                 invoice={selectedInvoice}

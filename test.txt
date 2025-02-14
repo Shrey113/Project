@@ -1,0 +1,112 @@
+# Owner Routes Documentation
+
+## 1. Authentication & Status Routes
+- Base Route: /Owner
+- Purpose: Handles owner authentication and status checks
+- Components:
+  * Login/Register Form
+  * Status Checks:
+    - BeforeAccept: Initial state
+    - PendingStatus: Waiting for admin approval
+    - RejectedStatus: Rejected by admin
+    - AcceptStatus: Approved and active
+
+## 2. Dashboard (Home)
+- Route: /Owner
+- Features:
+  * Calendar integration
+  * Overview of upcoming events
+  * Quick access to important metrics
+  * Mobile-responsive layout with burger menu
+  * Sidebar navigation for all main features
+
+## 3. Event Management
+- Route: /Owner/Event
+- Purpose: Comprehensive event handling system
+- Features:
+  * Event creation and scheduling
+  * Event status tracking
+  * Client event coordination
+  * Calendar integration
+
+## 4. Team Management
+- Route: /Owner/Team
+- Purpose: Team member coordination
+- Features:
+  * Team member overview
+  * Role assignments
+  * Performance tracking
+  * Collaboration tools
+
+## 5. Invoice Management
+- Route: /Owner/Invoice
+- Sub-routes:
+  * /Owner/Invoice (default) - Invoice listing
+  * /Owner/Invoice/generator - Create new invoices
+  * /Owner/Invoice/draft - Manage draft invoices
+- Features:
+  * Invoice creation
+  * Draft management
+  * Payment tracking
+  * Multiple table views
+
+## 6. Packages and Pricing
+- Route: /Owner/Packages
+- Purpose: Service package management
+- Features:
+  * Package creation
+  * Pricing configuration
+  * Service bundling
+  * Package visibility settings
+
+## 7. Photographer Search
+- Route: /Owner/search_photographer
+- Sub-routes:
+  * /:owner_email - Detailed photographer profile
+  * /:owner_email/:type - Specific portfolio view
+- Features:
+  * Photographer discovery
+  * Portfolio viewing
+  * Contact options
+  * Collaboration opportunities
+
+## 8. Profile Management
+- Route: /Owner/Profile
+- Purpose: Owner profile management
+- Features:
+  * Personal information management
+  * Business details
+  * Portfolio management
+  * Service offerings
+  * Contact information
+
+## Security Features
+- JWT-based authentication
+- Status-based access control
+- Mobile responsiveness handling
+- Sidebar state management
+- Protected routes
+
+## State Management
+- Redux integration for:
+  * User authentication state
+  * Sidebar visibility
+  * Mobile responsiveness
+  * Active menu tracking
+  * Full-screen toggles
+
+## Additional Features
+- Toast notifications
+- Loading states
+- Error handling
+- Mobile-responsive design
+- Protected route redirects
+- Status-based component rendering
+
+## Technical Implementation Notes
+- Uses React Router for navigation
+- Redux for state management
+- JWT for authentication
+- Conditional rendering based on authentication status
+- Mobile-first responsive design
+- Component-based architecture

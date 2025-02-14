@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import "./Owners_List.css";
+// import "./Owners_List.css";
+import "./Owners_List_2.css";
 import user1 from "./../../../sub_part/profile_pic/user1.jpg";
 import { Server_url } from "./../../../../../redux/AllData";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FaEnvelope, FaMapMarkerAlt, FaSearch } from "react-icons/fa";
-
+import { MdCamera } from "react-icons/md";
 
 const SkeletonCard = () => (
   <div  className="owner-card skeleton">
@@ -219,7 +220,7 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
           </div>
 
           <div className="owner-info">
-            <h3>{owner.user_name}</h3>
+            <h3><MdCamera className="icon" />{owner.user_name}</h3>
             <p className="email"> <FaEnvelope className="icon" />{owner.user_email}</p>
             <p className="location">
               <span>

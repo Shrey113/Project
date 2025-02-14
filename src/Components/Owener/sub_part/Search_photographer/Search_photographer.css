@@ -156,21 +156,40 @@
 
 .locations-scroll-container {
   width: 100%;
-  overflow-x: auto;
-  padding: 20px 30px;
-  /* background-color: white; */
-  -webkit-overflow-scrolling: touch;
-}
-
-.locations-scroll-container::-webkit-scrollbar {
-  display: none; /* Hide scrollbar for Chrome/Safari */
+  overflow: hidden;
 }
 
 .locations-list {
   display: flex;
-  gap: 20px;
-  padding: 0 20px;
-  min-width: min-content;
+  gap: 1rem;
+  padding: 1rem;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.location-circle {
+  flex: 0 0 auto;
+}
+
+/* Hide scrollbar but keep functionality */
+.locations-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.locations-scroll-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.location-circle.all-locations .view-all {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 50%;
+  font-weight: 500;
 }
 
 .location-circle {
@@ -185,7 +204,8 @@
 }
 .location-circle.selected > .location-image-wrapper{
   transform: scale(1.05);
-  border: 2px solid #326ba8;
+  border: 2px solid #00000000;
+  outline: 2px solid #326ba8;
 }
 
 .location-circle .location-details {
@@ -261,7 +281,6 @@
   border-radius: 50%;
   font-weight: 600;
   cursor: pointer;
-  padding: 0 20px;
   border: 2px solid transparent;
   transition: all 0.3s ease;
   margin-bottom: 25px;
@@ -485,3 +504,5 @@
 .location-popup-content::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+

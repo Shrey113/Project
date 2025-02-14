@@ -20,6 +20,41 @@ function formatDate(isoString) {
   return date.toLocaleString('en-US', options);
 }
 
+router.get("/get_all_today_events", (req, res) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Get yesterday's start
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  // Get tomorrow's end
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(23, 59, 59, 999);
+
+  // Query to get all events between yesterday and tomorrow
+  const query = `
+    SELECT * FROM events 
+    WHERE start >= ? AND start <= ?
+    ORDER BY start ASC`;
+
+  db.query(query, [yesterday, tomorrow], (err, results) => {
+    if (err) {
+      console.error("Error fetching events:", err);
+      return res.status(500).json({ error: "Failed to fetch events" });
+    }
+
+    // console.log(results);
+    
+    
+    res.json({
+      total_events: results.length,
+      events: results
+    });
+  });
+});
+
 // Create a new event
 router.post("/add-event", (req, res) => {
   const { title, start, end, description, backgroundColor, user_email } =

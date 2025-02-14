@@ -175,8 +175,6 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       }));
     }
   };
-  
-  
 
   return (
     <div
@@ -214,7 +212,11 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">Start Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                           value={formData.start_date ? dayjs(formData.start_date) : null}
+                          value={
+                            formData.start_date
+                              ? dayjs(formData.start_date)
+                              : null
+                          }
                           onChange={(newValue) =>
                             handleDateChange("start_date", newValue)
                           }
@@ -231,7 +233,9 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">End Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={formData.end_date ? dayjs(formData.end_date) : null}
+                          value={
+                            formData.end_date ? dayjs(formData.end_date) : null
+                          }
                           onChange={(newValue) =>
                             handleDateChange("end_date", newValue)
                           }
@@ -333,7 +337,11 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">Start Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={formData.start_date ? dayjs(formData.start_date) : null}
+                          value={
+                            formData.start_date
+                              ? dayjs(formData.start_date)
+                              : null
+                          }
                           onChange={(newValue) =>
                             handleDateChange("start_date", newValue)
                           }
@@ -350,7 +358,9 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">End Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={formData.end_date ? dayjs(formData.end_date) : null}
+                          value={
+                            formData.end_date ? dayjs(formData.end_date) : null
+                          }
                           onChange={(newValue) =>
                             handleDateChange("end_date", newValue)
                           }

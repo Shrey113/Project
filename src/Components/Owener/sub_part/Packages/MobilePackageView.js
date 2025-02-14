@@ -95,7 +95,6 @@ const MobilePackageView = ({ selectedPackage, onClose, onUpdatePackage }) => {
                   style={{
                     width: "80px",
                     textAlign: "center",
-                    border: "none",
                     backgroundColor: "transparent",
                     fontSize: "16px",
                     border: "1px solid black ",

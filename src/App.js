@@ -57,7 +57,7 @@ import DraftInvoices from "./Components/Owener/sub_part/Invoic_part/Sub_componen
 import { Toaster } from "react-hot-toast";
 // import Calendar from "./Components/Owener/sub_part/Calendar/Calendar.js";
 
-
+import AllPhotoFiles from "./Components/Owener/sub_part/Search_photographer/sub_part/AllPhotoFiles.js";
 
 function App() {
   const [authStatus, setAuthStatus] = useState({ Admin:null,owner: null, client: null });
@@ -399,6 +399,14 @@ const SetOwnerPage = ({ ActivePage }) => {
           
           }
         />
+
+<Route
+          path="/Owner/search_photographer/:owner_email/all_photos"
+          element={<SetOwnerPage ActivePage={AllPhotoFiles} />}
+        />
+
+
+
 
 
         <Route path="/Owner/Profile" element={authStatus.owner ? 

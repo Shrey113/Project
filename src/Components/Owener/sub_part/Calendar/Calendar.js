@@ -55,6 +55,7 @@ function Calendar() {
   const [contextMenuEvent, setContextMenuEvent] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [view, setView] = useState(Views.MONTH);
+  const [is_button_disabled, set_is_button_disabled] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -148,18 +149,17 @@ function Calendar() {
 
   const handleSelectEvent = (event) => {
     const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
+    currentDate.setHours(0, 0, 0, 0);
 
-    if (event.start < currentDate) {
-      showWarningToast({message: "You cannot select past events" });
-      return; // Prevent creating events in the past
-    }
     const formattedEvent = {
       ...event,
       start: new Date(event.start),
       end: new Date(event.end)
     };
-    setIsEditing(false)
+    
+    // Allow viewing but disable editing for past events
+    setIsEditing(event.start >= currentDate);
+    set_is_button_disabled(event.start > currentDate);
     setSelectedEvent(formattedEvent);
     setShowEventDetails(true);
   }
@@ -405,6 +405,7 @@ const handleEventResize = async ({ event, start, end }) => {
         setEvents={setEvents} events={events}
         isEditing={isEditing}
         setIsEditing={setIsEditing}
+        is_button_disabled={is_button_disabled}
         />
       )}
 

@@ -33,6 +33,8 @@ const Packages = () => {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     setIsMobileView(window.innerWidth <= 768);
     const handleResize = () => {
@@ -75,9 +77,10 @@ const Packages = () => {
 
   useEffect(() => {
     const fetchPackages = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(`${Server_url}/api/fetch_packages`, {
-          method: "POST",
+          method: "POST", 
           headers: {
             "Content-Type": "application/json",
           },
@@ -85,13 +88,17 @@ const Packages = () => {
         });
         if (response.ok) {
           const data = await response.json();
-          setPackages(data || []);
-          // console.log("Client side response", data);
+          setTimeout(() => {
+            setPackages(data || []);
+            setIsLoading(false);
+          }, 100);
         } else {
           console.error("Failed to fetch packages");
+          setIsLoading(false);
         }
       } catch (err) {
         console.error("Error fetching packages:", err);
+        setIsLoading(false);
       }
     };
 
@@ -407,261 +414,301 @@ const Packages = () => {
     }
   };
 
+  const PackageCardSkeleton = () => (
+    <div className="package-card skeleton">
+      <div className="package_title">
+        <div className="first_container skeleton-bg"></div>
+        <div className="second_container skeleton-bg">
+          <div className="package_name skeleton-text"></div>
+          <div className="package_price skeleton-text"></div>
+        </div>
+        <div className="third_container skeleton-bg"></div>
+      </div>
+      <div className="package_all_details">
+        <div className="package_Services">
+          {[1, 2, 3].map((_, idx) => (
+            <div key={idx} className="service-item skeleton-text"></div>
+          ))}
+        </div>
+      </div>
+      <div className="actions_button">
+        <div className="skeleton-button"></div>
+        <div className="skeleton-button"></div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="owner-packages-container">
-      {packages.length === 0 && !formVisible && (
-        <div className="default-page">
-          <img src={default_image} alt="default" />
-          <div className="text_content">
-            <div className="text_content_header">
-              <h1>Manage Your Packages with Ease</h1>
-              <p>
-                Easily create, manage, and organize your packages. Add, remove,
-                or view package details seamlessly in just a few clicks.
-              </p>
-            </div>
-            <div className="text_content_body">
-              <h1>Get Started</h1>
-              <p>
-                Begin by clicking the button below to create your first package
-                and explore the features.
-              </p>
-            </div>
-            <div className="button_container">
-              <button onClick={() => handleFormToggle()}>
-                Add New Package
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {packages.length > 0 && !formVisible && (
+      
+      {isLoading ? (
         <div className="package-cards-container">
           <div className="packages-header">
             <h1>Your Packages</h1>
-            
           </div>
-          {!isMobileView ? (
-            <div className="packages-grid">
-              {packages.map((pkg, index) => (
-                <div
-                  key={index}
-                  className="package-card"
-                  style={{ backgroundColor: `#ffffff` }}
-                >
-                  <div className="package_title">
-                    <div
-                      className="first_container"
-                      style={{
-                        backgroundColor: pkg.card_color || "#6fa8dc",
-                        color: "#fff",
-                      }}
-                    ></div>
-                    <div
-                      className="second_container"
-                      style={{
-                        backgroundColor: pkg.card_color || "#6fa8dc",
-                        color: "#fff",
-                      }}
-                    >
-                      <div className="package_name">
-                        {pkg.isEditing ? (
-                          <input
-                            style={{ height: "100%" }}
-                            type="text"
-                            value={pkg.package_name}
-                            onChange={(e) =>
-                              handleEditChange(
-                                index,
-                                "package_name",
-                                e.target.value
-                              )
-                            }
-                          />
-                        ) : (
-                          pkg.package_name
-                        )}
-                      </div>
-                      <div className="package_price">
-                        {pkg.isEditing ? (
-                          <input
-                            type="number"
-                            value={pkg.price}
-                            onChange={(e) =>
-                              handleEditChange(index, "price", e.target.value)
-                            }
-                            style={{
-                              width: "80px",
-                            }}
-                          />
-                        ) : (
-                          `₹${pkg.price}`
-                        )}
-                      </div>
-                    </div>
-                    <div
-                      className="third_container"
-                      style={{
-                        backgroundColor: pkg.card_color || "#6fa8dc",
-                        color: "#fff",
-                      }}
-                    ></div>
-                  </div>
-
-                  <div className="package_all_details">
-                    <div className="package_Services">
-                      {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
-                        pkg.service.map((srv, idx) => (
-                          <>
-                          <div key={idx} className="service-item" style={{
-                              backgroundColor:
-                                idx % 2 === 0
-                                  ? lightenColor(pkg.card_color, 20)
-                                  : "#ffffff",
-                              width: "100%",
-                              padding: "8px 10px",
-                            }}
-                          >
-                            {pkg.isEditing ? (
-                              <div className="services">
-                                <input
-                                  
-                                  type="text"
-                                  value={srv}
-                                  onChange={(e) =>
-                                    handleServiceEdit(
-                                      index,
-                                      idx,
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                                {idx >= 1 && (
-                                  <div className="delete_button" onClick={() => { delete_serveice_by_id(index, idx);}}>
-                                    <IoClose />
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              srv.charAt(0).toUpperCase() +
-                              srv.slice(1).toLowerCase()
-                            )}
-                          </div>
-                          {pkg.isEditing && idx === pkg.service.length - 1 && pkg.service.length < 6 && (
-                            <div className="add_button" onClick={() => add_service(index)}>
-                              Add More <IoAdd />
-                            </div>
-                          )}
-                          </>
-                        ))
-                      ) : (
-                        <span>No services available</span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="actions_button">
-                    <button onClick={() => handleEditToggle(index)}>
-                      {pkg.isEditing ? "Save" : "Edit"}
-                    </button>
-
-                    <button
-                      onClick={() => handleDeleteClick(pkg.id)}
-                      style={{
-                        backgroundColor: "#e6b9b4",
-                        display: pkg.isEditing ? "none" : "block",
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="packages-grid-for-mobile">
-              {packages.map((pkg, index) => (
-                <div
-                  key={index}
-                  className="package-card"
-                  style={{ backgroundColor: pkg.card_color || "#6fa8dc" }}
-                >
-                  <div className="package-card-header">
-                    <h3 className="package-title">{pkg.package_name}</h3>
-                    <div
-                      className="package-card-i-button"
-                      onClick={() => handleMobileViewToggle(pkg)}
-                    >
-                      i
-                    </div>
-                  </div>
-                  <div className="package-card-body">
-                    <div className="price-tag">
-                      {pkg.isEditing ? (
-                        <input
-                          type="number"
-                          value={pkg.price}
-                          onChange={(e) =>
-                            handleEditChange(index, "price", e.target.value)
-                          }
-                          style={{
-                            width: "80px",
-                            padding: "5px",
-                            border: "1px solid #ccc",
-                            borderRadius: "5px",
-                          }}
-                        />
-                      ) : (
-                        <>
-                          <span className="currency">₹</span>
-                          <span className="amount">{pkg.price}</span>
-                          <span className="period">/Day</span>
-                        </>
-                      )}
-                    </div>
-                    <div className="description-container">
-                      <p className="package-description">{pkg.description}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="tooltip-container">
-            <button
-              className="add-package-button"
-              onClick={() => handleFormToggle()}
-            >
-              +
-            </button>
-            <span className="tooltip-text">Create New Package</span>
+          <div className="packages-grid">
+            {Array(3).fill(0).map((_, index) => (
+              <PackageCardSkeleton key={index} />
+            ))}
           </div>
-          {showConfirm && (
-            <div className="modal">
-              <div className="modal_content">
-                <h2>Confirm Delete</h2>
-                <p>Are you sure you want to delete this package?</p>
-
-                <div className="delete_confirmation">
-                  <button
-                    onClick={confirmDelete}
-                    style={{ backgroundColor: "red", color: "white" }}
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={() => setShowConfirm(false)}
-                    style={{ backgroundColor: "gray", color: "white" }}
-                  >
-                    No
+        </div>
+      ) : (
+        <>
+          {packages.length === 0 && !formVisible && (
+            <div className="default-page">
+              <img src={default_image} alt="default" />
+              <div className="text_content">
+                <div className="text_content_header">
+                  <h1>Manage Your Packages with Ease</h1>
+                  <p>
+                    Easily create, manage, and organize your packages. Add, remove,
+                    or view package details seamlessly in just a few clicks.
+                  </p>
+                </div>
+                <div className="text_content_body">
+                  <h1>Get Started</h1>
+                  <p>
+                    Begin by clicking the button below to create your first package
+                    and explore the features.
+                  </p>
+                </div>
+                <div className="button_container">
+                  <button onClick={() => handleFormToggle()}>
+                    Add New Package
                   </button>
                 </div>
               </div>
             </div>
           )}
-        </div>
+
+          {packages.length > 0 && !formVisible && (
+            <div className="package-cards-container">
+              <div className="packages-header">
+                <h1>Your Packages</h1>
+                
+              </div>
+              {!isMobileView ? (
+                <div className="packages-grid">
+                  {packages.map((pkg, index) => (
+                    <div
+                      key={index}
+                      className="package-card"
+                      style={{ backgroundColor: `#ffffff` }}
+                    >
+                      <div className="package_title">
+                        <div
+                          className="first_container"
+                          style={{
+                            backgroundColor: pkg.card_color || "#6fa8dc",
+                            color: "#fff",
+                          }}
+                        ></div>
+                        <div
+                          className="second_container"
+                          style={{
+                            backgroundColor: pkg.card_color || "#6fa8dc",
+                            color: "#fff",
+                          }}
+                        >
+                          <div className="package_name">
+                            {pkg.isEditing ? (
+                              <input
+                                style={{ height: "100%" }}
+                                type="text"
+                                value={pkg.package_name}
+                                onChange={(e) =>
+                                  handleEditChange(
+                                    index,
+                                    "package_name",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            ) : (
+                              pkg.package_name
+                            )}
+                          </div>
+                          <div className="package_price">
+                            {pkg.isEditing ? (
+                              <input
+                                type="number"
+                                value={pkg.price}
+                                onChange={(e) =>
+                                  handleEditChange(index, "price", e.target.value)
+                                }
+                                style={{
+                                  width: "80px",
+                                }}
+                              />
+                            ) : (
+                              `₹${pkg.price}`
+                            )}
+                          </div>
+                        </div>
+                        <div
+                          className="third_container"
+                          style={{
+                            backgroundColor: pkg.card_color || "#6fa8dc",
+                            color: "#fff",
+                          }}
+                        ></div>
+                      </div>
+
+                      <div className="package_all_details">
+                        <div className="package_Services">
+                          {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
+                            pkg.service.map((srv, idx) => (
+                              <>
+                              <div key={idx} className="service-item" style={{
+                                  backgroundColor:
+                                    idx % 2 === 0
+                                      ? lightenColor(pkg.card_color, 20)
+                                      : "#ffffff",
+                                  width: "100%",
+                                  padding: "8px 10px",
+                                }}
+                              >
+                                {pkg.isEditing ? (
+                                  <div className="services">
+                                    <input
+                                      
+                                      type="text"
+                                      value={srv}
+                                      onChange={(e) =>
+                                        handleServiceEdit(
+                                          index,
+                                          idx,
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                    {idx >= 1 && (
+                                      <div className="delete_button" onClick={() => { delete_serveice_by_id(index, idx);}}>
+                                        <IoClose />
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  srv.charAt(0).toUpperCase() +
+                                  srv.slice(1).toLowerCase()
+                                )}
+                              </div>
+                              {pkg.isEditing && idx === pkg.service.length - 1 && pkg.service.length < 6 && (
+                                <div className="add_button" onClick={() => add_service(index)}>
+                                  Add More <IoAdd />
+                                </div>
+                              )}
+                              </>
+                            ))
+                          ) : (
+                            <span>No services available</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="actions_button">
+                        <button onClick={() => handleEditToggle(index)}>
+                          {pkg.isEditing ? "Save" : "Edit"}
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteClick(pkg.id)}
+                          style={{
+                            backgroundColor: "#e6b9b4",
+                            display: pkg.isEditing ? "none" : "block",
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="packages-grid-for-mobile">
+                  {packages.map((pkg, index) => (
+                    <div
+                      key={index}
+                      className="package-card"
+                      style={{ backgroundColor: pkg.card_color || "#6fa8dc" }}
+                    >
+                      <div className="package-card-header">
+                        <h3 className="package-title">{pkg.package_name}</h3>
+                        <div
+                          className="package-card-i-button"
+                          onClick={() => handleMobileViewToggle(pkg)}
+                        >
+                          i
+                        </div>
+                      </div>
+                      <div className="package-card-body">
+                        <div className="price-tag">
+                          {pkg.isEditing ? (
+                            <input
+                              type="number"
+                              value={pkg.price}
+                              onChange={(e) =>
+                                handleEditChange(index, "price", e.target.value)
+                              }
+                              style={{
+                                width: "80px",
+                                padding: "5px",
+                                border: "1px solid #ccc",
+                                borderRadius: "5px",
+                              }}
+                            />
+                          ) : (
+                            <>
+                              <span className="currency">₹</span>
+                              <span className="amount">{pkg.price}</span>
+                              <span className="period">/Day</span>
+                            </>
+                          )}
+                        </div>
+                        <div className="description-container">
+                          <p className="package-description">{pkg.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="tooltip-container">
+                <button
+                  className="add-package-button"
+                  onClick={() => handleFormToggle()}
+                >
+                  +
+                </button>
+                <span className="tooltip-text">Create New Package</span>
+              </div>
+              {showConfirm && (
+                <div className="modal">
+                  <div className="modal_content">
+                    <h2>Confirm Delete</h2>
+                    <p>Are you sure you want to delete this package?</p>
+
+                    <div className="delete_confirmation">
+                      <button
+                        onClick={confirmDelete}
+                        style={{ backgroundColor: "red", color: "white" }}
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setShowConfirm(false)}
+                        style={{ backgroundColor: "gray", color: "white" }}
+                      >
+                        No
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       {formVisible && (

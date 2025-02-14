@@ -117,6 +117,11 @@
     margin-top: 0;
   }
 
+  .profile-container-after-accept .profile-header-mobile span{
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
   .profile-container-after-accept {
     flex-direction: column;
     padding: 10px;

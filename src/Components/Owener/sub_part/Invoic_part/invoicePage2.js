@@ -26,20 +26,14 @@ function InvoicePage2() {
   const [logoPreview, setLogoPreview] = useState("");
   const [base64Image, setBase64Image] = useState("");
 
-  const services = [
-    "Web Design",
-    "Graphic Design",
-    "SEO Optimization",
-    "Social Media Management",
-    "Content Writing",
-    "Photography",
-    "Videography",
-  ];
+  // const [services, setService] = useState([]);
 
-  const [filtered_Services_in_invoice, set_Filtered_Services_in_invoice] =
-    useState(services);
+  const [services, set_services] = useState([]);
+  const [filter_services, set_filter_services] = useState([]);
 
   const [is_mobile, set_is_mobile] = useState(true);
+
+  const formatAmount = (amount) => parseFloat(amount).toFixed(2);
 
   useEffect(() => {
     const handle_mobile_resize = () => {
@@ -51,6 +45,37 @@ function InvoicePage2() {
       window.removeEventListener("resize", handle_mobile_resize);
     };
   }, []);
+  useEffect(() => {
+    const fetch_services = async () => {
+      try {
+        const response = await fetch(
+          `${Server_url}/owner/services/${user.user_email}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        console.log("services", data);
+
+        set_services(data);
+        set_filter_services(data);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+    fetch_services();
+  }, [user.user_email]);
+
+  const handleKeyDown = (e, index) => {
+    const filterSearch = e.target.value.toLowerCase();
+    const filter_item = services.filter((item) => {
+      return item.service_name.toLowerCase().includes(filterSearch);
+    });
+    set_filter_services(filter_item);
+  };
 
   const generateInvoice = async (user_email) => {
     try {
@@ -75,6 +100,7 @@ function InvoicePage2() {
   useEffect(() => {
     generateInvoice(user.user_email);
   }, [user.user_email]);
+
   const fetchInvoicesWithDraft = async (user_email) => {
     try {
       const response = await fetch(`${Server_url}/invoices/with-draft`, {
@@ -111,6 +137,35 @@ function InvoicePage2() {
     items: [{ item: "", quantity: 0, price: 0, amount: 0 }],
   });
 
+  const addItem = (index, item_name, quantity, price) => {
+    setInvoice((prevInvoice) => {
+      const updatedItems = [...prevInvoice.items];
+
+      // Update the correct row (not just the last row)
+      if (updatedItems[index]) {
+        updatedItems[index] = {
+          item: item_name,
+          quantity: quantity,
+          price: price,
+          amount: quantity * price,
+        };
+      }
+
+      // Recalculate total
+      const subTotal = updatedItems.reduce((acc, item) => acc + item.amount, 0);
+      const gstAmount = (subTotal * 18) / 100;
+      const total = (parseFloat(subTotal) + parseFloat(gstAmount)).toFixed(2);
+
+      return {
+        ...prevInvoice,
+        items: updatedItems,
+        sub_total: subTotal,
+        gst: gstAmount,
+        total: total,
+      };
+    });
+  };
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -130,74 +185,6 @@ function InvoicePage2() {
     }
   };
 
-  // const getInvoiceId = async (user_email) => {
-  //   try {
-  //     const response = await fetch(`${Server_url}/generate-invoice`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ user_email }),
-  //     });
-  //     const data = await response.json();
-
-  //     setInvoice((prev) => ({
-  //       ...prev,
-  //       invoice_id: data.invoice_id,
-  //     }));
-  //   } catch (error) {
-  //     console.error("Error fetching invoice ID:", error);
-  //   }
-  // };
-
-  // //   for getting invoice id
-  // useEffect(() => {
-  //   getInvoiceId(user.user_email);
-  // }, [user.user_email]);
-
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-
-  //   if (
-  //     name.startsWith("item_") ||
-  //     name.startsWith("quantity_") ||
-  //     name.startsWith("price_")
-  //   ) {
-  //     const index = parseInt(name.split("_")[1], 10); // Extract index
-  //     const field = name.split("_")[0]; // Extract field name
-  //     const updatedItems = [...invoice.items];
-  //     updatedItems[index][field] =
-  //       field === "price" || field === "quantity" ? Number(value) : value; // Update value
-  //     updatedItems[index].amount =
-  //       updatedItems[index].quantity * updatedItems[index].price; // Recalculate amount
-  //     const subTotal = updatedItems.reduce((acc, item) => acc + item.amount, 0);
-  //     const gstAmount = (subTotal * 18) / 100;
-  //     setInvoice({
-  //       ...invoice,
-  //       items: updatedItems,
-  //       sub_total: subTotal,
-  //       gst: gstAmount,
-  //       total: subTotal + gstAmount,
-  //     });
-  //   } else if (
-  //     name === "invoice_to" ||
-  //     name === "invoice_to_address" ||
-  //     name === "invoice_to_email"
-  //   ) {
-  //     // Handle recipient details fields
-  //     setInvoice((prevInvoice) => ({
-  //       ...prevInvoice,
-  //       [name]: value,
-  //     }));
-  //   } else {
-  //     // Update other main invoice fields
-  //     setInvoice((prevInvoice) => ({
-  //       ...prevInvoice,
-  //       [name]: value,
-  //     }));
-  //   }
-  // };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -205,14 +192,7 @@ function InvoicePage2() {
       const index = parseInt(name.split("_")[1], 10);
       const updatedItems = [...invoice.items];
 
-      updatedItems[index].item = value; // Update input value
-
-      // **Filter services dynamically**
-      const newFilteredServices = services.filter((service) =>
-        service.toLowerCase().includes(value.toLowerCase())
-      );
-      set_Filtered_Services_in_invoice(newFilteredServices);
-
+      updatedItems[index].item = value;
       setInvoice({
         ...invoice,
         items: updatedItems,
@@ -249,6 +229,7 @@ function InvoicePage2() {
       }));
     }
   };
+
   const handleNewInvoice = async () => {
     setInvoice({
       invoice_id: invoice_id,
@@ -356,13 +337,26 @@ function InvoicePage2() {
       ...invoice,
       items: [...invoice.items, { item: "", quantity: 0, price: 0, amount: 0 }],
     });
+    set_filter_services(services);
   };
   // Handle remove row
   const removeRow = (index) => {
-    if (index > 0) {
-      const updatedItems = invoice.items.filter((_, i) => i !== index);
-      setInvoice({ ...invoice, items: updatedItems });
-    }
+    setInvoice((prevInvoice) => {
+      const updatedItems = prevInvoice.items.filter((_, i) => i !== index); // Remove the item at the given index
+
+      // Recalculate subtotal
+      const subTotal = updatedItems.reduce((acc, item) => acc + item.amount, 0);
+      const gstAmount = (subTotal * 18) / 100;
+      const total = (parseFloat(subTotal) + parseFloat(gstAmount)).toFixed(2);
+
+      return {
+        ...prevInvoice,
+        items: updatedItems,
+        sub_total: subTotal,
+        gst: gstAmount,
+        total: total,
+      };
+    });
   };
 
   //   Email verification
@@ -386,9 +380,9 @@ function InvoicePage2() {
 
   const handleBlur = () => {
     if (!validateEmail(invoice.invoice_to_email)) {
-      setEmailError("Invalid email address"); // Show error if invalid
+      setEmailError("Invalid email address");
     } else {
-      setEmailError(""); // Clear error if valid
+      setEmailError("");
     }
   };
 
@@ -482,11 +476,11 @@ function InvoicePage2() {
                 <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">${
                   item.quantity
                 }</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.price.toFixed(
-                  2
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
+                  item.price
                 )}</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.amount.toFixed(
-                  2
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
+                  item.amount
                 )}</td>
               </tr>
             `
@@ -498,15 +492,15 @@ function InvoicePage2() {
         <div class="summary-section" style="margin-left: auto; width: 300px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
             <span>Subtotal:</span>
-            <span>₹${invoice.sub_total.toFixed(2)}</span>
+            <span>₹${formatAmount(invoice.sub_total)}</span>
           </div>
           <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
             <span>GST (18%):</span>
-            <span>₹${invoice.gst.toFixed(2)}</span>
+            <span>₹${formatAmount(invoice.gst)}</span>
           </div>
           <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; border-top: 2px solid #dee2e6; padding-top: 10px;">
             <span>Total:</span>
-            <span>₹${invoice.total.toFixed(2)}</span>
+            <span>₹${formatAmount(invoice.total)}</span>
           </div>
         </div>
 
@@ -836,10 +830,43 @@ function InvoicePage2() {
                       type="text"
                       name={`item_${index}`}
                       value={item.item}
-                      onChange={handleChange}
+                      onChange={(event) => {
+                        handleKeyDown(event, index);
+                        handleChange(event);
+                      }}
+                      onFocus={(e) => {
+                        e.target.nextSibling.style.display = "block";
+                      }}
+                      onBlur={(e) =>
+                        setTimeout(
+                          () => (e.target.nextSibling.style.display = "none"),
+                          200
+                        )
+                      }
+                      autoComplete="off"
                       placeholder="Enter name"
                       className="input-field"
+                      autoFocus="true"
                     />
+                    {filter_services && (
+                      <ul className="dropdown">
+                        {filter_services.map((service, i) => (
+                          <li
+                            key={i}
+                            onMouseDown={() =>
+                              addItem(
+                                index,
+                                service.service_name,
+                                1,
+                                parseInt(service.price_per_day)
+                              )
+                            }
+                          >
+                            {service.service_name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                   <div className="input-wrapper">
                     <label
@@ -908,10 +935,12 @@ function InvoicePage2() {
                         type="text"
                         name={`item_${index}`}
                         value={item.item}
-                        onChange={handleChange}
+                        onChange={(event) => {
+                          handleKeyDown(event, index);
+                          handleChange(event);
+                        }}
                         placeholder="Enter name"
                         onFocus={(e) => {
-                          set_Filtered_Services_in_invoice(services);
                           e.target.nextSibling.style.display = "block";
                         }}
                         onBlur={(e) =>
@@ -921,24 +950,28 @@ function InvoicePage2() {
                           )
                         }
                         autoFocus={true}
+                        autoComplete="off"
                       />
-                      <ul className="dropdown">
-                        {filtered_Services_in_invoice.map((service, i) => (
-                          <li
-                            key={i}
-                            onMouseDown={() =>
-                              handleChange({
-                                target: {
-                                  name: `item_${index}`,
-                                  value: service,
-                                },
-                              })
-                            }
-                          >
-                            {service}
-                          </li>
-                        ))}
-                      </ul>
+
+                      {filter_services && (
+                        <ul className="dropdown">
+                          {filter_services.map((service, i) => (
+                            <li
+                              key={i}
+                              onMouseDown={() =>
+                                addItem(
+                                  index,
+                                  service.service_name,
+                                  1,
+                                  parseInt(service.price_per_day)
+                                )
+                              }
+                            >
+                              {service.service_name}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </td>
                     <td>
                       <input
@@ -958,7 +991,6 @@ function InvoicePage2() {
                         value={item.price}
                         onChange={(e) => {
                           handleChange(e);
-                          // updateAmount(index);
                         }}
                         min="0"
                       />
@@ -1049,21 +1081,17 @@ function InvoicePage2() {
 
           <div className="summary-row">
             <span className="summary-label">Subtotal</span>
-            <span className="summary-value">
-              ₹{invoice.sub_total.toFixed(2)}
-            </span>
+            <span className="summary-value">₹{invoice.sub_total}</span>
           </div>
 
           <div className="summary-row">
             <span className="summary-label">GST (18%)</span>
-            <span className="summary-value">₹{invoice.gst.toFixed(2)}</span>
+            <span className="summary-value">₹{invoice.gst}</span>
           </div>
 
           <div className="summary-row">
             <span className="summary-label">Total Amount</span>
-            <span className="summary-value total-value">
-              ₹{invoice.total.toFixed(2)}
-            </span>
+            <span className="summary-value total-value">₹{invoice.total}</span>
           </div>
 
           <div className="invoice-actions">

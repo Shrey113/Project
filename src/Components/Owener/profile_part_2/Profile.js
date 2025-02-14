@@ -19,7 +19,7 @@ function Profile() {
   const [activeSection, setActiveSection] = useState('User Profile');
   const [showMenu, setShowMenu] = useState(false);
 
-  const sections = ['User Profile', 'Business Profile',"Business services", 'portfolio', "Equipment's", "Reviews", "Owner Url List"];
+  const sections = ['User Profile', 'Business Profile',"Business Services", 'Portfolio', "Equipment's", "Reviews", "Social Media Links"];
 
   return (
     <div className="profile-container-after-accept">
@@ -48,11 +48,11 @@ function Profile() {
    
         {activeSection === 'User Profile' && <AddProfileData/>}
         {activeSection === 'Business Profile' && <AddBusinessData/>}
-        {activeSection === "Business services" && <AddBusinessServices/>}
-        {activeSection === 'portfolio' && <AddPortfolio/>}
+        {activeSection === "Business Services" && <AddBusinessServices/>}
+        {activeSection === 'Portfolio' && <AddPortfolio/>}
         {activeSection === "Equipment's" && <AddEquipment/>}
         {activeSection === "Reviews" && <AddReviews/>}
-        {activeSection === "Owner Url List" && <OwnerUrlList/>}
+        {activeSection === "Social Media Links" && <OwnerUrlList/>}
         </div>
   
       </div>

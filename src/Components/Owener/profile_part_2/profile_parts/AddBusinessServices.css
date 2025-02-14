@@ -21,7 +21,7 @@
   margin-bottom: 2rem;
 }
 
-.add-business-services-container .services-header h1 {
+.add-business-services-container .services-header h2 {
   color: var(--color_5_owner);
   font-size: 2.2rem;
   font-weight: var(--Heading_weight);
@@ -69,11 +69,11 @@
  .add-business-services-container .form-group textarea {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid #E5E7EB;
+    /* border: 1px solid #E5E7EB; */
     border-radius: 8px;
     font-size: 14px;
     color: #333;
-    background-color: #cfcfcf4b;
+    /* background-color: #cfcfcf4b; */
     font-family: var(--body_data);
     font-weight: var(--body_data_weight);
 }
@@ -191,6 +191,12 @@
     text-overflow: ellipsis;
     max-height: 3em;
   }
+
+  @media (max-width: 900px) {
+    .add-business-services-container .services-header h2 {
+      font-size: 1.5rem;
+    }
+  }
   
 @media (max-width: 768px) {
   .add-business-services-container .services-header {
@@ -199,8 +205,8 @@
     text-align: center;
   }
 
-  .add-business-services-container .services-header h1 {
-    font-size: 1.8rem;
+  .add-business-services-container .services-header h2 {
+    font-size: 1.5rem;
   }
 
   .add-business-services-container .form-buttons {
@@ -209,6 +215,56 @@
 
   .add-business-services-container .services-list {
     grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 650px) {
+  .add-business-services-container .services-header h2 {
+      display: none;
+    }
+}
+@media (max-width: 550px) {
+  .add-business-services-container {
+    padding: 1rem;
+  }
+
+  .add-business-services-container .services-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .add-business-services-container .add-service-btn {
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .add-business-services-container .service-form-container {
+    padding: 1rem;
+  }
+
+  .add-business-services-container .form-buttons {
+    width: 100%;
+  }
+
+  .save-btn,
+  .add-business-services-container .cancel-btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .add-business-services-container .service-item {
+    padding: 1rem;
+  }
+
+  .add-business-services-container .service-item h3 {
+    font-size: 1.2rem;
+  }
+
+  .add-business-services-container .service-item p:first-of-type {
+    font-size: 1rem;
+  }
+
+  .add-business-services-container .no-services-content h2 {
+    font-size: 1.4rem;
   }
 }
 

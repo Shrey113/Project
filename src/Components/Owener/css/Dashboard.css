@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Raleway:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
 *::-webkit-scrollbar{
     width: 5px;
@@ -23,6 +24,33 @@
   --color_4_owner:#b7795f;
   --color_5_owner:#262626;
 
+  /* --color_1_owner: #ffffff; 
+  --color_2_owner: #f8f9fa; 
+  --color_3_owner: #4a5568; 
+  --color_4_owner: #2d3748; 
+  --color_5_owner: #1a202c;  */
+/* 
+  --color_1_owner: #ffffff;  
+  --color_2_owner: #f7f9fc;  
+  --color_3_owner: #e2e8f0;  
+  --color_4_owner: #94a3b8;  
+  --color_5_owner: #475569;  */
+  
+/* 
+  --color_1_owner: #ffffff; 
+  --color_2_owner: #faf6f3; 
+  --color_3_owner: #8c7365; 
+  --color_4_owner: #5c4741; 
+  --color_5_owner: #2c1810; */
+
+
+/* 
+  --color_1_owner: #ffffff;    
+  --color_2_owner: #f8f7ff;    
+  --color_3_owner: #e6e6fa;    
+  --color_4_owner: #9ca3af;    
+  --color_5_owner: #4b5563;     */
+
   --Heading :"Raleway", serif;
   --Heading_weight:600;
 
@@ -34,6 +62,50 @@
 
   --body_button :"Lato", serif;
   --body_button_weight:500;
+
+  /* Modern Professional Style */
+  /* --Heading: "Poppins", system-ui, sans-serif;
+  --Heading_weight: 700;
+
+  --sub_heading: "Poppins", system-ui, sans-serif;
+  --sub_heading_weight: 600;
+
+  --body_data: "Inter", system-ui, sans-serif;
+  --body_data_weight: 400;
+
+  --body_button: "Inter", system-ui, sans-serif;
+  --body_button_weight: 500; */
+
+
+    /* Clean Contemporary Style */
+
+    /* --Heading: "Montserrat", system-ui, sans-serif;
+    --Heading_weight: 700;
+  
+    --sub_heading: "Montserrat", system-ui, sans-serif;
+    --sub_heading_weight: 600;
+  
+    --body_data: "Open Sans", system-ui, sans-serif;
+    --body_data_weight: 400;
+  
+    --body_button: "Open Sans", system-ui, sans-serif;
+    --body_button_weight: 500; */
+
+
+      /* Elegant Readable Style */
+
+  /* --Heading: "Playfair Display", system-ui, serif;
+  --Heading_weight: 700;
+
+  --sub_heading: "Source Sans Pro", system-ui, sans-serif;
+  --sub_heading_weight: 600;
+
+  --body_data: "Source Sans Pro", system-ui, sans-serif;
+  --body_data_weight: 400;
+
+  --body_button: "Source Sans Pro", system-ui, sans-serif;
+  --body_button_weight: 500; */
+
   
     --owner_home_page_bg:var(--color_2_owner);
     --owner_home_page_ui:var(--color_1_owner);

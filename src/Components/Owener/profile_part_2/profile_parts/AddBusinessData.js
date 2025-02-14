@@ -225,6 +225,7 @@ function AddBusinessData() {
 
   const handleSaveChanges = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     await submitBusinessForm();
   }
 
@@ -315,7 +316,7 @@ function AddBusinessData() {
             </div>
         </div>
 
-      <form onSubmit={handleSaveChanges}>
+      <form onSubmit={handleSaveChanges} noValidate>
 
 
       <div className="form-group_for_2_inputs">

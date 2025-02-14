@@ -29,6 +29,8 @@ const EditInvoiceModal = ({
     );
   }
 
+  const formatAmount = (amount) => parseFloat(amount).toFixed(2);
+
   const handleDownloadPDF = () => {
     const element = document.createElement("div");
     element.className = "pdf-container";
@@ -151,9 +153,9 @@ const EditInvoiceModal = ({
                   <td style="padding: 8px; border: 1px solid #dee2e6; text-align: right;">₹${
                     item.price
                   }</td>
-                  <td style="padding: 8px; border: 1px solid #dee2e6; text-align: right;">₹${
+                  <td style="padding: 8px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
                     item.quantity * item.price
-                  }</td>
+                  )}</td>
                 </tr>
               `
                 )
@@ -173,7 +175,7 @@ const EditInvoiceModal = ({
               font-size: 14px;
             ">
               <span>Subtotal:</span>
-              <span>₹${invoice.sub_total}</span>
+              <span>₹${formatAmount(invoice.sub_total)}</span>
             </div>
             <div style="
               display: flex;
@@ -182,7 +184,7 @@ const EditInvoiceModal = ({
               font-size: 14px;
             ">
               <span>GST (18%):</span>
-              <span>₹${invoice.gst}</span>
+              <span>₹${formatAmount(invoice.gst)}</span>
             </div>
             <div style="
               display: flex;
@@ -194,7 +196,7 @@ const EditInvoiceModal = ({
               font-size: 14px;
             ">
               <span>Total Amount:</span>
-              <span>₹${invoice.total}</span>
+              <span>₹${formatAmount(invoice.total)}</span>
             </div>
           </div>
         </div>
@@ -265,50 +267,36 @@ const EditInvoiceModal = ({
           </div>
           <div className="invoice-details">
             <div className="detail-item">
-              <span className="label">
-                Invoice To <span>:</span>
-              </span>
+              <span className="label">Invoice To</span>
               <span className="value">{invoice.invoice_to}</span>
             </div>
             <div className="detail-item">
-              <span className="label">
-                Recipient Address <span>:</span>
-              </span>
+              <span className="label">Recipient Address</span>
               <span className="value">
                 {invoice.invoice_items[0].invoice_to_address}
               </span>
             </div>
             <div className="detail-item">
-              <span className="label">
-                Recipient Email <span>:</span>
-              </span>
+              <span className="label">Recipient Email</span>
               <span className="value">
                 {invoice.invoice_items[0].invoice_to_email}
               </span>
             </div>
             <div className="detail-item">
-              <span className="label">
-                Date <span>:</span>
-              </span>
+              <span className="label">Date</span>
               <span className="value">{formatDateTime(invoice.date).date}</span>
             </div>
             <div className="detail-item">
-              <span className="label">
-                Subtotal <span>:</span>
-              </span>
-              <span className="value">₹{invoice.sub_total}</span>
+              <span className="label">Subtotal</span>
+              <span className="value">₹{formatAmount(invoice.sub_total)}</span>
             </div>
             <div className="detail-item">
-              <span className="label">
-                GST <span>:</span>
-              </span>
-              <span className="value">₹{invoice.gst}</span>
+              <span className="label">GST</span>
+              <span className="value">₹{formatAmount(invoice.gst)}</span>
             </div>
             <div className="detail-item">
-              <span className="label">
-                Total <span>:</span>
-              </span>
-              <span className="value">₹{invoice.total}</span>
+              <span className="label">Total</span>
+              <span className="value">₹{formatAmount(invoice.total)}</span>
             </div>
           </div>
         </div>
@@ -335,7 +323,7 @@ const EditInvoiceModal = ({
                     <td>{item.item}</td>
                     <td>{item.quantity}</td>
                     <td>₹{item.price}</td>
-                    <td>₹{item.quantity * item.price}</td>
+                    <td>₹{formatAmount(item.quantity * item.price)}</td>
                   </tr>
                 ))}
             </tbody>

@@ -3,6 +3,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable"; // Import autoTable
 
 const generateInvoiceContent = (doc, invoice, user, invoiceData) => {
+  const formatAmount = (amount) => parseFloat(amount).toFixed(2);
   // Set font styles
   doc.setFont("helvetica", "bold");
   doc.setFontSize(24);
@@ -54,8 +55,8 @@ const generateInvoiceContent = (doc, invoice, user, invoiceData) => {
     body: items.map((item) => [
       items.item,
       items.quantity,
-      `₹${items.price.toFixed(2)}`,
-      `₹${items.amount.toFixed(2)}`,
+      `₹${formatAmount(items.price)}`,
+      `₹${formatAmount(items.amount)}`,
     ]),
     theme: "grid",
     headStyles: { fillColor: [41, 128, 185], textColor: 255 },
@@ -73,15 +74,15 @@ const generateInvoiceContent = (doc, invoice, user, invoiceData) => {
 
   // Right-aligned summary
   const rightColumn = 190;
-  doc.text(`Subtotal: ₹${subTotal.toFixed(2)}`, rightColumn, finalY, {
+  doc.text(`Subtotal: ₹${formatAmount(subTotal)}`, rightColumn, finalY, {
     align: "right",
   });
-  doc.text(`GST (18%): ₹${gst.toFixed(2)}`, rightColumn, finalY + 10, {
+  doc.text(`GST (18%): ₹${formatAmount(gst)}`, rightColumn, finalY + 10, {
     align: "right",
   });
 
   doc.setFont("helvetica", "bold");
-  doc.text(`Total: ₹${total.toFixed(2)}`, rightColumn, finalY + 20, {
+  doc.text(`Total: ₹${formatAmount(total)}`, rightColumn, finalY + 20, {
     align: "right",
   });
 

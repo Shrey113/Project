@@ -18,6 +18,9 @@ const { send_welcome_page, send_otp_page } = require('./../modules/send_server_e
     }
   });
 
+
+  
+
 router.post("/send_otp_email", async (req, res) => {
   const { email,type } = req.body;
   if (!email || !type) {

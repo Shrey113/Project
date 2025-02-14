@@ -40,6 +40,10 @@ const io = new Server(server, {
   },
 });
 
+// Move this to the top level, outside of connection handler
+const emitEventRequestNotification = (userEmail, data) => {
+  io.emit(`new_event_request_notification_${userEmail}`, data);
+};
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
@@ -119,9 +123,29 @@ app.use('/reviews', reviews_rout);
 app.use('/calendar', calendarRoutes);
 
 
+
+
+
 app.post('/add_profile_by_email', (req, res) => {
-  const { email,business_profile_base64,user_profile_image_base64 } = req.body;
-  console.log(email);
+  const { email, business_profile_base64, user_profile_image_base64 } = req.body;
+  
+  // Validate inputs
+  if (!email || !business_profile_base64 || !user_profile_image_base64) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
+
+  // Check file sizes (assuming base64 strings)
+  const maxSize = 5 * 1024 * 1024; // 5MB limit
+  if (business_profile_base64.length > maxSize || user_profile_image_base64.length > maxSize) {
+    return res.status(400).json({ error: 'Image file size too large. Maximum size is 5MB' });
+  }
+
   db.query(`SELECT * FROM owner WHERE user_email = ?`, [email], (err, result) => {
     if (err) {
       console.error('Error fetching photographer data:', err.message);
@@ -131,23 +155,54 @@ app.post('/add_profile_by_email', (req, res) => {
       return res.status(404).json({ error: 'Photographer not found' });
     }
 
-
-    db.query(`Update owner set business_profile_base64 = ?, user_profile_image_base64 = ? where user_email = ?`, [business_profile_base64, user_profile_image_base64, email], (err, result) => {
-      if (err) {
-        console.error('Error adding photographer profile:', err.message);
-        return res.status(500).json({ error: 'Internal server error' });
-      }
-
-      db.query(`SELECT * FROM owner WHERE user_email = ?`, [email], (err, result) => {
+    db.query(
+      `Update owner set business_profile_base64 = ?, user_profile_image_base64 = ? where user_email = ?`,
+      [business_profile_base64, user_profile_image_base64, email],
+      (err, result) => {
         if (err) {
-          console.error('Error fetching photographer data:', err.message);
+          console.error('Error adding photographer profile:', err.message);
           return res.status(500).json({ error: 'Internal server error' });
         }
-        res.json(result);
-      });
 
-    });
+        db.query(`SELECT * FROM owner WHERE user_email = ?`, [email], (err, result) => {
+          if (err) {
+            console.error('Error fetching photographer data:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+          }
+          res.json(result);
+        });
+      }
+    );
   });
+});
+
+
+
+app.post('/confirm-equipment-event', (req, res) => {
+  const { event_id, user_email, sender_email } = req.body;
+
+  db.query(
+    'UPDATE event_request SET event_status = "Accepted" WHERE id = ? AND receiver_email = ?',
+    [event_id, user_email],
+    (err, result) => {
+      if (err) {
+        console.error('Error confirming equipment event:', err.message);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Event request not found' });
+      }
+      
+      // Emit socket event with relevant data
+      emitEventRequestNotification(sender_email, {
+        type: 'equipment_confirmation',
+        event_id,
+        status: 'Accepted'
+      });
+      
+      res.json({ message: 'Equipment event confirmed successfully' });
+    }
+  );
 });
 
 

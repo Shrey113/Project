@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './OwnerUrlList.css';
 import { FaInstagram, FaFacebook, FaPinterest, FaGlobe, FaPlus, FaTrash, FaYoutube } from 'react-icons/fa';
-import { ConfirmMessage,Server_url} from '../../../../../redux/AllData';
+import { ConfirmMessage,Server_url,showWarningToast,showRejectToast} from '../../../../../redux/AllData';
 import { useSelector } from 'react-redux';
 
 
@@ -41,7 +41,7 @@ function OwnerUrlList() {
     const formattedUrl = newUrl.includes('://') ? newUrl : `http://${newUrl}`;
     
     if (urls.includes(formattedUrl)) {
-      alert('This URL already exists in your list!');
+      showWarningToast({message:'This URL already exists in your list!'});
       return;
     }
 
@@ -64,7 +64,7 @@ function OwnerUrlList() {
       }
     } catch (err) {
       console.error('Error adding URL:', err);
-      alert('Failed to add URL. Please try again.');
+      showWarningToast({message:'Failed to add URL. Please try again.'});
     }
   };
 
@@ -93,7 +93,8 @@ function OwnerUrlList() {
       }
     } catch (err) {
       console.error('Error deleting URL:', err);
-      alert('Failed to delete URL. Please try again.');
+      showRejectToast({message:'Failed to delete URL. Please try again.'});
+
     }
     setShowConfirm(false);
   };
@@ -113,7 +114,7 @@ function OwnerUrlList() {
           className="url-input"
         />
         <button type="submit" className="add-button">
-          <FaPlus />
+          <FaPlus />Add Link
         </button>
       </form>
 

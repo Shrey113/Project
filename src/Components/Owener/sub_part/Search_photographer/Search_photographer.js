@@ -104,19 +104,47 @@ function Search_photographer() {
   const [locationData, setLocationData] = useState(null);
   const [isLocationLoading, setIsLocationLoading] = useState(true);
 
+  const set_disable_opacity = 0.7;
+
   const [isLoading, setIsLoading] = useState(false);
 
   const [selectedLocation, setSelectedLocation] = useState('all');
 
   const [isLocationPermissionGranted, setIsLocationPermissionGranted] = useState(false);
 
-  // Add new state for popup
   const [showLocationPopup, setShowLocationPopup] = useState(false);
 
-  // Add new state for displayed locations
-  const [displayedLocations, setDisplayedLocations] = useState(locations.slice(0, 4));
 
-  // const[is_show_message_one_time, set_is_show_message_one_time] = useState(false);
+  const [visibleLocations, setVisibleLocations] = useState([]);
+  
+  useEffect(() => {
+    const calculateVisibleLocations = () => {
+      const container = document.querySelector('.locations-list');
+      if (!container) return;
+      
+      const container_width = container.offsetWidth;
+      const location_item_width = 90; 
+      const max_items = Math.floor((container_width - location_item_width) / location_item_width); 
+      
+      let visibleLocs = [...locations];
+      
+      // If there's a selected location, move it to the front
+      if (selectedLocation && selectedLocation !== 'all') {
+        const selectedIndex = visibleLocs.findIndex(loc => loc.value === selectedLocation);
+        if (selectedIndex !== -1) {
+          const [selectedLoc] = visibleLocs.splice(selectedIndex, 1);
+          visibleLocs.unshift(selectedLoc);
+        }
+      }
+      
+      setVisibleLocations(visibleLocs.slice(0, max_items - 1));
+    };
+
+    calculateVisibleLocations();
+    window.addEventListener('resize', calculateVisibleLocations);
+    
+    return () => window.removeEventListener('resize', calculateVisibleLocations);
+  }, [selectedLocation]);
 
   useEffect(() => {
     const getCityName = async (lat, lon) => {
@@ -226,16 +254,6 @@ function Search_photographer() {
   }, [user.user_email]);
 
   const handleLocationSelect = (value) => {
-    // If selecting from popup, update the displayed locations
-    const selectedLocationObj = locations.find(loc => loc.value === value);
-    if (selectedLocationObj) {
-      const newDisplayedLocations = [
-        selectedLocationObj,
-        ...locations.filter(loc => loc.value !== value).slice(0, 3)
-      ];
-      setDisplayedLocations(newDisplayedLocations);
-    }
-    
     setSelectedLocation(prev => prev === value ? null : value);
   };
 
@@ -280,7 +298,7 @@ function Search_photographer() {
             className={`all-locations-btn ${selectedLocation === 'all' ? 'selected' : ''}`}
             onClick={() => handleLocationSelect('all')}
             style={{
-              opacity: selectedLocation && selectedLocation !== 'all' ? 0.55 : 1,
+              opacity: selectedLocation && selectedLocation !== 'all' ? set_disable_opacity : 1,
               transition: 'all 0.3s ease'
             }}
           >
@@ -308,7 +326,11 @@ function Search_photographer() {
 
           ) : (
             <div
-              className={`location-circle current-location ${selectedLocation}`}
+              className={`location-circle current-location ${
+                selectedLocation === (locationData.address.city || locationData.address.state_district || locationData.address.state) 
+                ? 'selected' 
+                : ''
+              }`}
               onClick={() => handleLocationSelect(locationData.address.city||  locationData.address.state_district || 
                 locationData.address.state)}
            
@@ -328,18 +350,18 @@ function Search_photographer() {
             </div>
           )}
 
-          {displayedLocations.map((location) => (
+          {/* Show only visible locations */}
+          {visibleLocations.map((location) => (
             <div
-              key={location.id}
+              key={location.value}
               className={`location-circle ${selectedLocation === location.value ? 'selected' : ''}`}
               onClick={() => handleLocationSelect(location.value)}
               style={{
-                opacity: selectedLocation && selectedLocation !== location.value ? 0.55 : 1,
+                opacity: selectedLocation && selectedLocation !== location.value ? set_disable_opacity : 1,
                 cursor: 'pointer',
                 transition: 'all 0.3s ease'
               }}
             >
-
               <div className="location-image-wrapper">
                 <img
                   src={location.image}
@@ -353,26 +375,23 @@ function Search_photographer() {
             </div>
           ))}
 
-          {/* Show Others button if more locations exist */}
-          {locations.length > 4 && (
-            <div
-              className="location-circle"
-              onClick={handleOthersClick}
-              style={{
-                opacity: selectedLocation ? 0.55 : 1,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-            >
-
-              <div className="location-image-wrapper">
-                <div className="others-count">+{locations.length - 4}</div>
-              </div>
-              <div className="location-details">
-                <span className="location-name">Others</span>
-              </div>
+          {/* All Locations button */}
+          <div
+            className="location-circle all-locations"
+            onClick={handleOthersClick}
+            style={{
+              opacity: selectedLocation ? set_disable_opacity : 1,
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <div className="location-image-wrapper">
+              <div className="view-all">Others</div>
             </div>
-          )}
+            <div className="location-details">
+              <span className="location-name">All Locations</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -390,29 +409,35 @@ function Search_photographer() {
               </button>
             </div>
             <div className="popup-locations-grid">
-              {locations.map((location) => (
-                <div
-                  key={location.id}
-                  className={`location-circle popup-location ${
-                    selectedLocation === location.value ? 'selected' : ''
-                  }`}
-                  onClick={() => {
-                    handleLocationSelect(location.value);
-                    setShowLocationPopup(false);
-                  }}
-                >
-                  <div className="location-image-wrapper">
-                    <img
-                      src={location.image}
-                      alt={location.name}
-                      className="location-image"
-                    />
+              {[...locations]
+                .sort((a, b) => {
+                  if (a.value === selectedLocation) return -1;
+                  if (b.value === selectedLocation) return 1;
+                  return 0;
+                })
+                .map((location) => (
+                  <div
+                    key={location.value}
+                    className={`location-circle popup-location ${
+                      selectedLocation === location.value ? 'selected' : ''
+                    }`}
+                    onClick={() => {
+                      handleLocationSelect(location.value);
+                      setShowLocationPopup(false);
+                    }}
+                  >
+                    <div className="location-image-wrapper">
+                      <img
+                        src={location.image}
+                        alt={location.name}
+                        className="location-image"
+                      />
+                    </div>
+                    <div className="location-details">
+                      <span className="location-name">{location.name}</span>
+                    </div>
                   </div>
-                  <div className="location-details">
-                    <span className="location-name">{location.name}</span>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         </div>
