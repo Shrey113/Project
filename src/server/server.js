@@ -16,8 +16,8 @@ const calendarRoutes = require('./sub_part/calendar_rout');
 
 // @shrey11_  start ---- 
 // @shrey11_  start ---- 
-app.use(express.json({ limit: '20mb' })); 
-app.use(express.urlencoded({ extended: false, limit: '20mb' }))
+app.use(express.json({ limit: '200mb' })); 
+app.use(express.urlencoded({ extended: false, limit: '200mb' }))
 
 app.use(express.json()); 
 app.use(cors());
@@ -71,10 +71,10 @@ const db = mysql.createConnection({
 });
 
 // const db = mysql.createConnection({
-//   host: "localhost",
-//   user: "u300194546_snap",
-//   password: "Snap!@#$1234",
-//   database: "u300194546_snap",
+//   host: "127.0.0.1:3306",
+//   user: "u300194546_ph",
+//   password: "Trevit@2599",
+//   database: "u300194546_ph",
 //   authPlugins: {
 //     mysql_native_password: () =>
 //       require("mysql2/lib/auth_plugins").mysql_native_password,
@@ -131,6 +131,46 @@ app.delete("/owner-folders/:folder_id", (req, res) => {
         return res.status(500).json({ error: "Error deleting folder" });
       }
 
+      res
+        .status(200)
+        .json({ message: "Folder and files deleted successfully" });
+    });
+  });
+});
+
+app.delete("/owner/owner-folders/:folder_id", (req, res) => {
+  const { folder_id } = req.params;
+  const { user_email } = req.body;
+
+  // First verify the user owns this folder
+  const verifyQuery = `
+    SELECT folder_id FROM owner_folders
+    WHERE folder_id = ? AND user_email = ?
+  `;
+
+  db.query(verifyQuery, [folder_id, user_email], (err, results) => {
+    if (err) {
+      console.error("Error verifying folder ownership:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length === 0) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized or folder not found" });
+    }
+
+    // Delete the folder (cascade will handle file deletion)
+    const deleteQuery = `DELETE FROM owner_folders WHERE folder_id = ?`;
+
+    db.query(deleteQuery, [folder_id], (err, result) => {
+      if (err) {
+        console.error("Error deleting folder:", err);
+        return res.status(500).json({ error: "Error deleting folder" });
+      }
+
+    
+      io.emit(`folderDeleted_${user_email}`, folder_id);
       res
         .status(200)
         .json({ message: "Folder and files deleted successfully" });

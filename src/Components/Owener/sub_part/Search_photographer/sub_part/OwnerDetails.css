@@ -23,8 +23,9 @@
   padding: 10px;
   position: sticky;
   top: 0;
-  background: rgb(224, 222, 222);
-  z-index: 100;
+  background: rgba(255, 255, 255, 0.532);
+  backdrop-filter: blur(10px);
+  z-index: 1;
 }
 
 /* for back button  */
@@ -42,9 +43,9 @@
 .owner-details-container .back-button .icon {
   font-size: 20px;
 }
-.owner-details-container .back-button:hover {
+/* .owner-details-container .back-button:hover {
   box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
-}
+} */
 .owner-details-container .owner-title {
   font-size: 24px;
   color: #1a202c;
@@ -104,6 +105,33 @@
   gap: 8px;
   align-items: center;
 }
+.owner-details-container .owner-status .all_links {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+}
+.owner-details-container .owner-status .all_links a {
+  font-size: 20px;
+}
+.owner-details-container .owner-status .all_links a:hover {
+  animation: scaleAnimation 0.4s ease;
+}
+@keyframes scaleAnimation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  75% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .owner-details-container .owner-status p {
   font-weight: 600;
   font-size: 20px;
@@ -128,15 +156,6 @@
 .owner-details-container .owner-status p:hover::after {
   left: 0%;
 }
-
-/* .owner-details-container .status-badge {
-  background: #10b981;
-  color: white;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-} */
 
 .owner-details-container .rating {
   color: #2d3748;
@@ -231,7 +250,8 @@
 /* base for all sections  */
 
 .owner-details-container .section.equipment_section .equipment-list,
-.owner-details-container .section.packages_section .packages-list {
+.owner-details-container .section.packages_section .packages-list,
+.owner-details-container .section.services_section .services-list {
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -249,17 +269,18 @@
 .owner-details-container
   .section.packages_section
   .packages-list
-  .package_items_container {
+  .package_items_container,
+.owner-details-container
+  .section.services_section
+  .services-list
+  .services_items_container {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  position: relative;
 }
-/* .owner-details-container
-  .section.equipment_section
-  .equipment-list
-  .equipment_items_container
-  .equipment_item, */
+
 .owner-details-container
   .section.packages_section
   .packages-list
@@ -382,6 +403,38 @@
 
 /* no equipment section  */
 
+.book-equipment-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  z-index: 10;
+
+  font-family: monospace;
+  transition: all 0.3s ease-in;
+  overflow: hidden;
+}
+@keyframes slide-in {
+  0% {
+    right: -100%;
+  }
+  100% {
+    right: 10px;
+  }
+}
+
+.equipment_item:hover .book-equipment-button {
+  opacity: 1;
+  animation: slide-in 0.4s linear;
+}
+
 .owner-details-container .section.equipment_section .no_equipments {
   height: 300px;
   width: 300px;
@@ -399,6 +452,41 @@
 }
 
 /* no packages section  */
+.book-package-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease-in;
+  overflow: hidden;
+  font-size: 14px;
+  padding: 5px 10px;
+  font-family: monospace;
+  border-radius: 20px;
+  background-color: lightgrey;
+  box-shadow: rgba(149, 157, 165, 0.13) 0px 8px 24px;
+}
+
+@keyframes slide-in {
+  0% {
+    right: -100%;
+  }
+  100% {
+    right: 10px;
+  }
+}
+
+.package-card:hover .book-package-button {
+  opacity: 1;
+  animation: slide-in 0.4s linear;
+}
 
 .owner-details-container .section.packages_section .no_equipments {
   height: 300px;
@@ -416,7 +504,45 @@
   font-size: 20px;
 }
 
+/* services section  */
+.owner-details-container .services_items_container .service_item {
+  padding: 20px;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  border-radius: 10px;
+  min-height: fit-content;
+  height: 220px;
+  width: 400px;
+}
+.owner-details-container
+  .services_items_container
+  .services_description_container {
+  text-overflow: ellipsis;
+}
+
 /* no photo section  */
+
+.owner-details-container .tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+.owner-details-container .tabs .folder_tab {
+  border: 1px solid #111;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 300;
+  font-family: monospace;
+  transition: all 0.3s ease-in-out;
+}
+.owner-details-container .tabs .folder_tab:hover {
+  background-color: #cdcdcd85;
+}
+.owner-details-container .tabs .folder_tab.active {
+  background-color: #c0e3ec;
+}
 
 .owner-details-container .section.photo_section .no_equipments {
   height: 300px;
@@ -435,32 +561,118 @@
 }
 
 /* photo section container  */
+
+/* skeleton loader in photo section */
+.loader {
+  color: #595a5b;
+  text-align: center;
+
+  margin-top: 50px;
+}
+
+.skeleton-photo-card {
+  flex-wrap: wrap;
+  height: 300px;
+  width: 100%;
+  background: #e0e0e0;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-photo-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* end of skeleton loader in photo section */
+
+.owner-details-container .section.photo_section {
+  position: relative;
+}
+.owner-details-container .section.photo_section .see_more_text {
+  position: absolute;
+  bottom: 10px;
+  right: 25px;
+  font-size: 10px;
+  z-index: 10;
+  cursor: pointer;
+  font-weight: 550;
+  font-family: monospace;
+  transition: all 0.3s ease-in-out;
+  display: none;
+}
+.owner-details-container .section.photo_section .see_more_text.show {
+  display: block;
+  font-size: 16px;
+}
+.owner-details-container .section.photo_section .see_more_text:hover {
+  color: #1a9ffe;
+  animation: scaleAnimation 0.5s ease-in-out;
+}
+.owner-details-container .section.photo_section.apply-gradient::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(
+    to top,
+    rgba(255, 255, 255, 1),
+    rgba(255, 255, 255, 0)
+  );
+}
+
+.owner-details-container .photo_container .photos_grid {
+  column-count: 5;
+  column-gap: 15px;
+  width: 100%;
+  padding: 10px 15px;
+}
+.owner-details-container .photo_container .photos_grid .photo_card {
+  margin-bottom: 25px;
+  display: inline-block;
+  width: 100%;
+  break-inside: avoid;
+  line-height: 2.5;
+}
+.owner-details-container .photo_container .photo_image {
+  width: 100%;
+  border-radius: 15px;
+  display: block;
+  break-inside: avoid;
+  border: 1px solid black;
+}
+
 .owner-details-container
   .section.photo_section
   .photos-container
   .profile_preview_images {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(3, 1fr);
+  margin-top: 20px;
 }
 
-.owner-details-container .section.photo_section .photos-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 30px;
-}
-
-.owner-details-container
-  .section.photo_section
-  .photos-container
-  .profile_preview_images
-  .photo-thumbnail {
-  box-sizing: border-box;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-}
+/* end of photo container  */
 
 .owner-details-container .rating .icon.star {
   color: #fcd34d;
@@ -544,6 +756,7 @@
   gap: 12px;
   position: relative;
   overflow: hidden;
+  position: relative;
 }
 
 .owner-details-container .equipment_item:hover {
@@ -691,16 +904,13 @@
 .owner-details-container .profile_preview_photos_title {
   display: flex;
   align-items: center;
-  /* flex-direction: column; */
   justify-content: space-between;
-  /* background: red; */
   padding: 0px 10px;
   width: 100%;
   min-width: 100%;
 }
 .owner-details-container .profile_preview_equipment_title .equipment-card-title,
-.owner-details-container .profile_preview_packages_title .packages-card-title,
-.owner-details-container .profile_preview_photos_title .photos-card-title {
+.owner-details-container .profile_preview_packages_title .packages-card-title {
   font-size: 24px;
   color: #2c3e50;
   /* margin-bottom: 16px; */
@@ -979,8 +1189,9 @@
   min-width: 300px;
   flex-shrink: 0;
   border-radius: 10px;
-
+  position: relative;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  overflow: hidden;
 }
 
 .owner-details-container .packages-grid .package-card .package_title {

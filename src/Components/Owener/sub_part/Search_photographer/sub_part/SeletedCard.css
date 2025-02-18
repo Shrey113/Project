@@ -8,7 +8,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100000;
+  z-index: 100;
   cursor: pointer;
 }
 
@@ -21,7 +21,7 @@
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
-  scroll-behavior: smooth;
+  z-index: 100;
 }
 
 .on_close {
@@ -46,7 +46,6 @@
 .equipment-card-container-selected,
 .package-card-container-selected {
   padding: 1rem;
-
 }
 .equipment-card-title-selected,
 .package-card-title-selected {
@@ -59,7 +58,6 @@ h1 {
   text-align: center;
   margin-bottom: 2rem;
   color: #333;
-
 }
 
 .booking-form {
@@ -91,7 +89,7 @@ h1 {
 .form-group textarea:focus {
   outline: none;
   border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 .submit-btn {
@@ -116,7 +114,7 @@ h1 {
     width: 95%;
     padding: 1rem;
   }
-  
+
   .form-group input,
   .form-group textarea {
     padding: 0.6rem;
@@ -191,38 +189,5 @@ input[type="number"] {
 input[type="number"]:focus {
   outline: none;
   border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-}
-
-.date-input-group {
-  margin-bottom: 20px;
-}
-
-.form-input {
-  width: 100%;
-}
-
-.MuiFormHelperText-root {
-  margin-top: 4px;
-  font-size: 0.75rem;
-  color: #d32f2f;
-}
-
-/* Add smooth scrollbar styling */
-.selected-card-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.selected-card-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.selected-card-container::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.selected-card-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }

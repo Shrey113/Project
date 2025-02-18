@@ -39,6 +39,27 @@ const bodyParser = require("body-parser");
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
+router.post("/fetch_package_count", (req, res) => {
+  const { owner_email } = req.body;
+
+  if (!owner_email) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const query = `SELECT COUNT(*) AS package_count FROM packages WHERE user_email = ?`;
+
+  db.execute(query, [owner_email], (err, results) => {
+    if (err) {
+      console.error("Error fetching package count:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    // Extract count value from the results
+    const packageCount = results[0]?.package_count || 0;
+
+    return res.status(200).json({ success: true, package_count: packageCount });
+  });
+});
 
 router.post("/add-team-members", (req, res) => {
   const { user_email, team_members, event_id } = req.body;
@@ -197,7 +218,12 @@ router.post("/api/owner-all-details", (req, res) => {
   // Query for fetching photo files details
   const photoFilesQuery = `
       SELECT * FROM photo_files
-      WHERE user_email = ? LIMIT 5
+      WHERE user_email = ? LIMIT 15
+    `;
+    
+  const ServiceQuery = `
+      SELECT * FROM owner_services
+      WHERE user_email = ? LIMIT 10
     `;
 
   // Execute the queries in parallel using Promise.all
@@ -226,21 +252,31 @@ router.post("/api/owner-all-details", (req, res) => {
         }
       });
     }),
-  ])
-    .then(([equipmentResult, packagesResult, photoFilesResult]) => {
-      // Send the combined data as JSON
-      res.json({
-        equipment: equipmentResult,
-        packages: packagesResult,
-        photo_files: photoFilesResult,
+    new Promise((resolve, reject) => {
+      db.query(ServiceQuery, [user_email], (err, result) => {
+        if (err) reject(err);
+        else {
+          resolve(result);
+        }
       });
-    })
+    }),
+  ])
+    .then(
+      ([equipmentResult, packagesResult, photoFilesResult, ServiceResult]) => {
+        // Send the combined data as JSON
+        res.json({
+          equipment: equipmentResult,
+          packages: packagesResult,
+          photo_files: photoFilesResult,
+          services: ServiceResult,
+        });
+      }
+    )
     .catch((error) => {
       console.error("Error fetching owner details:", error);
       res.status(500).json({ error: "Internal Server Error" });
     });
 });
-
 router.post("/api/owners", (req, res) => {
   const { user_email } = req.body;
 

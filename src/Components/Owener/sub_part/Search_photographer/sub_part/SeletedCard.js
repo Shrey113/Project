@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./SeletedCard.css";
-import { Server_url ,showAcceptToast,showRejectToast} from "../../../../../redux/AllData";
+import {
+  Server_url,
+  showAcceptToast,
+  showRejectToast,
+} from "../../../../../redux/AllData";
 import { useSelector } from "react-redux";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import dayjs from "dayjs";
@@ -63,17 +67,17 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         });
     }
   }, [selectedData, type]);
-  
+
   const [formData, setFormData] = useState({
     // package
-    package_id:selectedData.id,
+    package_id: selectedData.id,
     package_name: selectedData.package_name,
     service: selectedData.service,
     description: selectedData.description,
     price: selectedData.price,
-    
+
     // equipment
-    equipment_id:selectedData.equipment_id,
+    equipment_id: selectedData.equipment_id,
     equipment_name: selectedData.name,
     name: selectedData.name,
     equipment_company: selectedData.equipment_company,
@@ -97,7 +101,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
   const [dateErrors, setDateErrors] = useState({
     start_date: "",
-    end_date: ""
+    end_date: "",
   });
 
   const handleChange = (e) => {
@@ -145,10 +149,10 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       );
 
       if (!response.ok) {
-        showRejectToast({message:"Equipment request failed"});
+        showRejectToast({ message: "Equipment request failed" });
         throw new Error("Request failed");
       }
-      showAcceptToast({message:"Equipment request added successfully"});
+      showAcceptToast({ message: "Equipment request added successfully" });
 
       onClose();
     } catch (error) {
@@ -175,10 +179,10 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       });
 
       if (!response.ok) {
-        showRejectToast({message:"Package request failed"});
+        showRejectToast({ message: "Package request failed" });
         throw new Error("Request failed");
       }
-      showAcceptToast({message:"Package request added successfully"});
+      showAcceptToast({ message: "Package request added successfully" });
 
       onClose();
     } catch (error) {
@@ -190,7 +194,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     if (containerRef.current) {
       containerRef.current.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -226,13 +230,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     }
 
     setDateErrors(errors);
-    
+
     // If there are errors, scroll to top
-    if (Object.values(errors).some(error => error !== "")) {
+    if (Object.values(errors).some((error) => error !== "")) {
       scrollToTop();
     }
-    
-    return Object.values(errors).every(error => error === "");
+
+    return Object.values(errors).every((error) => error === "");
   };
 
   const handleSubmit = async (e) => {
@@ -266,25 +270,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         [name]: dayjs(newValue).toISOString(),
       }));
       // Clear error when date is changed
-      setDateErrors(prev => ({
+      setDateErrors((prev) => ({
         ...prev,
-        [name]: ""
+        [name]: "",
       }));
     }
   };
-  
+
   // Add this function to check if a date should be disabled
   const shouldDisableDate = (date) => {
-    const checkDate = dayjs(date).startOf('day'); // Convert to start of day for comparison
-    
-    return blockedDates.some(period => {
+    const checkDate = dayjs(date).startOf("day"); // Convert to start of day for comparison
+
+    return blockedDates.some((period) => {
       // Parse the datetime strings from backend
-      const startDate = dayjs(period.start_date).startOf('day');
-      const endDate = dayjs(period.end_date).startOf('day');
-      
+      const startDate = dayjs(period.start_date).startOf("day");
+      const endDate = dayjs(period.end_date).startOf("day");
+
       // Check if the date falls within the blocked period using isAfter/isBefore/isSame
-      return (checkDate.isAfter(startDate) || checkDate.isSame(startDate)) && 
-             (checkDate.isBefore(endDate) || checkDate.isSame(endDate));
+      return (
+        (checkDate.isAfter(startDate) || checkDate.isSame(startDate)) &&
+        (checkDate.isBefore(endDate) || checkDate.isSame(endDate))
+      );
     });
   };
 
@@ -297,21 +303,21 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         disabled={isDisabled}
         sx={{
           ...(isDisabled && {
-            backgroundColor: '#ffebee !important',
-            color: '#d32f2f !important',
-            borderRadius: '50%',
-            '&:hover': {
-              backgroundColor: '#ffcdd2 !important',
+            backgroundColor: "#ffebee !important",
+            color: "#d32f2f !important",
+            borderRadius: "50%",
+            "&:hover": {
+              backgroundColor: "#ffcdd2 !important",
             },
-            '&::before': {
+            "&::before": {
               content: '""',
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              border: '2px solid #d32f2f',
-              borderRadius: '50%',
-              boxSizing: 'border-box',
-            }
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              border: "2px solid #d32f2f",
+              borderRadius: "50%",
+              boxSizing: "border-box",
+            },
           }),
         }}
       />
@@ -356,8 +362,14 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">Start Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={formData.start_date ? dayjs(formData.start_date) : null}
-                          onChange={(newValue) => handleDateChange("start_date", newValue)}
+                          value={
+                            formData.start_date
+                              ? dayjs(formData.start_date)
+                              : null
+                          }
+                          onChange={(newValue) =>
+                            handleDateChange("start_date", newValue)
+                          }
                           minDate={dayjs()}
                           format="DD-MM-YYYY"
                           shouldDisableDate={shouldDisableDate}
@@ -368,12 +380,12 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                               error: !!dateErrors.start_date,
                               helperText: dateErrors.start_date,
                               sx: {
-                                '& .MuiFormHelperText-root': {
-                                  color: '#d32f2f',
-                                  marginLeft: '0',
-                                }
-                              }
-                            }
+                                "& .MuiFormHelperText-root": {
+                                  color: "#d32f2f",
+                                  marginLeft: "0",
+                                },
+                              },
+                            },
                           }}
                         />
                       </LocalizationProvider>
@@ -383,8 +395,12 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">End Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={formData.end_date ? dayjs(formData.end_date) : null}
-                          onChange={(newValue) => handleDateChange("end_date", newValue)}
+                          value={
+                            formData.end_date ? dayjs(formData.end_date) : null
+                          }
+                          onChange={(newValue) =>
+                            handleDateChange("end_date", newValue)
+                          }
                           minDate={dayjs()}
                           format="DD-MM-YYYY"
                           shouldDisableDate={shouldDisableDate}
@@ -395,12 +411,12 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                               error: !!dateErrors.end_date,
                               helperText: dateErrors.end_date,
                               sx: {
-                                '& .MuiFormHelperText-root': {
-                                  color: '#d32f2f',
-                                  marginLeft: '0',
-                                }
-                              }
-                            }
+                                "& .MuiFormHelperText-root": {
+                                  color: "#d32f2f",
+                                  marginLeft: "0",
+                                },
+                              },
+                            },
                           }}
                         />
                       </LocalizationProvider>
@@ -495,8 +511,14 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">Start Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={formData.start_date ? dayjs(formData.start_date) : null}
-                          onChange={(newValue) => handleDateChange("start_date", newValue)}
+                          value={
+                            formData.start_date
+                              ? dayjs(formData.start_date)
+                              : null
+                          }
+                          onChange={(newValue) =>
+                            handleDateChange("start_date", newValue)
+                          }
                           minDate={dayjs()}
                           format="DD-MM-YYYY"
                           shouldDisableDate={shouldDisableDate}
@@ -507,12 +529,12 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                               error: !!dateErrors.start_date,
                               helperText: dateErrors.start_date,
                               sx: {
-                                '& .MuiFormHelperText-root': {
-                                  color: '#d32f2f',
-                                  marginLeft: '0',
-                                }
-                              }
-                            }
+                                "& .MuiFormHelperText-root": {
+                                  color: "#d32f2f",
+                                  marginLeft: "0",
+                                },
+                              },
+                            },
                           }}
                         />
                       </LocalizationProvider>
@@ -522,8 +544,12 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">End Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={formData.end_date ? dayjs(formData.end_date) : null}
-                          onChange={(newValue) => handleDateChange("end_date", newValue)}
+                          value={
+                            formData.end_date ? dayjs(formData.end_date) : null
+                          }
+                          onChange={(newValue) =>
+                            handleDateChange("end_date", newValue)
+                          }
                           minDate={dayjs()}
                           format="DD-MM-YYYY"
                           shouldDisableDate={shouldDisableDate}
@@ -534,12 +560,12 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                               error: !!dateErrors.end_date,
                               helperText: dateErrors.end_date,
                               sx: {
-                                '& .MuiFormHelperText-root': {
-                                  color: '#d32f2f',
-                                  marginLeft: '0',
-                                }
-                              }
-                            }
+                                "& .MuiFormHelperText-root": {
+                                  color: "#d32f2f",
+                                  marginLeft: "0",
+                                },
+                              },
+                            },
                           }}
                         />
                       </LocalizationProvider>

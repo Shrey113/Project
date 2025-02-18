@@ -5,12 +5,19 @@ import "./OwnerDetails.css";
 import NoDataForEquipment from "./NoDataForEquipment.png";
 import { Server_url } from "../../../../../redux/AllData";
 import { IoArrowBack } from "react-icons/io5";
-import { FaEnvelope, FaMapMarkerAlt, FaStar } from "react-icons/fa";
+import { FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import SeletedCard from "./SeletedCard";
 import { MdOutlineInsertLink, MdOutlineDesignServices } from "react-icons/md";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { isWithinInterval, parseISO } from "date-fns";
+import {
+  FaFacebook,
+  FaInstagram,
+  FaYoutube,
+  FaPinterest,
+  FaGlobe,
+} from "react-icons/fa";
 
 import camera_icon from "./test_img_equipment/camera.png";
 import drone_icon from "./test_img_equipment/drone.png";
@@ -36,10 +43,12 @@ const OwnerDetails = () => {
 
   const [packagesMoreThan4, setpackagesMoreThan4] = useState(false);
   const [equipmentMoreThan4, setEquipmentMoreThan4] = useState(false);
+  const [servicesMoreThan4, setServicesMoreThan4] = useState(false);
 
   const [showSelectedCard, setShowSelectedCard] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
+  const [is_first, set_is_true] = useState(true);
 
   const [value] = useState(new Date());
 
@@ -59,9 +68,80 @@ const OwnerDetails = () => {
   const ownerData = location.state?.ownerData;
   const selectedOwner = location.state?.selectedOwner;
 
+  const [folders, setFolders] = useState([]);
+  const [photos, setPhotos] = useState([]);
+  const [activeFolder, setActiveFolder] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    console.log("selectedOwner", ownerData);
-  }, [ownerData]);
+    const fetchFolderData = async (user_email) => {
+      try {
+        const response = await fetch(
+          `${Server_url}/owner_drive/get_folder_preview`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: user_email }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setTimeout(() => {
+          if (data.success) {
+            setFolders(data.data);
+            setActiveFolder(data.data[0]);
+            setPhotos(data.data[0]?.photo_list || []);
+            set_is_true(true);
+          } else {
+            setFolders([]);
+            setPhotos([]);
+          }
+        }, 100);
+      } catch (error) {
+        console.error("Error fetching folder data:", error.message);
+      }
+    };
+
+    fetchFolderData(selectedOwner.user_email);
+  }, [selectedOwner.user_email]);
+
+  const handleTabSwitch = (folder, index) => {
+    setActiveFolder(folder);
+    setLoading(true);
+    if (index === 0) {
+      setPhotos(folder.photo_list);
+      set_is_true(true);
+      setLoading(false);
+    } else {
+      set_is_true(false);
+      handleFolderPhotoFetch(folder.folder_id);
+    }
+  };
+
+  const handleFolderPhotoFetch = async (folder_id) => {
+    try {
+      const response = await fetch(
+        `${Server_url}/owner_drive/get_folder_photos`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder_id }),
+        }
+      );
+
+      const data = await response.json();
+      setTimeout(() => {
+        setPhotos(data.photos && Array.isArray(data.photos) ? data.photos : []);
+        setLoading(false);
+      }, 100);
+    } catch (error) {
+      console.error("Error fetching folder photos:", error);
+      setLoading(false);
+    }
+  };
 
   const set_owner_full_screen = (value) => {
     dispatch({
@@ -139,10 +219,6 @@ const OwnerDetails = () => {
       : null;
   };
 
-  // useEffect(() => {
-  //   console.log("selectedData:", selectedData);
-  // }, [showSelectedCard, selectedData]);
-
   useEffect(() => {
     if (ownerData?.packages?.length > 4) {
       setpackagesMoreThan4(true);
@@ -154,7 +230,12 @@ const OwnerDetails = () => {
     } else {
       setEquipmentMoreThan4(false);
     }
-  }, [ownerData.packages, ownerData.equipment]);
+    if (ownerData?.services?.length > 4) {
+      setServicesMoreThan4(true);
+    } else {
+      setServicesMoreThan4(false);
+    }
+  }, [ownerData.packages, ownerData.equipment, ownerData.services]);
 
   const fetchPackagesData = async () => {
     const email = selectedOwner?.user_email;
@@ -176,7 +257,6 @@ const OwnerDetails = () => {
     try {
       const response = await fetch(`${Server_url}/api/equipment/${email}`);
       const data = await response.json();
-      console.log("data", data);
       return data;
     } catch (error) {
       console.error("Error fetching equipment:", error);
@@ -257,6 +337,43 @@ const OwnerDetails = () => {
       .slice(1)}`;
   };
 
+  const getSocialIcon = (link) => {
+    if (link.includes("instagram"))
+      return {
+        icon: <FaInstagram className="social-icon instagram" />,
+        label: "Instagram",
+      };
+    if (link.includes("facebook"))
+      return {
+        icon: <FaFacebook className="social-icon facebook" />,
+        label: "Facebook",
+      };
+    if (link.includes("youtube"))
+      return {
+        icon: <FaYoutube className="social-icon youtube" />,
+        label: "YouTube",
+      };
+    if (link.includes("pinterest"))
+      return {
+        icon: <FaPinterest className="social-icon pinterest" />,
+        label: "Pinterest",
+      };
+
+    try {
+      const domain = new URL(link).hostname.replace("www.", "");
+      const label = domain.charAt(0).toUpperCase() + domain.slice(1);
+      return {
+        icon: <FaGlobe className="social-icon default" />,
+        label: label || "Website",
+      };
+    } catch (error) {
+      return {
+        icon: <FaGlobe className="social-icon default" />,
+        label: "Website", // Fallback in case URL parsing fails
+      };
+    }
+  };
+
   return (
     <div className="owner-details-container">
       <nav className="back_with_owner_title">
@@ -291,11 +408,32 @@ const OwnerDetails = () => {
             </div>
             <div className="owner-status">
               <p>{selectedOwner?.user_name || "Not Available"}</p>
+              <div className="all_links">
+                {selectedOwner?.social_media_links?.length > 0 ? (
+                  selectedOwner.social_media_links.map((link, index) => {
+                    const { icon, label } = getSocialIcon(link);
+                    return (
+                      <a
+                        key={index}
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="social-link"
+                        title={label}
+                      >
+                        {icon}
+                      </a>
+                    );
+                  })
+                ) : (
+                  <p>Not Available</p>
+                )}
+              </div>
               {/* <span className="status-badge">Active</span> */}
-              <span className="rating">
+              {/* <span className="rating">
                 <FaStar className="icon star" />
                 4.8/5.0
-              </span>
+              </span> */}
             </div>
           </div>
 
@@ -411,11 +549,41 @@ const OwnerDetails = () => {
         </div>
       </div>
 
-      <div className="section photo_section">
+      <div
+        className={`section photo_section ${
+          ownerData.photo_files?.length > 3 ? "apply-gradient" : ""
+        }`}
+      >
+        <div
+          className={`see_more_text ${
+            ownerData.photo_files?.length > 3 ? "show" : ""
+          }`}
+          onClick={() => {
+            handleShowAllClick("all_photos");
+          }}
+        >
+          See More
+        </div>
         {ownerData.photo_files?.length > 0 ? (
-          <div className="photos-container" style={{ flexDirection: "column" }}>
+          <div className="photos-container">
             <div className="profile_preview_photos_title">
               <div className="photos-card-title">Photos</div>
+              <div className="tabs">
+                {folders &&
+                  folders?.slice(0, 5).map((folder, index) => (
+                    <h3
+                      key={index}
+                      className={`folder_tab ${
+                        activeFolder?.folder_name === folder.folder_name
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() => handleTabSwitch(folder, index)}
+                    >
+                      {folder.folder_name}
+                    </h3>
+                  ))}
+              </div>
               {packagesMoreThan4 && (
                 <button
                   onClick={() => {
@@ -426,16 +594,42 @@ const OwnerDetails = () => {
                 </button>
               )}
             </div>
+
             <div className="profile_preview_images">
-              {ownerData.photo_files.slice(0, 3).map((photo, index) => (
-                <img
-                  key={index}
-                  src={photo.photo}
-                  alt="Owner Work"
-                  className="photo-thumbnail"
-                  style={{ cursor: "pointer" }}
-                />
-              ))}
+              {loading ? (
+                <div className="loader">Loading</div>
+              ) : (
+                <div className="photo_container">
+                  {photos.length === 0 ? (
+                    <p style={{ textAlign: "center" }}>No photos found.</p>
+                  ) : (
+                    <div className="photos_grid">
+                      {photos.slice(0, 10).map((photoItem, index) => (
+                        <div key={index} className="photo_card">
+                          <img
+                            src={
+                              is_first ? photoItem.photo : photoItem.file_data
+                            }
+                            alt={photoItem.photo_name}
+                            className="photo_image"
+                          />
+                          {is_first ? (
+                            photoItem.photo_name && (
+                              <div className="photo_name">
+                                {photoItem.photo_name}
+                              </div>
+                            )
+                          ) : (
+                            <div className="photo_name">
+                              {photoItem.file_name}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -488,6 +682,12 @@ const OwnerDetails = () => {
                     <strong>Details:</strong>
                     <p>{item.equipment_description || "Not Available"}</p>
                   </div>
+                  <button
+                    className="book-equipment-button"
+                    onClick={() => () => handleItemClick(item, "equipment")}
+                  >
+                    Book Equipment
+                  </button>
                 </li>
               ))}
             </div>
@@ -496,6 +696,54 @@ const OwnerDetails = () => {
           <div className="no_equipments">
             <img src={NoDataForEquipment} alt="" />
             <p className="no-data">NO EQUIPMENTS AVAILABLE</p>
+          </div>
+        )}
+      </div>
+
+      {/* Services Section  */}
+      <div className="section services_section">
+        {ownerData.services?.length > 0 ? (
+          <ul className="services-list">
+            <div className="profile_preview_services_title">
+              <div className="services-card-title">Services</div>
+              {servicesMoreThan4 && (
+                <button onClick={() => handleShowAllClick("services")}>
+                  Show All
+                </button>
+              )}
+            </div>
+            <div className="services_items_container">
+              {ownerData.services.slice(0, 3).map((item, index) => (
+                <li
+                  key={index}
+                  className="service_item"
+                  onClick={() => handleItemClick(item, "services")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="container_for_services_name">
+                    <p>{item.service_name || "Not Available"}</p>
+                  </div>
+
+                  <div className="services_price_container">
+                    <p>Rs. {item.price_per_day || "Not Available"} /Day</p>
+                  </div>
+                  <div className="services_description">
+                    <strong>Details:</strong>
+                    <p>{item.description || "Not Available"}</p>
+                  </div>
+                  {/* <button
+                    className="book-service-button"
+                    onClick={() => handleItemClick(item, "services")}
+                  >
+                    Book Service
+                  </button> */}
+                </li>
+              ))}
+            </div>
+          </ul>
+        ) : (
+          <div className="no_services">
+            <p className="no-data">NO SERVICES AVAILABLE</p>
           </div>
         )}
       </div>
@@ -577,6 +825,12 @@ const OwnerDetails = () => {
                       <span>No services available</span>
                     )}
                   </div>
+                </div>
+                <div
+                  className="book-package-button"
+                  onClick={() => handleItemClick(pkg, "package")}
+                >
+                  Book Package
                 </div>
               </div>
             ))

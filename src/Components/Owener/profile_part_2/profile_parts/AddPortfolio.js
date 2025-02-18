@@ -24,10 +24,8 @@ function AddPortfolio() {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   const fetchGalleryData = async (user_email) => {
-    setIsLoading(true);
     try {
       const response = await fetch(`${Server_url}/owner_drive/get_portfolio`, {
         method: "POST",
@@ -38,19 +36,15 @@ function AddPortfolio() {
       });
 
       const result = await response.json();
-      // console.log(result);
+      console.log(result);
 
       if (result.success) {
         setGalleryData(result.files || []);
       } else {
-        console.log("Failed to fetch gallery data:", result.message);
+        console.error("Failed to fetch gallery data:", result.message);
       }
     } catch (error) {
       console.error("Error fetching gallery data:", error);
-    } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
     }
   };
   const fetch_files = async (user_email) => {
@@ -74,44 +68,6 @@ function AddPortfolio() {
       fetchGalleryData(user.user_email);
     }
   }, [user?.user_email]);
-
-  // const handleFileUpload = async (event) => {
-  //   const file = event.target.files[0];
-  //   if (file) {
-  //     setIsUploading(true);
-  //     const reader = new FileReader();
-  //     reader.onload = async () => {
-  //       const base64Content = reader.result.split(',')[1];
-
-  //       try {
-  //         const response = await fetch(`${Server_url}/owner_drive/add_portfolio`, {
-  //           method: 'POST',
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //           },
-  //           body: JSON.stringify({
-  //             user_email: user.user_email,
-  //             file_name: file.name,
-  //             file_type: file.type,
-  //             file_content: base64Content
-  //           })
-  //         });
-
-  //         const result = await response.json();
-  //         if (result.success) {
-  //           fetch_files(user.user_email);
-  //         } else {
-  //           console.error('Upload failed:', result.message);
-  //         }
-  //       } catch (error) {
-  //         console.error('Error uploading file:', error);
-  //       } finally {
-  //         setIsUploading(false);
-  //       }
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
 
   const handleFolderSubmit = async (e) => {
     e.preventDefault();
@@ -173,6 +129,7 @@ function AddPortfolio() {
       reader.readAsDataURL(file);
     }
   };
+
   const handleAddToGallery = async (event) => {
     const file = event.target.files[0];
 
@@ -220,23 +177,13 @@ function AddPortfolio() {
     }
   };
 
-  // const fetch_folders = async (user_email) => {
-  //   try {
-  //     const response = await fetch(`${Server_url}/owner/portfolio/folders/${user_email}`);
-  //     const result = await response.json();
-  //     setFolderData(result || []);
-  //   } catch (error) {
-  //     console.error('Error fetching folders:', error);
-  //   }
-  // };
-
   const handleDeleteClick = (item, type) => {
     setItemToDelete({
       item: item,
+      type: type,
     });
     setShowDeleteConfirm(true);
   };
-
 
   const handleDelete = async () => {
     if (!itemToDelete) return;
@@ -347,18 +294,7 @@ function AddPortfolio() {
             <div className="section-container">
               <h3 className="section-title">Folders</h3>
               <div className="folders-grid">
-                {isLoading ? (
-                  // Skeleton loading for folders
-                  Array(3).fill(0).map((_, index) => (
-                    <div key={index} className="folder-item skeleton">
-                      <div className="folder-cover skeleton-image"></div>
-                      <div className="folder-info">
-                        <span className="skeleton-text"></span>
-                        <span className="skeleton-text"></span>
-                      </div>
-                    </div>
-                  ))
-                ) : folderData.length > 0 ? (
+                {folderData.length > 0 ? (
                   folderData.map((folder, index) => (
                     <div
                       key={index}
@@ -411,18 +347,7 @@ function AddPortfolio() {
             <div className="section-container">
               <h3 className="section-title">Portfolio Images</h3>
               <div className="gallery-grid">
-                {isLoading ? (
-                  // Skeleton loading for gallery
-                  Array(6).fill(0).map((_, index) => (
-                    <div key={index} className="gallery-item skeleton">
-                      <div className="skeleton-image"></div>
-                      <div className="gallery-item-info">
-                        <span className="skeleton-text"></span>
-                        <span className="skeleton-text"></span>
-                      </div>
-                    </div>
-                  ))
-                ) : galleryData.length > 0 ? (
+                {galleryData.length > 0 ? (
                   galleryData.map((item, index) => (
                     <div key={index} className="gallery-item">
                       <button

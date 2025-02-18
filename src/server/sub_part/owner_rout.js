@@ -1412,8 +1412,8 @@ router.post("/add-equipment-request", (req, res) => {
   `;
 
   const values = [
-    "equipment",
     equipment_id,
+    "equipment",
     event_name,
     equipment_name,
     equipment_company,

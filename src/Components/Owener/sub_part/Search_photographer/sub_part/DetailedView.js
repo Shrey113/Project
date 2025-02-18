@@ -22,9 +22,15 @@ function DetailedView() {
 
   useEffect(() => {
     console.log("data from another side ", allData);
-    console.log("data from another side ", type);
-  }, [allData, type]);
-  
+  });
+
+  useEffect(() => {
+    if (selectedData) {
+      setSelectedOwner({
+        user_email: selectedData.user_email, // Adjust field name as needed
+      });
+    }
+  }, [selectedData]);
   const getFilteredData = () => {
     if (!allData) return [];
 
@@ -114,23 +120,6 @@ function DetailedView() {
     setSelectedType("");
     setSortBy("name");
   }
-
-  // Add console.log to debug state changes
-  useEffect(() => {
-    console.log("showSelectedCard:", showSelectedCard);
-    console.log("selectedData:", selectedData);
-  }, [showSelectedCard, selectedData]);
-
-  // Add this useEffect to set the owner data when selectedData changes
-  useEffect(() => {
-    if (selectedData) {
-      // Assuming the owner data is available in the selectedData
-      // Adjust this according to your data structure
-      setSelectedOwner({
-        user_email: selectedData.owner_email // Adjust field name as needed
-      });
-    }
-  }, [selectedData]);
 
   const lightenColor = (color, percent) => {
     let num = parseInt(color.replace("#", ""), 16),
@@ -352,8 +341,8 @@ function DetailedView() {
             setShowSelectedCard(false);
             setSelectedData(null);
           }}
-          selectedData={selectedData}
           selectedOwner={selectedOwner}
+          selectedData={selectedData}
         />
       )}
     </div>
