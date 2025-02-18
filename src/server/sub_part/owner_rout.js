@@ -512,7 +512,6 @@ router.post("/update-business", (req, res) => {
     business_email,
     gst_number,
     business_address,
-    website,
     user_email,
   } = req.body;
 
@@ -521,7 +520,6 @@ router.post("/update-business", (req, res) => {
     !business_email ||
     !gst_number ||
     !business_address ||
-    !website ||
     !user_email
   ) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -529,13 +527,13 @@ router.post("/update-business", (req, res) => {
 
   const query = `
     UPDATE owner
-    SET business_name = ?, business_email = ?, gst_number = ?, business_address = ?, website = ?
+    SET business_name = ?, business_email = ?, gst_number = ?, business_address = ?
     WHERE user_email = ?
   `;
 
   db.query(
     query,
-    [business_name, business_email, gst_number, business_address, website, user_email],
+    [business_name, business_email, gst_number, business_address, user_email],
     (err, result) => {
       if (err) {
         console.error("Error updating business data:", err);
@@ -1235,6 +1233,7 @@ router.post("/owner-folders-files/delete", (req, res) => {
 router.post("/add-package-request", (req, res) => {
   // Extract only the needed fields (ignore extra error fields).
   const {
+    package_id,
     package_name,
     service,
     description,
@@ -1254,6 +1253,7 @@ router.post("/add-package-request", (req, res) => {
 
   // Validate required fields
   if (
+    !package_id ||
     !package_name ||
     !service ||
     !description ||
@@ -1281,6 +1281,7 @@ router.post("/add-package-request", (req, res) => {
   const query = `
     INSERT INTO event_request (
       event_request_type,      
+      package_id,
       package_name,            
       service,                 
       description,             
@@ -1301,13 +1302,14 @@ router.post("/add-package-request", (req, res) => {
       start_date,  
       end_date        
     ) VALUES (
-      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?
     )
   `;
 
  
   const values = [
     "package", // event_request_type
+    package_id,
     package_name, // package_name
     serviceString, // service
     description, // description
@@ -1346,6 +1348,7 @@ router.post("/add-package-request", (req, res) => {
 // Add equipment request
 router.post("/add-equipment-request", (req, res) => {
   const {
+    equipment_id,
     event_name,
     equipment_name,
     equipment_company,
@@ -1365,6 +1368,7 @@ router.post("/add-equipment-request", (req, res) => {
   // Ensure all required fields exist and are valid
   if (
     !event_name ||
+    !equipment_id ||
     !equipment_name ||
     !equipment_company ||
     !equipment_type ||
@@ -1388,6 +1392,7 @@ router.post("/add-equipment-request", (req, res) => {
 
   const query = `
     INSERT INTO event_request (
+      equipment_id,
       event_request_type,
       event_name,
       equipment_name,
@@ -1403,11 +1408,12 @@ router.post("/add-equipment-request", (req, res) => {
       receiver_email,
       event_status,start_date,
       end_date
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
   `;
 
   const values = [
     "equipment",
+    equipment_id,
     event_name,
     equipment_name,
     equipment_company,

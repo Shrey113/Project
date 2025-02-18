@@ -1,0 +1,61 @@
+/* Drag styles */
+.dragging .rbc-event {
+  opacity: 0.7 !important;
+  border: 2px dashed #4a5568 !important;
+  cursor: move !important;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1) !important;
+}
+
+.calendar-event {
+  transition: all 0.2s ease !important;
+}
+
+.calendar-event:active {
+  transform: scale(1.02);
+}
+
+/* Ensure original background color is preserved */
+.rbc-event {
+  background-color: inherit !important;
+}
+
+.rbc-event-content {
+  background-color: inherit !important;
+}
+
+/* Calendar wrapper styles */
+.calendar-wrapper {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 100px);
+}
+
+/* Resize handle styles */
+.rbc-event .rbc-resizable {
+  position: relative;
+}
+
+.rbc-event .rbc-resizable-handle {
+  position: absolute;
+  width: 100%;
+  height: 8px;
+  bottom: 0;
+  cursor: ns-resize;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.rbc-event .rbc-resizable-handle:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Additional drag feedback */
+.rbc-addons-dnd .rbc-event.rbc-dragging {
+  opacity: 0.7 !important;
+  border: 2px dashed #4a5568 !important;
+}
+
+.rbc-addons-dnd.rbc-drag-preview {
+  opacity: 0.7 !important;
+  border: 2px dashed #4a5568 !important;
+  background-color: rgba(99, 102, 241, 0.5) !important;
+} 

@@ -19,13 +19,8 @@ const InvoiceForm = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const onePageContent = 10;
-  const totalPages = Math.ceil(invoices.length / onePageContent);
-  const [current_page, set_current_page] = useState(1);
-  const start = current_page * onePageContent;
-  const end = start + onePageContent;
-
   // Handle Change
+
   const handleRowClick = (invoice) => {
     setSelectedInvoice(invoice);
     setIsEditModalOpen(true);
@@ -334,12 +329,6 @@ const InvoiceForm = () => {
     previewWindow.document.close();
   };
 
-  const handle_page_change = (page_no) => {
-    setTimeout(() => {
-      set_current_page(page_no);
-    }, 50);
-  };
-
   return (
     <div className="invoice_and_table_container">
       <div className="invoice_list">
@@ -373,7 +362,7 @@ const InvoiceForm = () => {
                     </td>
                   </tr>
                 ) : (
-                  invoices.slice(start, end).map((inv, index) => (
+                  invoices.map((inv, index) => (
                     <tr
                       key={index}
                       // onClick={() => handleRowClick(inv)}
@@ -432,23 +421,6 @@ const InvoiceForm = () => {
                 )}
               </tbody>
             </table>
-            <div className="total_pages">
-              {[...Array(totalPages).keys()].map((ind) => {
-                return (
-                  <div
-                    key={ind}
-                    className={`digit_container ${
-                      current_page === ind ? "active" : ""
-                    }`}
-                    onClick={() => {
-                      handle_page_change(ind);
-                    }}
-                  >
-                    {ind + 1}
-                  </div>
-                );
-              })}
-            </div>
             {isEditModalOpen && (
               <EditInvoiceModal
                 invoice={selectedInvoice}

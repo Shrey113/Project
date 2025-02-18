@@ -10,7 +10,6 @@ import { useSelector } from "react-redux";
 import RequestDetailPopup from "./RequestDetailPopup";
 import AddDetailsPop from "./AddDetailsPop";
 import socket from "../../../../redux/socket";
-
 function EventManagement() {
   const user = useSelector((state) => state.user);
   const [events, setEvents] = useState([]);
@@ -48,6 +47,7 @@ function EventManagement() {
     event_location: "",
   });
 
+
   const TRow = ({ label, value }) => {
     return (
       <tr>
@@ -60,6 +60,8 @@ function EventManagement() {
   };
 
   function set_data(item) {
+
+
     if (item.event_request_type === "package") {
       setNewEvent({
         id: item.id,
@@ -67,20 +69,24 @@ function EventManagement() {
         start: item.start_date,
         end: item.end_date,
         description: item.requirements,
-        event_request_type: item.event_request_type,
-        sender_email: item.sender_email,
-        event_location: item.location,
+        event_request_type:item.event_request_type,
+        sender_email:item.sender_email,
+        event_location:item.location
+
+
       });
     } else if (item.event_request_type === "equipment") {
       setNewEvent({
+
         id: item.id,
         title: `equipment - ${item.equipment_name}`,
         start: item.start_date,
         end: item.end_date,
         description: item.requirements,
-        event_request_type: item.event_request_type,
-        sender_email: item.sender_email,
-        event_location: item.location,
+        event_request_type:item.event_request_type,
+        sender_email:item.sender_email,
+        event_location:item.location
+
       });
     }
 
@@ -124,19 +130,20 @@ function EventManagement() {
     if (socket) {
       // Add connection/disconnection handlers
       const onConnect = () => {
-        console.log("Socket connected");
+        console.log('Socket connected');
       };
-
+  
       const onDisconnect = () => {
-        console.log("Socket disconnected");
+        console.log('Socket disconnected');
       };
-
+  
       // Add notification handler
       const onNotification = async (data) => {
         // alert("data");
-        console.log("Received notification:", data);
+        console.log('Received notification:', data);
         try {
           const response = await axios.get(
+            
             `${Server_url}/get-sent-all-details-by/${user.user_email}`
           );
           if (!response.error) {
@@ -149,23 +156,17 @@ function EventManagement() {
           console.error("Error fetching event details:", error);
         }
       };
-
+  
       // Set up event listeners
-      socket.on("connect", onConnect);
-      socket.on("disconnect", onDisconnect);
-      socket.on(
-        `new_event_request_notification_${user.user_email}`,
-        onNotification
-      );
-
+      socket.on('connect', onConnect);
+      socket.on('disconnect', onDisconnect);
+      socket.on(`new_event_request_notification_${user.user_email}`, onNotification);
+  
       // Cleanup function
       return () => {
-        socket.off("connect", onConnect);
-        socket.off("disconnect", onDisconnect);
-        socket.off(
-          `new_event_request_notification_${user.user_email}`,
-          onNotification
-        );
+        socket.off('connect', onConnect);
+        socket.off('disconnect', onDisconnect);
+        socket.off(`new_event_request_notification_${user.user_email}`, onNotification);
       };
     }
   }, [user.user_email]);
@@ -177,6 +178,7 @@ function EventManagement() {
           `${Server_url}/get-sent-all-details-by/${user.user_email}`
         );
         if (!response.error) {
+
           set_sent_package_data(response.data.package);
           set_sent_equipment_data(response.data.equipment);
         } else {
@@ -223,31 +225,17 @@ function EventManagement() {
       {/* sent requests  */}
       {sent_request && (
         <div className="sent_request">
-          <div className="category-container">
-            <div
-              className={`category-tab ${
-                selectedCategory === "all" ? "active" : ""
-              }`}
-              onClick={() => setSelectedCategory("all")}
+          <div className="category-selector">
+            <label>Select Category: </label>
+            <select
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={selectedCategory}
             >
-              All
-            </div>
-            <div
-              className={`category-tab ${
-                selectedCategory === "packages" ? "active" : ""
-              }`}
-              onClick={() => setSelectedCategory("packages")}
-            >
-              Packages
-            </div>
-            <div
-              className={`category-tab ${
-                selectedCategory === "equipment" ? "active" : ""
-              }`}
-              onClick={() => setSelectedCategory("equipment")}
-            >
-              Equipment
-            </div>
+              <option value="all">All</option>
+              <option value="packages">Packages</option>
+              <option value="equipment">Equipment</option>
+              {/* Added 'All' option */}
+            </select>
           </div>
 
           {selected_sent_item && (
@@ -259,62 +247,25 @@ function EventManagement() {
                   {/* Left Side: Main Request Details */}
                   <div className="modal-left">
                     <table className="details-table">
-                      <tbody>
+                        <tbody>
                         <TRow label="ID" value={selected_sent_item.id} />
-                        <TRow
-                          label="Sender Email"
-                          value={selected_sent_item.sender_email}
-                        />
+                        <TRow label="Sender Email" value={selected_sent_item.sender_email} />
                         {selected_sent_item.event_request_type === "package" ? (
                           <>
-                            <TRow
-                              label="Package Name"
-                              value={selected_sent_item.package_name}
-                            />
-                            <TRow
-                              label="Service"
-                              value={selected_sent_item.service}
-                            />
-                            <TRow
-                              label="Description"
-                              value={selected_sent_item.description}
-                            />
-                            <TRow
-                              label="Price"
-                              value={`₹${selected_sent_item.price}`}
-                            />
+                            <TRow label="Package Name" value={selected_sent_item.package_name} />
+                            <TRow label="Service" value={selected_sent_item.service} />
+                            <TRow label="Description" value={selected_sent_item.description} />
+                            <TRow label="Price" value={`₹${selected_sent_item.price}`} />
                           </>
-                        ) : selected_sent_item.event_request_type ===
-                          "equipment" ? (
+                        ) : selected_sent_item.event_request_type === "equipment" ? (
                           <>
-                            <TRow
-                              label="Equipment Name"
-                              value={selected_sent_item.equipment_name}
-                            />
-                            <TRow
-                              label="Equipment Company"
-                              value={selected_sent_item.equipment_company}
-                            />
-                            <TRow
-                              label="Equipment Type"
-                              value={selected_sent_item.equipment_type}
-                            />
-                            <TRow
-                              label="Description"
-                              value={selected_sent_item.equipment_description}
-                            />
-                            <TRow
-                              label="Price"
-                              value={`₹${selected_sent_item.equipment_price_per_day}`}
-                            />
-                            <TRow
-                              label="Days Required"
-                              value={selected_sent_item.days_required}
-                            />
-                            <TRow
-                              label="Total Amount"
-                              value={`₹${selected_sent_item.total_amount}`}
-                            />
+                            <TRow label="Equipment Name" value={selected_sent_item.equipment_name} />
+                            <TRow label="Equipment Company" value={selected_sent_item.equipment_company} />
+                            <TRow label="Equipment Type" value={selected_sent_item.equipment_type} />
+                            <TRow label="Description" value={selected_sent_item.equipment_description} />
+                            <TRow label="Price" value={`₹${selected_sent_item.equipment_price_per_day}`} />
+                            <TRow label="Days Required" value={selected_sent_item.days_required} />
+                            <TRow label="Total Amount" value={`₹${selected_sent_item.total_amount}`} />
                           </>
                         ) : null}
                       </tbody>
@@ -328,64 +279,42 @@ function EventManagement() {
                         className={`status-box ${selected_sent_item.event_status.toLowerCase()}`}
                       >
                         <table className="details-table">
-                          <tbody>
-                            <TRow
-                              label="Start Date"
-                              value={formatDate(selected_sent_item.start_date)}
-                            />
-                            <TRow
-                              label="End Date"
-                              value={formatDate(selected_sent_item.end_date)}
-                            />
-                            <TRow
-                              label="Location"
-                              value={selected_sent_item.location}
-                            />
-                            <TRow
-                              label="Status"
-                              value={
-                                <span
-                                  className={`status ${selected_sent_item.event_status.toLowerCase()}`}
-                                >
-                                  {selected_sent_item.event_status}
-                                </span>
-                              }
-                            />
-
-                            {selected_sent_item.event_status === "Accepted" &&
-                              selected_sent_item.assigned_team_member?.length >
-                                0 && (
-                                <TRow
-                                  label="Assigned Team Members"
-                                  value={
-                                    <ul>
-                                      {selected_sent_item.assigned_team_member.map(
-                                        (member, index) => (
+                        <tbody>
+                              <TRow label="Start Date" value={formatDate(selected_sent_item.start_date)} />
+                              <TRow label="End Date" value={formatDate(selected_sent_item.end_date)} />
+                              <TRow label="Location" value={selected_sent_item.location} />
+                              <TRow 
+                                label="Status" 
+                                value={
+                                  <span className={`status ${selected_sent_item.event_status.toLowerCase()}`}>
+                                    {selected_sent_item.event_status}
+                                  </span>
+                                }
+                              />
+                              
+                              {selected_sent_item.event_status === "Accepted" &&
+                                selected_sent_item.assigned_team_member?.length > 0 && (
+                                  <TRow label="Assigned Team Members" 
+                                    value={
+                                      <ul>
+                                        {selected_sent_item.assigned_team_member.map((member, index) => (
                                           <div key={index}>✅ {member}</div>
-                                        )
-                                      )}
-                                    </ul>
-                                  }
-                                />
+                                        ))}
+                                      </ul>
+                                    } 
+                                  />
+                                )}
+                              
+                              {selected_sent_item.event_status === "Rejected" && selected_sent_item.reason && (
+                                <TRow label="Reason for Rejection" value={selected_sent_item.reason} />
                               )}
-
-                            {selected_sent_item.event_status === "Rejected" &&
-                              selected_sent_item.reason && (
-                                <TRow
-                                  label="Reason for Rejection"
-                                  value={selected_sent_item.reason}
-                                />
+                              
+                              {selected_sent_item.event_status === "Pending" && (
+                                <tr>
+                                  <td colSpan="2">Your request is in pending mode. Please wait for approval.</td>
+                                </tr>
                               )}
-
-                            {selected_sent_item.event_status === "Pending" && (
-                              <tr>
-                                <td colSpan="2">
-                                  Your request is in pending mode. Please wait
-                                  for approval.
-                                </td>
-                              </tr>
-                            )}
-                          </tbody>
+                            </tbody>
                         </table>
                       </div>
                     )}
@@ -402,134 +331,108 @@ function EventManagement() {
             </div>
           )}
 
-          <div id="EventManagement">
-            {["all", "packages"].includes(selectedCategory) && (
-              <div className="section-container">
-                <h2>Package Requests</h2>
-                <div className="table-container">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Package Name</th>
-                        <th>Service</th>
-                        <th>Description</th>
-                        <th>Price</th>
-                        <th>Receiver</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sent_package_data.length > 0 ? (
-                        sent_package_data.map((item, index) => (
-                          <tr
-                            key={index}
-                            onClick={() => set_selected_sent_item(item)}
-                          >
-                            <td>{item.id}</td>
-                            <td className="package_name">
-                              {item.package_name}
-                            </td>
-                            <td>{item.service}</td>
-                            <td className="description">{item.description}</td>
-                            <td>₹{item.price}</td>
-                            <td>{item.receiver_email}</td>
-                            <td
-                              className={`status ${item.event_status.toLowerCase()}`}
-                            >
-                              <span>{item.event_status}</span>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="7">No Sent Package Requests</td>
+        <div id="EventManagement">
+          {["all", "packages"].includes(selectedCategory) && (
+            <div className="section-container">
+              <h2>Package Requests</h2>
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Package Name</th>
+                      <th>Service</th>
+                      <th>Description</th>
+                      <th>Price</th>
+                      <th>Receiver</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sent_package_data.length > 0 ? (
+                      sent_package_data.map((item, index) => (
+                        <tr key={index} onClick={() => set_selected_sent_item(item)}>
+                          <td>{item.id}</td>
+                          <td className="package_name">{item.package_name}</td>
+                          <td>{item.service}</td>
+                          <td className="description">{item.description}</td>
+                          <td>₹{item.price}</td>
+                          <td>{item.receiver_email}</td>
+                          <td className={`status ${item.event_status.toLowerCase()}`}>
+                            <span>{item.event_status}</span>
+                          </td>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7">No Sent Package Requests</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
-            )}
+            </div>
+          )}
+        
+          {["all", "equipment"].includes(selectedCategory) && (
+            <div className="section-container">
+              <h2>Equipment Requests</h2>
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Equipment Name</th>
+                      <th>Company</th>
+                      <th>Type</th>
+                      <th>Days Required</th>
+                      <th>Receiver</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sent_equipment_data.length > 0 ? (
+                      sent_equipment_data.map((item, index) => (
+                        <tr key={index} onClick={() => set_selected_sent_item(item)}>
+                          <td>{item.id}</td>
+                          <td>{item.equipment_name}</td>
+                          <td>{item.equipment_company}</td>
+                          <td>{item.equipment_type}</td>
+                          <td>{item.days_required}</td>
+                          <td>{item.receiver_email}</td>
+                          <td className={`status ${item.event_status.toLowerCase()}`}>
+                            <span>{item.event_status}</span>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7">No Sent Equipment Requests</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
 
-            {["all", "equipment"].includes(selectedCategory) && (
-              <div className="section-container">
-                <h2>Equipment Requests</h2>
-                <div className="table-container">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Equipment Name</th>
-                        <th>Company</th>
-                        <th>Type</th>
-                        <th>Days Required</th>
-                        <th>Receiver</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sent_equipment_data.length > 0 ? (
-                        sent_equipment_data.map((item, index) => (
-                          <tr
-                            key={index}
-                            onClick={() => set_selected_sent_item(item)}
-                          >
-                            <td>{item.id}</td>
-                            <td>{item.equipment_name}</td>
-                            <td>{item.equipment_company}</td>
-                            <td>{item.equipment_type}</td>
-                            <td>{item.days_required}</td>
-                            <td>{item.receiver_email}</td>
-                            <td
-                              className={`status ${item.event_status.toLowerCase()}`}
-                            >
-                              <span>{item.event_status}</span>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="7">No Sent Equipment Requests</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       )}
 
       {/* received request section  */}
       {!sent_request && (
         <div className="received_request">
-          <div className="category-container">
-            <div
-              className={`category-tab ${
-                selectedCategory === "all" ? "active" : ""
-              }`}
-              onClick={() => setSelectedCategory("all")}
+          <div className="category-selector">
+            <label>Select Category: </label>
+            <select
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={selectedCategory}
             >
-              All
-            </div>
-            <div
-              className={`category-tab ${
-                selectedCategory === "packages" ? "active" : ""
-              }`}
-              onClick={() => setSelectedCategory("packages")}
-            >
-              Packages
-            </div>
-            <div
-              className={`category-tab ${
-                selectedCategory === "equipment" ? "active" : ""
-              }`}
-              onClick={() => setSelectedCategory("equipment")}
-            >
-              Equipment
-            </div>
+              <option value="all">All</option>
+              <option value="packages">Packages</option>
+              <option value="equipment">Equipment</option>
+            </select>
           </div>
 
           <div id="EventManagement">
@@ -694,8 +597,7 @@ function EventManagement() {
                       </tr>
                     </thead>
                     <tbody>
-                      {receiver_package_data
-                        ?.filter(
+                      {receiver_package_data?.filter(
                           (item) =>
                             packageFilter === "all" ||
                             item.event_status === packageFilter
@@ -830,6 +732,7 @@ function EventManagement() {
                 set_receiver_package_data={set_receiver_package_data}
                 set_receiver_equipment_data={set_receiver_equipment_data}
               />
+
             )}
           </div>
         </div>
@@ -841,6 +744,7 @@ function EventManagement() {
           popupType={popupType}
           setPopupType={setPopupType}
           onClose={handleClosePopup}
+
           set_receiver_package_data={set_receiver_package_data}
           set_receiver_equipment_data={set_receiver_equipment_data}
         />

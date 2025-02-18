@@ -1,0 +1,17 @@
+.scheduler-container {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    background: rebeccapurple;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  

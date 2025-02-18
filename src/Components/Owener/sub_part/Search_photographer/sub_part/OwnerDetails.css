@@ -21,6 +21,10 @@
   gap: 10px;
   width: 100%;
   padding: 10px;
+  position: sticky;
+  top: 0;
+  background: rgb(224, 222, 222);
+  z-index: 100;
 }
 
 /* for back button  */

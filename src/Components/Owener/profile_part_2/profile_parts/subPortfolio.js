@@ -193,7 +193,6 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
         )}
       </div>
 
-      {message && <p className="message">{message}</p>}
 
     </div>
   );

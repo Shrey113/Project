@@ -32,14 +32,12 @@ function AddBusinessData() {
     businessEmail: user?.business_email || '',
     gstNumber: user?.gst_number || '',
     businessLocation: user?.business_address || '',
-    businessWebsite: user?.website || '',
     services: user?.services || '',
 
     businessName_error: '',
     businessEmail_error: '',
     gstNumber_error: '',
     businessLocation_error: '',
-    businessWebsite_error: '',
   });
 
   useEffect(() => {
@@ -103,7 +101,6 @@ function AddBusinessData() {
       businessEmail_error: '',
       gstNumber_error: '',
       businessLocation_error: '',
-      businessWebsite_error: '',
     }));
     
 
@@ -159,20 +156,6 @@ function AddBusinessData() {
       return false;
     }
 
-    // Website validation (optional)
-    if (formData.businessWebsite.trim()) {
-      const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-      if (!urlRegex.test(formData.businessWebsite)) {
-        showWarningToast({ message: 'Please enter a valid website URL' });
-        setFormData(prevState => ({
-          ...prevState,
-          businessWebsite_error: 'Please enter a valid website URL'
-        }));
-        return false;
-      }
-    }
-
-
 
     return true;
   };
@@ -187,7 +170,7 @@ function AddBusinessData() {
         business_email: formData.businessEmail,
         gst_number: formData.gstNumber,
         business_address: formData.businessLocation,
-      website: formData.businessWebsite,
+
       services: null
     }
 
@@ -372,17 +355,7 @@ function AddBusinessData() {
           {formData.businessLocation_error && <p className="error">{formData.businessLocation_error}</p>}
         </div>
 
-        <div className="form-group">
-          <label>Business Website</label>
-          <input 
-            type="text" 
-            name="businessWebsite"
-            value={formData.businessWebsite}
-            onChange={handleInputChange}
-            placeholder="(website, social page, blog, etc.)" 
-          />
-          {formData.businessWebsite_error && <p className="error">{formData.businessWebsite_error}</p>}
-        </div>
+
 
         <div className="form-group">
             <button className="ok-button">Save Changes</button>

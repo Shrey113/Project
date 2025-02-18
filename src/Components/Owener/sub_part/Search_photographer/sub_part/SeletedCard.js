@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./SeletedCard.css";
-import { Server_url } from "../../../../../redux/AllData";
+import { Server_url ,showAcceptToast,showRejectToast} from "../../../../../redux/AllData";
 import { useSelector } from "react-redux";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 
 const theme = createTheme({
   palette: {
@@ -39,14 +40,40 @@ const theme = createTheme({
 
 function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
   const user = useSelector((state) => state.user);
+  const [blockedDates, setBlockedDates] = useState([]);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    console.log("selectedData", selectedData);
+    if (type === "equipment" && selectedData.equipment_id) {
+      fetch(`${Server_url}/get_equpment_by_time`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ equipment_id: selectedData.equipment_id }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Blocked dates received:", data);
+          setBlockedDates(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching equipment availability:", error);
+        });
+    }
+  }, [selectedData, type]);
+  
   const [formData, setFormData] = useState({
     // package
+    package_id:selectedData.id,
     package_name: selectedData.package_name,
     service: selectedData.service,
     description: selectedData.description,
     price: selectedData.price,
-
+    
     // equipment
+    equipment_id:selectedData.equipment_id,
     equipment_name: selectedData.name,
     name: selectedData.name,
     equipment_company: selectedData.equipment_company,
@@ -66,6 +93,11 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       type === "equipment"
         ? selectedData.equipment_price_per_day
         : selectedData.price * 1,
+  });
+
+  const [dateErrors, setDateErrors] = useState({
+    start_date: "",
+    end_date: ""
   });
 
   const handleChange = (e) => {
@@ -113,8 +145,10 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       );
 
       if (!response.ok) {
+        showRejectToast({message:"Equipment request failed"});
         throw new Error("Request failed");
       }
+      showAcceptToast({message:"Equipment request added successfully"});
 
       onClose();
     } catch (error) {
@@ -129,6 +163,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       sender_email: user.user_email,
       receiver_email: selectedOwner.user_email,
     };
+    console.log("datassssssssssssssssssss", data);
 
     try {
       const response = await fetch(`${Server_url}/owner/add-package-request`, {
@@ -140,8 +175,10 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       });
 
       if (!response.ok) {
+        showRejectToast({message:"Package request failed"});
         throw new Error("Request failed");
       }
+      showAcceptToast({message:"Package request added successfully"});
 
       onClose();
     } catch (error) {
@@ -149,8 +186,62 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     }
   };
 
+  const scrollToTop = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const validateDates = () => {
+    const errors = {};
+    const start = dayjs(formData.start_date);
+    const end = dayjs(formData.end_date);
+
+    // Clear previous errors
+    errors.start_date = "";
+    errors.end_date = "";
+
+    // Check if dates are selected
+    if (!formData.start_date) {
+      errors.start_date = "Start date is required";
+    }
+    if (!formData.end_date) {
+      errors.end_date = "End date is required";
+    }
+
+    // Check if end date is after start date
+    if (start && end && end.isBefore(start)) {
+      errors.end_date = "End date must be after start date";
+    }
+
+    // Check if dates are blocked
+    if (start && shouldDisableDate(start)) {
+      errors.start_date = "This date is not available";
+    }
+    if (end && shouldDisableDate(end)) {
+      errors.end_date = "This date is not available";
+    }
+
+    setDateErrors(errors);
+    
+    // If there are errors, scroll to top
+    if (Object.values(errors).some(error => error !== "")) {
+      scrollToTop();
+    }
+    
+    return Object.values(errors).every(error => error === "");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate all fields
+    if (!validateDates()) {
+      return;
+    }
 
     // Validate location
     if (!formData.location.trim()) {
@@ -167,13 +258,64 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       await add_package_request();
     }
   };
+
   const handleDateChange = (name, newValue) => {
     if (newValue) {
       setFormData((prev) => ({
         ...prev,
-        [name]: dayjs(newValue).toISOString(), // Converts to '2025-02-13T18:30:13.017Z'
+        [name]: dayjs(newValue).toISOString(),
+      }));
+      // Clear error when date is changed
+      setDateErrors(prev => ({
+        ...prev,
+        [name]: ""
       }));
     }
+  };
+  
+  // Add this function to check if a date should be disabled
+  const shouldDisableDate = (date) => {
+    const checkDate = dayjs(date).startOf('day'); // Convert to start of day for comparison
+    
+    return blockedDates.some(period => {
+      // Parse the datetime strings from backend
+      const startDate = dayjs(period.start_date).startOf('day');
+      const endDate = dayjs(period.end_date).startOf('day');
+      
+      // Check if the date falls within the blocked period using isAfter/isBefore/isSame
+      return (checkDate.isAfter(startDate) || checkDate.isSame(startDate)) && 
+             (checkDate.isBefore(endDate) || checkDate.isSame(endDate));
+    });
+  };
+
+  // Add this function for custom day rendering
+  const renderDay = (date, selectedDates, pickersDayProps) => {
+    const isDisabled = shouldDisableDate(date);
+    return (
+      <PickersDay
+        {...pickersDayProps}
+        disabled={isDisabled}
+        sx={{
+          ...(isDisabled && {
+            backgroundColor: '#ffebee !important',
+            color: '#d32f2f !important',
+            borderRadius: '50%',
+            '&:hover': {
+              backgroundColor: '#ffcdd2 !important',
+            },
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              border: '2px solid #d32f2f',
+              borderRadius: '50%',
+              boxSizing: 'border-box',
+            }
+          }),
+        }}
+      />
+    );
   };
 
   return (
@@ -192,6 +334,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         onClick={(e) => {
           e.stopPropagation();
         }}
+        ref={containerRef}
       >
         {type === "equipment" && (
           <div className="equipment-card-container-selected">
@@ -204,6 +347,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                 <div className="info-group">
                   <label>Equipment Name</label>
                   <div className="info-value">{formData.name}</div>
+                  {/* <div className="info-value">{formData.start_date}</div> */}
                 </div>
 
                 <div className="date-time-container">
@@ -212,19 +356,25 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">Start Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={
-                            formData.start_date
-                              ? dayjs(formData.start_date)
-                              : null
-                          }
-                          onChange={(newValue) =>
-                            handleDateChange("start_date", newValue)
-                          }
+                          value={formData.start_date ? dayjs(formData.start_date) : null}
+                          onChange={(newValue) => handleDateChange("start_date", newValue)}
                           minDate={dayjs()}
                           format="DD-MM-YYYY"
-                          renderInput={(params) => (
-                            <input {...params} className="form-input" />
-                          )}
+                          shouldDisableDate={shouldDisableDate}
+                          renderDay={renderDay}
+                          slotProps={{
+                            textField: {
+                              className: "form-input",
+                              error: !!dateErrors.start_date,
+                              helperText: dateErrors.start_date,
+                              sx: {
+                                '& .MuiFormHelperText-root': {
+                                  color: '#d32f2f',
+                                  marginLeft: '0',
+                                }
+                              }
+                            }
+                          }}
                         />
                       </LocalizationProvider>
                     </div>
@@ -233,17 +383,25 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">End Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={
-                            formData.end_date ? dayjs(formData.end_date) : null
-                          }
-                          onChange={(newValue) =>
-                            handleDateChange("end_date", newValue)
-                          }
+                          value={formData.end_date ? dayjs(formData.end_date) : null}
+                          onChange={(newValue) => handleDateChange("end_date", newValue)}
                           minDate={dayjs()}
                           format="DD-MM-YYYY"
-                          renderInput={(params) => (
-                            <input {...params} className="form-input" />
-                          )}
+                          shouldDisableDate={shouldDisableDate}
+                          renderDay={renderDay}
+                          slotProps={{
+                            textField: {
+                              className: "form-input",
+                              error: !!dateErrors.end_date,
+                              helperText: dateErrors.end_date,
+                              sx: {
+                                '& .MuiFormHelperText-root': {
+                                  color: '#d32f2f',
+                                  marginLeft: '0',
+                                }
+                              }
+                            }
+                          }}
                         />
                       </LocalizationProvider>
                     </div>
@@ -337,19 +495,25 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">Start Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={
-                            formData.start_date
-                              ? dayjs(formData.start_date)
-                              : null
-                          }
-                          onChange={(newValue) =>
-                            handleDateChange("start_date", newValue)
-                          }
+                          value={formData.start_date ? dayjs(formData.start_date) : null}
+                          onChange={(newValue) => handleDateChange("start_date", newValue)}
                           minDate={dayjs()}
                           format="DD-MM-YYYY"
-                          renderInput={(params) => (
-                            <input {...params} className="form-input" />
-                          )}
+                          shouldDisableDate={shouldDisableDate}
+                          renderDay={renderDay}
+                          slotProps={{
+                            textField: {
+                              className: "form-input",
+                              error: !!dateErrors.start_date,
+                              helperText: dateErrors.start_date,
+                              sx: {
+                                '& .MuiFormHelperText-root': {
+                                  color: '#d32f2f',
+                                  marginLeft: '0',
+                                }
+                              }
+                            }
+                          }}
                         />
                       </LocalizationProvider>
                     </div>
@@ -358,17 +522,25 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       <label className="form-label">End Date:</label>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          value={
-                            formData.end_date ? dayjs(formData.end_date) : null
-                          }
-                          onChange={(newValue) =>
-                            handleDateChange("end_date", newValue)
-                          }
+                          value={formData.end_date ? dayjs(formData.end_date) : null}
+                          onChange={(newValue) => handleDateChange("end_date", newValue)}
                           minDate={dayjs()}
                           format="DD-MM-YYYY"
-                          renderInput={(params) => (
-                            <input {...params} className="form-input" />
-                          )}
+                          shouldDisableDate={shouldDisableDate}
+                          renderDay={renderDay}
+                          slotProps={{
+                            textField: {
+                              className: "form-input",
+                              error: !!dateErrors.end_date,
+                              helperText: dateErrors.end_date,
+                              sx: {
+                                '& .MuiFormHelperText-root': {
+                                  color: '#d32f2f',
+                                  marginLeft: '0',
+                                }
+                              }
+                            }
+                          }}
                         />
                       </LocalizationProvider>
                     </div>

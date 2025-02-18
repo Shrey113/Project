@@ -21,6 +21,7 @@
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .on_close {
@@ -191,4 +192,37 @@ input[type="number"]:focus {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.date-input-group {
+  margin-bottom: 20px;
+}
+
+.form-input {
+  width: 100%;
+}
+
+.MuiFormHelperText-root {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #d32f2f;
+}
+
+/* Add smooth scrollbar styling */
+.selected-card-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.selected-card-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.selected-card-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.selected-card-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

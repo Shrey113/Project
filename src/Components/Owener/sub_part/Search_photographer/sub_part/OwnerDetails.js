@@ -59,6 +59,10 @@ const OwnerDetails = () => {
   const ownerData = location.state?.ownerData;
   const selectedOwner = location.state?.selectedOwner;
 
+  useEffect(() => {
+    console.log("selectedOwner", ownerData);
+  }, [ownerData]);
+
   const set_owner_full_screen = (value) => {
     dispatch({
       type: "SET_USER_Owner",
@@ -92,7 +96,6 @@ const OwnerDetails = () => {
             end: new Date(event.end),
           }));
           setEvents(formated_data);
-          console.log(formated_data);
         } else {
           console.log(data.error || "An error occurred while fetching events");
         }
@@ -173,6 +176,7 @@ const OwnerDetails = () => {
     try {
       const response = await fetch(`${Server_url}/api/equipment/${email}`);
       const data = await response.json();
+      console.log("data", data);
       return data;
     } catch (error) {
       console.error("Error fetching equipment:", error);

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useLocation, useParams } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import LoginRegisterOwener from "./Components/Owener/Login_Register.js";
 import LoginRegisterClient from "./Components/Client/login_register.js";
@@ -66,6 +66,10 @@ function App() {
   const [OwnerStatus,setOwnerStatus] = useState('');
   const [selectedTable, setSelectedTable] = useState("firstTable");
 
+
+  const { owner_email } = useParams(); 
+ 
+
   const dispatch = useDispatch();
   const isMobile = useSelector((state) => state.user.isMobile);
   const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
@@ -111,6 +115,15 @@ function App() {
         activeIndex: value,
       }});
     }
+
+    const set_is_full_screen = (value) => {
+      dispatch({
+        type: "SET_USER_Owner",
+        payload: {
+          is_full_screen: value,
+        },
+      });
+    };
   
     const location = window.location.pathname;
     if (location === "/Owner") {
@@ -135,7 +148,13 @@ function App() {
     } else if (location === "/Owner/Profile") {
       setActiveIndex(7);
     }
-  }, [dispatch]);
+
+    if (location.startsWith("/Owner/search_photographer/") && owner_email) {
+      set_is_full_screen(true);
+    }
+
+    
+  }, [dispatch,owner_email]);
 
 const renderStatus = () => {
   switch (OwnerStatus) {

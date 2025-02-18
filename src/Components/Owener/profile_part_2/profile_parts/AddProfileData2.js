@@ -430,7 +430,7 @@ function AddProfileData({onInputChange }) {
         </div>
 
         <div className="form-group">
-          <label>Add your social media links</label>
+          <label>Add your personal social media links</label>
           <input 
             type="text" 
             name="socialMedia"

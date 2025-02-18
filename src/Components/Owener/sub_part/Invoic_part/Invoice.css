@@ -17,26 +17,7 @@
   padding: var(--spacing-xl);
   font-family: "Inter", sans-serif;
 }
-.invoice_and_table_container .total_pages {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-.invoice_and_table_container .total_pages .digit_container {
-  font-weight: 600;
-  cursor: pointer;
-  width: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  padding: 6px 10px;
-}
-.invoice_and_table_container .total_pages .digit_container.active {
-  background-color: #444;
-  color: wheat;
-}
+
 /* Toggle Buttons */
 .invoice_and_table_container .wrapper_table_toggle_buttons {
   margin-bottom: var(--spacing-xl);

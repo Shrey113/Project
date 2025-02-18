@@ -16,8 +16,8 @@ const calendarRoutes = require('./sub_part/calendar_rout');
 
 // @shrey11_  start ---- 
 // @shrey11_  start ---- 
-app.use(express.json({ limit: '10mb' })); 
-app.use(express.urlencoded({ extended: false, limit: '10mb' }))
+app.use(express.json({ limit: '20mb' })); 
+app.use(express.urlencoded({ extended: false, limit: '20mb' }))
 
 app.use(express.json()); 
 app.use(cors());
@@ -98,6 +98,44 @@ app.use((req, res, next) => {
   
 app.get("/",(req,res)=>{
     res.send("hi server user running page will be here '/' ")
+});
+
+app.delete("/owner-folders/:folder_id", (req, res) => {
+  const { folder_id } = req.params;
+  const { user_email } = req.body;
+
+  // First verify the user owns this folder
+  const verifyQuery = `
+    SELECT folder_id FROM owner_folders 
+    WHERE folder_id = ? AND user_email = ?
+  `;
+
+  db.query(verifyQuery, [folder_id, user_email], (err, results) => {
+    if (err) {
+      console.error("Error verifying folder ownership:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length === 0) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized or folder not found" });
+    }
+
+    // Delete the folder (cascade will handle file deletion)
+    const deleteQuery = `DELETE FROM owner_folders WHERE folder_id = ?`;
+
+    db.query(deleteQuery, [folder_id], (err, result) => {
+      if (err) {
+        console.error("Error deleting folder:", err);
+        return res.status(500).json({ error: "Error deleting folder" });
+      }
+
+      res
+        .status(200)
+        .json({ message: "Folder and files deleted successfully" });
+    });
+  });
 });
 
 // @shrey11_ other routes

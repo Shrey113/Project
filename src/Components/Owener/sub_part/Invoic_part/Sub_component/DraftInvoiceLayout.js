@@ -1,15 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./DraftInvoiceLayout.css";
 import { useSelector } from "react-redux";
-import {
-  Server_url,
-  showAcceptToast,
-  showWarningToast,
-  showRejectToast,
-} from "../../../../../redux/AllData";
+import { Server_url,showAcceptToast,showWarningToast,showRejectToast } from "../../../../../redux/AllData";
 import { FaArrowLeft } from "react-icons/fa";
 import html2pdf from "html2pdf.js";
 import { useCount } from "../../../../../redux/CountContext";
+
 
 function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
   const [toggle_recipient_input, setToggle_recipient_input] = useState(false);
@@ -18,6 +14,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
   const [emailError, setEmailError] = useState("");
   const user = useSelector((state) => state.user);
   const [isSavedraft, setIsSavedraft] = useState(false);
+
 
   const { decrementCount } = useCount();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
@@ -52,8 +49,6 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
       time: date.toLocaleTimeString(),
     };
   }
-
-  const formatAmount = (amount) => parseFloat(amount).toFixed(2);
   const inputRef = useRef(null);
   const addressRef = useRef(null);
   const emailRef = useRef(null);
@@ -198,6 +193,107 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
     });
   };
 
+  // const generateInvoiceContent = (doc) => {
+  //   // Set font styles
+  //   doc.setFont("helvetica", "bold");
+  //   doc.setFontSize(24);
+  //   doc.text("INVOICE", 14, 30);
+
+  //   // Company details section
+  //   doc.setFontSize(12);
+  //   doc.text("From:", 14, 45);
+  //   doc.setFont("helvetica", "normal");
+  //   doc.text(`${user.user_name}`, 14, 55);
+  //   doc.text(`${user.business_address}`, 14, 65);
+  //   doc.text(`${user.user_email}`, 14, 75);
+  //   doc.text(`GST No: ${user.gst_number}`, 14, 85);
+
+  //   // Bill to section
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text("Bill To:", 120, 45);
+  //   doc.setFont("helvetica", "normal");
+  //   doc.text(`${invoice.invoice_to}`, 120, 55);
+  //   doc.text(`${invoice.invoice_to_address || ""}`, 120, 65);
+  //   doc.text(`${invoice.invoice_to_email || ""}`, 120, 75);
+
+  //   // Invoice details
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text(`Invoice No: ${invoice.invoice_id}`, 120, 85);
+  //   doc.text(`Date: ${(new Date(invoice.date), "dd/MM/yyyy")}`, 120, 95);
+
+  //   // Items table
+  //   autoTable(doc, {
+  //     startY: 110,
+  //     head: [["Item", "Quantity", "Price", "Amount"]],
+  //     body: invoice.items.map((item) => [
+  //       item.item,
+  //       item.quantity,
+  //       `₹${item.price.toFixed(2)}`,
+  //       `₹${item.amount.toFixed(2)}`,
+  //     ]),
+  //     theme: "grid",
+  //     headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+  //     styles: { fontSize: 10 },
+  //   });
+
+  //   // Summary section
+  //   const finalY = doc.autoTable.previous.finalY + 10;
+  //   doc.setFontSize(10);
+
+  //   // Right-aligned summary
+  //   const rightColumn = 190;
+  //   doc.text(
+  //     `Subtotal: ₹${invoice.sub_total.toFixed(2)}`,
+  //     rightColumn,
+  //     finalY,
+  //     { align: "right" }
+  //   );
+  //   doc.text(
+  //     `GST (18%): ₹${invoice.gst.toFixed(2)}`,
+  //     rightColumn,
+  //     finalY + 10,
+  //     { align: "right" }
+  //   );
+
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text(`Total: ₹${invoice.total.toFixed(2)}`, rightColumn, finalY + 20, {
+  //     align: "right",
+  //   });
+
+  //   // Footer
+  //   doc.setFont("helvetica", "normal");
+  //   doc.setFontSize(8);
+  //   doc.text("Thank you for your business!", 14, finalY + 40);
+  // };
+
+  // const generatePDF = () => {
+  //   const doc = new jsPDF();
+
+  //   const addLogoIfExists = () => {
+  //     return new Promise((resolve) => {
+  //       if (logoPreview) {
+  //         const img = new Image();
+  //         img.onload = () => {
+  //           // Calculate aspect ratio to maintain logo proportions
+  //           const imgWidth = 40;
+  //           const imgHeight = (img.height * imgWidth) / img.width;
+  //           doc.addImage(img, "JPEG", 14, 10, imgWidth, imgHeight);
+  //           resolve();
+  //         };
+  //         img.src = logoPreview;
+  //       } else {
+  //         resolve();
+  //       }
+  //     });
+  //   };
+
+  //   // Generate PDF with proper async handling
+  //   addLogoIfExists().then(() => {
+  //     generateInvoiceContent(doc);
+  //     doc.save(`Invoice_${invoice.invoice_id}.pdf`);
+  //   });
+  // };
+
   const generatePDF = () => {
     // Create a container div for the PDF content
     const element = document.createElement("div");
@@ -279,11 +375,11 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
                 <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">${
                   item.quantity
                 }</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
-                  item.price
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.price.toFixed(
+                  2
                 )}</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
-                  item.amount
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.amount.toFixed(
+                  2
                 )}</td>
               </tr>
             `
@@ -295,15 +391,15 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
         <div class="summary-section" style="margin-left: auto; width: 300px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
             <span>Subtotal:</span>
-            <span>₹${formatAmount(invoice.sub_total)}</span>
+            <span>₹${invoice.sub_total.toFixed(2)}</span>
           </div>
           <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
             <span>GST (18%):</span>
-            <span>₹${formatAmount(invoice.gst)}</span>
+            <span>₹${invoice.gst.toFixed(2)}</span>
           </div>
           <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; border-top: 2px solid #dee2e6; padding-top: 10px;">
             <span>Total:</span>
-            <span>₹${formatAmount(invoice.total)}</span>
+            <span>₹${invoice.total.toFixed(2)}</span>
           </div>
         </div>
 
@@ -366,7 +462,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
       invoice.invoice_to_address === "" ||
       invoice.invoice_to_email === ""
     ) {
-      showWarningToast({ message: "Please fill in all required fields" });
+      showWarningToast({message: "Please fill in all required fields" });
       return;
     }
 
@@ -377,9 +473,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
         isNaN(item.amount) ||
         item.amount <= 0
       ) {
-        showWarningToast({
-          message: "Please ensure all items have a name and a valid amount.",
-        });
+        showWarningToast({message: "Please ensure all items have a name and a valid amount." });
         return;
       }
     }
@@ -416,20 +510,15 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
       console.log(data);
       decrementCount();
       fetchInvoicesWithDraft(user.user_email);
-      showAcceptToast({ message: "Invoice generated successfully!" });
+      showAcceptToast({message: "Invoice generated successfully!" });
       setDraftInvoiceChange(false);
       generatePDF();
     } catch (error) {
       console.error("Error adding invoice:", error);
       if (error.message.includes("Failed to fetch")) {
-        showRejectToast({
-          message:
-            "Server connection error. Please check if the server is running.",
-        });
+        showRejectToast({message: "Server connection error. Please check if the server is running." });
       } else {
-        showRejectToast({
-          message: "Error generating invoice. Please try again.",
-        });
+        showRejectToast({message: "Error generating invoice. Please try again." });
       }
     } finally {
       button.disabled = false;
@@ -441,9 +530,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
     if (isSavedraft) return;
 
     if (!invoice.invoice_id || !user.user_email || !invoice.invoice_to) {
-      showWarningToast({
-        message: "Cannot save draft without invoice ID or user email.",
-      });
+      showWarningToast({message: "Cannot save draft without invoice ID or user email." });
       return;
     }
 
@@ -473,23 +560,22 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
 
       const data = await response.json();
       if (data?.message?.includes("successfully")) {
-        showAcceptToast({ message: "Draft saved successfully!" });
+        showAcceptToast({message: "Draft saved successfully!" });
         fetchInvoicesWithDraft(user.user_email);
         setDraftInvoiceChange(false);
       } else {
-        showRejectToast({ message: "Unexpected response from server." });
+        showRejectToast({message: "Unexpected response from server." });
       }
     } catch (error) {
       console.error("Error saving draft:", error);
-      showRejectToast({ message: "Error saving draft. Please try again." });
+      showRejectToast({message: "Error saving draft. Please try again." });
     } finally {
       setIsSavedraft(false);
     }
   };
-
   const uploadBase64ImageDraft = async () => {
     if (!logoPreview) {
-      showWarningToast({ message: "Please upload an image first." });
+      showWarningToast({message: "Please upload an image first." });
       return;
     }
 
@@ -511,11 +597,11 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
       }
 
       const data = await response.json();
-      showAcceptToast({ message: "Image uploaded successfully!" });
+      showAcceptToast({message: "Image uploaded successfully!" });
       console.log("Server response:", data);
     } catch (error) {
       console.error("Error uploading image:", error);
-      showRejectToast({ message: "Error uploading image. Please try again." });
+      showRejectToast({message: "Error uploading image. Please try again." });
     }
   };
 
@@ -977,6 +1063,8 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
           </div>
         </div>
       </div>
+
+
     </div>
   );
 }
