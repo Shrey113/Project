@@ -11,7 +11,7 @@ import RequestDetailPopup from "./RequestDetailPopup";
 import AddDetailsPop from "./AddDetailsPop";
 import socket from "../../../../redux/socket";
 import { HiOutlineChevronUpDown } from "react-icons/hi2";
-import { add } from "date-fns";
+// import { add } from "date-fns";
 function EventManagement({ category }) {
   const user = useSelector((state) => state.user);
   const [events, setEvents] = useState([]);

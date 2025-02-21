@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import './subPortfolio.css';
-import { Server_url,showWarningToast } from '../../../../redux/AllData';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from "react";
+import "./subPortfolio.css";
+import { Server_url, showWarningToast } from "../../../../redux/AllData";
+import { useSelector } from "react-redux";
 
-import back_icon from './../../img/back.png'
-
-
+import back_icon from "./../../img/back.png";
 
 function SubPortfolio({ Folder_name, folder_id, onBack }) {
-  const user = useSelector(state => state.user);
-  const [message, setMessage] = useState('');
+  const user = useSelector((state) => state.user);
+  // const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const [files, setFiles] = useState([]);
@@ -22,16 +20,18 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
   const fetchFiles = async (id) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${Server_url}/owner/owner-folders/files/${id}`);
+      const response = await fetch(
+        `${Server_url}/owner/owner-folders/files/${id}`
+      );
       const data = await response.json();
       if (response.ok) {
         setFiles(data);
       } else {
-        setMessage('Error fetching files');
+        // setMessage('Error fetching files');
       }
     } catch (error) {
-      console.error('Error fetching files:', error);
-      setMessage('Error fetching files');
+      console.error("Error fetching files:", error);
+      // setMessage('Error fetching files');
     } finally {
       setIsLoading(false);
     }
@@ -40,14 +40,14 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
   const handleFileUpload = async (event) => {
     setIsLoading(true);
     const files = Array.from(event.target.files);
-    const filePromises = files.map(file => {
+    const filePromises = files.map((file) => {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           resolve({
             name: file.name,
             type: file.type,
-            data: reader.result
+            data: reader.result,
           });
         };
         reader.readAsDataURL(file);
@@ -58,89 +58,95 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
 
     try {
       const response = await fetch(`${Server_url}/owner/owner-folders/upload`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           folder_id,
-          files: processedFiles.map(file => ({
+          files: processedFiles.map((file) => ({
             name: file.name,
             type: file.type,
-            data: file.data
-          }))
-        })
+            data: file.data,
+          })),
+        }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        setMessage('Files uploaded successfully');
+        // setMessage('Files uploaded successfully');
         fetchFiles(folder_id);
       } else {
-        setMessage(`Error: ${data.error}`);
+        console.log(data);
+
+        // setMessage(`Error: ${data.error}`);
       }
     } catch (error) {
-      setMessage('Error uploading files');
-      console.error('Upload error:', error);
+      // setMessage('Error uploading files');
+      console.error("Upload error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDelete = (fileId) => {
-    setFiles(prevFiles => prevFiles.filter(file => file.file_id !== fileId));
+    setFiles((prevFiles) =>
+      prevFiles.filter((file) => file.file_id !== fileId)
+    );
   };
 
   const FileItem = ({ file, onDelete }) => {
-   
-
     const handleDelete = async () => {
       if (!file.file_id) {
-        showWarningToast({message: 'File ID is missing.'});
+        showWarningToast({ message: "File ID is missing." });
         return;
       }
-      let confirm = window.confirm("Are you sure you want to delete this file?");
-      if(!confirm){
+      let confirm = window.confirm(
+        "Are you sure you want to delete this file?"
+      );
+      if (!confirm) {
         return;
       }
 
       try {
-        const response = await fetch(`${Server_url}/owner/owner-folders-files/delete`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            file_ids: [file.file_id],
-            folder_id: folder_id,
-            user_email: user.user_email
-          }),
-        });
-    
+        const response = await fetch(
+          `${Server_url}/owner/owner-folders-files/delete`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              file_ids: [file.file_id],
+              folder_id: folder_id,
+              user_email: user.user_email,
+            }),
+          }
+        );
+
         if (response.ok) {
           const data = await response.json();
           if (data.deletedCount > 0) {
             onDelete(file.file_id);
           } else {
-            setMessage('No files were deleted.');
-            console.error('No files were deleted.');
+            // setMessage('No files were deleted.');
+            console.error("No files were deleted.");
           }
         } else {
           const data = await response.json();
-          console.error('Failed to delete file:', data.error);
-          setMessage(`Error: ${data.error}`);
+          console.error("Failed to delete file:", data.error);
+          // setMessage(`Error: ${data.error}`);
         }
       } catch (error) {
-        console.error('Error deleting file:', error);
-        setMessage('Error deleting file');
+        console.error("Error deleting file:", error);
+        // setMessage('Error deleting file');
       }
     };
-    
 
     return (
       <div key={file.file_id} className="file-item">
-        <button 
-          className="delete-btn_on_sub" 
+        <button
+          className="delete-btn_on_sub"
           onClick={(e) => {
             e.stopPropagation();
             handleDelete();
@@ -162,18 +168,20 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
   };
 
   const SkeletonLoader = () => {
-    return Array(6).fill(null).map((_, index) => (
-      <div key={index} className="skeleton-item">
-        <div className="skeleton-info">
-          <div className="skeleton-text"></div>
-          <div className="skeleton-text"></div>
+    return Array(6)
+      .fill(null)
+      .map((_, index) => (
+        <div key={index} className="skeleton-item">
+          <div className="skeleton-info">
+            <div className="skeleton-text"></div>
+            <div className="skeleton-text"></div>
+          </div>
         </div>
-      </div>
-    ));
+      ));
   };
 
   return (
-    <div className='sub-portfolio'>
+    <div className="sub-portfolio">
       <div className="portfolio-header">
         <div className="header-left">
           <button className="back-btn" onClick={onBack}>
@@ -185,15 +193,15 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
           <span>+</span> Add Files
         </button>
       </div>
-      
+
       <div className="upload-section">
-        <input 
+        <input
           ref={fileInputRef}
-          type="file" 
-          multiple 
+          type="file"
+          multiple
           onChange={handleFileUpload}
           accept="image/*,video/*,application/pdf"
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
         />
       </div>
 
@@ -201,19 +209,13 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
         {isLoading ? (
           <SkeletonLoader />
         ) : files.length > 0 ? (
-          files.map(file => (
-            <FileItem 
-              key={file.file_id} 
-              file={file} 
-              onDelete={handleDelete}
-            />
+          files.map((file) => (
+            <FileItem key={file.file_id} file={file} onDelete={handleDelete} />
           ))
         ) : (
           <p className="no-files-messages">No files uploaded yet.</p>
         )}
       </div>
-
-
     </div>
   );
 }
