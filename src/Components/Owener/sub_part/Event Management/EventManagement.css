@@ -7,17 +7,38 @@
   align-items: center;
   justify-content: flex-start;
   flex-direction: column;
-  gap: 35px;
+  gap: 25px;
   min-height: fit-content;
   position: relative;
+  margin-top: 30px;
+}
+
+/* Table heading with toggle button  */
+
+#owner-main-container-EventManagement .heading_container_event_management {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  align-self: center;
+  padding: 10px 24px;
+}
+#owner-main-container-EventManagement
+  .heading_container_event_management
+  .event_mangement_heading {
+  font-size: 20px;
+  font-weight: 600;
+  font-family: monospace;
 }
 
 /* Table Toggle Buttons */
 #owner-main-container-EventManagement .toggle_button_con_event_management {
-  width: 400px;
+  width: 360px;
   position: relative;
   border-radius: 8px;
-  background-color: #fff;
+  background-color: #d9d9d9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,12 +51,18 @@
   position: absolute;
   top: 0px;
   left: 0px;
-  width: 200px;
-  height: 40px;
-  background: rgba(169, 169, 169, 0.368);
+  width: 180px;
+  height: 100%;
+  background: #3cbade;
   border-radius: 8px;
-  transition: left 0.3s ease-in-out;
+  transition: all 0.3s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+#owner-main-container-EventManagement
+  .toggle_button_con_event_management
+  button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 #owner-main-container-EventManagement
@@ -44,24 +71,27 @@
   flex: 1;
   position: relative;
   background: transparent;
+  padding: 10px 25px;
   border: none;
-  color: #333;
-  font-size: 16px;
+  color: #fff;
+  font-size: 15px;
   font-weight: bold;
   cursor: pointer;
   z-index: 1;
-  transition: color 0.3s ease-in-out;
+  width: 180px;
+  white-space: nowrap;
+  transition: all 0.3s ease-in-out;
 }
 
 /* Active Button Text */
-#owner-main-container-EventManagement
+/* #owner-main-container-EventManagement
   .toggle_button_con_event_management
   button:focus,
 #owner-main-container-EventManagement
   .toggle_button_con_event_management
   button:hover {
   color: #333;
-}
+} */
 
 #owner-main-container-EventManagement .owner-requests {
   padding: 20px;
@@ -450,13 +480,12 @@
 #owner-main-container-EventManagement table {
   width: 100%;
   border-collapse: collapse;
-  background-color: white;
-  /* border: 1px solid black; */
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+  border-radius: 10px;
 }
 
 #owner-main-container-EventManagement thead tr {
-  background-color: #f8f9fa;
+  background-color: #ffffff;
 }
 
 #owner-main-container-EventManagement th {
@@ -467,6 +496,7 @@
   border-bottom: 2px solid #dee2e6;
   white-space: nowrap;
   text-align: left;
+  cursor: pointer;
 }
 
 #owner-main-container-EventManagement td {
@@ -642,17 +672,6 @@
   margin: 0 auto;
 }
 
-#owner-main-container-EventManagement .section-container {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -815,9 +834,8 @@ tr:hover {
 
 /* Update section-container styles */
 .section-container {
-  background: white;
+  background: transparent;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 30px;
   padding: 20px;
 }

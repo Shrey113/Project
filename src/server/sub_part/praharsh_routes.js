@@ -39,6 +39,7 @@ const bodyParser = require("body-parser");
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
+
 router.post("/fetch_package_count", (req, res) => {
   const { owner_email } = req.body;
 
@@ -58,6 +59,71 @@ router.post("/fetch_package_count", (req, res) => {
     const packageCount = results[0]?.package_count || 0;
 
     return res.status(200).json({ success: true, package_count: packageCount });
+  });
+});
+router.post("/owner_drive/get_folder_photos", (req, res) => {
+  const { folder_id } = req.body;
+
+  if (!folder_id) {
+    return res.status(400).json({ error: "Folder ID is required" });
+  }
+  const photoQuery =
+    "SELECT file_name, file_data,folder_id FROM owner_folders_files WHERE folder_id = ?";
+
+  db.execute(photoQuery, [folder_id], (err, photoResults) => {
+    if (err) {
+      console.error("Error fetching folder photos:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    if (photoResults.length === 0) {
+      return res.json({ message: "No photos found in this folder." });
+    }
+
+    return res.json({ photos: photoResults });
+  });
+});
+router.post("/owner_drive/get_folder_preview", (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Owner email is required" });
+  }
+
+  // Query to fetch all photos for the user
+  const photoQuery = "SELECT * FROM photo_files WHERE user_email = ?";
+
+  db.execute(photoQuery, [email], (photoErr, photoResults) => {
+    if (photoErr) {
+      console.error("Error fetching photos:", photoErr);
+      return res.status(500).json({ error: "Server error" });
+    }
+
+    // Query to fetch folders
+    const folderQuery =
+      "SELECT folder_id, folder_name FROM owner_folders WHERE user_email = ?";
+
+    db.execute(folderQuery, [email], (folderErr, folderResults) => {
+      if (folderErr) {
+        console.error("Error fetching folders:", folderErr);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+
+      // Structuring response as requested
+      const responseData = [
+        {
+          folder_name: "Portfolio",
+          photo_list: photoResults,
+        },
+        ...folderResults,
+      ];
+
+      // Sending the final response
+      res.json({
+        success: true,
+        data: responseData,
+      });
+    });
   });
 });
 

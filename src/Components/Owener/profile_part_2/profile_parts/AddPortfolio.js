@@ -24,6 +24,7 @@ function AddPortfolio() {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchGalleryData = async (user_email) => {
     try {
@@ -64,8 +65,15 @@ function AddPortfolio() {
 
   useEffect(() => {
     if (user?.user_email) {
-      fetch_files(user.user_email);
-      fetchGalleryData(user.user_email);
+      setIsLoading(true);
+      Promise.all([
+        fetch_files(user.user_email),
+        fetchGalleryData(user.user_email)
+      ]).then(() => {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 100);
+      });
     }
   }, [user?.user_email]);
 
@@ -248,6 +256,27 @@ function AddPortfolio() {
     }
   };
 
+  // Add skeleton loader components
+  const FolderSkeleton = () => (
+    <div className="folder-item skeleton">
+      <div className="folder-cover skeleton-image"></div>
+      <div className="folder-info">
+        <div className="skeleton-text"></div>
+        <div className="skeleton-text" style={{ width: '60%' }}></div>
+      </div>
+    </div>
+  );
+
+  const GallerySkeleton = () => (
+    <div className="gallery-item skeleton">
+      <div className="skeleton-image"></div>
+      <div className="gallery-item-info">
+        <div className="skeleton-text"></div>
+        <div className="skeleton-text" style={{ width: '40%' }}></div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="AddPortfolio">
       {!selectedFolder && (
@@ -294,7 +323,12 @@ function AddPortfolio() {
             <div className="section-container">
               <h3 className="section-title">Folders</h3>
               <div className="folders-grid">
-                {folderData.length > 0 ? (
+                {isLoading ? (
+                  // Show 3 folder skeletons while loading
+                  [...Array(3)].map((_, index) => (
+                    <FolderSkeleton key={`folder-skeleton-${index}`} />
+                  ))
+                ) : folderData.length > 0 ? (
                   folderData.map((folder, index) => (
                     <div
                       key={index}
@@ -347,7 +381,12 @@ function AddPortfolio() {
             <div className="section-container">
               <h3 className="section-title">Portfolio Images</h3>
               <div className="gallery-grid">
-                {galleryData.length > 0 ? (
+                {isLoading ? (
+                  // Show 6 gallery skeletons while loading
+                  [...Array(6)].map((_, index) => (
+                    <GallerySkeleton key={`gallery-skeleton-${index}`} />
+                  ))
+                ) : galleryData.length > 0 ? (
                   galleryData.map((item, index) => (
                     <div key={index} className="gallery-item">
                       <button

@@ -147,24 +147,29 @@ function Search_photographer() {
   }, [selectedLocation]);
 
   useEffect(() => {
+  
     const getCityName = async (lat, lon) => {
       try {
         const response = await fetch(
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
         );
         const data = await response.json();
-        console.log("Reverse Geocoding Data:", data);
-        setLocationData(data);
-   
-          // showAcceptToast({ message: `Location accessed successfully! ${data.address.state_district || data.address.state}` });
-
+        
+        // Extract city, town, village, or fallback to Vadodara
+        const cityName = data.address?.city || data.address?.town || data.address?.village || "Vadodara";
+        
+        setLocationData(cityName);
         setIsLocationLoading(false);
       } catch (error) {
         console.error("Error fetching city:", error);
-        showRejectToast({ message: "Error fetching city" });
+        
+        // Set default city in case of an error
+        setLocationData("Vadodara");
         setIsLocationLoading(false);
       }
     };
+    
+  
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -319,21 +324,18 @@ function Search_photographer() {
                 {isLocationPermissionGranted ? (
                   <span className="location-name">Loading location...</span>
                 ) : (
-                  <span className="location-name">not granted</span>
+                  <span className="location-name">Location not granted</span>
                 )}
               </div>
             </div>
-
           ) : (
             <div
               className={`location-circle current-location ${
-                selectedLocation === (locationData.address.city || locationData.address.state_district || locationData.address.state) 
+                selectedLocation === (locationData.address?.city || locationData.address?.state_district || locationData.address?.state) 
                 ? 'selected' 
                 : ''
               }`}
-              onClick={() => handleLocationSelect(locationData.address.city||  locationData.address.state_district || 
-                locationData.address.state)}
-           
+              onClick={() => handleLocationSelect(locationData.address?.city || locationData.address?.state_district || locationData.address?.state)}
             >
               <div className="location-image-wrapper current-location-wrapper">
                 <TfiLocationPin />
@@ -341,9 +343,7 @@ function Search_photographer() {
               <div className="location-details">
                 <span className="location-name">
                   {isLocationLoading ? 'Loading...' : 
-                    `${locationData.address.city || 
-                      locationData.address.state_district || 
-                      locationData.address.state}`
+                    `${locationData || 'Vadodara'}`
                   }
                 </span>
               </div>

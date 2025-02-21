@@ -10,6 +10,7 @@ import back_icon from './../../img/back.png'
 function SubPortfolio({ Folder_name, folder_id, onBack }) {
   const user = useSelector(state => state.user);
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const [files, setFiles] = useState([]);
   const fileInputRef = React.useRef(null);
@@ -19,6 +20,7 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
   }, [folder_id]);
 
   const fetchFiles = async (id) => {
+    setIsLoading(true);
     try {
       const response = await fetch(`${Server_url}/owner/owner-folders/files/${id}`);
       const data = await response.json();
@@ -30,10 +32,13 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
     } catch (error) {
       console.error('Error fetching files:', error);
       setMessage('Error fetching files');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleFileUpload = async (event) => {
+    setIsLoading(true);
     const files = Array.from(event.target.files);
     const filePromises = files.map(file => {
       return new Promise((resolve) => {
@@ -77,6 +82,8 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
     } catch (error) {
       setMessage('Error uploading files');
       console.error('Upload error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -154,6 +161,17 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
     fileInputRef.current.click();
   };
 
+  const SkeletonLoader = () => {
+    return Array(6).fill(null).map((_, index) => (
+      <div key={index} className="skeleton-item">
+        <div className="skeleton-info">
+          <div className="skeleton-text"></div>
+          <div className="skeleton-text"></div>
+        </div>
+      </div>
+    ));
+  };
+
   return (
     <div className='sub-portfolio'>
       <div className="portfolio-header">
@@ -180,7 +198,9 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
       </div>
 
       <div className="files-section">
-        {files.length > 0 ? (
+        {isLoading ? (
+          <SkeletonLoader />
+        ) : files.length > 0 ? (
           files.map(file => (
             <FileItem 
               key={file.file_id} 

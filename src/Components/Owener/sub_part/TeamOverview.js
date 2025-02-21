@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 import "./TeamOverview.css";
 import { useSelector } from "react-redux";
-import add_icon from "./Team_overview/plus.png";
+// import add_icon from "./Team_overview/plus.png";
 import Edit_icon from "./Team_overview/pencil.png";
 import Remove_icon from "./Team_overview/delete.png";
-import View_icon from "./Team_overview/info.png";
+// import View_icon from "./Team_overview/info.png";
 import profile_pic_user1 from "./profile_pic/user1.jpg";
 import profile_pic_user2 from "./profile_pic/user2.jpg";
 import profile_pic_user3 from "./profile_pic/user3.jpg";
 import profile_pic_user4 from "./profile_pic/user4.jpg";
+
+import ilasstion_1 from './../img/team_memeber/Good team-bro.png';
+import ilasstion_2 from './../img/team_memeber/New team members-pana.png';
 
 // import all_user from './Team_overview/sigma.png';
 
@@ -36,8 +39,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
     const errors = {};
     if (!formData.member_name) errors.member_name = "Name is required";
     if (!formData.member_role) errors.member_role = "Role is required";
-    if (!formData.member_event_assignment)
-      errors.member_event_assignment = "Event Assignment is required";
+ 
 
     setFormErrors(errors);
 
@@ -69,8 +71,6 @@ const PopUp = ({ action, member, onClose, onSave }) => {
             member_name: formData.member_name,
             member_profile_img: profile_pic_user1,
             member_role: formData.member_role,
-            member_event_assignment: formData.member_event_assignment,
-            member_status: formData.member_status,
           }),
         });
 
@@ -98,8 +98,6 @@ const PopUp = ({ action, member, onClose, onSave }) => {
               member_name: formData.member_name,
               member_profile_img: formData.member_profile_img,
               member_role: formData.member_role,
-              member_event_assignment: formData.member_event_assignment,
-              member_status: formData.member_status,
             }),
           }
         );
@@ -157,31 +155,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
                 <div className="error">{formErrors.member_role}</div>
               )}
             </label>
-            <label>
-              Event Assignment:
-              <input
-                type="text"
-                name="member_event_assignment"
-                value={formData.member_event_assignment}
-                onChange={handleChange}
-              />
-              {formErrors.member_event_assignment && (
-                <div className="error">
-                  {formErrors.member_event_assignment}
-                </div>
-              )}
-            </label>
-            <label>
-              Status:
-              <select
-                name="member_status"
-                value={formData.member_status}
-                onChange={handleChange}
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </label>
+
 
             <label className="pro_title">Profile Picture:</label>
             <div className="profile-pic-selection">
@@ -269,115 +243,254 @@ const PopUp = ({ action, member, onClose, onSave }) => {
   );
 };
 
-const ADDCard = ({ total_member }) => {
+// const ADDCard = ({ total_member }) => {
+//   return (
+//     <div className="card_for_a_owner_team">
+//       {/* <div className="icon">
+//         <img src={all_user} alt="" />
+//       </div> */}
+//       <h3 className="title">Total member</h3>
+//       <p className="description">{total_member}</p>
+//       <div className="avatars">
+//         <img src={profile_pic_user1} alt="Avatar 1" />
+//         <img src={profile_pic_user2} alt="Avatar 2" />
+//         <img src={profile_pic_user3} alt="Avatar 3" />
+//         <img src={profile_pic_user4} alt="Avatar 4" />
+//       </div>
+//     </div>
+//   );
+// };
+
+// const ADDCardForActive = ({ total_member }) => {
+//   return (
+//     <div className="card_for_a_owner_team">
+//       {/* <div className="icon">
+//         <img src={all_user} alt="" />
+//       </div> */}
+//       <h3 className="title">Active member</h3>
+//       <p className="description">{total_member}</p>
+//       <div className="avatars">
+//         <img src={profile_pic_user1} alt="Avatar 1" />
+//         <img src={profile_pic_user2} alt="Avatar 2" />
+//         <img src={profile_pic_user3} alt="Avatar 3" />
+//         <img src={profile_pic_user4} alt="Avatar 4" />
+//       </div>
+//     </div>
+//   );
+// };
+
+// const ActionMenu = ({ member, onEdit, onRemove, onView }) => {
+//   const [showMenu, setShowMenu] = useState(false);
+
+//   // Add useEffect for handling outside clicks
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       if (showMenu && !event.target.closest(".action-menu-container")) {
+//         setShowMenu(false);
+//       }
+//     };
+
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => {
+//       document.removeEventListener("mousedown", handleClickOutside);
+//     };
+//   }, [showMenu]);
+
+//   return (
+//     <div className="action-menu-container">
+//       {/* Show 3-dot menu button on mobile */}
+//       <button
+//         className="mobile-menu-trigger"
+//         onClick={() => setShowMenu(!showMenu)}
+//       >
+//         <span></span>
+//         <span></span>
+//         <span></span>
+//       </button>
+
+//       {/* Regular buttons for desktop */}
+//       <div className="desktop-actions">
+//         <button onClick={onEdit}>
+//           <img src={Edit_icon} alt="Edit Icon" />
+//         </button>
+//         <button onClick={onRemove}>
+//           <img src={Remove_icon} alt="Remove Icon" />
+//         </button>
+//         <button onClick={onView}>
+//           <img src={View_icon} alt="View Icon" />
+//         </button>
+//       </div>
+
+//       {/* Popup menu for mobile */}
+//       {showMenu && (
+//         <div className="mobile-action-menu">
+//           <button
+//             onClick={() => {
+//               onEdit();
+//               setShowMenu(false);
+//             }}
+//           >
+//             <img src={Edit_icon} alt="Edit Icon" />
+//             <span>Edit</span>
+//           </button>
+//           <button
+//             onClick={() => {
+//               onRemove();
+//               setShowMenu(false);
+//             }}
+//           >
+//             <img src={Remove_icon} alt="Remove Icon" />
+//             <span>Remove</span>
+//           </button>
+//           <button
+//             onClick={() => {
+//               onView();
+//               setShowMenu(false);
+//             }}
+//           >
+//             <img src={View_icon} alt="View Icon" />
+//             <span>View</span>
+//           </button>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+const DetailPopup = ({ member, onClose }) => {
+  // Add click handler for overlay
+  const handleOverlayClick = (e) => {
+    if (e.target.className === "detail-popup-overlay") {
+      onClose();
+    }
+  };
+
   return (
-    <div className="card_for_a_owner_team">
-      {/* <div className="icon">
-        <img src={all_user} alt="" />
-      </div> */}
-      <h3 className="title">Total member</h3>
-      <p className="description">{total_member}</p>
-      <div className="avatars">
-        <img src={profile_pic_user1} alt="Avatar 1" />
-        <img src={profile_pic_user2} alt="Avatar 2" />
-        <img src={profile_pic_user3} alt="Avatar 3" />
-        <img src={profile_pic_user4} alt="Avatar 4" />
+    <div className="detail-popup-overlay" onClick={handleOverlayClick}>
+      <div className="detail-popup-content">
+        <div className="detail-header">
+          <div className="detail-profile">
+            <img src={member.member_profile_img} alt={member.member_name} />
+            <div className="detail-profile-info">
+              <h2>{member.member_name}</h2>
+              <span className={`status-badge ${member.member_status.toLowerCase() === 'available' ? 'assigned' : 'available'}`}>
+                {member.member_status.toLowerCase() === 'available' ? 'Assigned' : 'Available'}
+              </span>
+            </div>
+          </div>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+        
+        <div className="detail-body">
+          <div className="detail-section">
+            <h3>Professional Information</h3>
+            <div className="info-grid">
+              <div className="info-item">
+                <label>Role</label>
+                <p>{member.member_role}</p>
+              </div>
+              <div className="info-item">
+                <label>Event Assignment</label>
+                <p>{member.member_event_assignment || "No current assignment"}</p>
+              </div>
+              <div className="info-item">
+                <label>Member ID</label>
+                <p>{member.member_id}</p>
+              </div>
+              <div className="info-item">
+                <label>Join Date</label>
+                <p>{new Date().toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
       </div>
     </div>
   );
 };
 
-const ADDCardForActive = ({ total_member }) => {
-  return (
-    <div className="card_for_a_owner_team">
-      {/* <div className="icon">
-        <img src={all_user} alt="" />
-      </div> */}
-      <h3 className="title">Active member</h3>
-      <p className="description">{total_member}</p>
-      <div className="avatars">
-        <img src={profile_pic_user1} alt="Avatar 1" />
-        <img src={profile_pic_user2} alt="Avatar 2" />
-        <img src={profile_pic_user3} alt="Avatar 3" />
-        <img src={profile_pic_user4} alt="Avatar 4" />
-      </div>
-    </div>
-  );
-};
+const MemberCard = ({ member, onEdit, onRemove }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showDetailPopup, setShowDetailPopup] = useState(false);
 
-const ActionMenu = ({ member, onEdit, onRemove, onView }) => {
-  const [showMenu, setShowMenu] = useState(false);
-
-  // Add useEffect for handling outside clicks
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showMenu && !event.target.closest(".action-menu-container")) {
-        setShowMenu(false);
+      if (showDropdown && !event.target.closest('.more-options-container')) {
+        setShowDropdown(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showMenu]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDropdown]);
 
   return (
-    <div className="action-menu-container">
-      {/* Show 3-dot menu button on mobile */}
-      <button
-        className="mobile-menu-trigger"
-        onClick={() => setShowMenu(!showMenu)}
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
-      {/* Regular buttons for desktop */}
-      <div className="desktop-actions">
-        <button onClick={onEdit}>
-          <img src={Edit_icon} alt="Edit Icon" />
-        </button>
-        <button onClick={onRemove}>
-          <img src={Remove_icon} alt="Remove Icon" />
-        </button>
-        <button onClick={onView}>
-          <img src={View_icon} alt="View Icon" />
-        </button>
-      </div>
-
-      {/* Popup menu for mobile */}
-      {showMenu && (
-        <div className="mobile-action-menu">
-          <button
-            onClick={() => {
-              onEdit();
-              setShowMenu(false);
-            }}
+    <div className="member-card">
+      <div className="status-indicator">
+        <span className={member.member_status === "Active" ? "available" : "assigned"}></span>
+        <div className="more-options-container">
+          <button 
+            className="more-options"
+            onClick={() => setShowDropdown(!showDropdown)}
           >
-            <img src={Edit_icon} alt="Edit Icon" />
-            <span>Edit</span>
+            <span></span>
+            <span></span>
+            <span></span>
           </button>
-          <button
-            onClick={() => {
-              onRemove();
-              setShowMenu(false);
-            }}
-          >
-            <img src={Remove_icon} alt="Remove Icon" />
-            <span>Remove</span>
-          </button>
-          <button
-            onClick={() => {
-              onView();
-              setShowMenu(false);
-            }}
-          >
-            <img src={View_icon} alt="View Icon" />
-            <span>View</span>
-          </button>
+          {showDropdown && (
+            <div className="dropdown-menu">
+              <button 
+                className="dropdown-item edit-btn"
+                onClick={() => {
+                  onEdit(member);
+                  setShowDropdown(false);
+                }}
+              >
+                <img src={Edit_icon} alt="Edit" />
+                <span>Edit</span>
+              </button>
+              <div className="dropdown-divider"></div>
+              <button 
+                className="dropdown-item delete-btn"
+                onClick={() => {
+                  onRemove(member.member_id, member.owner_email);
+                  setShowDropdown(false);
+                }}
+              >
+                <img src={Remove_icon} alt="Remove" />
+                <span>Delete</span>
+              </button>
+            </div>
+          )}
         </div>
+      </div>
+      <div className="profile-section">
+        <div className="profile-image">
+          <img src={member.member_profile_img} alt={member.member_name} />
+        </div>
+        <h3>{member.member_name}</h3>
+        <p className="role">{member.member_role}</p>
+      </div>
+      <div className="divider"></div>
+      <button 
+        className={`details-btn ${member.member_status === "Available" ? "available" : "assigned"}`}
+        onClick={() => {
+          if(member.member_status === "Available"){
+            setShowDetailPopup(true);
+          }
+          
+        }}
+      >
+        Details
+      </button>
+      
+      {showDetailPopup && (
+        <DetailPopup 
+          member={member} 
+          onClose={() => setShowDetailPopup(false)}
+        />
       )}
     </div>
   );
@@ -388,7 +501,8 @@ const TeamOverview = () => {
   const [teamData, setTeamData] = useState([]);
   const fetchTeamMembers = async () => {
     try {
-      const response = await fetch(`${Server_url}/team_members/get_members`, {
+      // Fetch assigned members
+      const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -397,16 +511,61 @@ const TeamOverview = () => {
           user_email: user.user_email,
         }),
       });
-      const data = await response.json();
-      setTeamData(data);
+      
+      const statusData = await statusResponse.json(); // Expecting an array of objects
+      console.log("Fetched Status Data:", statusData);
+  
+      // Extract assigned members and their event details
+      let assignedMembersMap = new Map();
+      
+      statusData.forEach(({ assigned_team_member, event_request_type, event_detail }) => {
+        if (Array.isArray(assigned_team_member)) {
+          assigned_team_member.forEach(member => {
+            assignedMembersMap.set(member, { event_request_type, event_detail });
+          });
+        }
+      });
+  
+      // Fetch all team members
+      const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_email: user.user_email,
+        }),
+      });
+      
+      const membersData = await membersResponse.json();
+      console.log("Fetched Members Data:", membersData);
+  
+      // Update team members' status based on assignment
+      const updatedTeamData = membersData.map(member => {
+        const assignment = assignedMembersMap.get(member.member_name);
+        
+        return {
+          ...member,
+         member_status: assignment ? "Available" : "Active",
+          member_event_assignment: assignment 
+            ? `${assignment.event_request_type} - ${assignment.event_detail}`
+            : "Not Assigned",
+        };
+      });
+  
+      console.log("Updated Team Data:", updatedTeamData);
+      setTeamData(updatedTeamData);
+  
     } catch (error) {
       console.error("Error fetching team members:", error);
     }
   };
+  
   useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
-        const response = await fetch(`${Server_url}/team_members/get_members`, {
+        // Fetch assigned members
+        const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -415,14 +574,59 @@ const TeamOverview = () => {
             user_email: user.user_email,
           }),
         });
-        const data = await response.json();
-        setTeamData(data);
+        
+        const statusData = await statusResponse.json(); // Expecting an array of objects
+        console.log("Fetched Status Data:", statusData);
+    
+        // Extract assigned members and their event details
+        let assignedMembersMap = new Map();
+        
+        statusData.forEach(({ assigned_team_member, event_request_type, event_detail }) => {
+          if (Array.isArray(assigned_team_member)) {
+            assigned_team_member.forEach(member => {
+              assignedMembersMap.set(member, { event_request_type, event_detail });
+            });
+          }
+        });
+    
+        // Fetch all team members
+        const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_email: user.user_email,
+          }),
+        });
+        
+        const membersData = await membersResponse.json();
+        console.log("Fetched Members Data:", membersData);
+    
+        // Update team members' status based on assignment
+        const updatedTeamData = membersData.map(member => {
+          const assignment = assignedMembersMap.get(member.member_name);
+          
+          return {
+            ...member,
+            member_status: assignment ? "Available" : "Active",
+            member_event_assignment: assignment 
+              ? `${assignment.event_request_type} - ${assignment.event_detail}`
+              : "Not Assigned",
+          };
+        });
+    
+        console.log("Updated Team Data:", updatedTeamData);
+        setTeamData(updatedTeamData);
+    
       } catch (error) {
         console.error("Error fetching team members:", error);
       }
     };
+    
+
     fetchTeamMembers();
-  }, [ user.user_email]);
+  }, [user.user_email]);
 
   const [popupState, setPopupState] = useState({
     show: false,
@@ -438,14 +642,13 @@ const TeamOverview = () => {
     setPopupState({ show: true, action: "Edit", member: { ...member } }); // Spread the member data to make sure it's passed correctly
   };
 
-  const handleViewUser = (member) => {
-    setPopupState({ show: true, action: "View", member });
-  };
+  // const handleViewUser = (member) => {
+  //   setPopupState({ show: true, action: "View", member });
+  // };
 
   const handleSave = (newData) => {
     if (popupState.action === "Add") {
       setTeamData([...teamData, newData]);
-      fetchTeamMembers();
     } else if (popupState.action === "Edit") {
       fetchTeamMembers();
     }
@@ -479,7 +682,6 @@ const TeamOverview = () => {
     return item.member_status === "Active" ? total + 1 : total;
   }, 0);
 
-  // Add new useEffect for handling outside clicks
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -498,72 +700,59 @@ const TeamOverview = () => {
   }, [popupState.show]);
 
   return (
-    <div className="team-overview">
-      <div className="all_card_con">
-        <ADDCard total_member={teamData.length} />
-
-        <ADDCardForActive total_member={totalMemberStatusLength} />
+    <div className="team-overview-container">
+      {/* Stats Cards */}
+      <div className="stats-cards">
+        <div className="stat-card total-members">
+          <div className="data-container">
+            <h2>Total Member</h2>
+            <div className="count">{teamData.length}</div>
+          </div>
+          <img src={ilasstion_2} alt="ilasstion_2" />
+          
+        </div>
+        <div className="stat-card active-members">
+          <div className="data-container">
+            <h2>Active Member</h2>
+            <div className="count">{totalMemberStatusLength}</div>
+          </div>
+          <img src={ilasstion_1} alt="ilasstion_1" />
+        </div>
       </div>
 
-      <div className="team-member-list">
-        <div className="title_bar">
-          <h2>Team Overview</h2>
-          <button onClick={handleAddUser}>
-            <img src={add_icon} alt="Add Icon" />
+      {/* Team Overview Section */}
+      <div className="team-section">
+        <div className="section-header">
+          <div className="title-and-legend">
+            <h2>Team Overview</h2>
+            <div className="status-legend">
+              <span className="legend-item">
+                <span className="dot available"></span> Available
+              </span>
+              <span className="legend-item">
+                <span className="dot assigned"></span> Assigned
+              </span>
+            </div>
+          </div>
+          <button className={`add-member-btn ${teamData.length === 0 ? 'assigned' : 'available'}`} onClick={handleAddUser}>
+            <span>Add Member</span>
+            <span className="plus-icon">+</span>
           </button>
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Name</th>
-              <th>Role</th>
-              <th>Event Assignment</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {teamData.map((member, index) => (
-              <tr key={index}>
-                <td data-label="No">{index + 1}</td>
-                <td data-label="Name">
-                  <div className="profile_con">
-                    <div className="profile_img">
-                      <img src={member.member_profile_img} alt="" />
-                    </div>
-                    <div className="data">{member.member_name}</div>
-                  </div>
-                </td>
-                <td data-label="Role">{member.member_role}</td>
-                <td data-label="Event Assignment">
-                  {member.member_event_assignment || "Unassigned"}
-                </td>
-                <td data-label="Status">{member.member_status}</td>
-                <td data-label="Actions">
-                  <ActionMenu
-                    member={member}
-                    onEdit={() => handleEditUser(member)}
-                    onRemove={() =>
-                      handleRemoveUser(member.member_id, user.user_email)
-                    }
-                    onView={() => handleViewUser(member)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="members-grid">
+          {teamData.map((member, index) => (
+            <MemberCard key={index} member={member} onEdit={handleEditUser} onRemove={handleRemoveUser} />
+          ))}
+        </div>
       </div>
 
+      {/* Keep existing popup component */}
       {popupState.show && (
         <PopUp
           action={popupState.action}
           member={popupState.member}
-          onClose={() =>
-            setPopupState({ show: false, action: "", member: null })
-          }
+          onClose={() => setPopupState({ show: false, action: "", member: null })}
           onSave={handleSave}
         />
       )}

@@ -1,0 +1,68 @@
+#constant_navbar {
+  width: 98%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 10px;
+  border-bottom: 1px solid #7f7f7f;
+  align-self: center;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  background-color: white;
+}
+#constant_navbar .navbar_section_name {
+  font-size: 24px;
+  font-weight: 600;
+}
+#constant_navbar .navebar_profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+#constant_navbar .navebar_profile .search_bar {
+  width: 300px;
+  height: fit-content;
+}
+#constant_navbar .navebar_profile .search_bar .search_for_all_section {
+  height: 100%;
+  width: 100%;
+  padding: 10px 15px;
+  outline: none;
+  border: 1px solid rgb(153, 153, 153);
+  border-radius: 20px;
+}
+#constant_navbar .navebar_profile .bell_icon {
+  padding: 5px;
+  cursor: pointer;
+}
+#constant_navbar .profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  /* padding: 5px; */
+  border-radius: 15px;
+}
+
+#constant_navbar .profile img {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+}
+#constant_navbar .profile .profile_data {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+#constant_navbar .profile_data .user_name {
+  font-size: 18px;
+  font-weight: 550;
+}
+#constant_navbar .profile_data .user_email {
+  font-size: 14px;
+}

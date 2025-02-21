@@ -32,7 +32,6 @@
     "mysql2": "^3.11.5",
     "next-themes": "^0.4.4",
     "nodemailer": "^6.9.16",
-    "nodemon": "^3.1.9",
     "react": "^18.3.1",
     "react-big-calendar": "^1.17.1",
     "react-calendar": "^5.1.0",
@@ -58,7 +57,7 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
-    "start": "concurrently -n React,Server -c cyan,white  \"react-scripts start\" \"nodemon src/server/server.js\"",
+    "start": "concurrently -n React,Server -c cyan,white  \"react-scripts start\" \"node src/server/server.js\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

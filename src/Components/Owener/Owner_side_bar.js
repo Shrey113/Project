@@ -36,8 +36,9 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import SearchIcon from '@mui/icons-material/Search';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PersonIcon from '@mui/icons-material/Person';
+// import PersonIcon from '@mui/icons-material/Person';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 
 function OwnerSideBar() {
   const dispatch = useDispatch();
@@ -87,11 +88,18 @@ useEffect(() => {
 
     
   const handleItemClick = (index) => {
-    setActiveIndex(index);
+    // If clicking on Event Management (index 1) and it's not already active
+    if (index === 1 && Math.floor(activeIndex) !== 1) {
+      setActiveIndex(1.1); // Select first sub-menu item
+      navigate(menuItems[1].subMenu[0].path); // Navigate to first sub-menu path
+    } else {
+      setActiveIndex(index);
+      navigate(menuItems[index].path);
+    }
+    
     if (isMobile) {
       set_is_sidebar_open(false);
     }
-    navigate(menuItems[index].path);
   };
 
     const menuItems = [
@@ -103,7 +111,19 @@ useEffect(() => {
         { 
           name: 'Event Management', 
           icon: <EventIcon className={`menu-icon ${activeIndex === 1 ? 'active' : ''}`} />,
-          path: '/Owner/Event' 
+          path: '/Owner/Event',
+          subMenu: [
+            {
+              name: 'Packages',
+              path: '/Owner/Event/packages',
+              icon: <LocalOfferIcon className={`menu-icon ${activeIndex === 1.1 ? 'active' : ''}`} />
+            },
+            {
+              name: 'Equipment',
+              path: '/Owner/Event/equipment',
+              icon: <CameraAltIcon className={`menu-icon ${activeIndex === 1.2 ? 'active' : ''}`} />
+            }
+          ]
         },
         { 
           name: 'Team Management', 
@@ -198,7 +218,7 @@ useEffect(() => {
   className={`active_me_slider ${isMobile ? "for_mobile" : ""}`}
   style={{
     height: `${windowWidth <= 768 ? 50 : 60}px`,
-    top: `${activeIndex * (windowWidth <= 768 ? 50 : 60)}px`,
+    top: `${Math.floor(activeIndex) * (windowWidth <= 768 ? 50 : 60)}px`,
     transition: "all 0.2s ease-in-out",
   }}
 ></div>
@@ -206,45 +226,64 @@ useEffect(() => {
 }
 
       {menuItems.map((item, index) => (
-        <div
-          key={index}
-          className={`item ${index === activeIndex && "active"}`}
-          onClick={() => handleItemClick(index)}
-        >
-          <div className="icon">
-            {item.icon}
-          </div>
+        <React.Fragment key={index}>
+          <div
+            className={`item ${index === Math.floor(activeIndex) && "active"}`}
+            onClick={() => handleItemClick(index)}
+          >
+            <div className="icon">
+              {item.icon}
+            </div>
             <div className={`text`}>
               {item.name}
             </div>
-        </div>
+          </div>
+          {item.subMenu && Math.floor(activeIndex) === index && (
+            <div className="sub-menu">
+              {item.subMenu.map((subItem, subIndex) => (
+                <div
+                  key={`${index}-${subIndex}`}
+                  className={`sub-item ${activeIndex === index + (subIndex + 1) / 10 && "active"}`}
+                  onClick={() => {
+                    setActiveIndex(index + (subIndex + 1) / 10);
+                    navigate(subItem.path);
+                    if (isMobile) {
+                      set_is_sidebar_open(false);
+                    }
+                  }}
+                >
+                  <div className="icon">
+                    {subItem.icon}
+                  </div>
+                  <div className="text">
+                    {subItem.name}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </React.Fragment>
       ))}
     </div>
 
-    <div className="user_profile" onClick={() => {
-        setActiveIndex(menuItems.length + 1);
-        navigate('/Owner/Profile');
-    }}>
-      <div className="user_icon_1">
-        {user.user_profile_image_base64 ? 
-          <img src={user.user_profile_image_base64} alt="" /> :
-          <PersonIcon className="default-avatar" />
-        }
-      </div>
-      <div className="user_data">
-        <div className="user_name">{user.user_name}</div>
-        <div className="user_email">{user.user_email}</div>
-      </div>
-      <button 
-        className="logout_button"
-        onClick={(e) => {
-          e.stopPropagation();
+    <div
+          className="user_profile"
+          onClick={(e) => {
+            e.stopPropagation();
             handleLogout();
-        }}
-      >
-        <LogoutIcon />
-      </button>
-    </div>
+          }}
+        >
+          <button className="logout_button">
+            <div>
+              {" "}
+              <LogoutIcon
+                style={{ height: "30px", width: "30px", color: "#f08080" }}
+              />
+            </div>
+
+            <span className="logout_text">Logout</span>
+          </button>
+        </div>
 
     {showDeleteConfirm.isVisible && ( 
         <ConfirmMessage message_title={showDeleteConfirm.message_title} message={showDeleteConfirm.message} 

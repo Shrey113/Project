@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mysql = require("mysql2");
+const moment = require("moment");
 
 const db = mysql.createConnection({
   host: "localhost",
@@ -12,6 +13,43 @@ const db = mysql.createConnection({
       require("mysql2/lib/auth_plugins").mysql_native_password,
   },
 });
+
+
+router.post("/get_all_members_status", (req, res) => {
+  const today = moment().format("YYYY-MM-DD HH:mm:ss"); // Current timestamp
+  const { user_email } = req.body; // Extract user email
+
+  if (!user_email) {
+      return res.status(400).json({ error: "user_email is required" });
+  }
+
+  const query = `
+      SELECT assigned_team_member, event_request_type, package_name, equipment_name
+      FROM event_request 
+      WHERE ? BETWEEN start_date AND end_date
+  `;
+
+  db.query(query, [today], (err, results) => {
+      if (err) {
+          return res.status(500).json({ error: "Database error", details: err });
+      }
+
+      if (results.length === 0) {
+          return res.json({ assigned_team_member: [], event_details: [] }); // No data found
+      }
+
+      const responseData = results.map(row => ({
+          assigned_team_member: row.assigned_team_member 
+              ? String(row.assigned_team_member).split(",").map(item => item.trim()) 
+              : [],
+          event_request_type: row.event_request_type,  // Include event_request_type
+          event_detail: row.event_request_type === "package" ? row.package_name : row.equipment_name
+      }));
+
+      res.json(responseData);
+  });
+});
+
 
 router.post("/get_members", (req, res) => {
   const { user_email } = req.body;
@@ -129,14 +167,12 @@ router.post("/add_members", (req, res) => {
     member_name,
     member_profile_img,
     member_role,
-    member_event_assignment,
-    member_status,
   } = req.body;
 
   // Insert the new team member into the database
   const query = `
-        INSERT INTO team_member (owner_email, member_name, member_profile_img, member_role, member_event_assignment, member_status)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO team_member (owner_email, member_name, member_profile_img, member_role) 
+        VALUES (?, ?, ?, ?)
     `;
 
   db.query(
@@ -146,8 +182,6 @@ router.post("/add_members", (req, res) => {
       member_name,
       member_profile_img,
       member_role,
-      member_event_assignment,
-      member_status,
     ],
     (err, result) => {
       if (err) {

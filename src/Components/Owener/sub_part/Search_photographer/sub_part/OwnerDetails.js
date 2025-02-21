@@ -8,9 +8,9 @@ import { IoArrowBack } from "react-icons/io5";
 import { FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import SeletedCard from "./SeletedCard";
 import { MdOutlineInsertLink, MdOutlineDesignServices } from "react-icons/md";
-import Calendar from "react-calendar";
+
 import "react-calendar/dist/Calendar.css";
-import { isWithinInterval, parseISO } from "date-fns";
+
 import {
   FaFacebook,
   FaInstagram,
@@ -23,6 +23,9 @@ import camera_icon from "./test_img_equipment/camera.png";
 import drone_icon from "./test_img_equipment/drone.png";
 import tripod_icon from "./test_img_equipment/Tripod.png";
 import lens_icon from "./test_img_equipment/lens.png";
+import { FaAngleDoubleDown } from "react-icons/fa";
+import { IoCloseSharp } from "react-icons/io5";
+import { FaCloudDownloadAlt } from "react-icons/fa";
 
 const OwnerDetails = () => {
   const equipmentTypes = [
@@ -50,10 +53,6 @@ const OwnerDetails = () => {
   const [selectedType, setSelectedType] = useState(null);
   const [is_first, set_is_true] = useState(true);
 
-  const [value] = useState(new Date());
-
-  const [events, setEvents] = useState([]);
-
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -72,6 +71,28 @@ const OwnerDetails = () => {
   const [photos, setPhotos] = useState([]);
   const [activeFolder, setActiveFolder] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [fullViewImage, setFullViewImage] = useState("");
+
+  useEffect(() => {
+    if(fullViewImage){
+      document.body.style.overflow = "hidden";
+    }else{
+      document.body.style.overflow = "auto";
+    }
+  }, [fullViewImage]);
+
+  const handleDownload = () => {
+    if (fullViewImage) {
+      const link = document.createElement("a");
+      link.href = fullViewImage;
+      link.download = fullViewImage.split("/").pop(); // This will set the filename to the image's name
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   useEffect(() => {
     const fetchFolderData = async (user_email) => {
@@ -107,6 +128,12 @@ const OwnerDetails = () => {
 
     fetchFolderData(selectedOwner.user_email);
   }, [selectedOwner.user_email]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  }, [photos]);
 
   const handleTabSwitch = (folder, index) => {
     setActiveFolder(folder);
@@ -155,69 +182,32 @@ const OwnerDetails = () => {
 
   // ];
 
+
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await fetch(`${Server_url}/calendar/events_by_user`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ user_email: selectedOwner.user_email }),
-        });
+    const handleBackEvent = (event) => {
+      dispatch({
+        type: "SET_USER_Owner",
+        payload: {
+          is_full_screen: true,
+        },
+      });
 
-        const data = await response.json();
-
-        if (response.ok) {
-          // setEvents(data);
-          const formated_data = data?.map((event) => ({
-            ...event,
-            start: new Date(event.start),
-            end: new Date(event.end),
-          }));
-          setEvents(formated_data);
-        } else {
-          console.log(data.error || "An error occurred while fetching events");
-        }
-      } catch (err) {
-        console.log("Failed to fetch events: " + err.message);
-      }
+      dispatch({
+        type: "SET_USER_Owner",
+        payload: {
+          isOwnerFullScreen: false,
+        },
+      });
+      navigate(`/Owner/search_photographer`);
     };
 
-    if (selectedOwner.user_email) {
-      fetchEvents();
-    }
-  }, [selectedOwner.user_email]);
+    window.addEventListener("popstate", handleBackEvent);
 
-  const getTileClassName = ({ date }) => {
-    const event = events.find((event) =>
-      isWithinInterval(date, {
-        start:
-          event.start instanceof Date ? event.start : parseISO(event.start),
-        end: event.end instanceof Date ? event.end : parseISO(event.end),
-      })
-    );
-    return event
-      ? `has-event event-${event?.title?.toLowerCase()?.replace(/\s+/g, "-")}`
-      : "";
-  };
+    return () => {
+      window.removeEventListener("popstate", handleBackEvent);
+    };
+  }, [navigate, dispatch]);
 
-  const getTileStyle = ({ date }) => {
-    const event = events.find((event) =>
-      isWithinInterval(date, {
-        start:
-          event.start instanceof Date ? event.start : parseISO(event.start),
-        end: event.end instanceof Date ? event.end : parseISO(event.end),
-      })
-    );
-    return event
-      ? {
-          backgroundColor: event.color,
-          color: "#000000",
-          fontWeight: "bold",
-        }
-      : null;
-  };
 
   useEffect(() => {
     if (ownerData?.packages?.length > 4) {
@@ -429,11 +419,7 @@ const OwnerDetails = () => {
                   <p>Not Available</p>
                 )}
               </div>
-              {/* <span className="status-badge">Active</span> */}
-              {/* <span className="rating">
-                <FaStar className="icon star" />
-                4.8/5.0
-              </span> */}
+
             </div>
           </div>
 
@@ -515,36 +501,7 @@ const OwnerDetails = () => {
               </div>
             </div>
 
-            <div className="info-card">
-              <div className="calendar-wrapper">
-                <div className="calendar-title">
-                  <label>
-                    Availability -{" "}
-                    {value.toLocaleString("default", { month: "long" })}
-                  </label>
-                </div>
-                <Calendar
-                  value={value}
-                  tileClassName={getTileClassName}
-                  tileStyle={getTileStyle}
-                  formatShortWeekday={(locale, date) =>
-                    ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"][date.getDay()]
-                  }
-                  className="modern-calendar"
-                  minDate={
-                    new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-                  }
-                  maxDate={
-                    new Date(
-                      new Date().getFullYear(),
-                      new Date().getMonth() + 1,
-                      0
-                    )
-                  }
-                  showNavigation={false}
-                />
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -562,6 +519,7 @@ const OwnerDetails = () => {
             handleShowAllClick("all_photos");
           }}
         >
+          <FaAngleDoubleDown />
           See More
         </div>
         {ownerData.photo_files?.length > 0 ? (
@@ -584,49 +542,57 @@ const OwnerDetails = () => {
                     </h3>
                   ))}
               </div>
-              {packagesMoreThan4 && (
-                <button
-                  onClick={() => {
-                    handleShowAllClick("all_photos");
-                  }}
-                >
-                  Show All
-                </button>
-              )}
+
             </div>
 
             <div className="profile_preview_images">
-              {loading ? (
-                <div className="loader">Loading</div>
+              {loading || isLoading ? (
+                <div className="photo_container">
+                  <div className="photos_grid">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                      <div key={n} className="photo_card">
+                        <div className="skeleton-photo-card"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               ) : (
                 <div className="photo_container">
                   {photos.length === 0 ? (
                     <p style={{ textAlign: "center" }}>No photos found.</p>
                   ) : (
                     <div className="photos_grid">
-                      {photos.slice(0, 10).map((photoItem, index) => (
-                        <div key={index} className="photo_card">
-                          <img
-                            src={
-                              is_first ? photoItem.photo : photoItem.file_data
-                            }
-                            alt={photoItem.photo_name}
-                            className="photo_image"
-                          />
-                          {is_first ? (
-                            photoItem.photo_name && (
-                              <div className="photo_name">
-                                {photoItem.photo_name}
-                              </div>
-                            )
-                          ) : (
+                    {photos.slice(0, 10).map((photoItem, index) => (
+                      <div key={index} className="photo_card">
+                        <img
+                          style={{ cursor: "pointer" }}
+                          onClick={() => {
+                            const imageSrc = is_first
+                              ? photoItem.photo
+                              : photoItem.file_data;
+                            setFullViewImage(imageSrc);
+                            console.log("This is full view", fullViewImage);
+                          }}
+                          src={
+                            is_first ? photoItem.photo : photoItem.file_data
+                          }
+                          alt={photoItem.photo_name}
+                          className="photo_image"
+                        />
+                        {is_first ? (
+                          photoItem.photo_name && (
                             <div className="photo_name">
-                              {photoItem.file_name}
+                              {photoItem.photo_name}
                             </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                          )
+                        ) : (
+                          <div className="photo_name">
+                            {photoItem.file_name}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                   )}
                 </div>
               )}
@@ -731,12 +697,7 @@ const OwnerDetails = () => {
                     <strong>Details:</strong>
                     <p>{item.description || "Not Available"}</p>
                   </div>
-                  {/* <button
-                    className="book-service-button"
-                    onClick={() => handleItemClick(item, "services")}
-                  >
-                    Book Service
-                  </button> */}
+
                 </li>
               ))}
             </div>
@@ -854,6 +815,55 @@ const OwnerDetails = () => {
           selectedOwner={selectedOwner}
           selectedData={selectedData}
         />
+      )}
+
+      {/* Loading Animation */}
+      {isLoading && (
+        <div className="loading-container">
+          <div className="skeleton-loader"></div>
+        </div>
+      )}
+
+      {/* OR for the dots loader: */}
+      {isLoading && (
+        <div className="loading-container">
+          <div className="loading-dots">
+            <div className="dot"></div>
+            <div className="dot"></div>
+            <div className="dot"></div>
+          </div>
+        </div>
+      )}
+
+
+
+{fullViewImage && (
+        <div className="full_view_image_container">
+          <img
+            src={fullViewImage}
+            className="full_view_image"
+            alt="Full view"
+          />
+          <div className="button_container">
+            <button className="download_button" onClick={handleDownload}>
+              <FaCloudDownloadAlt
+                className="close_logo"
+                style={{ fontSize: "18px" }}
+              />
+              Download
+            </button>
+            <button
+              className="close_button"
+              onClick={() => setFullViewImage("")}
+            >
+              <IoCloseSharp
+                className="download_logo"
+                style={{ fontSize: "18px" }}
+              />
+              close
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
