@@ -1,22 +1,37 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./TableToggleButton.css";
-import { Outlet, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Server_url } from "../../../../../redux/AllData";
 import { useCount } from "../../../../../redux/CountContext";
 
-const TableToggleButtons = ({ selectedTable, setSelectedTable }) => {
+
+import InvoicePage2 from "./../invoicePage2.js";
+import DraftInvoices from "./DraftInvoices.js";
+import InvoiceForm from "./../Invoic";
+
+
+const TableToggleButtons = () => {
+
+  const [selectedTable, setSelectedTable] = useState("firstTable");
   const user = useSelector((state) => state.user);
   const { count, setCount } = useCount();
-  const navigate = useNavigate();
+
   const dropdownRef = useRef(null); // Reference for dropdown
 
-  const handleTableToggle = (tableName, label, path) => {
+  const handleTableToggle = (tableName, label) => {
     setSelectedTable(tableName);
     setSelectedItem(label);
-    navigate(path);
+  
     setIsDropdownOpen(false);
   };
+  const [test, setTest] = useState(0);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setTest(5);
+    }, 1000);
+  }, []);
+
 
 
 
@@ -35,15 +50,7 @@ const TableToggleButtons = ({ selectedTable, setSelectedTable }) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (selectedTable === "firstTable") {
-      navigate("/Owner/Invoice");
-    } else if (selectedTable === "secondTable") {
-      navigate("/Owner/Invoice/generator");
-    } else if (selectedTable === "draftTable") {
-      navigate("/Owner/Invoice/draft");
-    }
-  }, [selectedTable, navigate]);
+
 
   useEffect(() => {
     const fetchInvoicesWithDraft = async (user_email, setCount) => {
@@ -106,15 +113,15 @@ const TableToggleButtons = ({ selectedTable, setSelectedTable }) => {
           ></div>
 
           {/* Buttons */}
-          <button onClick={() => handleTableToggle("firstTable", "Invoice List", "/Owner/Invoice")}>
-            <span>Invoice List</span>
+          <button onClick={() => handleTableToggle("firstTable", "Invoice List")}>
+            <span>Invoice List {test}</span>
           </button>
 
-          <button onClick={() => handleTableToggle("secondTable", "Invoice Generator", "/Owner/Invoice/generator")}>
+          <button onClick={() => handleTableToggle("secondTable", "Invoice Generator")}>
             <span>Invoice Generator</span>
           </button>
 
-          <button onClick={() => handleTableToggle("draftTable", "Draft Invoices", "/Owner/Invoice/draft")}>
+          <button onClick={() => handleTableToggle("draftTable", "Draft Invoices")}>
             <div
               className="draft_count"
               style={{
@@ -159,7 +166,15 @@ const TableToggleButtons = ({ selectedTable, setSelectedTable }) => {
         )}
       </div>
 
-      <Outlet />
+      <div className="table_con">
+        {selectedTable === "firstTable" && <InvoiceForm />}
+        {selectedTable === "secondTable" && <InvoicePage2 />}
+        {selectedTable === "draftTable" && <DraftInvoices />}
+      </div>
+
+
+
+      {/* <Outlet /> */}
     </>
   );
 };

@@ -42,7 +42,7 @@ import socket from "./redux/socket.js";
 import OwnerSideBar from "./Components/Owener/Owner_side_bar.js";
 import OwnerHome from "./Components/Owener/sub_part/OwnerHome";
 import TeamOverview from "./Components/Owener/sub_part/TeamOverview";
-import InvoiceForm from "./Components/Owener/sub_part/Invoic_part/Invoic";
+
 
 // import Search_photographer from "./Components/Owener/sub_part/Search_photographer/Search_photographer.js";
 import Profile from "./Components/Owener/profile_part_2/Profile";
@@ -53,7 +53,7 @@ import OwnerDetails from "./Components/Owener/sub_part/Search_photographer/sub_p
 
 // https://trello.com/b/mpwGf27w/msu-project
 
-import burger_menu from "./Components/Owener/img/burger-menu.png";
+
 
 import EventManagement from "./Components/Owener/sub_part/Event Management/EventManagement.js";
 import Packages from "./Components/Owener/sub_part/Packages/Packages.js";
@@ -64,8 +64,6 @@ import {
 } from "./Components/Owener/before accept/before_accept.js";
 
 import TableToggleButtons from "./Components/Owener/sub_part/Invoic_part/Sub_component/TableToggleButtons.js";
-import InvoicePage2 from "./Components/Owener/sub_part/Invoic_part/invoicePage2.js";
-import DraftInvoices from "./Components/Owener/sub_part/Invoic_part/Sub_component/DraftInvoices.js";
 import { Toaster } from "react-hot-toast";
 
 import OwnerNavbar from "./Components/Owener/OwnerNavbar.js";
@@ -81,25 +79,18 @@ function App() {
   });
   const user = useSelector((state) => state.user);
 
+
   const [OwnerStatus, setOwnerStatus] = useState("");
-  const [selectedTable, setSelectedTable] = useState("firstTable");
+  
 
   const { owner_email } = useParams();
 
   const dispatch = useDispatch();
   const isMobile = useSelector((state) => state.user.isMobile);
-  const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
+  
   // const activeIndex = useSelector((state) => state.user.activeIndex);
 
 
-  const set_is_sidebar_open = (value) => {
-    dispatch({
-      type: "SET_USER_Owner",
-      payload: {
-        isSidebarOpen: value,
-      },
-    });
-  };
 
   // useEffect(() => {
   //   const handleResize = () => {
@@ -142,13 +133,6 @@ function App() {
       setActiveIndex(2);
     } else if (location === "/Owner/Invoice") {
       setActiveIndex(3);
-      setSelectedTable("firstTable");
-    } else if (location === "/Owner/Invoice/generator") {
-      setActiveIndex(3);
-      setSelectedTable("secondTable");
-    } else if (location === "/Owner/Invoice/draft") {
-      setActiveIndex(3);
-      setSelectedTable("draftTable");
     } else if (location === "/Owner/Packages") {
       setActiveIndex(4);
     } else if (location === "/Owner/search_photographer") {
@@ -177,26 +161,31 @@ function App() {
   };
 
   const SetOwnerPage = ({ ActivePage, category }) => {
+
+    const [searchTerm, setSearchTerm] = useState("");
+    const location = window.location.pathname;
     return OwnerStatus === "Accept" ? (
       <div
         className={`Owner_main_home_pag_con ${isMobile ? "for_mobile" : ""} 
           }`}
       >
         <div className="main_part">
-          {isMobile && (
-            <div
-              className="toggle_button_con"
-              id="toggle_button_con_home_page"
-              onClick={() => {
-                set_is_sidebar_open(!isSidebarOpen);
-              }}
-            >
-              <img src={burger_menu} alt="asa" />
-            </div>
-          )}
+       
+          <OwnerNavbar   
+          
+          searchTerm={ location === "/Owner/search_photographer" ?searchTerm : ''} 
+          
+          setSearchTerm={location === "/Owner/search_photographer" ? setSearchTerm : ''}  />
 
-          <OwnerNavbar />
-          <ActivePage category={category} />
+          
+
+          <ActivePage 
+          
+          category={category} 
+          
+          searchTerm={searchTerm} 
+          
+          setSearchTerm={setSearchTerm} />
         </div>
       </div>
     ) : (
@@ -441,25 +430,12 @@ function App() {
 
         {/* Owner routes Invoice */}
         <Route
-          path="Owner/Invoice"
+          path="/Owner/Invoice"
           element={
-            <TableToggleButtons
-              selectedTable={selectedTable}
-              setSelectedTable={setSelectedTable}
-              draftCount={5}
-            />
+            <SetOwnerPage ActivePage={TableToggleButtons} />
           }
-        >
-          <Route index element={<SetOwnerPage ActivePage={InvoiceForm} />} />
-          <Route
-            path="generator"
-            element={<SetOwnerPage ActivePage={InvoicePage2} />}
-          />
-          <Route
-            path="draft"
-            element={<SetOwnerPage ActivePage={DraftInvoices} />}
-          />
-        </Route>
+        />
+          
 
         {/* Owner routes Packages */}
         <Route

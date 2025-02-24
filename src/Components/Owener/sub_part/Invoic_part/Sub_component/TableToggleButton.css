@@ -2,10 +2,20 @@
   padding: 20px;
   justify-content: center;
   align-items: center;
-  background: var(--owner_home_page_bg);
+  
   display: flex;
   padding-left: var(--owner_side_bar_width);
-
+  position: absolute;
+  top: 80px;
+  right: 0;
+  z-index: 90;
+}
+.table_con{
+  position: relative;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  margin-top: 80px;
 }
 .button_con_wrap.for_mobile{
   padding-left: 0;
@@ -95,6 +105,9 @@
 }
 
 @media (max-width: 780px) {
+  .table_con{
+    margin-top: 90px;
+  }
   :root {
     --button-width: 140px;
   }
@@ -106,6 +119,9 @@
 }
 
 @media (max-width: 600px) {
+  .table_con{
+    margin-top: 100px;
+  }
   :root {
     --button-width: 130px;
   }
@@ -138,6 +154,7 @@
   width: 100%;
   text-align: center;
   margin-top: 10px;
+  z-index: 10;
 }
 
 /* Selected table button (Dropdown Toggle) */
@@ -157,12 +174,20 @@
   max-width: 250px;
   margin: 0 auto;
 }
-
+.seleted_table_button span{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-wrap: nowrap;
+ 
+}
 /* Add dropdown arrow */
 .seleted_table_button::after {
   content: "▼";
   font-size: 12px;
   margin-left: 10px;
+  padding-right: 20px;
 }
 
 /* Dropdown List */

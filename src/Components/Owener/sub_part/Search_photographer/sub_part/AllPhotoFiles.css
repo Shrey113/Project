@@ -49,6 +49,9 @@
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
+  position: sticky;
+  top: 70px;
+  background: white;
 }
 .all_photos_and_folder_container .folder_tabs .folder_tab {
   padding: 10px 15px;
@@ -86,6 +89,8 @@
   column-gap: 15px;
   width: 100%;
   padding: 10px 15px;
+  margin-top: 80px;
+  background: white;
 }
 .all_photos_and_folder_container .photo_container .photos_grid .photo_card {
   margin-bottom: 25px;

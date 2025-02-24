@@ -1,20 +1,25 @@
 #constant_navbar {
-  width: 98%;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 15px 10px;
-  border-bottom: 1px solid #7f7f7f;
+  /* border-bottom: 1px solid #7f7f7f; */
   align-self: center;
   position: sticky;
   top: 0;
-  left: 0;
-  z-index: 100;
+  z-index: 1000;
   background-color: white;
+  
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 }
 #constant_navbar .navbar_section_name {
   font-size: 24px;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
 }
 #constant_navbar .navebar_profile {
   display: flex;
@@ -65,4 +70,53 @@
 }
 #constant_navbar .profile_data .user_email {
   font-size: 14px;
+}
+
+
+#constant_navbar .toggle_button_con {
+  height: 40px;
+  width: 40px;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  &:hover{
+    background: var(--owner_home_page_hover_coloer);
+  }
+}
+
+#constant_navbar .toggle_button_con img {
+  height: 100%;
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  #constant_navbar {
+    padding: 10px 5px; 
+  }
+  #constant_navbar .navbar_section_name {
+    font-size: 20px; 
+  }
+  #constant_navbar .navebar_profile .search_bar {
+    width: 200px; 
+  }
+  #constant_navbar .profile img {
+    height: 40px; 
+    width: 40px; 
+  }
+  #constant_navbar .profile_data .user_name {
+    font-size: 16px; 
+  }
+  #constant_navbar .profile_data .user_email {
+    font-size: 12px; 
+  }
+  #constant_navbar .toggle_button_con {
+   height: 30px;
+   width: 30px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  #constant_navbar .profile .profile_data {
+    display: none;
+  }
 }

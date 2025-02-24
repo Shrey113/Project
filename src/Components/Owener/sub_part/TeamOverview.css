@@ -880,8 +880,8 @@
 }
 
 .status-indicator span {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
 }
 
@@ -931,7 +931,7 @@
 
 .profile-section h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 21px;
   font-weight: 600;
   color: #333;
 }
@@ -940,6 +940,7 @@
   color: #666;
   font-size: 14px;
   margin: 4px 0 0;
+  font-style: italic;
 }
 .divider{
   width: 90%;
@@ -1295,5 +1296,52 @@
   .detail-profile {
     flex-direction: column;
     text-align: center;
+  }
+}
+
+/* Responsive adjustments for Team Overview */
+@media (max-width: 1200px) {
+  .team-overview-container {
+    padding: 16px; /* Reduce padding on smaller screens */
+  }
+
+  .stats-cards {
+    grid-template-columns: 1fr; /* Stack cards on smaller screens */
+  }
+
+  .stat-card {
+    margin-bottom: 20px; /* Add space between stacked cards */
+  }
+
+  .members-grid {
+    grid-template-columns: repeat(2, 1fr); /* Two columns on medium screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .team-overview-container {
+    padding: 12px; /* Further reduce padding */
+  }
+
+  .members-grid {
+    grid-template-columns: 1fr; /* Single column on small screens */
+  }
+
+  .section-header h2 {
+    font-size: 18px; /* Adjust font size */
+  }
+
+  .add-member-btn {
+    font-size: 14px; /* Adjust button font size */
+  }
+}
+
+@media (max-width: 500px) {
+  .section-header h2 {
+    font-size: 16px; /* Further adjust font size */
+  }
+
+  .add-member-btn {
+    padding: 6px 12px; /* Adjust button padding */
   }
 }

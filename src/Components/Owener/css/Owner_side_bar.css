@@ -19,8 +19,8 @@
     left: 0;
     top: 0;
     transition: all var(--owner_home_page_sidebar_time) ease-in-out;
-    z-index: 100;
-
+    z-index: 1000;
+    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
     /* display: none; */
  
   }
@@ -49,23 +49,6 @@
     width: 100%;
   }
 
-  #OwnerSideBar .toggle_button_con {
-    margin-top: 10px;
-    height: 40px;
-    width: 40px;
-    padding: 5px;
-    border-radius: 5px;
-
-    cursor: pointer;
-    &:hover{
-      background: var(--owner_home_page_hover_coloer);
-    }
-  }
-  
-  #OwnerSideBar .toggle_button_con img {
-    height: 100%;
-    width: 100%;
-  }
   
   #OwnerSideBar .side_bar_title {
     font-size: 20px;

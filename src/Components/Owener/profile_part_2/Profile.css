@@ -18,6 +18,8 @@
     height: fit-content;
     border-radius: var(--owner_profile_border-radius);
     box-shadow: var(--owner_profile_box_shadow);
+    position: sticky;
+    top: 100px;
   }
   
   .profile-container-after-accept .sidebar-item {

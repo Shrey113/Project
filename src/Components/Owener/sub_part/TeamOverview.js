@@ -499,6 +499,7 @@ const MemberCard = ({ member, onEdit, onRemove }) => {
 const TeamOverview = () => {
   const user = useSelector((state) => state.user);
   const [teamData, setTeamData] = useState([]);
+  
   const fetchTeamMembers = async () => {
     try {
       // Fetch assigned members
@@ -512,21 +513,25 @@ const TeamOverview = () => {
         }),
       });
       
-      const statusData = await statusResponse.json(); // Expecting an array of objects
+      const statusData = await statusResponse.json();
       console.log("Fetched Status Data:", statusData);
   
       // Extract assigned members and their event details
       let assignedMembersMap = new Map();
       
-      statusData.forEach(({ assigned_team_member, event_request_type, event_detail }) => {
-        if (Array.isArray(assigned_team_member)) {
-          assigned_team_member.forEach(member => {
-            assignedMembersMap.set(member, { event_request_type, event_detail });
-          });
-        }
-      });
+      // Check if statusData has the expected structure
+      if (statusData && Array.isArray(statusData.assigned_team_member) && Array.isArray(statusData.event_details)) {
+        statusData.assigned_team_member.forEach((member, index) => {
+          if (member) {
+            assignedMembersMap.set(member, {
+              event_request_type: statusData.event_details[index]?.event_request_type || 'Unknown',
+              event_detail: statusData.event_details[index]?.event_detail || 'Unknown'
+            });
+          }
+        });
+      }
   
-      // Fetch all team members
+      // Rest of the fetch logic remains the same
       const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
         method: "POST",
         headers: {
@@ -546,7 +551,7 @@ const TeamOverview = () => {
         
         return {
           ...member,
-         member_status: assignment ? "Available" : "Active",
+          member_status: assignment ? "Available" : "Active",
           member_event_assignment: assignment 
             ? `${assignment.event_request_type} - ${assignment.event_detail}`
             : "Not Assigned",
@@ -575,21 +580,25 @@ const TeamOverview = () => {
           }),
         });
         
-        const statusData = await statusResponse.json(); // Expecting an array of objects
+        const statusData = await statusResponse.json();
         console.log("Fetched Status Data:", statusData);
     
         // Extract assigned members and their event details
         let assignedMembersMap = new Map();
         
-        statusData.forEach(({ assigned_team_member, event_request_type, event_detail }) => {
-          if (Array.isArray(assigned_team_member)) {
-            assigned_team_member.forEach(member => {
-              assignedMembersMap.set(member, { event_request_type, event_detail });
-            });
-          }
-        });
+        // Check if statusData has the expected structure
+        if (statusData && Array.isArray(statusData.assigned_team_member) && Array.isArray(statusData.event_details)) {
+          statusData.assigned_team_member.forEach((member, index) => {
+            if (member) {
+              assignedMembersMap.set(member, {
+                event_request_type: statusData.event_details[index]?.event_request_type || 'Unknown',
+                event_detail: statusData.event_details[index]?.event_detail || 'Unknown'
+              });
+            }
+          });
+        }
     
-        // Fetch all team members
+        // Rest of the fetch logic remains the same
         const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
           method: "POST",
           headers: {
@@ -623,8 +632,6 @@ const TeamOverview = () => {
         console.error("Error fetching team members:", error);
       }
     };
-    
-
     fetchTeamMembers();
   }, [user.user_email]);
 

@@ -65,7 +65,6 @@ const locations = [
   // // Major Cities in Gujarat
   // { name: 'Ahmedabad', value: 'ahmedabad', image: ahmedabad },
   // { name: 'Surat', value: 'surat', image: surat },
-  // { name: 'Vadodara', value: 'vadodara', image: vadodara },
   // { name: 'Rajkot', value: 'rajkot', image: rajkot },
   // { name: 'Bhavnagar', value: 'bhavnagar', image: bhavnagar },
   // { name: 'Jamnagar', value: 'jamnagar', image: jamnagar },
@@ -87,13 +86,12 @@ const locations = [
 
 
 
-function Search_photographer() {
+function Search_photographer({searchTerm,setSearchTerm}) {
   const user = useSelector((state) => state.user);
   const user_email = user.user_email;
   const [all_owner_data, set_all_owner_Data] = useState();
   // const [loading, setLoading] = useState(false);
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState({
     owners: [],
     packages: [],
@@ -155,15 +153,14 @@ function Search_photographer() {
         );
         const data = await response.json();
         
-        // Extract city, town, village, or fallback to Vadodara
         const cityName = data.address?.city || data.address?.town || data.address?.village || "Vadodara";
-        
+        console.log("City Name get from location:", cityName);
         setLocationData(cityName);
         setIsLocationLoading(false);
+
       } catch (error) {
         console.error("Error fetching city:", error);
         
-        // Set default city in case of an error
         setLocationData("Vadodara");
         setIsLocationLoading(false);
       }
@@ -282,19 +279,6 @@ function Search_photographer() {
 
   return (
     <div className="owner-search-main-container">
-      {/* Navbar */}
-      <nav className="photographer-navbar">
-        {/* Search Bar */}
-        <div className="search-container-nav">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </nav>
 
       {/* Location Scroll List */}
       <div className="locations-scroll-container">
@@ -318,6 +302,7 @@ function Search_photographer() {
                   <BiLoaderAlt className="loading-spinner" />
                 ) : (
                   <TbLocationCancel />
+                  // <>ssss</>
                 )}
               </div>
               <div className="location-details">
@@ -335,7 +320,7 @@ function Search_photographer() {
                 ? 'selected' 
                 : ''
               }`}
-              onClick={() => handleLocationSelect(locationData.address?.city || locationData.address?.state_district || locationData.address?.state)}
+              onClick={() => handleLocationSelect(locationData.address?.city || locationData.address?.state_district || locationData.address?.state || 'Vadodara')}
             >
               <div className="location-image-wrapper current-location-wrapper">
                 <TfiLocationPin />
@@ -351,9 +336,9 @@ function Search_photographer() {
           )}
 
           {/* Show only visible locations */}
-          {visibleLocations.map((location) => (
+          {visibleLocations.map((location,index) => (
             <div
-              key={location.value}
+              key={index}
               className={`location-circle ${selectedLocation === location.value ? 'selected' : ''}`}
               onClick={() => handleLocationSelect(location.value)}
               style={{

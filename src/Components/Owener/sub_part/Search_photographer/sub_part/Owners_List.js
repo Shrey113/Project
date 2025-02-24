@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // import "./Owners_List.css";
 import "./Owners_List_2.css";
 import user1 from "./../../../sub_part/profile_pic/user1.jpg";
@@ -29,10 +29,30 @@ const SkeletonCard = () => (
 
 
 const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
+  const [localLoading, setLocalLoading] = useState(true);
   const [selectedOwner, setSelectedOwner] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Add useEffect to handle loading state
+  useEffect(() => {
+    if (owners || filteredUsers) {
+      // Add a small delay to ensure smooth transition
+      const timer = setTimeout(() => {
+        setLocalLoading(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [owners, filteredUsers]);
+
+  const set_is_full_screen = (value) => {
+    dispatch({
+      type: "SET_USER_Owner",
+      payload: {
+        is_full_screen: value,
+      },
+    });
+  };
 
 
 
@@ -91,7 +111,7 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || localLoading) {
     return (
       <div className="owner-list-container">
         {[1, 2, 3, 4, 5, 6].map((index) => (

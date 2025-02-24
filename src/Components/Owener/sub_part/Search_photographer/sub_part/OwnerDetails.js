@@ -810,41 +810,28 @@ const OwnerDetails = () => {
 
 
 
-      {fullViewImage && (
-        <div className="full_view_image_container"
+{fullViewImage && (
+  <div
+    className="full_view_image_container" onClick={() => setFullViewImage("")} >
+    <div className="full_view_image_wrapper" onClick={(e) => e.stopPropagation()} >
+      <img src={fullViewImage} className="full_view_image" alt="Full view" />
+      <div className="button_container">
 
-          onClick={(e) => {
-            if (e.target.classList.contains("full_view_image_container")) {
-              setFullViewImage("");
-            }
-          }}>
-          <img
-            src={fullViewImage}
-            className="full_view_image"
-            alt="Full view"
-            style={{ pointerEvents: "none" }}
-          />
-          <div className="button_container">
-            <button className="download_button" onClick={handleDownload}>
-              <FaCloudDownloadAlt
-                className="close_logo"
-                style={{ fontSize: "18px" }}
-              />
-              Download
-            </button>
-            <button
-              className="close_button"
-              onClick={() => setFullViewImage("")}
-            >
-              <IoCloseSharp
-                className="download_logo"
-                style={{ fontSize: "18px" }}
-              />
-              close
-            </button>
-          </div>
-        </div>
-      )}
+        <button className="download_button" onClick={(e) => { e.stopPropagation(); handleDownload(); }} >
+          <FaCloudDownloadAlt className="close_logo" style={{ fontSize: "18px" }} />
+          Download
+        </button>
+
+        <button className="close_button" onClick={() => setFullViewImage("")} >
+          <IoCloseSharp className="download_logo" style={{ fontSize: "18px" }} />
+          Close
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
