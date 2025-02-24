@@ -416,7 +416,17 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  /* background: rebeccapurple; */
+}
+.owner-packages-container
+  .package-form-modal
+  .package-form
+  .form_lables_input
+  .two_input_field label  input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
 }
 .owner-packages-container
   .package-form-modal
@@ -459,7 +469,6 @@
   font-size: 12px;
   font-weight: 500;
   color: #707070;
-  /* background: rebeccapurple; */
   width: 100%;
   text-align: center;
   padding: 5px;

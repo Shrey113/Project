@@ -9,12 +9,12 @@ import { FaEnvelope, FaMapMarkerAlt, FaSearch } from "react-icons/fa";
 import { MdCamera } from "react-icons/md";
 
 const SkeletonCard = () => (
-  <div  className="owner-card skeleton">
-    <div  className="image_container skeleton-image">
-      <div  className="skeleton-animation"></div>
+  <div className="owner-card skeleton">
+    <div className="image_container skeleton-image">
+      <div className="skeleton-animation"></div>
 
     </div>
-    <div  className="owner-info">
+    <div className="owner-info">
       <div className="skeleton-text skeleton-animation"></div>
       <div className="skeleton-text skeleton-animation"></div>
       <div className="skeleton-text skeleton-animation"></div>
@@ -33,23 +33,8 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const set_is_full_screen = (value) => {
-    dispatch({
-      type: "SET_USER_Owner",
-      payload: {
-        is_full_screen: value,
-      },
-    });
-  };
 
-  const set_owner_full_screen = (value) => {
-    dispatch({
-      type: "SET_USER_Owner",
-      payload: {
-        isOwnerFullScreen: value,
-      },
-    });
-  };
+
 
   const handleExplore = async (owner) => {
     if (selectedOwner === owner) {
@@ -76,8 +61,6 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
         navigate(`/Owner/search_photographer/${owner.user_email}`, {
           state: { ownerData: data, selectedOwner: owner },
         });
-        set_is_full_screen(false);
-        set_owner_full_screen(true);
       } else {
         console.error("Data format is not as expected:", data);
       }
@@ -90,20 +73,20 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
     if (!selectedLocation || selectedLocation === 'all') {
       return ownersArray;
     }
-    
+
     return ownersArray.filter(owner => {
       const businessAddress = (owner?.business_address || "").toLowerCase();
       const location = selectedLocation?.toLowerCase();
-      
+
       // Handle special case for Delhi NCR
       if (location === 'delhi-ncr') {
-        return businessAddress.includes('delhi') || 
-               businessAddress.includes('ncr') || 
-               businessAddress.includes('gurgaon') || 
-               businessAddress.includes('noida') ||
-               businessAddress.includes('ghaziabad');
+        return businessAddress.includes('delhi') ||
+          businessAddress.includes('ncr') ||
+          businessAddress.includes('gurgaon') ||
+          businessAddress.includes('noida') ||
+          businessAddress.includes('ghaziabad');
       }
-      
+
       return businessAddress.includes(location);
     });
   };
@@ -111,7 +94,7 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
   if (isLoading) {
     return (
       <div className="owner-list-container">
-        {[1, 2, 3, 4 ,5 ,6].map((index) => (
+        {[1, 2, 3, 4, 5, 6].map((index) => (
           <SkeletonCard key={index} />
         ))}
       </div>
@@ -120,7 +103,7 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
 
   if (filteredUsers && filteredUsers.owners && filteredUsers.owners.length > 0) {
     const filteredByLocation = filterOwnersByLocation(filteredUsers.owners);
-    
+
     if (filteredByLocation.length === 0) {
       return (
         <div className="no-photographers">
@@ -158,7 +141,7 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
               <p className="location">
                 <span >
                   <FaMapMarkerAlt className="icon" />
-                {owner.business_address || "Not Available"}
+                  {owner.business_address || "Not Available"}
                 </span>
               </p>
             </div>
@@ -187,7 +170,7 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
   }
 
   const filteredByLocation = filterOwnersByLocation(owners);
-  
+
   if (filteredByLocation.length === 0) {
     return (
       <div className="no-photographers">
@@ -224,7 +207,7 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
             <p className="email"> <FaEnvelope className="icon" />{owner.user_email}</p>
             <p className="location">
               <span>
-                <FaMapMarkerAlt className="icon" /> 
+                <FaMapMarkerAlt className="icon" />
               </span>{" "}
               {owner.business_address || "Not Available"}
             </p>

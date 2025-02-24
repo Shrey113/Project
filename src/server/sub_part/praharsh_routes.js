@@ -40,6 +40,26 @@ const bodyParser = require("body-parser");
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
+router.post("/fetch_services_for_preview", (req, res) => {
+  const { user_email } = req.body;
+  if (!user_email) {
+    return res.status(400).json({ error: "user_email is required" });
+  }
+  const query = "select * from owner_services where user_email=?"
+
+  db.query(query, [user_email], (err, results) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    if (results.length > 0) {
+      return res.status(200).json({ success: true, services: results });
+    } else {
+      return res.status(200).json({ success: false, message: "No services found" });
+    }
+  })
+})
+
 router.post("/fetch_package_count", (req, res) => {
   const { owner_email } = req.body;
 
@@ -224,7 +244,7 @@ router.post("/get_equpment_by_time", (req, res) => {
   const query = "SELECT equipment_id,start_date,end_date FROM event_request WHERE equipment_id = ?";
 
   db.query(query, [equipment_id], (err, results) => {
-    if (err) {  
+    if (err) {
       console.error("Error fetching equipment:", err);
       return res.status(500).send("Server error");
     }
@@ -286,7 +306,7 @@ router.post("/api/owner-all-details", (req, res) => {
       SELECT * FROM photo_files
       WHERE user_email = ? LIMIT 15
     `;
-    
+
   const ServiceQuery = `
       SELECT * FROM owner_services
       WHERE user_email = ? LIMIT 10

@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import "./EventManagement.css";
 import axios from "axios";
-
-import accept from "./sub_img/correct.png";
-import reject from "./sub_img/remove.png";
-import info from "./sub_img/letter-i.png";
+import { useLocation } from "react-router-dom";
+// import accept from "./sub_img/correct.png";
+// import reject from "./sub_img/remove.png";
+// import info from "./sub_img/letter-i.png";
 import { Server_url } from "../../../../redux/AllData";
 import { useSelector } from "react-redux";
 import RequestDetailPopup from "./RequestDetailPopup";
 import AddDetailsPop from "./AddDetailsPop";
 import socket from "../../../../redux/socket";
+import { IoCloseOutline } from "react-icons/io5";
+import { IoInformation } from "react-icons/io5";
 import { HiOutlineChevronUpDown } from "react-icons/hi2";
 // import { add } from "date-fns";
 function EventManagement({ category }) {
@@ -35,6 +37,11 @@ function EventManagement({ category }) {
   const [selected_sent_item, set_selected_sent_item] = useState(null);
 
   const [show_calender_popup, set_show_calender_popup] = useState(false);
+
+  const [count_for_package,set_count_for_package] = useState(0);
+  const [count_for_equipment,set_count_for_equipment] = useState(0);
+
+  const location = useLocation();
   // for calender
   const [newEvent, setNewEvent] = useState({
     id: events.length,
@@ -225,26 +232,45 @@ function EventManagement({ category }) {
     );
   };
 
+  useEffect(()=>{
+    const equipment_count = receiver_equipment_data.length;
+    const package_count = receiver_package_data.length;
+    set_count_for_package(package_count);
+    set_count_for_equipment(equipment_count);
+  },[receiver_equipment_data,receiver_package_data])
+
   return (
     <div id="owner-main-container-EventManagement">
+      
+      {/* received request count  */}
+      <div className="requests_count">
+        <div className="received_request_total_count">
+          <div className="heading_for_total_requests">Total Received Request</div>
+          <div className="numbers_of_total_request">{count_for_package+count_for_equipment}</div>
+        </div>
+        <div className="received_request_count">
+          <div className="total_packages">{location.pathname === "/Owner/Event/packages" ? "Package Requests": "Equipment Request"}</div>
+          <div className="numbers_of_package_request">{location.pathname === "/Owner/Event/packages" ? count_for_package: count_for_equipment}</div>
+        </div>
+      </div>
+      
       {/* Toggle Button */}
-
       <div className="heading_container_event_management">
         <div className="event_mangement_heading">{category}</div>
         <div className="toggle_button_con_event_management">
           <div
             className="active_button"
             style={{
-              left: sent_request ? "180px" : "0px",
+              left: sent_request ? "110px" : "0px",
             }}
           ></div>
 
           <button onClick={() => set_sent_request(false)}>
-            <span>Received Requests</span>
+            <span>Received </span>
           </button>
 
           <button onClick={() => set_sent_request(true)}>
-            <span>Sent Requests</span>
+            <span>Sent</span>
           </button>
         </div>
       </div>
@@ -464,7 +490,7 @@ function EventManagement({ category }) {
                         <th>{add_filter("Equipment Name")}</th>
                         <th>{add_filter("Company")}</th>
                         <th>{add_filter("Type")}</th>
-                        <th>{add_filter("Days Required")}</th>
+                        <th>{add_filter("Days")}</th>
                         <th>{add_filter("Receiver")}</th>
                         <th>{add_filter("Status")}</th>
                       </tr>
@@ -551,13 +577,13 @@ function EventManagement({ category }) {
                                       set_data(item);
                                     }}
                                   >
-                                    <img src={accept} alt="Accept" />
+                                    Approve
                                   </button>
                                   <button
                                     className="reject-btn"
                                     onClick={() => handleRejectClick(item)}
                                   >
-                                    <img src={reject} alt="Reject" />
+                                    <IoCloseOutline style={{height: "20px", width: "20px"}}/>
                                   </button>
                                 </>
                               )}
@@ -565,7 +591,7 @@ function EventManagement({ category }) {
                                 className="info-btn"
                                 onClick={() => handleInfoClick(item)}
                               >
-                                <img src={info} alt="Info" />
+                                <IoInformation style={{height: "20px", width: "20px"}} />
                               </button>
                             </td>
                           </tr>
@@ -586,7 +612,7 @@ function EventManagement({ category }) {
                         <th>{add_filter("Sender Email")}</th>
                         <th>{add_filter("Equipment Name")}</th>
                         <th>{add_filter("Company")}</th>
-                        <th>{add_filter("Days Required")}</th>
+                        <th>{add_filter("Days")}</th>
                         <th>{add_filter("Location")}</th>
                         <th>{add_filter("Status")}</th>
                         <th>{add_filter("Action")}</th>
@@ -622,13 +648,13 @@ function EventManagement({ category }) {
                                       set_data(item);
                                     }}
                                   >
-                                    <img src={accept} alt="Accept" />
+                                    Approve
                                   </button>
                                   <button
                                     className="reject-btn"
                                     onClick={() => handleRejectClick(item)}
                                   >
-                                    <img src={reject} alt="Reject" />
+                                    <IoCloseOutline style={{height: "20px", width: "20px"}}/>
                                   </button>
                                 </>
                               )}
@@ -636,7 +662,7 @@ function EventManagement({ category }) {
                                 className="info-btn"
                                 onClick={() => handleInfoClick(item)}
                               >
-                                <img src={info} alt="Info" />
+                                <IoInformation style={{height: "20px", width: "20px"}} />
                               </button>
                             </td>
                           </tr>

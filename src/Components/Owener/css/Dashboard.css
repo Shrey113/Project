@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Raleway:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 *::-webkit-scrollbar{
     width: 5px;
     background: transparent;
@@ -23,6 +23,9 @@
   --color_3_owner:#b2bfba;
   --color_4_owner:#b7795f;
   --color_5_owner:#262626;
+
+  --border_radius_button : 10px;
+
 
   /* --color_1_owner: #ffffff; 
   --color_2_owner: #f8f9fa; 
@@ -51,7 +54,19 @@
   --color_4_owner: #9ca3af;    
   --color_5_owner: #4b5563;     */
 
-  --Heading :"Raleway", serif;
+  --Heading :"Poppins", serif;
+  --Heading_weight:600;
+
+  --sub_heading :"Poppins", serif;
+  --sub_heading_weight:500;
+
+  --body_data :"Poppins", serif;
+  --body_data_weight:400;
+
+  --body_button :"Poppins", serif;
+  --body_button_weight:500;
+
+  /* --Heading :"Raleway", serif;
   --Heading_weight:600;
 
   --sub_heading :"Raleway", serif;
@@ -61,7 +76,8 @@
   --body_data_weight:400;
 
   --body_button :"Lato", serif;
-  --body_button_weight:500;
+  --body_button_weight:500; */
+
 
   /* Modern Professional Style */
   /* --Heading: "Poppins", system-ui, sans-serif;

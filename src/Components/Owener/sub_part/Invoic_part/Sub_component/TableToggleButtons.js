@@ -100,8 +100,8 @@ const TableToggleButtons = ({ selectedTable, setSelectedTable }) => {
                 selectedTable === "firstTable"
                   ? "0px"
                   : selectedTable === "secondTable"
-                  ? "180px"
-                  : "360px",
+                    ? "180px"
+                    : "360px",
             }}
           ></div>
 

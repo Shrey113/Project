@@ -1,4 +1,9 @@
-import {BrowserRouter as Router,Route,Routes,useParams,} from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useParams,
+} from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import LoginRegisterOwener from "./Components/Owener/Login_Register.js";
 import LoginRegisterClient from "./Components/Client/login_register.js";
@@ -86,9 +91,6 @@ function App() {
   const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
   // const activeIndex = useSelector((state) => state.user.activeIndex);
 
-  const isOwnerFullScreen = useSelector(
-    (state) => state.user.isOwnerFullScreen
-  );
 
   const set_is_sidebar_open = (value) => {
     dispatch({
@@ -129,14 +131,7 @@ function App() {
       });
     };
 
-    const set_is_full_screen = (value) => {
-      dispatch({
-        type: "SET_USER_Owner",
-        payload: {
-          is_full_screen: value,
-        },
-      });
-    };
+
 
     const location = window.location.pathname;
     if (location === "/Owner") {
@@ -159,16 +154,13 @@ function App() {
     } else if (location === "/Owner/search_photographer") {
       setActiveIndex(5);
     } else if (location === "/Owner/Event/packages") {
-      setActiveIndex(6);
+      setActiveIndex(1.1);
     } else if (location === "/Owner/Event/equipment") {
-      setActiveIndex(7);
+      setActiveIndex(1.2);
     } else if (location === "/Owner/Profile") {
       setActiveIndex(8);
     }
 
-    if (location.startsWith("/Owner/search_photographer/") && owner_email) {
-      set_is_full_screen(true);
-    }
   }, [dispatch, owner_email]);
 
   const renderStatus = () => {
@@ -187,9 +179,8 @@ function App() {
   const SetOwnerPage = ({ ActivePage, category }) => {
     return OwnerStatus === "Accept" ? (
       <div
-        className={`Owner_main_home_pag_con ${isMobile ? "for_mobile" : ""} ${
-          isOwnerFullScreen ? "for_full_screen" : ""
-        }`}
+        className={`Owner_main_home_pag_con ${isMobile ? "for_mobile" : ""} 
+          }`}
       >
         <div className="main_part">
           {isMobile && (
@@ -534,7 +525,7 @@ function App() {
         {/* 404 Page */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
-      {authStatus.owner && user.is_full_screen && OwnerStatus === "Accept" && (
+      {authStatus.owner && OwnerStatus === "Accept" && (
         <OwnerSideBar />
       )}
 

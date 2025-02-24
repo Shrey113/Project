@@ -18,7 +18,7 @@ const initialState = {
   website: '',
   services: '',
   business_email: '',
-  
+
   user_profile_image_base64: '',
   business_profile_base64: '',
 
@@ -26,8 +26,6 @@ const initialState = {
   isMobile: window.innerWidth <= 1200,
   isSidebarOpen: window.innerWidth > 1200,
   activeIndex: 0,
-  is_full_screen: true,
-  isOwnerFullScreen: false,
 };
 
 const user_data = (state = initialState, action) => {

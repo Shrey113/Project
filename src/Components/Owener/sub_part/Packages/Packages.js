@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
-import "./Packages.css";
+
 import default_image from "./Images/default_image.png";
 import "./sub_parts/DefaultPage.css";
 import "./Packages_responsive.css";
+// import "./Packages.css";
+import "./packages_2.css";
 import { useSelector } from "react-redux";
 import MobilePackageView from "./MobilePackageView";
-import {Server_url, showAcceptToast, showRejectToast, showWarningToast } from "./../../../../redux/AllData";
+import { Server_url, showAcceptToast, showRejectToast, showWarningToast } from "./../../../../redux/AllData";
 import { IoClose, IoAdd } from "react-icons/io5";
+import { FiEdit } from "react-icons/fi";
+import { MdDeleteOutline } from "react-icons/md";
+import { RiEditLine } from "react-icons/ri";
 
 
 const Packages = () => {
-
- 
-
   const user = useSelector((state) => state.user);
   const [formVisible, setFormVisible] = useState(false);
   const [packages, setPackages] = useState([]);
@@ -26,11 +28,12 @@ const Packages = () => {
   });
 
 
-
+  const [isEditable, setIsEditable] = useState(false);
   const [mobile_view, setMobile_view] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
 
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [selectedPackageName, setSelectedPackageName] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -80,7 +83,7 @@ const Packages = () => {
       setIsLoading(true);
       try {
         const response = await fetch(`${Server_url}/api/fetch_packages`, {
-          method: "POST", 
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
@@ -162,36 +165,17 @@ const Packages = () => {
         });
         setPackages([...packages, data.results]);
         setFormVisible(false);
-        showAcceptToast({message: data.message || "Package added successfully!"})
+        showAcceptToast({ message: data.message || "Package added successfully!" })
         console.log(data.results);
       } else {
         const errorData = await response.json();
         console.error("Error adding package:", errorData);
-        showRejectToast({message: errorData.error || "Failed to add package"})
+        showRejectToast({ message: errorData.error || "Failed to add package" })
       }
     } catch (err) {
       console.error("Error connecting to the server:", err);
-      showRejectToast({message: "Failed to add package"})
+      showRejectToast({ message: "Failed to add package" })
     }
-  };
-
-  const lightenColor = (color, percent) => {
-    const num = parseInt(color.replace("#", ""), 16),
-      amt = Math.round(2.55 * percent),
-      R = (num >> 16) + amt,
-      G = ((num >> 8) & 0x00ff) + amt,
-      B = (num & 0x0000ff) + amt;
-    return (
-      "#" +
-      (
-        0x1000000 +
-        (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-        (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-        (B < 255 ? (B < 1 ? 0 : B) : 255)
-      )
-        .toString(16)
-        .slice(1)
-    );
   };
 
   const handleEditChange = (index, field, value) => {
@@ -209,7 +193,7 @@ const Packages = () => {
     if (selectedPackage.isEditing) {
       // Validate package name
       if (!selectedPackage.package_name.trim()) {
-        showWarningToast({message: "Package name cannot be empty"})
+        showWarningToast({ message: "Package name cannot be empty" })
         return;
       }
 
@@ -218,7 +202,7 @@ const Packages = () => {
         !Array.isArray(selectedPackage.service) ||
         selectedPackage.service.some((s) => !s.trim())
       ) {
-        showWarningToast({message: "Server input cannot be empty"})
+        showWarningToast({ message: "Server input cannot be empty" })
         return;
       }
 
@@ -254,14 +238,14 @@ const Packages = () => {
               i === index ? { ...pkg, isEditing: false } : pkg
             )
           );
-          showAcceptToast({message: data.message || "Package updated successfully! 2"})
+          showAcceptToast({ message: data.message || "Package updated successfully! 2" })
         } else {
           const errorData = await response.json();
-          showRejectToast({message: errorData.error || "Failed to update package"})
+          showRejectToast({ message: errorData.error || "Failed to update package" })
         }
       } catch (err) {
         console.error("Error connecting to the server:", err);
-        showRejectToast({message: "Failed to update package"})
+        showRejectToast({ message: "Failed to update package" })
       }
     } else {
       // Entering edit mode
@@ -301,7 +285,7 @@ const Packages = () => {
   const handleMobilePackageUpdate = async (updatedPackage) => {
     // Validate package name
     if (!updatedPackage.package_name.trim()) {
-      showWarningToast({message: "Package name cannot be empty"})
+      showWarningToast({ message: "Package name cannot be empty" })
       return false;
     }
 
@@ -337,24 +321,25 @@ const Packages = () => {
               : pkg
           )
         );
-        showAcceptToast({message: data.message || "Package updated successfully!"})
+        showAcceptToast({ message: data.message || "Package updated successfully!" })
         return true;
       } else {
         const errorData = await response.json();
-        showRejectToast({message: errorData.error || "Failed to update package"})
+        showRejectToast({ message: errorData.error || "Failed to update package" })
         return false;
       }
     } catch (err) {
       console.error("Error connecting to the server:", err);
-      showRejectToast({message: "Failed to update package"})
+      showRejectToast({ message: "Failed to update package" })
       return false;
     }
   };
 
-  const handleDeleteClick = (packageId) => {
-    console.log(packageId);
+  const handleDeleteClick = (packageId, package_name) => {
     setSelectedPackage(packageId);
+    setSelectedPackageName(package_name);
     setShowConfirm(true);
+    setIsEditable(false);
   };
 
   const add_service = (packageIndex) => {
@@ -362,14 +347,14 @@ const Packages = () => {
       prevPackages.map((pkg, i) =>
         i === packageIndex
           ? {
-              ...pkg,
-              service: [...pkg.service, ""], // Add an empty service at the end
-            }
+            ...pkg,
+            service: [...pkg.service, ""],
+          }
           : pkg
       )
     );
   };
-  
+
 
   const delete_serveice_by_id = (packageIndex, serviceIndex) => {
     setPackages((prevPackages) =>
@@ -406,7 +391,7 @@ const Packages = () => {
         );
         setShowConfirm(false);
       } else {
-        showRejectToast({message: data.message});
+        showRejectToast({ message: data.message });
         console.error("Error deleting package:", data.message);
       }
     } catch (error) {
@@ -438,13 +423,31 @@ const Packages = () => {
     </div>
   );
 
+  const darkenColor = (color, percent) => {
+    let num = parseInt(color.slice(1), 16),
+      amt = Math.round(2.55 * percent), // Increase darkening effect
+      r = (num >> 16) - amt,
+      g = ((num >> 8) & 0x00ff) - amt,
+      b = (num & 0x0000ff) - amt;
+
+    return `rgb(${Math.max(r, 0)}, ${Math.max(g, 0)}, ${Math.max(b, 0)})`;
+  };
+
+  const cardColor = formData.card_color || "#6fa8dc";
+  const darkerTextColor = darkenColor(cardColor, 20);
+
+  const editForPackage = (index) => {
+    setIsEditable((prevIndex) => (prevIndex === index ? null : index));
+  };
+
   return (
     <div className="owner-packages-container">
-      
+
       {isLoading ? (
         <div className="package-cards-container">
           <div className="packages-header">
             <h1>Your Packages</h1>
+
           </div>
           <div className="packages-grid">
             {Array(3).fill(0).map((_, index) => (
@@ -484,8 +487,14 @@ const Packages = () => {
           {packages.length > 0 && !formVisible && (
             <div className="package-cards-container">
               <div className="packages-header">
-                <h1>Your Packages</h1>
-                
+                <div className="tooltip-container" onClick={() => handleFormToggle()}>
+                  <button
+                    className="add-package-button"
+
+                  >
+                    Create New Package
+                  </button>
+                </div>
               </div>
               {!isMobileView ? (
                 <div className="packages-grid">
@@ -493,85 +502,37 @@ const Packages = () => {
                     <div
                       key={index}
                       className="package-card"
-                      style={{ backgroundColor: `#ffffff` }}
+                      style={{
+                        backgroundColor: `#ffffff`, borderTop: `6px solid ${pkg.card_color || "#6fa8dc"}`, borderRight: "1px solid #919394",
+                        borderLeft: "1px solid #919394",
+                        borderBottom: "1px solid #919394"
+                      }}
                     >
                       <div className="package_title">
-                        <div
-                          className="first_container"
-                          style={{
-                            backgroundColor: pkg.card_color || "#6fa8dc",
-                            color: "#fff",
-                          }}
-                        ></div>
-                        <div
-                          className="second_container"
-                          style={{
-                            backgroundColor: pkg.card_color || "#6fa8dc",
-                            color: "#fff",
-                          }}
-                        >
-                          <div className="package_name">
-                            {pkg.isEditing ? (
-                              <input
-                                style={{ height: "100%" }}
-                                type="text"
-                                value={pkg.package_name}
-                                onChange={(e) =>
-                                  handleEditChange(
-                                    index,
-                                    "package_name",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            ) : (
-                              pkg.package_name
-                            )}
-                          </div>
-                          <div className="package_price">
-                            {pkg.isEditing ? (
-                              <input
-                                type="number"
-                                value={pkg.price}
-                                onChange={(e) =>
-                                  handleEditChange(index, "price", e.target.value)
-                                }
-                                style={{
-                                  width: "80px",
-                                }}
-                              />
-                            ) : (
-                              `₹${pkg.price}`
-                            )}
-                          </div>
-                        </div>
-                        <div
-                          className="third_container"
-                          style={{
-                            backgroundColor: pkg.card_color || "#6fa8dc",
-                            color: "#fff",
-                          }}
-                        ></div>
+                        <div className="package_name">{pkg.package_name || "Package Name"}</div>
+                        <FiEdit style={{ cursor: "pointer" }} onClick={() => editForPackage(index)} />
                       </div>
 
-                      <div className="package_all_details">
-                        <div className="package_Services">
-                          {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
-                            pkg.service.map((srv, idx) => (
-                              <>
-                              <div key={idx} className="service-item" style={{
-                                  backgroundColor:
-                                    idx % 2 === 0
-                                      ? lightenColor(pkg.card_color, 20)
-                                      : "#ffffff",
-                                  width: "100%",
-                                  padding: "8px 10px",
-                                }}
+                      <div className="package_pricing" style={{ color: pkg.card_color || "#6fa8dc" }}>
+                        <div className="rupee_symbol">₹</div>
+                        <div className="value">
+                          {pkg.price || "Price"}
+                        </div>
+                        <span>/day</span>
+                      </div>
+
+                      <hr style={{ width: "85%", margin: "8px 0" }} />
+
+                      <div className="package_Services">
+                        {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
+                          pkg.service.map((srv, idx) => (
+                            <>
+                              <div key={idx} className="service_item"
                               >
                                 {pkg.isEditing ? (
                                   <div className="services">
                                     <input
-                                      
+
                                       type="text"
                                       value={srv}
                                       onChange={(e) =>
@@ -583,44 +544,47 @@ const Packages = () => {
                                       }
                                     />
                                     {idx >= 1 && (
-                                      <div className="delete_button" onClick={() => { delete_serveice_by_id(index, idx);}}>
+                                      <div className="delete_button" onClick={() => { delete_serveice_by_id(index, idx); }}>
                                         <IoClose />
                                       </div>
                                     )}
                                   </div>
                                 ) : (
-                                  srv.charAt(0).toUpperCase() +
-                                  srv.slice(1).toLowerCase()
+                                  <>
+                                    <div className="key" style={{ backgroundColor: pkg.card_color, color: pkg.text_color || "#fff" }}>{idx + 1}</div>
+                                    <div className="individual_services" >
+                                      {srv}
+                                    </div>
+                                  </>
                                 )}
                               </div>
                               {pkg.isEditing && idx === pkg.service.length - 1 && pkg.service.length < 6 && (
-                                <div className="add_button" onClick={() => add_service(index)}>
+                                <div className="add_button" style={{ alignSelf: "center" }} onClick={() => add_service(index)}>
                                   Add More <IoAdd />
                                 </div>
                               )}
-                              </>
-                            ))
-                          ) : (
-                            <span>No services available</span>
-                          )}
+                            </>
+                          ))
+                        ) : (
+                          <span>No services available</span>
+                        )}
+                      </div>
+
+                      {isEditable === index &&
+                        <div className="actions_button">
+                          <button onClick={() => handleEditToggle(index)}>
+                            <RiEditLine />
+                            {pkg.isEditing ? "Save" : "Edit"}
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteClick(pkg.id, pkg.package_name)}
+                          >
+                            <MdDeleteOutline />
+                            Delete
+                          </button>
                         </div>
-                      </div>
-
-                      <div className="actions_button">
-                        <button onClick={() => handleEditToggle(index)}>
-                          {pkg.isEditing ? "Save" : "Edit"}
-                        </button>
-
-                        <button
-                          onClick={() => handleDeleteClick(pkg.id)}
-                          style={{
-                            backgroundColor: "#e6b9b4",
-                            display: pkg.isEditing ? "none" : "block",
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      }
                     </div>
                   ))}
                 </div>
@@ -630,7 +594,7 @@ const Packages = () => {
                     <div
                       key={index}
                       className="package-card"
-                      style={{ backgroundColor: pkg.card_color || "#6fa8dc" }}
+                      style={{ backgroundColor: pkg.card_color || "#6fa8dc", borderTop: `6px solid ${formData.card_color || "#6fa8dc"}`, }}
                     >
                       <div className="package-card-header">
                         <h3 className="package-title">{pkg.package_name}</h3>
@@ -642,7 +606,7 @@ const Packages = () => {
                         </div>
                       </div>
                       <div className="package-card-body">
-                        <div className="price-tag">
+                        <div classpackages_sectionName="price-tag">
                           {pkg.isEditing ? (
                             <input
                               type="number"
@@ -674,20 +638,12 @@ const Packages = () => {
                 </div>
               )}
 
-              <div className="tooltip-container">
-                <button
-                  className="add-package-button"
-                  onClick={() => handleFormToggle()}
-                >
-                  +
-                </button>
-                <span className="tooltip-text">Create New Package</span>
-              </div>
+
               {showConfirm && (
                 <div className="modal">
                   <div className="modal_content">
                     <h2>Confirm Delete</h2>
-                    <p>Are you sure you want to delete this package?</p>
+                    <p>Are you sure you want to delete <span style={{ backgroundColor: "lightgrey", padding: "2px 6px" }}>{selectedPackageName}</span> ?</p>
 
                     <div className="delete_confirmation">
                       <button
@@ -782,7 +738,9 @@ const Packages = () => {
                   required
                   cols="30"
                   rows="8"
+                  style={{ resize: "none" }}
                   placeholder="Enter Description "
+
                 ></textarea>
               </label>
 
@@ -836,65 +794,41 @@ const Packages = () => {
             <h2>Preview Your Package</h2>
             <div
               className="package-card"
-              style={{ backgroundColor: `#ffffff` }}
+              style={{
+                backgroundColor: "#ffffff",
+                borderTop: `6px solid ${formData.card_color || "#6fa8dc"}`,
+                borderRight: "1px solid #919394",
+                borderLeft: "1px solid #919394",
+                borderBottom: "1px solid #919394"
+              }}
+
             >
               <div className="package_title">
-                <div
-                  className="first_container"
-                  style={{
-                    backgroundColor: formData.card_color || "#6fa8dc",
-                    color: "#fff",
-                  }}
-                ></div>
-                <div
-                  className="second_container"
-                  style={{
-                    backgroundColor: formData.card_color || "#6fa8dc",
-                    color: "#fff",
-                  }}
-                >
-                  <div className="package_name">
-                    {formData.package_name || "Package Name"}
-                  </div>
-                  <div className="package_price">
-                    ₹{formData.price || "Price"}/Day
-                  </div>
+                <div className="package_name">{formData.package_name || "Package Name"}</div>
+                {/* <FiEdit style={{cursor: "pointer"}}/> */}
+              </div>
+              <div className="package_pricing" style={{ color: formData.card_color || "#6fa8dc" }}>
+                <div className="rupee_symbol">₹</div>
+                <div className="value">
+                  {formData.price || "Price"}
                 </div>
-                <div
-                  className="third_container"
-                  style={{
-                    backgroundColor: formData.card_color || "#6fa8dc",
-                    color: "#fff",
-                  }}
-                ></div>
+                <span>/day</span>
               </div>
 
+              <hr style={{ width: "85%", margin: "8px 0" }} />
 
-              <div className="package_all_details">
-                <div className="package_Services">
-                  {Array.isArray(formData.service) &&
-                    formData.service.length > 0 ? (
-                    formData.service.map((srv, idx) => (
-                      <div
-                        key={idx}
-                        className="service-item"
-                        style={{
-                          backgroundColor:
-                            idx % 2 === 0
-                              ? lightenColor(formData.card_color, 20)
-                              : "#ffffff",
-                          width: "100%",
-                          padding: "8px 10px",
-                        }}
-                      >
-                        {srv.charAt(0).toUpperCase() +
-                          srv.slice(1).toLowerCase()}
+              <div className="package_Services">
+                {Array.isArray(formData.service) && formData.service.length > 0 ? (
+                  formData.service.map((srv, idx) =>
+                    <div key={idx} className="service_item">
+                      <div className="key" style={{ backgroundColor: cardColor, color: darkerTextColor }}>{idx + 1}</div>
+                      <div className="individual_services" >
+                        {srv}
                       </div>
-                    ))
-                  ) : (
-                    <span>No services available</span>
-                  )}
-                </div>
+                    </div>)
+                ) : (
+                  <span style={{ alignSelf: "center" }}>No services available</span>
+                )}
               </div>
             </div>
           </div>

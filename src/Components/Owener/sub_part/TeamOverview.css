@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:wght@100..900&display=swap');/* TeamOverview.css */
-:root{
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');:root{
     --all_page_box_shaod:0 4px 6px rgba(0, 0, 0, 0.1);
     --Available_member_color:#78FF69;
     --Assigned_member_color:#FFB728;
@@ -11,7 +10,7 @@
     --member_card_box_shadow:0 4px 6px rgba(0, 0, 0, 0.1);
     --member_card_background_border:1px solid var(--member_card_border_color);
 
-    --full_page_background_font_family:"Barlow", serif;
+    --full_page_background_font_family:"Poppins", serif;
     --full_page_background_color:#FFFFFF;
 
     --top_bar_background_color_1:#D7E0FF;
@@ -1210,20 +1209,20 @@
   gap: 20px;
 }
 
-.info-item {
+.info-grid .info-item {
   background: #f8f9fa;
   padding: 15px;
   border-radius: 8px;
 }
 
-.info-item label {
+.info-grid .info-item label {
   display: block;
   color: #666;
   font-size: 0.875rem;
   margin-bottom: 5px;
 }
 
-.info-item p {
+.info-grid .info-item p {
   margin: 0;
   color: #333;
   font-weight: 500;

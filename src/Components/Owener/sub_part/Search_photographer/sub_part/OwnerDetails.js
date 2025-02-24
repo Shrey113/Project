@@ -7,7 +7,10 @@ import { Server_url } from "../../../../../redux/AllData";
 import { IoArrowBack } from "react-icons/io5";
 import { FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import SeletedCard from "./SeletedCard";
-import { MdOutlineInsertLink, MdOutlineDesignServices } from "react-icons/md";
+import { MdOutlineInsertLink, MdOutlineDesignServices, MdBusinessCenter, MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
+
+
+
 
 import "react-calendar/dist/Calendar.css";
 
@@ -23,7 +26,7 @@ import camera_icon from "./test_img_equipment/camera.png";
 import drone_icon from "./test_img_equipment/drone.png";
 import tripod_icon from "./test_img_equipment/Tripod.png";
 import lens_icon from "./test_img_equipment/lens.png";
-import { FaAngleDoubleDown } from "react-icons/fa";
+// import { FaAngleDoubleDown } from "react-icons/fa";
 import { IoCloseSharp } from "react-icons/io5";
 import { FaCloudDownloadAlt } from "react-icons/fa";
 
@@ -52,18 +55,13 @@ const OwnerDetails = () => {
   const [selectedData, setSelectedData] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
   const [is_first, set_is_true] = useState(true);
+  const [services, setServices] = useState([]);
+
 
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const set_is_full_screen = (value) => {
-    dispatch({
-      type: "SET_USER_Owner",
-      payload: {
-        is_full_screen: value,
-      },
-    });
-  };
+
   const ownerData = location.state?.ownerData;
   const selectedOwner = location.state?.selectedOwner;
 
@@ -75,10 +73,23 @@ const OwnerDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [fullViewImage, setFullViewImage] = useState("");
 
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (imageRef.current && !imageRef.current.contains(event.target)) {
+  //       setFullViewImage("");
+  //     }
+  //   };
+
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [setFullViewImage]);
+
   useEffect(() => {
-    if(fullViewImage){
+    if (fullViewImage) {
       document.body.style.overflow = "hidden";
-    }else{
+    } else {
       document.body.style.overflow = "auto";
     }
   }, [fullViewImage]);
@@ -170,34 +181,40 @@ const OwnerDetails = () => {
     }
   };
 
-  const set_owner_full_screen = (value) => {
-    dispatch({
-      type: "SET_USER_Owner",
-      payload: {
-        isOwnerFullScreen: value,
-      },
-    });
-  };
-  // const events = [
 
-  // ];
 
 
   useEffect(() => {
-    const handleBackEvent = (event) => {
-      dispatch({
-        type: "SET_USER_Owner",
-        payload: {
-          is_full_screen: true,
-        },
-      });
+    const fetch_services = async (user_email) => {
+      try {
+        const response = await fetch(`${Server_url}/fetch_services_for_preview`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_email: user_email }),
+        });
 
-      dispatch({
-        type: "SET_USER_Owner",
-        payload: {
-          isOwnerFullScreen: false,
-        },
-      });
+        if (!response.ok) {
+          console.log("Error:", response.statusText);
+          return;
+        }
+
+        const data = await response.json();
+        setServices(data.services);
+
+      } catch (error) {
+        console.error("Failed to fetch services:", error);
+      }
+    };
+
+    if (selectedOwner?.user_email) {
+      fetch_services(selectedOwner.user_email);
+    }
+
+  }, [selectedOwner?.user_email]);
+
+  useEffect(() => {
+    const handleBackEvent = (event) => {
+
       navigate(`/Owner/search_photographer`);
     };
 
@@ -277,19 +294,8 @@ const OwnerDetails = () => {
 
   useEffect(() => {
     const handleBackEvent = (event) => {
-      dispatch({
-        type: "SET_USER_Owner",
-        payload: {
-          is_full_screen: true,
-        },
-      });
 
-      dispatch({
-        type: "SET_USER_Owner",
-        payload: {
-          isOwnerFullScreen: false,
-        },
-      });
+
       navigate(`/Owner/search_photographer`);
     };
 
@@ -310,22 +316,6 @@ const OwnerDetails = () => {
     return <p>Loading owner details...</p>;
   }
 
-  const lightenColor = (color, percent) => {
-    let num = parseInt(color.replace("#", ""), 16),
-      amt = Math.round(2.55 * percent),
-      r = (num >> 16) + amt,
-      g = ((num >> 8) & 0x00ff) + amt,
-      b = (num & 0x0000ff) + amt;
-
-    return `#${(
-      0x1000000 +
-      (r < 255 ? (r < 1 ? 0 : r) : 255) * 0x10000 +
-      (g < 255 ? (g < 1 ? 0 : g) : 255) * 0x100 +
-      (b < 255 ? (b < 1 ? 0 : b) : 255)
-    )
-      .toString(16)
-      .slice(1)}`;
-  };
 
   const getSocialIcon = (link) => {
     if (link.includes("instagram"))
@@ -364,24 +354,49 @@ const OwnerDetails = () => {
     }
   };
 
+  const getBackgroundColor = (label) => {
+    const colors = {
+      Facebook: "#D8EAFB",   // Light blue
+      Twitter: "#D0F0FD",    // Light cyan
+      Instagram: "#FAD3E6",  // Light pink
+      LinkedIn: "#DCEEF9",   // Light blue
+      WhatsApp: "#D4F8D4",   // Light green
+      YouTube: "#FDDDDD",    // Light red
+      Pinterest: "#FAD4D4",  // Light coral
+      Snapchat: "#FFF5D1",   // Light yellow
+      Default: "#EAEAEA"     // Light gray
+    };
+    return colors[label] || colors["Default"];
+  };
+
+  // Function to create a slightly darker border color
+  const getBorderColor = (label) => {
+    const borderColors = {
+      Facebook: "#A0C4E8",
+      Twitter: "#A0D0E5",
+      Instagram: "#E8A7C2",
+      LinkedIn: "#B0D0E0",
+      WhatsApp: "#A0D8A0",
+      YouTube: "#E0A0A0",
+      Pinterest: "#E0A0A0",
+      Snapchat: "#E8D090",
+      Default: "#C0C0C0"
+    };
+    return borderColors[label] || borderColors["Default"];
+  };
+
+
   return (
     <div className="owner-details-container">
       <nav className="back_with_owner_title">
         <button
           className="back-button"
           onClick={() => {
-            set_owner_full_screen(false);
             navigate(`/Owner/search_photographer`);
-            set_is_full_screen(true);
           }}
         >
-          <IoArrowBack className="icon" />
+          <IoArrowBack className="icon" /> Back
         </button>
-        <div className="owner-header">
-          <h2 className="owner-title">
-            Owner Details for {selectedOwner.user_name}
-          </h2>
-        </div>
       </nav>
       <div className="owner-info-details">
         <div className="owner-profile-container">
@@ -398,6 +413,7 @@ const OwnerDetails = () => {
             </div>
             <div className="owner-status">
               <p>{selectedOwner?.user_name || "Not Available"}</p>
+              <hr style={{ width: "90%", border: " 1px solid #c1c1c1" }} />
               <div className="all_links">
                 {selectedOwner?.social_media_links?.length > 0 ? (
                   selectedOwner.social_media_links.map((link, index) => {
@@ -410,6 +426,10 @@ const OwnerDetails = () => {
                         rel="noopener noreferrer"
                         className="social-link"
                         title={label}
+                        style={{
+                          backgroundColor: getBackgroundColor(label),
+                          border: `2px solid ${getBorderColor(label)}`
+                        }}
                       >
                         {icon}
                       </a>
@@ -424,104 +444,89 @@ const OwnerDetails = () => {
           </div>
 
           <div className="owner-profile-right">
-            <div className="info-card">
-              <div className="email_business_website">
-                <div className="details_1">
-                  <div className="info-card">
-                    <div className="info-item">
-                      <div className="icon-container">
-                        <FaEnvelope className="icon" />
-                      </div>
-                      <div>
-                        <label>Email</label>
-                        <p>{selectedOwner?.user_email}</p>
-                      </div>
+            {/* <div className="info-card"> */}
+            <div className="email_business_website">
+              <div className="details_1">
+                <div className="info-card">
+                  <div className="info-item">
+                    <div className="icon-container">
+                      <FaEnvelope className="icon" />
                     </div>
-                  </div>
-                  <div className="info-card">
-                    <div className="info-item">
-                      <div className="icon-container">
-                        <FaMapMarkerAlt className="icon" />
-                      </div>
-                      <div>
-                        <label>Business Address</label>
-                        <p>
-                          {selectedOwner.business_address || "Not Available"}
-                        </p>
-                      </div>
+                    <div>
+                      <label>Email</label>
+                      <p>{selectedOwner?.user_email}</p>
                     </div>
                   </div>
                 </div>
-                <div className="details_2">
-                  <div className="info-card">
-                    <div className="info-item">
-                      <div className="icon-container">
-                        <MdOutlineInsertLink className="icon" />
-                      </div>
-                      <div>
-                        <label>Business Name</label>
-                        <p>{selectedOwner?.business_name || "Not Available"}</p>
-                      </div>
+                <div className="info-card">
+                  <div className="info-item">
+                    <div className="icon-container">
+                      <FaMapMarkerAlt className="icon" />
                     </div>
-                  </div>
-                  <div className="info-card">
-                    <div className="info-item">
-                      <div className="icon-container">
-                        <MdOutlineInsertLink className="icon" />
-                      </div>
-                      <div>
-                        <label>Website</label>
-                        <p>{selectedOwner?.website || "Not Available"}</p>
-                      </div>
+                    <div>
+                      <label>Business Address</label>
+                      <p>
+                        {selectedOwner.business_address || "Not Available"}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="services_in_profile">
-                <div className="info-item">
-                  <div
-                    className="icon-container"
-                    style={{ marginLeft: "20px" }}
-                  >
-                    <MdOutlineDesignServices className="icon" />
+              <div className="details_2">
+                <div className="info-card">
+                  <div className="info-item">
+                    <div className="icon-container">
+                      <MdBusinessCenter className="icon" />
+                    </div>
+                    <div>
+                      <label>Business Name</label>
+                      <p>{selectedOwner?.business_name || "Not Available"}</p>
+                    </div>
                   </div>
-                  <div className="service-list">
-                    {/* <label>Services</label> */}
-                    {selectedOwner?.services ? (
-                      selectedOwner.services.map((service, index) => (
-                        <p className="service-item" key={index}>
-                          {service}
-                        </p>
-                      ))
-                    ) : (
-                      <p>No services available</p>
-                    )}
+                </div>
+                <div className="info-card">
+                  <div className="info-item">
+                    <div className="icon-container">
+                      <MdOutlineInsertLink className="icon" />
+                    </div>
+                    <div>
+                      <label>Website</label>
+                      <p>{selectedOwner?.website || "Not Available"}</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            
+            <div className="services_in_profile">
+              <div className="info-item ">
+                <div
+                  className="icon-container"
+                  style={{ marginLeft: "20px" }}
+                >
+                  <MdOutlineDesignServices className="icon" />
+                </div>
+                <div className="service-list">
+                  {services && services?.length > 0 ? (
+                    services?.map((service, index) => (
+                      <p className="service-item" key={index}>
+                        {service.service_name}
+                      </p>
+                    ))
+                  ) : (
+                    <p>No services available</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            {/* </div> */}
           </div>
         </div>
       </div>
 
       <div
-        className={`section photo_section ${
-          ownerData.photo_files?.length > 3 ? "apply-gradient" : ""
-        }`}
+        className={`section photo_section`}
       >
-        <div
-          className={`see_more_text ${
-            ownerData.photo_files?.length > 3 ? "show" : ""
-          }`}
-          onClick={() => {
-            handleShowAllClick("all_photos");
-          }}
-        >
-          <FaAngleDoubleDown />
-          See More
-        </div>
+
         {ownerData.photo_files?.length > 0 ? (
           <div className="photos-container">
             <div className="profile_preview_photos_title">
@@ -531,11 +536,10 @@ const OwnerDetails = () => {
                   folders?.slice(0, 5).map((folder, index) => (
                     <h3
                       key={index}
-                      className={`folder_tab ${
-                        activeFolder?.folder_name === folder.folder_name
-                          ? "active"
-                          : ""
-                      }`}
+                      className={`folder_tab ${activeFolder?.folder_name === folder.folder_name
+                        ? "active"
+                        : ""
+                        }`}
                       onClick={() => handleTabSwitch(folder, index)}
                     >
                       {folder.folder_name}
@@ -543,7 +547,9 @@ const OwnerDetails = () => {
                   ))}
               </div>
 
+              <div className="see_all_button" onClick={() => handleShowAllClick("all_photos")}>See All <MdOutlineKeyboardDoubleArrowRight style={{ fontSize: "20px" }} /></div>
             </div>
+            <hr style={{ width: "98%", margin: "auto" }} />
 
             <div className="profile_preview_images">
               {loading || isLoading ? (
@@ -562,37 +568,27 @@ const OwnerDetails = () => {
                     <p style={{ textAlign: "center" }}>No photos found.</p>
                   ) : (
                     <div className="photos_grid">
-                    {photos.slice(0, 10).map((photoItem, index) => (
-                      <div key={index} className="photo_card">
-                        <img
-                          style={{ cursor: "pointer" }}
-                          onClick={() => {
-                            const imageSrc = is_first
-                              ? photoItem.photo
-                              : photoItem.file_data;
-                            setFullViewImage(imageSrc);
-                            console.log("This is full view", fullViewImage);
-                          }}
-                          src={
-                            is_first ? photoItem.photo : photoItem.file_data
-                          }
-                          alt={photoItem.photo_name}
-                          className="photo_image"
-                        />
-                        {is_first ? (
-                          photoItem.photo_name && (
-                            <div className="photo_name">
-                              {photoItem.photo_name}
-                            </div>
-                          )
-                        ) : (
-                          <div className="photo_name">
-                            {photoItem.file_name}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                      {photos.slice(0, 10).map((photoItem, index) => (
+                        <div key={index} className="photo_card">
+                          <img
+                            style={{ cursor: "pointer" }}
+                            onClick={() => {
+                              const imageSrc = is_first
+                                ? photoItem.photo
+                                : photoItem.file_data;
+                              setFullViewImage(imageSrc);
+                              console.log("This is full view", fullViewImage);
+                            }}
+                            src={
+                              is_first ? photoItem.photo : photoItem.file_data
+                            }
+                            alt={photoItem.photo_name}
+                            className="photo_image"
+                          />
+
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               )}
@@ -606,26 +602,97 @@ const OwnerDetails = () => {
         )}
       </div>
 
+      {/* Packages Section */}
+      <div className="section packages_section">
+        <div className="profile_preview_packages_title">
+          <div className="packages-card-title">Packages</div>
+          {packagesMoreThan4 && (
+            <button onClick={() => handleShowAllClick("packages")}>
+              Show All
+            </button>
+          )}
+        </div>
+
+        <hr style={{ width: "98%", margin: "auto" }} />
+        <div className="packages-grid">
+          {ownerData.packages?.length > 0 ? (
+            ownerData?.packages?.slice(0, 3).map((pkg, index) => (
+              <div
+                key={pkg.id || index}
+                className="package-card"
+                style={{
+                  backgroundColor: `#ffffff`, borderTop: `6px solid ${pkg.card_color || "#6fa8dc"}`, borderRight: "1px solid #919394",
+                  borderLeft: "1px solid #919394",
+                  borderBottom: "1px solid #919394"
+                }}
+                onClick={() => handleItemClick(pkg, "package")}
+              >
+                <div className="package_title">
+                  <div className="package_name">{pkg.package_name || "Package Name"}</div>
+                </div>
+
+                <div className="package_pricing" style={{ color: pkg.card_color || "#6fa8dc" }}>
+                  <div className="rupee_symbol">₹</div>
+                  <div className="value">
+                    {pkg.price || "Price"}
+                  </div>
+                  <span>/day</span>
+                </div>
+
+                <hr style={{ width: "85%", margin: "8px 0" }} />
+
+                <div className="package_Services">
+                  {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
+                    pkg.service.map((srv, idx) =>
+                      <div key={idx} className="service_item">
+                        <div className="key" style={{ backgroundColor: pkg.card_color, color: pkg.text_color || "#fff" }}>{idx + 1}</div>
+                        <div className="individual_services" >
+                          {srv}
+                        </div>
+                      </div>)
+                  ) : (
+                    <span style={{ alignSelf: "center" }}>No services available</span>
+                  )}
+                </div>
+                <div
+                  className="book-package-button"
+                  onClick={() => handleItemClick(pkg, "package")}
+                  style={{ backgroundColor: pkg.card_color || "#6fa8dc", color: "#fff" }}
+                >
+                  Book Package
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="no_equipments">
+              <img src={NoDataForEquipment} alt="" />
+              <p className="no-data">NO PACKAGES AVAILABLE</p>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Equipment Section */}
       <div className="section equipment_section">
         {ownerData.equipment?.length > 0 ? (
-          <ul className="equipment-list">
+          <ul className="equipment-list" >
             <div className="profile_preview_equipment_title">
               <div className="equipment-card-title">Equipment</div>
 
               {equipmentMoreThan4 && (
-                <button onClick={() => handleShowAllClick("equipments")}>
-                  Show All
-                </button>
+                <div className="see_all_button" onClick={() => handleShowAllClick("equipments")}>See All <MdOutlineKeyboardDoubleArrowRight style={{ fontSize: "20px" }} /></div>
               )}
             </div>
+
+            <hr style={{ width: "98%", margin: "auto" }} />
+
             <div className="equipment_items_container">
               {ownerData.equipment.slice(0, 3).map((item, index) => (
                 <li
                   key={index}
                   className="equipment_item"
                   onClick={() => handleItemClick(item, "equipment")}
-                  style={{ cursor: "pointer" }}
+
                 >
                   <div className="photo_container_for_equipment">
                     <img
@@ -697,7 +764,6 @@ const OwnerDetails = () => {
                     <strong>Details:</strong>
                     <p>{item.description || "Not Available"}</p>
                   </div>
-
                 </li>
               ))}
             </div>
@@ -709,100 +775,7 @@ const OwnerDetails = () => {
         )}
       </div>
 
-      {/* Packages Section */}
-      <div className="section packages_section">
-        <div className="profile_preview_packages_title">
-          <div className="packages-card-title">Packages</div>
-          {packagesMoreThan4 && (
-            <button onClick={() => handleShowAllClick("packages")}>
-              Show All
-            </button>
-          )}
-        </div>
-        <div className="packages-grid">
-          {ownerData.packages?.length > 0 ? (
-            ownerData.packages.slice(0, 3).map((pkg, index) => (
-              <div
-                key={pkg.id || index}
-                className="package-card"
-                style={{ backgroundColor: "#ffffff", cursor: "pointer" }}
-                onClick={() => handleItemClick(pkg, "package")}
-              >
-                <div className="package_title">
-                  <div
-                    className="first_container"
-                    style={{
-                      backgroundColor: pkg.card_color || "#6fa8dc",
-                      color: "#fff",
-                    }}
-                  ></div>
-                  <div
-                    className="second_container"
-                    style={{
-                      backgroundColor: pkg.card_color || "#6fa8dc",
-                      color: "#fff",
-                    }}
-                  >
-                    <div className="package_name">
-                      {pkg.package_name || "Not Available"}
-                    </div>
-                    <div className="package_price">
-                      ₹{pkg.price || "Not Available"}
-                    </div>
-                  </div>
-                  <div
-                    className="third_container"
-                    style={{
-                      backgroundColor: pkg.card_color || "#6fa8dc",
-                      color: "#fff",
-                    }}
-                  ></div>
-                </div>
 
-                <div className="package_all_details">
-                  <div className="package_Services">
-                    {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
-                      pkg.service.map((srv, idx) => {
-                        const baseColor = pkg.card_color || "#6fa8dc";
-                        const lightColor = lightenColor(baseColor, 20);
-
-                        return (
-                          <div
-                            key={idx}
-                            className="service-item"
-                            style={{
-                              backgroundColor:
-                                idx % 2 === 0 ? lightColor : "#ffffff",
-                              width: "100%",
-                              padding: "8px 10px",
-                            }}
-                          >
-                            {srv?.charAt(0)?.toUpperCase() +
-                              srv?.slice(1)?.toLowerCase()}
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <span>No services available</span>
-                    )}
-                  </div>
-                </div>
-                <div
-                  className="book-package-button"
-                  onClick={() => handleItemClick(pkg, "package")}
-                >
-                  Book Package
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="no_equipments">
-              <img src={NoDataForEquipment} alt="" />
-              <p className="no-data">NO PACKAGES AVAILABLE</p>
-            </div>
-          )}
-        </div>
-      </div>
 
       {showSelectedCard && selectedData && (
         <SeletedCard
@@ -837,12 +810,19 @@ const OwnerDetails = () => {
 
 
 
-{fullViewImage && (
-        <div className="full_view_image_container">
+      {fullViewImage && (
+        <div className="full_view_image_container"
+
+          onClick={(e) => {
+            if (e.target.classList.contains("full_view_image_container")) {
+              setFullViewImage("");
+            }
+          }}>
           <img
             src={fullViewImage}
             className="full_view_image"
             alt="Full view"
+            style={{ pointerEvents: "none" }}
           />
           <div className="button_container">
             <button className="download_button" onClick={handleDownload}>

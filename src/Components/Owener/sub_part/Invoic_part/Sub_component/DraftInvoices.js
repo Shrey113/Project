@@ -105,11 +105,11 @@ function DraftInvoices() {
         items:
           Array.isArray(invoiceItems) && invoiceItems.length > 0
             ? invoiceItems.map((item) => ({
-                item: item.item || "",
-                quantity: Number(item.quantity) || 0,
-                price: Number(item.price) || 0,
-                amount: Number(item.amount) || 0,
-              }))
+              item: item.item || "",
+              quantity: Number(item.quantity) || 0,
+              price: Number(item.price) || 0,
+              amount: Number(item.amount) || 0,
+            }))
             : [{ item: "", quantity: 0, price: 0, amount: 0 }],
       };
 
@@ -149,14 +149,14 @@ function DraftInvoices() {
       const result = await response.json();
       if (result.success) {
         decrementCount();
-        showAcceptToast({message: result.message });
+        showAcceptToast({ message: result.message });
         fetchInvoicesWithDraft(user.user_email);
       } else {
-        showRejectToast({message: result.message || "Failed to delete invoice" });
+        showRejectToast({ message: result.message || "Failed to delete invoice" });
       }
     } catch (error) {
       console.error("Error deleting invoice:", error);
-      showRejectToast({message: "Failed to delete invoice. Please try again." });
+      showRejectToast({ message: "Failed to delete invoice. Please try again." });
     } finally {
       closeDeleteModal();
     }
