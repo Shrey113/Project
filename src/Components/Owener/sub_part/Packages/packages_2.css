@@ -2,11 +2,13 @@
   padding: 20px;
   width: 100%;
 }
+
 .owner-packages-container .package-cards-container .packages-header {
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
+
 .owner-packages-container .package-cards-container .packages-header .add-package-button {
   background-color: transparent;
   border: none;
@@ -28,13 +30,13 @@
   padding: 20px 0px;
 }
 
-.package-card {
+.package-cards-container .package-card {
   background: white;
   border-radius: 20px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: transform 0.2s;
-  height: 500px; 
+  height: 500px;
   display: flex;
   flex-direction: column;
 }
@@ -76,7 +78,7 @@
 }
 
 /* Services list styling */
-.owner-packages-container  .packages-grid .package-card .package_Services {
+.owner-packages-container .packages-grid .package-card .package_Services {
   flex: 1;
   padding: 20px;
   display: flex;
@@ -129,7 +131,7 @@
 }
 
 /* Counter reset for service items */
-.owner-packages-container  .packages-grid .package-card .package_Services {
+.owner-packages-container .packages-grid .package-card .package_Services {
   counter-reset: service-counter;
 }
 
@@ -209,6 +211,7 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -227,9 +230,11 @@
   overflow: scroll;
   gap: 60px;
 }
+
 .owner-packages-container .package-form-modal::-webkit-scrollbar {
   width: 0px;
 }
+
 .owner-packages-container .package-form-modal .package-form {
   width: 650px;
   background: #fff;
@@ -243,36 +248,26 @@
   margin-bottom: 15px;
   color: #333;
 }
-.owner-packages-container
-  .package-form-modal
-  .package-form
-  .form_lables_input
-  .two_input_field {
+
+.owner-packages-container .package-form-modal .package-form .form_lables_input .two_input_field {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
 }
 
-.owner-packages-container
-  .package-form-modal
-  .package-form
-  .form_lables_input
-  .two_input_field label  input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
+.owner-packages-container .package-form-modal .package-form .form_lables_input .two_input_field label input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
 }
-.owner-packages-container
-  .package-form-modal
-  .package-form
-  .form_lables_input
-  .two_input_field
-  label {
+
+.owner-packages-container .package-form-modal .package-form .form_lables_input .two_input_field label {
   width: 50%;
 }
+
 .owner-packages-container .package-form-modal .package-form .form_lables_input label {
   display: block;
   margin-bottom: 10px;
@@ -282,12 +277,8 @@
   flex-direction: column;
   gap: 5px;
 }
-.owner-packages-container
-  .package-form-modal
-  .package-form
-  .form_lables_input
-  label
-  .all_services {
+
+.owner-packages-container .package-form-modal .package-form .form_lables_input label .all_services {
   background-color: rgb(242, 242, 242);
   margin-bottom: 15px;
   transition: all 0.3s ease;
@@ -302,7 +293,8 @@
   padding: 5px;
   line-height: -1;
 }
-.owner-packages-container .all_services .no_services_available{
+
+.owner-packages-container .all_services .no_services_available {
   font-size: 12px;
   font-weight: 500;
   color: #707070;
@@ -312,29 +304,27 @@
   padding: 5px;
   border-radius: 8px;
 }
-.owner-packages-container
-  .package-form-modal
-  .package-form
-  .form_lables_input
-  label
-  .all_services:hover {
+
+.owner-packages-container .package-form-modal .package-form .form_lables_input label .all_services:hover {
   background-color: rgb(222, 222, 222);
   margin-bottom: 15px;
 }
-.owner-packages-container .service-input{
+
+.owner-packages-container .service-input {
   /* background: rebeccapurple; */
   display: flex;
   align-items: flex-start;
   justify-content: center;
   gap: 10px;
 }
-.owner-packages-container .service-input input{
+
+.owner-packages-container .service-input input {
   flex: 1;
   width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
 }
 
 .owner-packages-container .service-input button {
@@ -346,7 +336,7 @@
   cursor: pointer;
 }
 
-.owner-packages-container .service-input button:disabled{
+.owner-packages-container .service-input button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -368,11 +358,7 @@
   font-family: "Lato", sans-serif;
 }
 
-.owner-packages-container
-  .package-form-modal
-  .package-form
-  .form-buttons
-  button:hover {
+.owner-packages-container .package-form-modal .package-form .form-buttons button:hover {
   background: #315f7d;
 }
 
@@ -381,6 +367,7 @@
   gap: 15px;
   padding: 10px;
 }
+
 .form_lables_input .theme-option {
   display: flex;
   flex-direction: column;
@@ -442,6 +429,7 @@
   z-index: 1000;
   background: rgba(0, 0, 0, 0.5);
 }
+
 .owner-packages-container .package-cards-container .modal .modal_content {
   position: absolute;
   background-color: rgb(255, 255, 255);
@@ -455,24 +443,18 @@
   flex-direction: column;
   gap: 30px;
 }
+
 .owner-packages-container .package-cards-container .modal .modal_content p {
   font-size: 20px;
 }
-.owner-packages-container
-  .package-cards-container
-  .modal
-  .modal_content
-  .delete_confirmation {
+
+.owner-packages-container .package-cards-container .modal .modal_content .delete_confirmation {
   align-self: flex-end;
   display: flex;
   gap: 15px;
 }
-.owner-packages-container
-  .package-cards-container
-  .modal
-  .modal_content
-  .delete_confirmation
-  button {
+
+.owner-packages-container .package-cards-container .modal .modal_content .delete_confirmation button {
   padding: 5px 15px;
   border: none;
   font-size: 15px;
@@ -494,6 +476,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 10;
 }
+
 .owner-packages-container .package-form-modal .preview-section h2 {
   font-family: "Raleway", sans-serif;
   font-size: 24px;
@@ -502,8 +485,9 @@
   margin-bottom: 15px;
   text-align: center;
 }
+
 .owner-packages-container .package-form-modal .preview-section .package-card,
-.owner-packages-container  .packages-grid .package-card{
+.owner-packages-container .packages-grid .package-card {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -516,11 +500,9 @@
   border-radius: 10px;
   position: relative;
 }
-.owner-packages-container
-  .package-form-modal
-  .preview-section
-  .package-card
-  .package_title,.owner-packages-container  .packages-grid .package-card .package_title{
+
+.owner-packages-container .package-form-modal .preview-section .package-card .package_title,
+.owner-packages-container .packages-grid .package-card .package_title {
   width: 100%;
   position: relative;
   padding: 15px 25px;
@@ -531,11 +513,8 @@
   font-size: 20px;
 }
 
-.owner-packages-container
-  .package-form-modal
-  .preview-section
-  .package-card
-  .package_pricing,.owner-packages-container  .packages-grid .package-card  .package_pricing{
+.owner-packages-container .package-form-modal .preview-section .package-card .package_pricing,
+.owner-packages-container .packages-grid .package-card .package_pricing {
   display: flex;
   align-items: flex-end;
   width: 100%;
@@ -543,87 +522,67 @@
   justify-content: center;
   gap: 5px;
 }
-.owner-packages-container
-  .package-form-modal
-  .preview-section
-  .package-card
-  .package_pricing .rupee_symbol,.owner-packages-container  .packages-grid .package-card  .package_pricing .rupee_symbol{
+
+.owner-packages-container .package-form-modal .preview-section .package-card .package_pricing .rupee_symbol,
+.owner-packages-container .packages-grid .package-card .package_pricing .rupee_symbol {
   font-size: 25px;
   font-family: var(--Heading);
 }
-.owner-packages-container
-  .package-form-modal
-  .preview-section
-  .package-card
-  .package_pricing .value,.owner-packages-container  .packages-grid .package-card  .package_pricing .value{
+
+.owner-packages-container .package-form-modal .preview-section .package-card .package_pricing .value,
+.owner-packages-container .packages-grid .package-card .package_pricing .value {
   font-size: 45px;
   font-family: var(--Heading);
   height: fit-content;
   line-height: 1;
 }
-.owner-packages-container
-  .package-form-modal
-  .preview-section
-  .package-card
-  .package_pricing span,.owner-packages-container  .packages-grid .package-card  .package_pricing span{
-    font-size: 20px;
-    font-family: var(--Heading);
+
+.owner-packages-container .package-form-modal .preview-section .package-card .package_pricing span,
+.owner-packages-container .packages-grid .package-card .package_pricing span {
+  font-size: 20px;
+  font-family: var(--Heading);
 }
-.owner-packages-container
-  .package-form-modal
-  .preview-section
-  .package-card
-  .wrapper_for_svg_and_details
-  .packge_description
-  p {
+
+.owner-packages-container .package-form-modal .preview-section .package-card .wrapper_for_svg_and_details .packge_description p {
   z-index: 20;
   color: #575757;
 }
 
-.owner-packages-container
-  .package-form-modal
-  .preview-section
-  .package-card
-  .package_Services,.owner-packages-container  .packages-grid .package-card .package_Services  {
- display: flex;
- align-items: flex-start;
- justify-content: flex-start;
- width: 100%;
- flex-direction: column;
- padding: 0px 10px;
+.owner-packages-container .package-form-modal .preview-section .package-card .package_Services,
+.owner-packages-container .packages-grid .package-card .package_Services {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  flex-direction: column;
+  padding: 0px 10px;
 }
-.owner-packages-container
-  .package-form-modal
-  .preview-section
-  .package-card
-  .package_Services .service_item,.owner-packages-container  .packages-grid .package-card .package_Services .service_item{
- display: flex;
- width: 100%;
- align-items: center;
- justify-content: flex-start;
- gap: 12px;
- flex-wrap: wrap;
-  padding:0px 5px;
+
+.owner-packages-container .package-form-modal .preview-section .package-card .package_Services .service_item,
+.owner-packages-container .packages-grid .package-card .package_Services .service_item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0px 5px;
   flex-shrink: 0;
 }
-.owner-packages-container
-  .package-form-modal
-  .preview-section
-  .package-card
-  .package_Services .service_item .key,.owner-packages-container  .packages-grid .package-card  .package_Services .service_item .key{
-    border-radius: 50%;
-    padding: 0px 7px; 
-    font-size: 16px;
-    flex-shrink: 0;
+
+.owner-packages-container .package-form-modal .preview-section .package-card .package_Services .service_item .key,
+.owner-packages-container .packages-grid .package-card .package_Services .service_item .key {
+  border-radius: 50%;
+  padding: 0px 7px;
+  font-size: 16px;
+  flex-shrink: 0;
 }
-.owner-packages-container
-  .package-form-modal
-  .preview-section
-  .package-card
-  .package_Services .service_item .individual_services,.owner-packages-container  .packages-grid .package-card  .package_Services .service_item .individual_services{ 
-    font-size: 20px;
-    font-family: var(--Heading);
-  overflow-wrap: break-word; 
+
+.owner-packages-container .package-form-modal .preview-section .package-card .package_Services .service_item .individual_services,
+.owner-packages-container .packages-grid .package-card .package_Services .service_item .individual_services {
+  font-size: 20px;
+  font-family: var(--Heading);
+  overflow-wrap: break-word;
   max-width: calc(100% - 40px);
   flex-shrink: 0;
 }
@@ -631,7 +590,7 @@
 
 /* editing in the package section css  */
 
-.owner-packages-container  .packages-grid .package-card  .actions_button{
+.owner-packages-container .packages-grid .package-card .actions_button {
   position: absolute;
   right: 48px;
   top: 25px;
@@ -645,9 +604,10 @@
   height: 95px;
   width: 100px;
 }
-.owner-packages-container  .packages-grid .package-card  .actions_button button{
-  border:none;
-  padding : 6px 12px;
+
+.owner-packages-container .packages-grid .package-card .actions_button button {
+  border: none;
+  padding: 6px 12px;
   transition: all 0.2s ease-in-out;
   width: 100%;
   font-size: 15px;
@@ -659,6 +619,7 @@
   justify-content: flex-start;
   gap: 10px;
 }
-.owner-packages-container  .packages-grid .package-card  .actions_button button:hover{
-background-color: rgba(211, 211, 211, 0.737);
+
+.owner-packages-container .packages-grid .package-card .actions_button button:hover {
+  background-color: rgba(211, 211, 211, 0.737);
 }

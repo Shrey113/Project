@@ -6,9 +6,9 @@ export const localstorage_key_for_jwt_user_side_key =
 export const localstorage_key_for_admin_login =
   "localstorage_key_for_admin_login";
 
-// export const Server_url = "http://localhost:4000";
+export const Server_url = "http://localhost:4000";
 // export const Server_url = 'http://192.168.12.103:4000';
-export const Server_url = 'http://192.168.29.193:4000';
+// export const Server_url = 'http://192.168.29.193:4000';
 // export const Server_url = 'http://127.0.0.1:3306';
 export const localstorage_key_for_client = "localstorage_key_for_client";
 export const localstorage_key_for_admin_settings =

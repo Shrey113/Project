@@ -608,9 +608,9 @@ const OwnerDetails = () => {
         <div className="profile_preview_packages_title">
           <div className="packages-card-title">Packages</div>
           {packagesMoreThan4 && (
-            <button onClick={() => handleShowAllClick("packages")}>
-              Show All
-            </button>
+            <div className="see_all_button" onClick={() => handleShowAllClick("packages")}>
+              See All <MdOutlineKeyboardDoubleArrowRight style={{ fontSize: "20px" }} />
+            </div>
           )}
         </div>
 

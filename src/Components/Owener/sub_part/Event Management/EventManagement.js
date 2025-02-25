@@ -38,8 +38,8 @@ function EventManagement({ category }) {
 
   const [show_calender_popup, set_show_calender_popup] = useState(false);
 
-  const [count_for_package,set_count_for_package] = useState(0);
-  const [count_for_equipment,set_count_for_equipment] = useState(0);
+  const [count_for_package, set_count_for_package] = useState(0);
+  const [count_for_equipment, set_count_for_equipment] = useState(0);
 
   const location = useLocation();
   // for calender
@@ -232,28 +232,28 @@ function EventManagement({ category }) {
     );
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const equipment_count = receiver_equipment_data.length;
     const package_count = receiver_package_data.length;
     set_count_for_package(package_count);
     set_count_for_equipment(equipment_count);
-  },[receiver_equipment_data,receiver_package_data])
+  }, [receiver_equipment_data, receiver_package_data])
 
   return (
     <div id="owner-main-container-EventManagement">
-      
+
       {/* received request count  */}
       <div className="requests_count">
         <div className="received_request_total_count">
           <div className="heading_for_total_requests">Total Received Request</div>
-          <div className="numbers_of_total_request">{count_for_package+count_for_equipment}</div>
+          <div className="numbers_of_total_request">{count_for_package + count_for_equipment}</div>
         </div>
         <div className="received_request_count">
-          <div className="total_packages">{location.pathname === "/Owner/Event/packages" ? "Package Requests": "Equipment Request"}</div>
-          <div className="numbers_of_package_request">{location.pathname === "/Owner/Event/packages" ? count_for_package: count_for_equipment}</div>
+          <div className="total_packages">{location.pathname === "/Owner/Event/packages" ? "Package Requests" : "Equipment Request"}</div>
+          <div className="numbers_of_package_request">{location.pathname === "/Owner/Event/packages" ? count_for_package : count_for_equipment}</div>
         </div>
       </div>
-      
+
       {/* Toggle Button */}
       <div className="heading_container_event_management">
         <div className="event_mangement_heading">{category}</div>
@@ -382,7 +382,7 @@ function EventManagement({ category }) {
 
                             {selected_sent_item.event_status === "Accepted" &&
                               selected_sent_item.assigned_team_member?.length >
-                                0 && (
+                              0 && (
                                 <TRow
                                   label="Assigned Team Members"
                                   value={
@@ -438,7 +438,7 @@ function EventManagement({ category }) {
                   <table>
                     <thead>
                       <tr>
-                        <th>{add_filter("ID")}</th>
+                        <th style={{ width: "10px" }}>{add_filter("ID")}</th>
                         <th>{add_filter("Package Name")}</th>
                         <th>{add_filter("Service")}</th>
                         <th>{add_filter("Description")}</th>
@@ -570,28 +570,28 @@ function EventManagement({ category }) {
                             <td className="action-buttons">
                               {item.event_status.toLowerCase() ===
                                 "pending" && (
-                                <>
-                                  <button
-                                    className="approve-btn"
-                                    onClick={() => {
-                                      set_data(item);
-                                    }}
-                                  >
-                                    Approve
-                                  </button>
-                                  <button
-                                    className="reject-btn"
-                                    onClick={() => handleRejectClick(item)}
-                                  >
-                                    <IoCloseOutline style={{height: "20px", width: "20px"}}/>
-                                  </button>
-                                </>
-                              )}
+                                  <>
+                                    <button
+                                      className="approve-btn"
+                                      onClick={() => {
+                                        set_data(item);
+                                      }}
+                                    >
+                                      Approve
+                                    </button>
+                                    <button
+                                      className="reject-btn"
+                                      onClick={() => handleRejectClick(item)}
+                                    >
+                                      <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                    </button>
+                                  </>
+                                )}
                               <button
                                 className="info-btn"
                                 onClick={() => handleInfoClick(item)}
                               >
-                                <IoInformation style={{height: "20px", width: "20px"}} />
+                                <IoInformation style={{ height: "20px", width: "20px" }} />
                               </button>
                             </td>
                           </tr>
@@ -608,7 +608,7 @@ function EventManagement({ category }) {
                   <table>
                     <thead>
                       <tr>
-                        <th>{add_filter("ID")}</th>
+                        <th style={{ width: "100px" }}>{add_filter("ID")}</th>
                         <th>{add_filter("Sender Email")}</th>
                         <th>{add_filter("Equipment Name")}</th>
                         <th>{add_filter("Company")}</th>
@@ -641,28 +641,28 @@ function EventManagement({ category }) {
                             <td className="action-buttons">
                               {item.event_status.toLowerCase() ===
                                 "pending" && (
-                                <>
-                                  <button
-                                    className="approve-btn"
-                                    onClick={() => {
-                                      set_data(item);
-                                    }}
-                                  >
-                                    Approve
-                                  </button>
-                                  <button
-                                    className="reject-btn"
-                                    onClick={() => handleRejectClick(item)}
-                                  >
-                                    <IoCloseOutline style={{height: "20px", width: "20px"}}/>
-                                  </button>
-                                </>
-                              )}
+                                  <>
+                                    <button
+                                      className="approve-btn"
+                                      onClick={() => {
+                                        set_data(item);
+                                      }}
+                                    >
+                                      Approve
+                                    </button>
+                                    <button
+                                      className="reject-btn"
+                                      onClick={() => handleRejectClick(item)}
+                                    >
+                                      <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                    </button>
+                                  </>
+                                )}
                               <button
                                 className="info-btn"
                                 onClick={() => handleInfoClick(item)}
                               >
-                                <IoInformation style={{height: "20px", width: "20px"}} />
+                                <IoInformation style={{ height: "20px", width: "20px" }} />
                               </button>
                             </td>
                           </tr>

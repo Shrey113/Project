@@ -631,7 +631,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   font-family: var(--Heading);
   transition: all 0.3s ease-in-out;
 }
@@ -814,346 +814,7 @@
   overflow: hidden;
 }
 
-/* Add responsive design */
-@media (max-width: 885px) {
-  .owner-details-container .email_business_website {
-    gap: 0px;
-    padding: 0px;
-  }
 
-  .owner-details-container .email_business_website .details_1 {
-    gap: 0px;
-    width: 45%;
-  }
-
-  .owner-details-container .full_view_image_container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.726);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    backdrop-filter: blur(2px);
-  }
-
-  .owner-details-container .full_view_image_container .full_view_image {
-    height: 100vh;
-    width: 100%;
-    object-fit: contain;
-  }
-
-  .owner-details-container .full_view_image_container .button_container {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .owner-details-container .full_view_image_container button {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    padding: 8px 12px;
-    border-radius: 20px;
-    border: none;
-    font-size: 14px;
-    font-weight: 550;
-    font-family: monospace;
-    box-shadow: rgba(10, 10, 10, 0.66) 1.95px 1.95px 2.6px;
-  }
-
-  .owner-details-container .full_view_image_container button:hover .download_logo,
-  .owner-details-container .full_view_image_container button:hover .close_logo {
-    animation: upDown 0.6s ease-in-out alternate;
-  }
-}
-
-@media (max-width: 800px) {
-  .owner-details-container .info-item label {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 2px;
-    display: block;
-    font-family: var(--Heading);
-  }
-
-  .owner-details-container .info-item p {
-    color: #1a202c;
-    font-weight: 600;
-    font-size: 12px;
-    font-family: var(--Heading);
-    max-width: 150px;
-    text-wrap: wrap;
-    overflow: hidden;
-    word-wrap: break-word;
-    white-space: normal;
-    overflow: hidden;
-    padding: 5px;
-  }
-
-  .owner-details-container .info-item .icon-container {
-    width: 30px;
-    min-width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    border-radius: 12px;
-    color: #4361ee;
-    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.1);
-  }
-
-  .owner-details-container .info-item .icon {
-    font-size: 18px;
-  }
-
-  .owner-details-container .info-item .service-item {
-    font-size: 12px;
-    font-weight: 500;
-    background: #64748b36;
-    padding: 3px 6px;
-  }
-
-  .owner-details-container .owner-status .all_links {
-    gap: 12px;
-  }
-
-  .owner-details-container .owner-status .all_links a {
-    font-size: 15px;
-    border-radius: 5px;
-    padding: 4px;
-  }
-}
-
-@media (max-width: 768px) {
-  .owner-details-container .owner-profile-right {
-    border-left: none;
-  }
-
-  .owner-details-container .info-item label {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 2px;
-    display: block;
-    font-family: var(--Heading);
-  }
-
-  .owner-details-container .info-item p {
-    color: #1a202c;
-    font-weight: 600;
-    font-size: 14px;
-    font-family: var(--Heading);
-    max-width: 200px;
-    text-wrap: wrap;
-    overflow: hidden;
-    word-wrap: break-word;
-    white-space: normal;
-    overflow: hidden;
-    padding: 5px;
-  }
-
-  .owner-details-container .info-item .icon-container {
-    width: 40px;
-    min-width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    border-radius: 12px;
-    color: #4361ee;
-    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.1);
-  }
-
-  .owner-details-container .info-item .icon {
-    font-size: 20px;
-  }
-
-  .owner-details-container .info-item .service-item {
-    font-size: 14px;
-    font-weight: 500;
-    background: #64748b36;
-    padding: 3px 6px;
-  }
-
-  .owner-details-container .owner-status .all_links {
-    gap: 14px;
-  }
-
-  .owner-details-container .owner-status .all_links a {
-    font-size: 20px;
-    border-radius: 5px;
-    padding: 4px;
-  }
-
-  /* old code  */
-  .owner-profile-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .owner-details-container .owner-profile-right {
-    width: 100%;
-  }
-
-  .owner-details-container .owner-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 650px) {
-  .owner-details-container .owner-profile-container {
-    padding: 10px 10px;
-  }
-
-  .owner-details-container .owner-profile-right {
-    padding: 10px 5px;
-  }
-
-  .owner-details-container .owner-profile-right .info-card {
-    padding: 10px 10px;
-  }
-
-  .owner-details-container .info-item {
-    gap: 10px;
-  }
-
-  .owner-details-container .info-item p {
-    max-width: 150px;
-  }
-}
-
-@media (max-width: 530px) {
-  .owner-details-container .info-item p {
-    padding: 0px;
-  }
-
-  .owner-details-container .email_business_website {
-    gap: 10px;
-  }
-}
-
-@media (max-width: 500px) {
-  .owner-details-container .info-item p {
-    max-width: 110px;
-    font-size: 10px;
-  }
-
-  .owner-details-container .info-item label {
-    font-size: 12px;
-  }
-
-  .owner-details-container .info-item .icon-container {
-    width: 30px;
-    min-width: 30px;
-    height: 30px;
-  }
-
-  .owner-details-container .info-item .icon {
-    font-size: 16px;
-  }
-
-  .owner-details-container .info-item .service-item {
-    font-size: 12px;
-  }
-
-  .owner-details-container .owner-info-details .owner_details_img_container {
-    height: 150px !important;
-    width: 150px !important;
-  }
-
-  .owner-details-container .owner-status .all_links {
-    gap: 14px;
-  }
-
-  .owner-details-container .owner-status .all_links a {
-    font-size: 18px;
-    padding: 3px;
-  }
-}
-
-
-
-@media (max-width: 420px) {
-  .owner-details-container .owner-profile-container {
-    padding: 6px;
-  }
-
-  .owner-details-container .owner-profile-right .info-card {
-    padding: 0px;
-  }
-
-  .owner-details-container .info-item {
-    gap: 8px;
-  }
-
-  .owner-details-container .info-item p {
-    max-width: 90px;
-    font-size: 9px;
-  }
-}
-
-@media (max-width: 350px) {
-  .owner-details-container .info-item .icon-container {
-    width: 40px;
-    min-width: 40px;
-    height: 40px;
-  }
-
-  .owner-details-container .info-item .icon {
-    font-size: 20px;
-  }
-
-  .owner-details-container .email_business_website {
-    gap: 10px;
-    flex-direction: column;
-  }
-
-  .owner-details-container .owner-profile-right {
-    padding: 10px 5px;
-    margin-top: 10px;
-  }
-
-  .owner-details-container .email_business_website .details_1 {
-    width: 80%;
-    gap: 10px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .owner-details-container .owner-profile-right .info-card {
-    gap: 20px;
-  }
-
-  .owner-details-container .email_business_website .details_2 {
-    width: 80%;
-    gap: 10px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .owner-details-container .info-item p {
-    max-width: fit-content;
-    font-size: 12px;
-  }
-
-  .owner-details-container .owner-profile-right {
-    gap: 25px;
-  }
-
-}
 
 /* Common Section Styling */
 .owner-details-container .section {
@@ -1294,8 +955,8 @@
 /* Section Titles */
 .owner-details-container .profile_preview_equipment_title,
 .owner-details-container .profile_preview_packages_title,
-.owner-details-container .profile_preview_photos_title,
-.owner-details-container .profile_preview_services_title {
+.owner-details-container .profile_preview_services_title,
+.owner-details-container .profile_preview_photos_title {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1304,12 +965,14 @@
   margin-bottom: 10px;
 }
 
+
 .owner-details-container .profile_preview_equipment_title .equipment-card-title,
 .owner-details-container .profile_preview_packages_title .packages-card-title,
-.owner-details-container .profile_preview_photos_title .photos-card-title {
+.owner-details-container .profile_preview_photos_title .photos-card-title,
+.owner-details-container .profile_preview_services_title .services-card-title {
   font-size: 24px;
   color: #2c3e50;
-  padding-bottom: 8px;
+  /* padding-bottom: 8px; */
   font-family: var(--Heading);
 }
 
@@ -1572,7 +1235,8 @@
   gap: 10px;
   flex-direction: column;
   line-height: 1.5;
-  /* max-width: 300px;  */
+  min-height: fit-content;
+  height: 500px;
   flex: 250px;
   border-radius: 10px;
   position: relative;
@@ -1837,7 +1501,7 @@
   border: none;
   font-size: 14px;
   font-weight: 550;
-  font-family: monospace;
+  font-family: var(--Heading);
   box-shadow: rgba(10, 10, 10, 0.66) 1.95px 1.95px 2.6px;
 }
 
@@ -1858,4 +1522,391 @@
   100% {
     transform: translateY(0px);
   }
+}
+
+
+/* Add responsive design */
+@media (max-width: 885px) {
+  .owner-details-container .email_business_website {
+    gap: 0px;
+    padding: 0px;
+  }
+
+  .owner-details-container .email_business_website .details_1 {
+    gap: 0px;
+    width: 45%;
+  }
+
+  .owner-details-container .full_view_image_container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.726);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    backdrop-filter: blur(2px);
+  }
+
+  .owner-details-container .full_view_image_container .full_view_image {
+    height: 100vh;
+    width: 100%;
+    object-fit: contain;
+  }
+
+  .owner-details-container .full_view_image_container .button_container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .owner-details-container .full_view_image_container button {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: none;
+    font-size: 14px;
+    font-weight: 550;
+    font-family: var(--Heading);
+    box-shadow: rgba(10, 10, 10, 0.66) 1.95px 1.95px 2.6px;
+  }
+
+  .owner-details-container .full_view_image_container button:hover .download_logo,
+  .owner-details-container .full_view_image_container button:hover .close_logo {
+    animation: upDown 0.6s ease-in-out alternate;
+  }
+}
+
+@media (max-width: 800px) {
+  .owner-details-container .info-item label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    display: block;
+    font-family: var(--Heading);
+  }
+
+  .owner-details-container .info-item p {
+    color: #1a202c;
+    font-weight: 600;
+    font-size: 12px;
+    font-family: var(--Heading);
+    max-width: 150px;
+    text-wrap: wrap;
+    overflow: hidden;
+    word-wrap: break-word;
+    white-space: normal;
+    overflow: hidden;
+    padding: 5px;
+  }
+
+  .owner-details-container .info-item .icon-container {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 12px;
+    color: #4361ee;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.1);
+  }
+
+  .owner-details-container .info-item .icon {
+    font-size: 18px;
+  }
+
+  .owner-details-container .info-item .service-item {
+    font-size: 12px;
+    font-weight: 500;
+    background: #64748b36;
+    padding: 3px 6px;
+  }
+
+  .owner-details-container .owner-status .all_links {
+    gap: 12px;
+  }
+
+  .owner-details-container .owner-status .all_links a {
+    font-size: 15px;
+    border-radius: 5px;
+    padding: 4px;
+  }
+}
+
+@media (max-width: 768px) {
+  .owner-details-container .owner-profile-right {
+    border-left: none;
+  }
+
+  .owner-details-container .info-item label {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    display: block;
+    font-family: var(--Heading);
+  }
+
+  .owner-details-container .info-item p {
+    color: #1a202c;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: var(--Heading);
+    max-width: 200px;
+    text-wrap: wrap;
+    overflow: hidden;
+    word-wrap: break-word;
+    white-space: normal;
+    overflow: hidden;
+    padding: 5px;
+  }
+
+  .owner-details-container .info-item .icon-container {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 12px;
+    color: #4361ee;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.1);
+  }
+
+  .owner-details-container .info-item .icon {
+    font-size: 20px;
+  }
+
+  .owner-details-container .info-item .service-item {
+    font-size: 14px;
+    font-weight: 500;
+    background: #64748b36;
+    padding: 3px 6px;
+  }
+
+  .owner-details-container .owner-status .all_links {
+    gap: 14px;
+  }
+
+  .owner-details-container .owner-status .all_links a {
+    font-size: 20px;
+    border-radius: 5px;
+    padding: 4px;
+  }
+
+  /* old code  */
+  .owner-profile-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .owner-details-container .owner-profile-right {
+    width: 100%;
+  }
+
+  .owner-details-container .owner-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 650px) {
+  .owner-details-container .owner-profile-container {
+    padding: 10px 10px;
+  }
+
+  .owner-details-container .tabs {
+    display: none;
+    /* align-items: center;
+    justify-content: center;
+    gap: 15px; */
+  }
+
+  .owner-details-container .owner-profile-right {
+    padding: 10px 5px;
+  }
+
+  .owner-details-container .owner-profile-right .info-card {
+    padding: 10px 10px;
+  }
+
+  .owner-details-container .info-item {
+    gap: 10px;
+  }
+
+  .owner-details-container .info-item p {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 530px) {
+  .owner-details-container .info-item p {
+    padding: 0px;
+  }
+
+  .owner-details-container .email_business_website {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 500px) {
+  .owner-details-container .info-item p {
+    max-width: 110px;
+    font-size: 10px;
+  }
+
+  .owner-details-container .info-item label {
+    font-size: 12px;
+  }
+
+  .owner-details-container .info-item .icon-container {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+  }
+
+  .owner-details-container .info-item .icon {
+    font-size: 16px;
+  }
+
+  .owner-details-container .info-item .service-item {
+    font-size: 12px;
+  }
+
+  .owner-details-container .owner-info-details .owner_details_img_container {
+    height: 150px !important;
+    width: 150px !important;
+  }
+
+  .owner-details-container .owner-status .all_links {
+    gap: 14px;
+  }
+
+  .owner-details-container .owner-status .all_links a {
+    font-size: 18px;
+    padding: 3px;
+  }
+
+  .owner-details-container .full_view_image_container .button_container {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+}
+
+
+@media (max-width: 420px) {
+  .owner-details-container .owner-profile-container {
+    padding: 6px;
+  }
+
+  .owner-details-container .owner-profile-right .info-card {
+    padding: 0px;
+  }
+
+  .owner-details-container .info-item {
+    gap: 8px;
+  }
+
+  .owner-details-container .info-item p {
+    max-width: 90px;
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 350px) {
+
+  .owner-details-container .profile_preview_equipment_title,
+  .owner-details-container .profile_preview_packages_title,
+  .owner-details-container .profile_preview_services_title,
+  .owner-details-container .profile_preview_photos_title {
+    padding: 0px;
+  }
+
+  .owner-details-container .see_all_button {
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .owner-details-container .profile_preview_equipment_title .equipment-card-title,
+  .owner-details-container .profile_preview_packages_title .packages-card-title,
+  .owner-details-container .profile_preview_photos_title .photos-card-title,
+  .owner-details-container .profile_preview_services_title .services-card-title {
+    font-size: 18px;
+  }
+
+  .owner-details-container .info-item .icon-container {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+  }
+
+  .owner-details-container .info-item .icon {
+    font-size: 20px;
+  }
+
+  .owner-details-container .email_business_website {
+    gap: 10px;
+    flex-direction: column;
+  }
+
+  .owner-details-container .owner-profile-right {
+    padding: 10px 5px;
+    margin-top: 10px;
+  }
+
+  .owner-details-container .email_business_website .details_1 {
+    width: 80%;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .owner-details-container .owner-profile-right .info-card {
+    gap: 20px;
+  }
+
+  .owner-details-container .email_business_website .details_2 {
+    width: 80%;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .owner-details-container .info-item p {
+    max-width: fit-content;
+    font-size: 12px;
+  }
+
+  .owner-details-container .owner-profile-right {
+    gap: 25px;
+  }
+
+
+
+  .owner-details-container .full_view_image_container button {
+    gap: 5px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
 }
