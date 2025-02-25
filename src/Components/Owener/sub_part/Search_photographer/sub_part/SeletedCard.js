@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./SeletedCard.css";
+import { IoClose } from "react-icons/io5";
 import {
   Server_url,
   showAcceptToast,
@@ -330,10 +331,12 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       onClick={(e) => {
         onClose();
       }}
-      style={{ zIndex: "1" }}
     >
       <div className="on_close" onClick={onClose}>
-        <i className="fa-solid fa-xmark"></i>
+        <IoClose style={{
+          fontWeight: "600",
+          fontSize: "20px",
+        }} />
       </div>
       <div
         className="selected-card-container"

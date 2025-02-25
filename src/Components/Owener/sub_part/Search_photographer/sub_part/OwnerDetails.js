@@ -227,7 +227,7 @@ const OwnerDetails = () => {
 
 
   useEffect(() => {
-    if (ownerData?.packages?.length > 4) {
+    if (ownerData?.packages?.length >= 4) {
       setpackagesMoreThan4(true);
     } else {
       setpackagesMoreThan4(false);
@@ -237,7 +237,8 @@ const OwnerDetails = () => {
     } else {
       setEquipmentMoreThan4(false);
     }
-    if (ownerData?.services?.length > 4) {
+    if (ownerData?.services?.length >= 3) {
+      console.log("services", ownerData.services.length);
       setServicesMoreThan4(true);
     } else {
       setServicesMoreThan4(false);
@@ -501,7 +502,7 @@ const OwnerDetails = () => {
               <div className="info-item ">
                 <div
                   className="icon-container"
-                  style={{ marginLeft: "20px" }}
+                // style={{ marginLeft: "20px" }}
                 >
                   <MdOutlineDesignServices className="icon" />
                 </div>
@@ -691,8 +692,7 @@ const OwnerDetails = () => {
                 <li
                   key={index}
                   className="equipment_item"
-                  onClick={() => handleItemClick(item, "equipment")}
-
+                // onClick={() => handleItemClick(item, "equipment")}
                 >
                   <div className="photo_container_for_equipment">
                     <img
@@ -717,7 +717,7 @@ const OwnerDetails = () => {
                   </div>
                   <button
                     className="book-equipment-button"
-                    onClick={() => () => handleItemClick(item, "equipment")}
+                    onClick={() => handleItemClick(item, "equipment")}
                   >
                     Book Equipment
                   </button>
@@ -740,11 +740,12 @@ const OwnerDetails = () => {
             <div className="profile_preview_services_title">
               <div className="services-card-title">Services</div>
               {servicesMoreThan4 && (
-                <button onClick={() => handleShowAllClick("services")}>
-                  Show All
-                </button>
+                <div onClick={() => handleShowAllClick("services")} className="see_all_button">
+                  See All <MdOutlineKeyboardDoubleArrowRight style={{ fontSize: "20px" }} />
+                </div>
               )}
             </div>
+            <hr style={{ width: "98%", margin: "auto" }} />
             <div className="services_items_container">
               {ownerData.services.slice(0, 3).map((item, index) => (
                 <li
@@ -757,12 +758,16 @@ const OwnerDetails = () => {
                     <p>{item.service_name || "Not Available"}</p>
                   </div>
 
-                  <div className="services_price_container">
-                    <p>Rs. {item.price_per_day || "Not Available"} /Day</p>
-                  </div>
-                  <div className="services_description">
-                    <strong>Details:</strong>
-                    <p>{item.description || "Not Available"}</p>
+                  <div className="for_service_price_and_book_button">
+                    <div className="services_price_container">
+                      <div className="rupee_symbol"> ₹</div> <div className="service_price">{item.price_per_day || "Not Available"}</div> <span className="per_day">/Day</span>
+                    </div>
+                    <hr style={{ width: "98%", marginTop: "5px" }} />
+                    {/* <div className="services_description">
+                      <strong>Details:</strong>
+                      <p>{item.description || "Not Available"}</p>
+                    </div> */}
+                    <button>Book Service</button>
                   </div>
                 </li>
               ))}
@@ -777,62 +782,70 @@ const OwnerDetails = () => {
 
 
 
-      {showSelectedCard && selectedData && (
-        <SeletedCard
-          type={selectedType}
-          onClose={() => {
-            setShowSelectedCard(false);
-            setSelectedData(null);
-            setSelectedType(null);
-          }}
-          selectedOwner={selectedOwner}
-          selectedData={selectedData}
-        />
-      )}
+      {
+        showSelectedCard && selectedData && (
+          <SeletedCard
+            type={selectedType}
+            onClose={() => {
+              setShowSelectedCard(false);
+              setSelectedData(null);
+              setSelectedType(null);
+            }}
+            selectedOwner={selectedOwner}
+            selectedData={selectedData}
+          />
+        )
+      }
 
       {/* Loading Animation */}
-      {isLoading && (
-        <div className="loading-container">
-          <div className="skeleton-loader"></div>
-        </div>
-      )}
+      {
+        isLoading && (
+          <div className="loading-container">
+            <div className="skeleton-loader"></div>
+          </div>
+        )
+      }
 
       {/* OR for the dots loader: */}
-      {isLoading && (
-        <div className="loading-container">
-          <div className="loading-dots">
-            <div className="dot"></div>
-            <div className="dot"></div>
-            <div className="dot"></div>
+      {
+        isLoading && (
+          <div className="loading-container">
+            <div className="loading-dots">
+              <div className="dot"></div>
+              <div className="dot"></div>
+              <div className="dot"></div>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
 
 
-{fullViewImage && (
-  <div
-    className="full_view_image_container" onClick={() => setFullViewImage("")} >
-    <div className="full_view_image_wrapper" onClick={(e) => e.stopPropagation()} >
-      <img src={fullViewImage} className="full_view_image" alt="Full view" />
-      <div className="button_container">
+      {
+        fullViewImage && (
+          <div
+            className="full_view_image_container" onClick={() => setFullViewImage("")} >
+            <div className="full_view_image_wrapper" onClick={(e) => e.stopPropagation()} >
+              <img src={fullViewImage} className="full_view_image" alt="Full view" />
+              <div className="button_container">
 
-        <button className="download_button" onClick={(e) => { e.stopPropagation(); handleDownload(); }} >
-          <FaCloudDownloadAlt className="close_logo" style={{ fontSize: "18px" }} />
-          Download
-        </button>
+                <button className="download_button" onClick={(e) => { e.stopPropagation(); handleDownload(); }} >
+                  <FaCloudDownloadAlt className="close_logo" style={{ fontSize: "18px" }} />
+                  Download
+                </button>
 
-        <button className="close_button" onClick={() => setFullViewImage("")} >
-          <IoCloseSharp className="download_logo" style={{ fontSize: "18px" }} />
-          Close
-        </button>
+                <button className="close_button" onClick={() => setFullViewImage("")} >
+                  <IoCloseSharp className="download_logo" style={{ fontSize: "18px" }} />
+                  Close
+                </button>
 
-      </div>
-    </div>
-  </div>
-)}
+              </div>
+            </div>
+          </div>
+        )
+      }
 
-    </div>
+    </div >
   );
 };
 
