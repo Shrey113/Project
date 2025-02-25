@@ -1444,6 +1444,80 @@ router.post("/add-equipment-request", (req, res) => {
   });
 });
 
+// Add service request
+router.post("/add-service-request", (req, res) => {
+  const {
+    event_name,
+    sender_email,
+    receiver_email,
+    service_name,
+    service_price,
+    description,
+    total_amount,
+    requirements,
+    service_id,
+    start_date,
+    end_date
+  } = req.body;
+
+  if (!event_name || !sender_email || !receiver_email) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 19).replace('T', ' ');
+  };
+
+  const formattedStartDate = formatDate(start_date);
+  const formattedEndDate = formatDate(end_date);
+
+  const query = `
+    INSERT INTO event_request (
+      event_request_type, 
+      event_name,
+      service_name, 
+      service_price_per_day, 
+      service_description, 
+      sender_email, 
+      receiver_email, 
+      total_amount,
+      requirements,
+      services_id,
+      start_date,
+      end_date
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+    "service",
+    event_name,
+    service_name,
+    service_price,
+    description,
+    sender_email,
+    receiver_email,
+    total_amount,
+    requirements,
+    service_id,
+    formattedStartDate,
+    formattedEndDate
+  ];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error("Error adding service request:", err);
+      return res.status(500).json({ error: "Error adding service request" });
+    }
+
+    res.status(201).json({
+      message: "Service request added successfully",
+      request_id: result.insertId,
+    });
+  });
+});
+
 router.get("/get-package-details/:receiver_email", (req, res) => {
   const { receiver_email } = req.params;
   const query = `SELECT * FROM event_request WHERE receiver_email = ? and event_request_type=?`;

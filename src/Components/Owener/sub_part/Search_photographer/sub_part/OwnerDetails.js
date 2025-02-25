@@ -692,7 +692,6 @@ const OwnerDetails = () => {
                 <li
                   key={index}
                   className="equipment_item"
-                // onClick={() => handleItemClick(item, "equipment")}
                 >
                   <div className="photo_container_for_equipment">
                     <img
@@ -751,7 +750,7 @@ const OwnerDetails = () => {
                 <li
                   key={index}
                   className="service_item"
-                  onClick={() => handleItemClick(item, "services")}
+                  onClick={() => handleItemClick(item, "service")}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="container_for_services_name">

@@ -86,6 +86,11 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     equipment_description: selectedData.equipment_description,
     equipment_price_per_day: selectedData.equipment_price_per_day,
 
+    // service
+    service_id: selectedData.id,
+    service_name: selectedData.service_name || "",
+    service_price: selectedData.price_per_day || 0,
+
     start_date: new Date(),
     end_date: new Date(),
     location: "",
@@ -97,7 +102,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     total_amount:
       type === "equipment"
         ? selectedData.equipment_price_per_day
-        : selectedData.price * 1,
+        : selectedData.price_per_day * 1,
   });
 
   const [dateErrors, setDateErrors] = useState({
@@ -118,6 +123,8 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         total_amount:
           type === "equipment"
             ? days * formData.equipment_price_per_day
+            : type === "service"
+            ? days * formData.service_price
             : days * formData.price,
       });
     } else {
@@ -191,6 +198,36 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     }
   };
 
+  const add_service_request = async () => {
+    const data = {
+      ...formData,
+      event_name: type,
+      sender_email: user.user_email,
+      receiver_email: selectedOwner.user_email,
+    };
+    console.log("Service form data", data);
+
+    try {
+      const response = await fetch(`${Server_url}/owner/add-service-request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        showRejectToast({ message: "Service request failed" });
+        throw new Error("Request failed");
+      }
+      showAcceptToast({ message: "Service request added successfully" });
+
+      onClose();
+    } catch (error) {
+      console.error("Error adding service request:", error);
+    }
+  };
+
   const scrollToTop = () => {
     if (containerRef.current) {
       containerRef.current.scrollTo({
@@ -261,6 +298,8 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       await add_equipment_request();
     } else if (type === "package") {
       await add_package_request();
+    } else if (type === "service") {
+      await add_service_request();
     }
   };
 
@@ -585,7 +624,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                 </div>
                 <div className="info-group">
                   <label>Price</label>
-                  <div className="info-value">{formData.price}</div>
+                  <div className="info-value">{formData.service_price}</div>
                 </div>
               </div>
 
@@ -633,6 +672,142 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
               <button type="submit" className="submit-btn">
                 Book Package
+              </button>
+            </form>
+          </div>
+        )}
+
+        {type === "service" && (
+          <div className="service-card-container-selected">
+            <div className="service-card-title-selected">Service Booking</div>
+            <form onSubmit={handleSubmit} className="booking-form">
+              {/* Information Display Section */}
+              <div className="info-section">
+                <div className="info-group">
+                  <label>Service Name</label>
+                  <div className="info-value">{formData.service_name}</div>
+                </div>
+                <div className="date-time-container">
+                  <ThemeProvider theme={theme}>
+                    <div className="date-input-group">
+                      <label className="form-label">Start Date:</label>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          value={
+                            formData.start_date
+                              ? dayjs(formData.start_date)
+                              : null
+                          }
+                          onChange={(newValue) =>
+                            handleDateChange("start_date", newValue)
+                          }
+                          minDate={dayjs()}
+                          format="DD-MM-YYYY"
+                          shouldDisableDate={shouldDisableDate}
+                          renderDay={renderDay}
+                          slotProps={{
+                            textField: {
+                              className: "form-input",
+                              error: !!dateErrors.start_date,
+                              helperText: dateErrors.start_date,
+                              sx: {
+                                "& .MuiFormHelperText-root": {
+                                  color: "#d32f2f",
+                                  marginLeft: "0",
+                                },
+                              },
+                            },
+                          }}
+                        />
+                      </LocalizationProvider>
+                    </div>
+
+                    <div className="date-input-group">
+                      <label className="form-label">End Date:</label>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          value={
+                            formData.end_date ? dayjs(formData.end_date) : null
+                          }
+                          onChange={(newValue) =>
+                            handleDateChange("end_date", newValue)
+                          }
+                          minDate={dayjs()}
+                          format="DD-MM-YYYY"
+                          shouldDisableDate={shouldDisableDate}
+                          renderDay={renderDay}
+                          slotProps={{
+                            textField: {
+                              className: "form-input",
+                              error: !!dateErrors.end_date,
+                              helperText: dateErrors.end_date,
+                              sx: {
+                                "& .MuiFormHelperText-root": {
+                                  color: "#d32f2f",
+                                  marginLeft: "0",
+                                },
+                              },
+                            },
+                          }}
+                        />
+                      </LocalizationProvider>
+                    </div>
+                  </ThemeProvider>
+                </div>
+                <div className="info-group">
+                  <label>Description</label>
+                  <div className="info-value">{formData.description}</div>
+                </div>
+                <div className="info-group">
+                  <label>Price</label>
+                  <div className="info-value">{formData.service_price}</div>
+                </div>
+              </div>
+
+              {/* User Input Section */}
+              <div className="form-group">
+                <label>Number of Days Required</label>
+                <input
+                  type="number"
+                  name="days_required"
+                  value={formData.days_required}
+                  onChange={handleChange}
+                  min="1"
+                  required
+                />
+                {formData.days_required_error && (
+                  <div className="error-message">
+                    {formData.days_required_error}
+                  </div>
+                )}
+              </div>
+              <div className="info-group total-amount">
+                <label>Total Amount</label>
+                <div className="info-value">₹{formData.total_amount}</div>
+              </div>
+              <div className="form-group">
+                <label>Location</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Requirements (Optional)</label>
+                <textarea
+                  name="requirements"
+                  value={formData.requirements}
+                  onChange={handleChange}
+                  rows="3"
+                />
+              </div>
+
+              <button type="submit" className="submit-btn">
+                Book Service
               </button>
             </form>
           </div>
