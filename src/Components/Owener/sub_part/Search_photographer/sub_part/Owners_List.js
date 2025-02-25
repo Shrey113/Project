@@ -4,7 +4,6 @@ import "./Owners_List_2.css";
 import user1 from "./../../../sub_part/profile_pic/user1.jpg";
 import { Server_url } from "./../../../../../redux/AllData";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { FaEnvelope, FaMapMarkerAlt, FaSearch } from "react-icons/fa";
 import { MdCamera } from "react-icons/md";
 
@@ -31,10 +30,8 @@ const SkeletonCard = () => (
 const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
   const [localLoading, setLocalLoading] = useState(true);
   const [selectedOwner, setSelectedOwner] = useState(null);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Add useEffect to handle loading state
   useEffect(() => {
     if (owners || filteredUsers) {
       // Add a small delay to ensure smooth transition
@@ -44,17 +41,6 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
       return () => clearTimeout(timer);
     }
   }, [owners, filteredUsers]);
-
-  const set_is_full_screen = (value) => {
-    dispatch({
-      type: "SET_USER_Owner",
-      payload: {
-        is_full_screen: value,
-      },
-    });
-  };
-
-
 
   const handleExplore = async (owner) => {
     if (selectedOwner === owner) {

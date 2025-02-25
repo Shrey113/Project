@@ -76,8 +76,7 @@ function App() {
     Admin: null,
     owner: null,
     client: null,
-  });
-  const user = useSelector((state) => state.user);
+    });
 
 
   const [OwnerStatus, setOwnerStatus] = useState("");
@@ -432,7 +431,11 @@ function App() {
         <Route
           path="/Owner/Invoice"
           element={
-            <SetOwnerPage ActivePage={TableToggleButtons} />
+            authStatus.owner ? (
+              <SetOwnerPage ActivePage={TableToggleButtons} />
+            ) : (
+              <LoginRegisterOwener />
+            )
           }
         />
           
@@ -468,16 +471,34 @@ function App() {
 
         <Route
           path="/Owner/search_photographer/:owner_email"
-          element={<SetOwnerPage ActivePage={OwnerDetails} />}
+          element={
+            authStatus.owner ? (
+              <SetOwnerPage ActivePage={OwnerDetails} />
+            ) : (
+              <LoginRegisterOwener />
+            )
+          }
         />
         <Route
           path="/Owner/search_photographer/:owner_email/:type"
-          element={<SetOwnerPage ActivePage={DetailedView} />}
+          element={
+            authStatus.owner ? (
+              <SetOwnerPage ActivePage={DetailedView} />
+            ) : (
+              <LoginRegisterOwener />
+            )
+          }
         />
 
         <Route
           path="/Owner/search_photographer/:owner_email/all_photos"
-          element={<SetOwnerPage ActivePage={AllPhotoFiles} />}
+          element={
+            authStatus.owner ? (
+              <SetOwnerPage ActivePage={AllPhotoFiles} />
+            ) : (
+              <LoginRegisterOwener />
+            )
+          }
         />
 
         <Route
@@ -495,7 +516,13 @@ function App() {
 
         <Route
           path="/Owner_profile/search_photographer/:owner_email"
-          element={<SetOwnerPage ActivePage={OwnerDetails} />}
+          element={
+            authStatus.owner ? (
+              <SetOwnerPage ActivePage={OwnerDetails} />
+            ) : (
+              <LoginRegisterOwener />
+            )
+          }
         />
 
         {/* 404 Page */}

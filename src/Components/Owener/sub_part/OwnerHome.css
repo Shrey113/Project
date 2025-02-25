@@ -86,27 +86,15 @@
 
 .welcome_section {
   background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
-  padding: 2rem;
+  padding: 2.5rem 3rem;
   border-radius: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
 }
-
-/* @keyframes dropShadowAnimation {
-    0% {
-        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.073));
-    }
-    50% {
-      filter: drop-shadow(10px 10px 20px rgba(0, 0, 0, 0.2));
-    }
-    100% {
-        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.073));
-    }
-} */
 
 .welcome_section img {
   /* width: 100%; */
@@ -123,8 +111,8 @@
 
 .welcome_text h1 {
   font-size: 2.5rem;
-  color: #2d3748;
-  margin-bottom: 0.5rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
 }
 
 .welcome_text .highlight {
@@ -133,17 +121,13 @@
 }
 
 .subtitle {
-  color: #6b7280;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  line-height: 1.5;
 }
 
 .current_date {
   font-size: 1.1rem;
-  color: #6b7280;
-  background-color: #ffffff;
   padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   margin-right: 250px;
 }
 
@@ -240,23 +224,164 @@
   color: #dc2626;
 }
 
-@media (max-width: 768px) {
-  .owner_home_page_container {
-    padding: 1rem;
+/* Large tablets and small desktops */
+@media (max-width: 1200px) {
+  .welcome_section {
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
   }
 
+  .welcome_text h1 {
+    font-size: 2.2rem;
+  }
+
+  .current_date {
+    margin-right: 200px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
   .welcome_section {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.8rem;
   }
 
   .welcome_text h1 {
     font-size: 2rem;
   }
 
+  .subtitle {
+    font-size: 1.1rem;
+  }
+
+  .current_date {
+    margin-right: 150px;
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+  }
+
+  .dashboard_cards_container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+  }
+}
+
+/* Small tablets and large phones */
+@media (max-width: 808px) {
+  .owner_home_page_container {
+    padding: 1.2rem;
+  }
+
+  .welcome_section {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .welcome_text h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .current_date {
+    display: none;
+  }
+
+  .welcome_section img {
+    display: none;
+  }
+
   .dashboard_cards_container {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .dashboard_card {
+    padding: 1.2rem;
+  }
+
+  .card_content h3 {
+    font-size: 1rem;
+  }
+
+  .card_content .number {
+    font-size: 1.8rem;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .owner_home_page_container {
+    padding: 1rem;
+  }
+
+  .welcome_section {
+    padding: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .welcome_text h1 {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .current_date {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .dashboard_card {
+    padding: 1rem;
+  }
+
+  .card_content .number {
+    font-size: 1.5rem;
+  }
+
+  .card_content .label {
+    font-size: 0.8rem;
+  }
+
+  .status-pills {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .status-pill {
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 320px) {
+  .owner_home_page_container {
+    padding: 0.8rem;
+  }
+
+  .welcome_section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .welcome_text h1 {
+    font-size: 1.3rem;
+  }
+
+  .current_date {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
   }
 }
 
