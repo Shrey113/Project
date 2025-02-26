@@ -49,7 +49,7 @@ function OwnerSideBar() {
     isVisible: false,
     message_title: "",
     message: "",
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
 
   const user = useSelector((state) => state.user);
@@ -210,9 +210,8 @@ function OwnerSideBar() {
       ></div>
       {/* side bar */}
       <div
-        className={`side_bar ${
-          !isSidebarOpen ? "open_side_bar" : "close_side_bar"
-        } 
+        className={`side_bar ${!isSidebarOpen ? "open_side_bar" : "close_side_bar"
+          } 
                          ${isMobile ? "for_mobile" : ""}`}
         id="OwnerSideBar"
       >
@@ -221,9 +220,8 @@ function OwnerSideBar() {
         <div className="side_bar_title">
           {isMobile ? (
             <div
-              className={`close_side_bar_button ${
-                isSidebarOpen ? "active" : ""
-              }`}
+              className={`close_side_bar_button ${isSidebarOpen ? "active" : ""
+                }`}
               onClick={() => set_is_sidebar_open(!isSidebarOpen)}
             >
               <MenuOpenIcon />
@@ -243,9 +241,8 @@ function OwnerSideBar() {
               className={`active_me_slider ${isMobile ? "for_mobile" : ""}`}
               style={{
                 height: `${windowWidth <= 768 ? 50 : 60}px`,
-                top: `${
-                  Math.floor(activeIndex) * (windowWidth <= 768 ? 50 : 60)
-                }px`,
+                top: `${Math.floor(activeIndex) * (windowWidth <= 768 ? 50 : 60)
+                  }px`,
                 transition: "all 0.2s ease-in-out",
               }}
             ></div>
@@ -254,9 +251,8 @@ function OwnerSideBar() {
           {menuItems.map((item, index) => (
             <React.Fragment key={index}>
               <div
-                className={`item ${
-                  index === Math.floor(activeIndex) && "active"
-                }`}
+                className={`item ${index === Math.floor(activeIndex) && "active"
+                  }`}
                 onClick={() => handleItemClick(index)}
               >
                 <div className="icon">{item.icon}</div>
@@ -267,9 +263,8 @@ function OwnerSideBar() {
                   {item.subMenu.map((subItem, subIndex) => (
                     <div
                       key={`${index}-${subIndex}`}
-                      className={`sub-item ${
-                        activeIndex === index + (subIndex + 1) / 10 && "active"
-                      }`}
+                      className={`sub-item ${activeIndex === index + (subIndex + 1) / 10 && "active"
+                        }`}
                       onClick={() => {
                         setActiveIndex(index + (subIndex + 1) / 10);
                         navigate(subItem.path);

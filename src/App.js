@@ -76,17 +76,17 @@ function App() {
     Admin: null,
     owner: null,
     client: null,
-    });
+  });
 
 
   const [OwnerStatus, setOwnerStatus] = useState("");
-  
+
 
   const { owner_email } = useParams();
 
   const dispatch = useDispatch();
   const isMobile = useSelector((state) => state.user.isMobile);
-  
+
   // const activeIndex = useSelector((state) => state.user.activeIndex);
 
 
@@ -169,22 +169,22 @@ function App() {
           }`}
       >
         <div className="main_part">
-       
-          <OwnerNavbar   
-          
-          searchTerm={ location === "/Owner/search_photographer" ?searchTerm : ''} 
-          
-          setSearchTerm={location === "/Owner/search_photographer" ? setSearchTerm : ''}  />
 
-          
+          <OwnerNavbar
 
-          <ActivePage 
-          
-          category={category} 
-          
-          searchTerm={searchTerm} 
-          
-          setSearchTerm={setSearchTerm} />
+            searchTerm={location === "/Owner/search_photographer" ? searchTerm : ''}
+
+            setSearchTerm={location === "/Owner/search_photographer" ? setSearchTerm : ''} />
+
+
+
+          <ActivePage
+
+            category={category}
+
+            searchTerm={searchTerm}
+
+            setSearchTerm={setSearchTerm} />
         </div>
       </div>
     ) : (
@@ -438,7 +438,7 @@ function App() {
             )
           }
         />
-          
+
 
         {/* Owner routes Packages */}
         <Route
@@ -525,10 +525,16 @@ function App() {
           }
         />
 
+        <Route
+          path="/Owner/share_profile/:owner_email"
+          element={<OwnerDetails />
+          }
+        />
+
         {/* 404 Page */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
-      {authStatus.owner && OwnerStatus === "Accept" && (
+      {authStatus.owner && OwnerStatus === "Accept" && !window.location.pathname.includes("/Owner/share_profile") && (
         <OwnerSideBar />
       )}
 

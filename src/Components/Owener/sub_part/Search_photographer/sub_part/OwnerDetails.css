@@ -62,6 +62,13 @@
   border-radius: 10px;
 }
 
+.owner-details-container .owner-info-details .share_icon {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  cursor: pointer;
+}
+
 .owner-details-container .owner-profile-container {
   display: flex;
   gap: 10px;
@@ -1523,6 +1530,169 @@
     transform: translateY(0px);
   }
 }
+
+.wrapper_container_for_sharing {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(60, 60, 60, 0.288);
+  z-index: 1100;
+}
+
+.wrapper_container_for_sharing .copy-success {
+  position: absolute;
+  bottom: -20px;
+  right: 50%;
+  transform: translateX(50%);
+  background-color: #c0bfbfe2;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--Heading);
+  border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+  color: rgb(36, 36, 36);
+  padding: 8px 15px;
+}
+
+.wrapper_container_for_sharing .copy-success.true {
+  bottom: 30px;
+}
+
+
+.wrapper_container_for_sharing .popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 380px;
+  height: 250px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  opacity: 1;
+  transition: all 0.3s ease-in-out;
+
+}
+
+.popup header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.popup header span {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.popup .close {
+  font-size: 20px;
+  cursor: pointer;
+  color: #555;
+  transition: 0.3s;
+}
+
+
+
+.popup .content {
+  margin-top: 15px;
+}
+
+.popup .content p {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.popup .icons {
+  display: flex;
+  justify-content: space-around;
+  margin: 15px 0;
+}
+
+.popup .icons a {
+  text-decoration: none;
+  font-size: 18px;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.popup .icons a:nth-child(1) {
+  background: #1877F2;
+}
+
+/* Facebook */
+.popup .icons a:nth-child(2) {
+  background: #1DA1F2;
+}
+
+/* Twitter */
+.popup .icons a:nth-child(3) {
+  background: #E4405F;
+}
+
+/* Instagram */
+.popup .icons a:nth-child(4) {
+  background: #25D366;
+}
+
+/* WhatsApp */
+.popup .icons a:nth-child(5) {
+  background: #0088cc;
+}
+
+/* Telegram */
+.popup .shareableIcons {
+  transition: all 0.3s ease-in-out;
+  height: 22px;
+  width: 22px;
+}
+
+.popup .icons a:hover .shareableIcons {
+  transform: scale(1.1);
+}
+
+.popup .field {
+  display: flex;
+  align-items: center;
+  border: 1px solid #aaa;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.popup .field input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 5px 8px;
+  font-family: var(--Heading);
+  font-weight: 550;
+}
+
+.popup .field button {
+  background: #7d2ae8;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: var(--Heading);
+}
+
+
+
 
 
 /* Add responsive design */

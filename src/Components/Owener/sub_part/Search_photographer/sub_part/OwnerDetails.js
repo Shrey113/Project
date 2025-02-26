@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, } from "react";
+import { useLocation, useNavigate, useParams, } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import "./OwnerDetails.css";
 import NoDataForEquipment from "./NoDataForEquipment.png";
@@ -8,6 +8,7 @@ import { IoArrowBack } from "react-icons/io5";
 import { FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import SeletedCard from "./SeletedCard";
 import { MdOutlineInsertLink, MdOutlineDesignServices, MdBusinessCenter, MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
+import { IoIosShareAlt } from "react-icons/io";
 
 
 
@@ -29,6 +30,7 @@ import lens_icon from "./test_img_equipment/lens.png";
 // import { FaAngleDoubleDown } from "react-icons/fa";
 import { IoCloseSharp } from "react-icons/io5";
 import { FaCloudDownloadAlt } from "react-icons/fa";
+import SharePopup from "./SharePopup";
 
 const OwnerDetails = () => {
   const equipmentTypes = [
@@ -61,9 +63,74 @@ const OwnerDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { owner_email } = useParams();
 
-  const ownerData = location.state?.ownerData;
-  const selectedOwner = location.state?.selectedOwner;
+  const [ownerData, setOwnerData] = useState(location.state?.ownerData || owner_email);
+  const [selectedOwner, setSelectedOwner] = useState(location.state?.selectedOwner || owner_email);
+
+  const [isOpen, setIsOpen] = useState(false);
+
+
+  useEffect(() => {
+    if (!location.state?.ownerData) {
+
+      async function get_owner_data(email) {
+        try {
+          const response = await fetch(`${Server_url}/api/owner-all-details`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ user_email: email }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch owner details");
+          }
+
+          const data = await response.json();
+          if (data && data.equipment && data.packages && data.photo_files) {
+            setOwnerData(data);
+          } else {
+            console.error("Data format is not as expected:", data);
+          }
+        } catch (error) {
+          console.error("Error fetching owner details:", error);
+        }
+      }
+      get_owner_data(owner_email)
+    }
+  }, [location.state, owner_email])
+
+  useEffect(() => {
+    if (!location.state?.selectedOwner) {
+      async function selected_owner_data_fetch(owner_email) {
+        try {
+          const response = await fetch(`${Server_url}/api/owner-table-all-details`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ user_email: owner_email }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch owner details");
+          }
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error("Failed to fetch owner details");
+          }
+          setSelectedOwner(data.owner[0]);
+        } catch (error) {
+          console.error("Error fetching owner details:", error);
+        }
+      }
+      selected_owner_data_fetch(owner_email)
+    }
+  }, [location.state, owner_email])
+
 
   const [folders, setFolders] = useState([]);
   const [photos, setPhotos] = useState([]);
@@ -98,7 +165,7 @@ const OwnerDetails = () => {
     if (fullViewImage) {
       const link = document.createElement("a");
       link.href = fullViewImage;
-      link.download = fullViewImage.split("/").pop(); // This will set the filename to the image's name
+      link.download = fullViewImage.split("/").pop();
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -295,8 +362,6 @@ const OwnerDetails = () => {
 
   useEffect(() => {
     const handleBackEvent = (event) => {
-
-
       navigate(`/Owner/search_photographer`);
     };
 
@@ -357,15 +422,15 @@ const OwnerDetails = () => {
 
   const getBackgroundColor = (label) => {
     const colors = {
-      Facebook: "#D8EAFB",   // Light blue
-      Twitter: "#D0F0FD",    // Light cyan
-      Instagram: "#FAD3E6",  // Light pink
-      LinkedIn: "#DCEEF9",   // Light blue
-      WhatsApp: "#D4F8D4",   // Light green
-      YouTube: "#FDDDDD",    // Light red
-      Pinterest: "#FAD4D4",  // Light coral
-      Snapchat: "#FFF5D1",   // Light yellow
-      Default: "#EAEAEA"     // Light gray
+      Facebook: "#D8EAFB",
+      Twitter: "#D0F0FD",
+      Instagram: "#FAD3E6",
+      LinkedIn: "#DCEEF9",
+      WhatsApp: "#D4F8D4",
+      YouTube: "#FDDDDD",
+      Pinterest: "#FAD4D4",
+      Snapchat: "#FFF5D1",
+      Default: "#EAEAEA"
     };
     return colors[label] || colors["Default"];
   };
@@ -385,6 +450,30 @@ const OwnerDetails = () => {
     };
     return borderColors[label] || borderColors["Default"];
   };
+  // const handleShare = async () => {
+  //   const currentUrl = window.location.href.replace("search_photographer", "share_profile");
+  //   if (navigator.share) {
+  //     try {
+  //       await navigator.share({
+  //         title: "Check out this profile!",
+  //         text: "Check out this photographer's profile:",
+  //         url: currentUrl,
+  //       });
+  //       console.log("Shared successfully!");
+  //     } catch (error) {
+  //       console.error("Error sharing:", error);
+  //     }
+  //   } else {
+  //     alert("Your browser does not support Web Share API.");
+  //   }
+  // };
+
+
+
+  const togglePopup = () => {
+    setIsOpen(!isOpen);
+  };
+
 
 
   return (
@@ -401,6 +490,9 @@ const OwnerDetails = () => {
       </nav>
       <div className="owner-info-details">
         <div className="owner-profile-container">
+          <div className="share_icon" onClick={togglePopup}>
+            <IoIosShareAlt />
+          </div>
           <div className="owner-profile-left">
             <div className="owner_details_img_container">
               <img
@@ -843,6 +935,10 @@ const OwnerDetails = () => {
           </div>
         )
       }
+
+      {isOpen && (
+        <SharePopup onClose={() => setIsOpen(false)} />
+      )}
 
     </div >
   );

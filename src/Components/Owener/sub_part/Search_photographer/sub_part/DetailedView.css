@@ -60,6 +60,7 @@
   left: -10px;
   height: 90%;
   z-index: 1;
+
   &::after {
     content: "";
     position: absolute;
@@ -69,6 +70,7 @@
     top: -10px;
     border-radius: 100% 0% 0% 100% / 100% 100% 0% 0%;
   }
+
   &::before {
     content: "";
     position: absolute;
@@ -79,6 +81,7 @@
     border-radius: 0% 100% 0% 100% / 2% 0% 100% 98%;
   }
 }
+
 #owner_DetailedView_container .package-card .package_title .second_container {
   width: 100%;
   height: 90%;
@@ -89,21 +92,15 @@
   position: relative;
   overflow: hidden;
 }
-#owner_DetailedView_container
-  .package-card
-  .package_title
-  .second_container
-  .package_name {
+
+#owner_DetailedView_container .package-card .package_title .second_container .package_name {
   font-size: 18px;
   font-family: "Raleway", sans-serif;
   color: white;
   font-weight: bold;
 }
-#owner_DetailedView_container
-  .package-card
-  .package_title
-  .second_container
-  .package_price {
+
+#owner_DetailedView_container .package-card .package_title .second_container .package_price {
   font-size: 25px;
   font-family: "Lato", sans-serif;
   font-weight: 500;
@@ -117,6 +114,7 @@
   top: 0;
   right: -10px;
   z-index: 1;
+
   &::after {
     content: "";
     position: absolute;
@@ -127,6 +125,7 @@
     background-color: rgb(35, 19, 50);
     border-radius: 0% 100% 0% 100% / 100% 100% 0% 0%;
   }
+
   &::before {
     content: "";
     position: absolute;
@@ -139,14 +138,11 @@
   }
 }
 
-#owner_DetailedView_container
-  .package-card
-  .wrapper_for_svg_and_details
-  .packge_description
-  p {
+#owner_DetailedView_container .package-card .wrapper_for_svg_and_details .packge_description p {
   z-index: 20;
   color: #575757;
 }
+
 #owner_DetailedView_container .package-card .package_all_details {
   width: 100%;
   line-height: 1.6;
@@ -156,10 +152,8 @@
   margin-top: 20px;
   flex-direction: column;
 }
-#owner_DetailedView_container
-  .package-card
-  .package_all_details
-  .package_Services {
+
+#owner_DetailedView_container .package-card .package_all_details .package_Services {
   width: 100%;
   text-align: center;
   gap: 10px;
@@ -167,11 +161,8 @@
   align-items: center;
   flex-direction: column;
 }
-#owner_DetailedView_container
-  .package-card
-  .package_all_details
-  .package_Services
-  .service-item {
+
+#owner_DetailedView_container .package-card .package_all_details .package_Services .service-item {
   font-family: "Raleway", sans-serif;
   font-weight: 400;
   color: black;
@@ -185,12 +176,8 @@
   align-items: center;
   justify-content: center;
 }
-#owner_DetailedView_container
-  .package-card
-  .package_all_details
-  .package_Services
-  .service-item
-  .services {
+
+#owner_DetailedView_container .package-card .package_all_details .package_Services .service-item .services {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -228,6 +215,7 @@
   box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
     rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
+
 #owner_DetailedView_container .photo_container_for_equipment {
   display: flex;
   width: 95%;
@@ -235,6 +223,7 @@
   justify-content: flex-start;
   gap: 10px;
 }
+
 #owner_DetailedView_container .photo_container_for_equipment img {
   height: 90px;
   width: 120px;
@@ -256,11 +245,13 @@
   gap: 10px;
   font-weight: 600;
 }
+
 #owner_DetailedView_container .equipment_price_container p {
   font-size: 20px;
   border-radius: 20px;
   color: green;
 }
+
 #owner_DetailedView_container .equipment_description {
   width: 100%;
   display: flex;
@@ -269,6 +260,7 @@
   flex-direction: column;
   gap: 8px;
 }
+
 #owner_DetailedView_container .equipment_description p {
   width: 100%;
   overflow: hidden;
@@ -330,7 +322,7 @@
   margin-bottom: 25px;
   padding: 10px 15px;
   border-radius: 8px;
-  width: 90vw;
+  /* width: 90vw; */
   align-self: center;
   display: flex;
   align-items: center;
@@ -348,6 +340,7 @@
   padding: 10px 15px;
   border-radius: 8px;
 }
+
 #owner_DetailedView_container .filter-options:hover {
   background-color: lightgray;
 }
@@ -375,6 +368,7 @@
   background-color: white;
   min-width: 150px;
 }
+
 #owner_DetailedView_container .filter-options .clear-filters-button {
   padding: 8px 12px;
   border-radius: 8px;
@@ -388,6 +382,7 @@
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
+
   #owner_DetailedView_container .package-grid,
   #owner_DetailedView_container .equipment-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -413,6 +408,7 @@
 }
 
 @media screen and (max-width: 480px) {
+
   #owner_DetailedView_container .package-grid,
   #owner_DetailedView_container .equipment-grid {
     grid-template-columns: 1fr;

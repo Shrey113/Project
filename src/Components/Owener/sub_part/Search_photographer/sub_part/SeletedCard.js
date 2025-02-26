@@ -124,8 +124,8 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
           type === "equipment"
             ? days * formData.equipment_price_per_day
             : type === "service"
-            ? days * formData.service_price
-            : days * formData.price,
+              ? days * formData.service_price
+              : days * formData.price,
       });
     } else {
       setFormData({

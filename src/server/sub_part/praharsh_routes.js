@@ -363,6 +363,24 @@ router.post("/api/owner-all-details", (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
     });
 });
+
+router.post("/api/owner-table-all-details", (req, res) => {
+  const { user_email } = req.body;
+  if (!user_email) {
+    res.status(404).json({ message: "email not found" })
+  }
+
+  const query = "select * from owner where user_email=?"
+
+  db.query(query, [user_email], (err, result) => {
+    if (err) {
+      return res.status(404).json({ error: "Internal Server Error" })
+    }
+    console.log("data sent successfully", result)
+    res.json({ message: "Successfully sent owner data", owner: result });
+  })
+})
+
 router.post("/api/owners", (req, res) => {
   const { user_email } = req.body;
 
