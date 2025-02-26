@@ -92,7 +92,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     service_price: selectedData.price_per_day || 0,
 
     start_date: new Date(),
-    end_date: new Date(),
+    end_date: new Date(new Date().setDate(new Date().getDate() + 1)),
     location: "",
     location_error: "",
     requirements: "",
@@ -116,10 +116,17 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     if (name === "days_required") {
       const days = parseInt(value) || 0;
 
+      // Update start_date and end_date based on days_required
+      const newStartDate = new Date();
+      const newEndDate = new Date(newStartDate);
+      newEndDate.setDate(newEndDate.getDate() + days);
+
       setFormData({
         ...formData,
         [name]: days,
         days_required_error: days < 1 ? "Days must be at least 1" : "",
+        start_date: newStartDate.toISOString(), // Update start_date
+        end_date: newEndDate.toISOString(),     // Update end_date
         total_amount:
           type === "equipment"
             ? days * formData.equipment_price_per_day
@@ -305,10 +312,29 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
   const handleDateChange = (name, newValue) => {
     if (newValue) {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: dayjs(newValue).toISOString(),
-      }));
+      setFormData((prev) => {
+        const updatedFormData = {
+          ...prev,
+          [name]: dayjs(newValue).toISOString(),
+        };
+
+        // If start_date is changed, update days_required based on end_date
+        if (name === "start_date") {
+          const endDate = dayjs(updatedFormData.end_date);
+          const daysRequired = endDate.diff(dayjs(newValue), 'day') + 1; // +1 to include the start date
+          updatedFormData.days_required = daysRequired > 0 ? daysRequired : 1; // Ensure at least 1 day
+        }
+
+        // If end_date is changed, update days_required based on start_date
+        if (name === "end_date") {
+          const startDate = dayjs(updatedFormData.start_date);
+          const daysRequired = dayjs(newValue).diff(startDate, 'day') + 1; // +1 to include the start date
+          updatedFormData.days_required = daysRequired > 0 ? daysRequired : 1; // Ensure at least 1 day
+        }
+
+        return updatedFormData;
+      });
+
       // Clear error when date is changed
       setDateErrors((prev) => ({
         ...prev,

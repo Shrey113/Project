@@ -2,7 +2,7 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
-  margin: 0 auto;
+
 }
 
 /* #owner_DetailedView_container .package_list_container {
@@ -330,12 +330,14 @@
   margin-bottom: 25px;
   padding: 10px 15px;
   border-radius: 8px;
-  width: 90vw;
+  width: fit-content;
   align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: transparent;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 #owner_DetailedView_container .filter-options {
@@ -348,9 +350,7 @@
   padding: 10px 15px;
   border-radius: 8px;
 }
-#owner_DetailedView_container .filter-options:hover {
-  background-color: lightgray;
-}
+
 
 #owner_DetailedView_container .price-filter {
   display: flex;

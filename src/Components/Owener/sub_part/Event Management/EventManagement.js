@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./EventManagement.css";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
@@ -14,6 +14,7 @@ import { IoCloseOutline } from "react-icons/io5";
 import { IoInformation } from "react-icons/io5";
 import { HiOutlineChevronUpDown } from "react-icons/hi2";
 // import { add } from "date-fns";
+
 function EventManagement({ category }) {
   const user = useSelector((state) => state.user);
   const [events, setEvents] = useState([]);
@@ -55,6 +56,9 @@ function EventManagement({ category }) {
     sender_email: "",
     event_location: "",
   });
+
+  const [isMenuOpen, setIsMenuOpen] = useState(null);
+  const menuRef = useRef(null);
 
   const TRow = ({ label, value }) => {
     return (
@@ -213,8 +217,6 @@ function EventManagement({ category }) {
       <span
         style={{
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           gap: "2px",
         }}
       >
@@ -238,6 +240,30 @@ function EventManagement({ category }) {
     set_count_for_package(package_count);
     set_count_for_equipment(equipment_count);
   }, [receiver_equipment_data, receiver_package_data])
+
+  const ActionMenu = ({ onApprove, onReject, onInfo }) => {
+    return (
+      <div className="action-menu">
+        <button onClick={onApprove}>Approve</button>
+        <button onClick={onReject}>Reject</button>
+        <button onClick={onInfo}>Info</button>
+      </div>
+    );
+  };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div id="owner-main-container-EventManagement">
@@ -568,31 +594,54 @@ function EventManagement({ category }) {
                               <span>{item.event_status}</span>
                             </td>
                             <td className="action-buttons">
-                              {item.event_status.toLowerCase() ===
-                                "pending" && (
-                                  <>
-                                    <button
-                                      className="approve-btn"
-                                      onClick={() => {
-                                        set_data(item);
-                                      }}
-                                    >
-                                      Approve
-                                    </button>
-                                    <button
-                                      className="reject-btn"
-                                      onClick={() => handleRejectClick(item)}
-                                    >
-                                      <IoCloseOutline style={{ height: "20px", width: "20px" }} />
-                                    </button>
-                                  </>
-                                )}
-                              <button
-                                className="info-btn"
-                                onClick={() => handleInfoClick(item)}
-                              >
-                                <IoInformation style={{ height: "20px", width: "20px" }} />
-                              </button>
+                              {window.innerWidth <= 660 ? (
+                                <>
+                                  <button
+                                    style={{
+                                      fontSize: "20px",
+                                    }}
+                                    onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}>⋮</button>
+                                  {isMenuOpen === item.id && (
+                                    <div ref={menuRef}>
+                                      <ActionMenu
+                                        onApprove={() => {
+                                          set_data(item);
+                                          setIsMenuOpen(null);
+                                        }}
+                                        onReject={() => handleRejectClick(item)}
+                                        onInfo={() => handleInfoClick(item)}
+                                      />
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  {item.event_status.toLowerCase() === "pending" && (
+                                    <>
+                                      <button
+                                        className="approve-btn"
+                                        onClick={() => {
+                                          set_data(item);
+                                        }}
+                                      >
+                                        Approve
+                                      </button>
+                                      <button
+                                        className="reject-btn"
+                                        onClick={() => handleRejectClick(item)}
+                                      >
+                                        <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                      </button>
+                                    </>
+                                  )}
+                                  <button
+                                    className="info-btn"
+                                    onClick={() => handleInfoClick(item)}
+                                  >
+                                    <IoInformation style={{ height: "20px", width: "20px" }} />
+                                  </button>
+                                </>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -639,31 +688,54 @@ function EventManagement({ category }) {
                               <span>{item.event_status}</span>
                             </td>
                             <td className="action-buttons">
-                              {item.event_status.toLowerCase() ===
-                                "pending" && (
-                                  <>
-                                    <button
-                                      className="approve-btn"
-                                      onClick={() => {
-                                        set_data(item);
-                                      }}
-                                    >
-                                      Approve
-                                    </button>
-                                    <button
-                                      className="reject-btn"
-                                      onClick={() => handleRejectClick(item)}
-                                    >
-                                      <IoCloseOutline style={{ height: "20px", width: "20px" }} />
-                                    </button>
-                                  </>
-                                )}
-                              <button
-                                className="info-btn"
-                                onClick={() => handleInfoClick(item)}
-                              >
-                                <IoInformation style={{ height: "20px", width: "20px" }} />
-                              </button>
+                              {window.innerWidth <= 660 ? (
+                                <>
+                                  <button
+                                  style={{
+                                    fontSize: "20px",
+                                  }}
+                                  onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}>⋮</button>
+                                  {isMenuOpen === item.id && (
+                                    <div ref={menuRef}>
+                                      <ActionMenu
+                                        onApprove={() => {
+                                          set_data(item);
+                                          setIsMenuOpen(null);
+                                        }}
+                                        onReject={() => handleRejectClick(item)}
+                                        onInfo={() => handleInfoClick(item)}
+                                      />
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  {item.event_status.toLowerCase() === "pending" && (
+                                    <>
+                                      <button
+                                        className="approve-btn"
+                                        onClick={() => {
+                                          set_data(item);
+                                        }}
+                                      >
+                                        Approve
+                                      </button>
+                                      <button
+                                        className="reject-btn"
+                                        onClick={() => handleRejectClick(item)}
+                                      >
+                                        <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                      </button>
+                                    </>
+                                  )}
+                                  <button
+                                    className="info-btn"
+                                    onClick={() => handleInfoClick(item)}
+                                  >
+                                    <IoInformation style={{ height: "20px", width: "20px" }} />
+                                  </button>
+                                </>
+                              )}
                             </td>
                           </tr>
                         ))}
