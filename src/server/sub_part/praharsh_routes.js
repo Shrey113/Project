@@ -216,6 +216,8 @@ router.get("/get-sent-all-details-by/:sender_email", (req, res) => {
   // Query for "equipment" type
   const query_equipmentData = `SELECT * FROM event_request WHERE sender_email = ? AND event_request_type = 'equipment'`;
 
+  const query_serviceData = `SELECT * FROM event_request WHERE sender_email = ? AND event_request_type = 'service'`;
+
   // Run both queries
   db.query(query_packageData, [sender_email], (err, packageResults) => {
     if (err) {
@@ -231,11 +233,20 @@ router.get("/get-sent-all-details-by/:sender_email", (req, res) => {
           .json({ error: "Error fetching equipment details" });
       }
 
-      // Send the results in a structured response
-      res.json({
-        package: packageResults,
-        equipment: equipmentResults,
-      });
+      db.query(query_serviceData, [sender_email], (err, serviceResults) => {
+        if (err) {
+          console.error("Error fetching service details:", err);
+          return res.status(500).json({ error: "Error fetching service details" });
+        }
+
+        res.json({
+          package: packageResults,
+          equipment: equipmentResults,
+          service: serviceResults,
+        });
+        
+      })
+      
     });
   });
 });

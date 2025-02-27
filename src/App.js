@@ -70,7 +70,6 @@ import OwnerNavbar from "./Components/Owener/OwnerNavbar.js";
 // import Calendar from "./Components/Owener/sub_part/Calendar/Calendar.js";
 
 import AllPhotoFiles from "./Components/Owener/sub_part/Search_photographer/sub_part/AllPhotoFiles.js";
-import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_part/AllServices .js";
 
 function App() {
   const [authStatus, setAuthStatus] = useState({
@@ -141,6 +140,8 @@ function App() {
       setActiveIndex(1.1);
     } else if (location === "/Owner/Event/equipment") {
       setActiveIndex(1.2);
+    } else if (location === "/Owner/Event/services") {
+      setActiveIndex(1.3);
     } else if (location === "/Owner/Profile") {
       setActiveIndex(8);
     }
@@ -415,6 +416,27 @@ function App() {
             )
           }
         />
+
+          <Route
+            path="/Owner/Event/services"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={EventManagement} category="Service" />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
+        {/* <Route
+          path="/Owner/Event/services"
+          element={
+            authStatus.owner ? (
+              <SetOwnerPage ActivePage={Services} /> 
+            ) : (
+              <LoginRegisterOwener />
+            )
+          }
+        /> */}
 
         {/* Owner routes Team Management */}
         <Route

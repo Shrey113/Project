@@ -127,15 +127,17 @@ function OwnerSideBar() {
             />
           ),
         },
-        {
-          name: "Equipment",
-          path: "/Owner/Event/equipment",
-          icon: (
+        { name: "Equipment", path: "/Owner/Event/equipment", icon: (
             <CameraAltIcon
-              className={`menu-icon ${activeIndex === 1.2 ? "active" : ""}`}
+              className={`menu-icon ${activeIndex === 1.2 ? "active" : ""}`}/>),
+        },
+        
+        { name: "Services", path: "/Owner/Event/services", icon: (
+            <LocalOfferIcon
+              className={`menu-icon ${activeIndex === 1.3 ? "active" : ""}`}
             />
           ),
-        },
+        }
       ],
     },
     {

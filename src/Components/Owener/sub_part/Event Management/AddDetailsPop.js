@@ -76,13 +76,12 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
   </li>
 );
 
-const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_package_data, set_receiver_equipment_data }) => {
+const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_package_data, set_receiver_equipment_data, set_receiver_service_data }) => {
   const user = useSelector((state) => state.user);
   // const [showTeamModal, setShowTeamModal] = useState(false);
   const [teamMembers, setTeamMembers] = useState([]);
   const [assignedMembers, setAssignedMembers] = useState([]);
   const [DisabledTeamMembers, setDisabledTeamMembers] = useState([]);
-
 
 
   // Set default color
@@ -126,7 +125,12 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           item.id === newEvent.id ? { ...item, event_status: "Accepted", reason } : item
         )
       );
-
+    } else if (newEvent.event_request_type === "service") {
+      set_receiver_service_data(prevData =>
+        prevData.map(item =>
+          item.id === newEvent.id ? { ...item, event_status: "Accepted", reason } : item
+        )
+      );
     } else {
       throw new Error(`Invalid event type: ${newEvent.event_request_type}`);
     }
@@ -148,7 +152,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       throw new Error("Failed to assign team members");
     }
   };
-
 
   const confirmEquipmentEvent = async (eventId) => {
     try {
@@ -206,6 +209,9 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       showRejectToast({message: error.message || "An error occurred while processing the equipment event"});
     }
   };
+      
+      
+  
 
 
   const handleAddEvent = async (e) => {
@@ -249,6 +255,8 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           await assignTeamMembers(newEvent.id);
         }else if (newEvent.event_request_type === "equipment") {
           await confirmEquipmentEvent(newEvent.id);
+        }else if (newEvent.event_request_type === "service") {
+
         }
         
 
@@ -507,6 +515,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         {renderEventForm()}
         
         {newEvent.event_request_type === "equipment" ? null  :  renderTeamMemberSection()}
+        
       </div>
     </div>
 

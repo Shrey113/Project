@@ -22,6 +22,7 @@ function EventManagement({ category }) {
   // chage a type
   const [packageFilter] = useState("all");
   const [equipmentFilter] = useState("all");
+  const [serviceFilter] = useState("all");
   // const [selectedCategory, setSelectedCategory] = useState("packages");
 
   const [sent_request, set_sent_request] = useState(false);
@@ -31,9 +32,11 @@ function EventManagement({ category }) {
 
   // All data use state
   const [receiver_equipment_data, set_receiver_equipment_data] = useState([]);
+  const [receiver_service_data, set_receiver_service_data] = useState([]);
   const [receiver_package_data, set_receiver_package_data] = useState([]);
   const [sent_package_data, set_sent_package_data] = useState([]);
   const [sent_equipment_data, set_sent_equipment_data] = useState([]);
+  const [sent_service_data, set_sent_service_data] = useState([]);
 
   const [selected_sent_item, set_selected_sent_item] = useState(null);
 
@@ -41,6 +44,7 @@ function EventManagement({ category }) {
 
   const [count_for_package, set_count_for_package] = useState(0);
   const [count_for_equipment, set_count_for_equipment] = useState(0);
+  const [count_for_service, set_count_for_service] = useState(0);
 
   const location = useLocation();
   // for calender
@@ -94,6 +98,17 @@ function EventManagement({ category }) {
         sender_email: item.sender_email,
         event_location: item.location,
       });
+    }else if(item.event_request_type === "service"){
+      setNewEvent({
+        id: item.id,
+        title: `service - ${item.service_name}`,
+        start: item.start_date,
+        end: item.end_date,
+        description: item.requirements,
+        event_request_type: item.event_request_type,
+        sender_email: item.sender_email,
+        event_location: item.location,
+      });
     }
 
     set_show_calender_popup(true);
@@ -121,6 +136,7 @@ function EventManagement({ category }) {
         if (response.data) {
           set_receiver_package_data(response.data.package);
           set_receiver_equipment_data(response.data.equipment);
+          set_receiver_service_data(response.data.service);
         } else {
           console.log("No data received or an error occurred");
         }
@@ -154,6 +170,7 @@ function EventManagement({ category }) {
           if (!response.error) {
             set_sent_package_data(response.data.package);
             set_sent_equipment_data(response.data.equipment);
+            set_sent_service_data(response.data.service);
           } else {
             console.log("No data received or an error occurred");
           }
@@ -191,6 +208,7 @@ function EventManagement({ category }) {
         if (!response.error) {
           set_sent_package_data(response.data.package);
           set_sent_equipment_data(response.data.equipment);
+          set_sent_service_data(response.data.service);
         } else {
           console.log("No data received or an error occurred");
         }
@@ -235,11 +253,13 @@ function EventManagement({ category }) {
   };
 
   useEffect(() => {
-    const equipment_count = receiver_equipment_data.length;
-    const package_count = receiver_package_data.length;
+    const equipment_count = receiver_equipment_data?.length;
+    const package_count = receiver_package_data?.length;
+    const service_count = receiver_service_data?.length;
     set_count_for_package(package_count);
     set_count_for_equipment(equipment_count);
-  }, [receiver_equipment_data, receiver_package_data])
+    set_count_for_service(service_count);
+  }, [receiver_equipment_data, receiver_package_data, receiver_service_data])
 
   const ActionMenu = ({ onApprove, onReject, onInfo }) => {
     return (
@@ -272,11 +292,11 @@ function EventManagement({ category }) {
       <div className="requests_count">
         <div className="received_request_total_count">
           <div className="heading_for_total_requests">Total Received Request</div>
-          <div className="numbers_of_total_request">{count_for_package + count_for_equipment}</div>
+          <div className="numbers_of_total_request">{count_for_package + count_for_equipment + count_for_service}</div>
         </div>
         <div className="received_request_count">
-          <div className="total_packages">{location.pathname === "/Owner/Event/packages" ? "Package Requests" : "Equipment Request"}</div>
-          <div className="numbers_of_package_request">{location.pathname === "/Owner/Event/packages" ? count_for_package : count_for_equipment}</div>
+          <div className="total_packages">{location.pathname === "/Owner/Event/packages" ? "Package Requests" : location.pathname === "/Owner/Event/equipment" ? "Equipment Request":"Service Request"}</div>
+          <div className="numbers_of_package_request">{location.pathname === "/Owner/Event/packages" ? count_for_package : location.pathname === "/Owner/Event/equipment"? count_for_equipment :location.pathname === "/Owner/Event/services"?count_for_service:null}</div>
         </div>
       </div>
 
@@ -319,6 +339,7 @@ function EventManagement({ category }) {
                           label="Sender Email"
                           value={selected_sent_item.sender_email}
                         />
+                       
                         {selected_sent_item.event_request_type === "package" ? (
                           <>
                             <TRow
@@ -367,6 +388,17 @@ function EventManagement({ category }) {
                             />
                             <TRow
                               label="Total Amount"
+                              value={`₹${selected_sent_item.total_amount}`}
+                            />
+                          </>
+                        ) : selected_sent_item.event_request_type === "service" ? (
+                          <>
+                            <TRow
+                              label="Service Name"
+                              value={selected_sent_item.service_name}
+                            />
+                            <TRow
+                              label="Price"
                               value={`₹${selected_sent_item.total_amount}`}
                             />
                           </>
@@ -544,6 +576,50 @@ function EventManagement({ category }) {
                       ) : (
                         <tr>
                           <td colSpan="7">No Sent Equipment Requests</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {["Service"].includes(category) && (
+              <div className="section-container">
+                <div className="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>{add_filter("ID")}</th>
+                        <th>{add_filter("Service Name")}</th>
+                        <th>{add_filter("Price")}</th>
+                        <th>{add_filter("Days")}</th>
+                        <th>{add_filter("Receiver")}</th>
+                        <th>{add_filter("Status")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sent_service_data.length > 0 ? (
+                        sent_service_data.map((item, index) => (
+                          <tr
+                            key={index}
+                            onClick={() => set_selected_sent_item(item)}
+                          >
+                            <td>{item.id}</td>
+                            <td>{item.service_name}</td>
+                            <td>{item.total_amount}</td>
+                            <td>{item.days_required}</td>
+                            <td>{item.receiver_email}</td>
+                            <td
+                              className={`status ${item.event_status.toLowerCase()}`}
+                            >
+                              <span>{item.event_status}</span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="7">No Sent Service Requests</td>
                         </tr>
                       )}
                     </tbody>
@@ -744,6 +820,98 @@ function EventManagement({ category }) {
                 </div>
               </div>
             )}
+            
+            {category === "Service" && (
+              <div className="section-container">
+                <div className="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th style={{ width: "100px" }}>{add_filter("ID")}</th>
+                        <th>{add_filter("Sender Email")}</th>
+                        <th>{add_filter("Service Name")}</th>
+                        <th>{add_filter("Days")}</th>
+                        <th>{add_filter("Location")}</th>
+                        <th>{add_filter("Status")}</th>
+                        <th>{add_filter("Action")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {receiver_service_data
+                        ?.filter(
+                          (item) =>
+                            serviceFilter === "all" ||
+                            item.event_status === serviceFilter
+                        )
+                        ?.map((item, index) => (
+                          <tr key={index}>
+                            <td>{item.id}</td>
+                            <td>{item.sender_email}</td>
+                            <td>{item.service_name}</td>
+                            <td>{item.days_required}</td>
+                            <td>{item.location}</td>
+                            <td
+                              className={`status ${item.event_status?.toLowerCase()}`}
+                            >
+                              <span>{item.event_status}</span>
+                            </td>
+                            <td className="action-buttons">
+                              {window.innerWidth <= 660 ? (
+                                <>
+                                  <button
+                                  style={{
+                                    fontSize: "20px",
+                                  }}
+                                  onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}>⋮</button>
+                                  {isMenuOpen === item.id && (
+                                    <div ref={menuRef}>
+                                      <ActionMenu
+                                        onApprove={() => {
+                                          set_data(item);
+                                          setIsMenuOpen(null);
+                                        }}
+                                        onReject={() => handleRejectClick(item)}
+                                        onInfo={() => handleInfoClick(item)}
+                                      />
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  {item.event_status?.toLowerCase() === "pending" && (
+                                    <>
+                                      <button
+                                        className="approve-btn"
+                                        onClick={() => {
+                                          set_data(item);
+                                        }}
+                                      >
+                                        Approve
+                                      </button>
+                                      <button
+                                        className="reject-btn"
+                                        onClick={() => handleRejectClick(item)}
+                                      >
+                                        <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                      </button>
+                                    </>
+                                  )}
+                                  <button
+                                    className="info-btn"
+                                    onClick={() => handleInfoClick(item)}
+                                  >
+                                    <IoInformation style={{ height: "20px", width: "20px" }} />
+                                  </button>
+                                </>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
             {show_calender_popup && (
               <AddDetailsPop
@@ -754,6 +922,7 @@ function EventManagement({ category }) {
                 setEvents={setEvents}
                 set_receiver_package_data={set_receiver_package_data}
                 set_receiver_equipment_data={set_receiver_equipment_data}
+                set_receiver_service_data={set_receiver_service_data}
               />
             )}
           </div>

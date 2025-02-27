@@ -1457,7 +1457,9 @@ router.post("/add-service-request", (req, res) => {
     requirements,
     service_id,
     start_date,
-    end_date
+    end_date,
+    location,
+    days_required
   } = req.body;
 
   if (!event_name || !sender_email || !receiver_email) {
@@ -1485,9 +1487,12 @@ router.post("/add-service-request", (req, res) => {
       requirements,
       services_id,
       start_date,
-      end_date
+      end_date,
+      event_status,
+      location,
+      days_required
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
@@ -1502,7 +1507,10 @@ router.post("/add-service-request", (req, res) => {
     requirements,
     service_id,
     formattedStartDate,
-    formattedEndDate
+    formattedEndDate,
+    "Pending",
+    location,
+    days_required
   ];
 
   db.query(query, values, (err, result) => {
@@ -1541,25 +1549,32 @@ router.get("/get-equipment-details-by/:receiver_email", (req, res) => {
   const query_equipmentData =
     "SELECT * FROM event_request WHERE receiver_email = ? AND event_request_type = 'equipment'";
 
+    const query_serviceData =
+    "SELECT * FROM event_request WHERE receiver_email = ? AND event_request_type = 'service'";
+
   // Run both queries in sequence
   db.query(query_packageData, [receiver_email], (err, packageResults) => {
     if (err) {
       console.error("Error fetching package details:", err);
       return res.status(500).json({ error: "Error fetching package details" });
     }
-
+  
     db.query(query_equipmentData, [receiver_email], (err, equipmentResults) => {
       if (err) {
         console.error("Error fetching equipment details:", err);
-        return res
-          .status(500)
-          .json({ error: "Error fetching equipment details" });
+        return res.status(500).json({ error: "Error fetching equipment details" });
       }
-
-      // Respond with the results in the desired structure
-      res.json({
-        package: packageResults,
-        equipment: equipmentResults,
+  
+      db.query(query_serviceData, [receiver_email], (err, serviceResults) => {
+        if (err) {
+          console.error("Error fetching service details:", err);
+          return res.status(500).json({ error: "Error fetching service details" });
+        }
+        res.json({
+          package: packageResults,
+          equipment: equipmentResults,
+          service: serviceResults,
+        });
       });
     });
   });
