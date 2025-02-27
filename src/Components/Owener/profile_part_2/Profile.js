@@ -15,11 +15,11 @@ import OwnerUrlList from './profile_parts/owner_url_components/OwnerUrlList';
 
 function Profile() {
 
-  
+
   const [activeSection, setActiveSection] = useState('User Profile');
   const [showMenu, setShowMenu] = useState(false);
 
-  const sections = ['User Profile', 'Business Profile',"Business Services", 'Portfolio', "Equipment's", "Reviews", "Social Media Links"];
+  const sections = ['User Profile', 'Business Profile', "Business Services", 'Portfolio', "Equipment's", "Reviews", "Social Media Links"];
 
   return (
     <div className="profile-container-after-accept">
@@ -27,7 +27,7 @@ function Profile() {
         <span>{activeSection}</span>
         <span className="menu-icon">{showMenu ? '▼' : '▶'}</span>
       </div>
-      
+
       <div className={`sidebar ${showMenu ? 'show-menu' : ''}`}>
         {sections.map((section) => (
           <div
@@ -45,16 +45,15 @@ function Profile() {
       <div className="content">
         <div className="wrap_content">
 
-   
-        {activeSection === 'User Profile' && <AddProfileData/>}
-        {activeSection === 'Business Profile' && <AddBusinessData/>}
-        {activeSection === "Business Services" && <AddBusinessServices/>}
-        {activeSection === 'Portfolio' && <AddPortfolio/>}
-        {activeSection === "Equipment's" && <AddEquipment/>}
-        {activeSection === "Reviews" && <AddReviews/>}
-        {activeSection === "Social Media Links" && <OwnerUrlList/>}
+          {activeSection === 'User Profile' && <AddProfileData />}
+          {activeSection === 'Business Profile' && <AddBusinessData />}
+          {activeSection === "Business Services" && <AddBusinessServices />}
+          {activeSection === 'Portfolio' && <AddPortfolio />}
+          {activeSection === "Equipment's" && <AddEquipment />}
+          {activeSection === "Reviews" && <AddReviews />}
+          {activeSection === "Social Media Links" && <OwnerUrlList />}
         </div>
-  
+
       </div>
     </div>
   );

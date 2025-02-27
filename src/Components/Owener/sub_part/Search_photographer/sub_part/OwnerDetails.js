@@ -69,6 +69,7 @@ const OwnerDetails = () => {
   const [selectedOwner, setSelectedOwner] = useState(location.state?.selectedOwner || owner_email);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [at_share_link, set_at_share_link] = useState(false);
 
 
   useEffect(() => {
@@ -123,6 +124,8 @@ const OwnerDetails = () => {
             throw new Error("Failed to fetch owner details");
           }
           setSelectedOwner(data.owner[0]);
+
+
         } catch (error) {
           console.error("Error fetching owner details:", error);
         }
@@ -130,6 +133,12 @@ const OwnerDetails = () => {
       selected_owner_data_fetch(owner_email)
     }
   }, [location.state, owner_email])
+
+  useEffect(() => {
+    if (location.pathname.includes("/Owner/share_profile")) {
+      set_at_share_link(true);
+    }
+  }, [location.pathname, owner_email])
 
 
   const [folders, setFolders] = useState([]);
@@ -174,6 +183,8 @@ const OwnerDetails = () => {
 
   useEffect(() => {
     const fetchFolderData = async (user_email) => {
+      console.log("sssssssssssssssssssss", user_email);
+
       try {
         const response = await fetch(
           `${Server_url}/owner_drive/get_folder_preview`,
@@ -203,8 +214,10 @@ const OwnerDetails = () => {
         console.error("Error fetching folder data:", error.message);
       }
     };
+    if (selectedOwner.user_email) {
+      fetchFolderData(selectedOwner.user_email);
+    }
 
-    fetchFolderData(selectedOwner.user_email);
   }, [selectedOwner.user_email]);
 
   useEffect(() => {
@@ -346,16 +359,45 @@ const OwnerDetails = () => {
 
       if (type === "packages") {
         fetchedData = await fetchPackagesData();
-        navigate(`/Owner/search_photographer/${email}/${type}`, {
-          state: { data: fetchedData, dataType: type },
-        });
+        if (at_share_link) {
+          navigate(`/Owner/share_profile/${email}/${type}`, {
+            state: { data: fetchedData, dataType: type },
+          });
+          console.log(fetchedData, type);
+
+        } else {
+          navigate(`/Owner/search_photographer/${email}/${type}`, {
+            state: { data: fetchedData, dataType: type },
+          });
+        }
+
       } else if (type === "equipments") {
         fetchedData = await fetchEquipmentData();
-        navigate(`/Owner/search_photographer/${email}/${type}`, {
-          state: { data: fetchedData, dataType: type },
-        });
+
+
+        if (at_share_link) {
+          navigate(`/Owner/share_profile/${email}/${type}`, {
+            state: { data: fetchedData, dataType: type },
+          });
+        } else {
+          navigate(`/Owner/search_photographer/${email}/${type}`, {
+            state: { data: fetchedData, dataType: type },
+          });
+        }
+
       } else if (type === "all_photos") {
-        navigate(`/Owner/search_photographer/${email}/${type}`);
+        if (at_share_link) {
+          navigate(`/Owner/share_profile/${email}/${type}`);
+        } else {
+          navigate(`/Owner/search_photographer/${email}/${type}`);
+        }
+
+      } else if (type === "services") {
+        if (at_share_link) {
+          navigate(`/Owner/share_profile/${email}/all_services`);
+        } else {
+          navigate(`/Owner/search_photographer/${email}/all_services`);
+        }
       }
     }
   };
@@ -373,6 +415,17 @@ const OwnerDetails = () => {
   }, [navigate, dispatch]);
 
   const handleItemClick = (item, type) => {
+    if (at_share_link) {
+      // alert("Sorry, you can't view the photos of other photographers.");
+      navigate(`/Owner`, {
+        state: {
+          message: "user will come with view data",
+          selectedOwner: selectedOwner,
+          at_share_link: true,
+        },
+      });
+      return;
+    }
     setSelectedData(item);
     setSelectedType(type);
     setShowSelectedCard(true);
@@ -478,16 +531,19 @@ const OwnerDetails = () => {
 
   return (
     <div className="owner-details-container">
-      <nav className="back_with_owner_title">
-        <button
-          className="back-button"
-          onClick={() => {
-            navigate(`/Owner/search_photographer`);
-          }}
-        >
-          <IoArrowBack className="icon" /> Back
-        </button>
-      </nav>
+      {at_share_link ? (<div style={{ marginTop: "50px" }}></div>) : (
+        <nav className="back_with_owner_title">
+          <button
+            className="back-button"
+            onClick={() => {
+              navigate(`/Owner/search_photographer`);
+            }}
+          >
+            <IoArrowBack className="icon" /> Back
+          </button>
+        </nav>)
+      }
+
       <div className="owner-info-details">
         <div className="owner-profile-container">
           <div className="share_icon" onClick={togglePopup}>

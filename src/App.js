@@ -70,6 +70,7 @@ import OwnerNavbar from "./Components/Owener/OwnerNavbar.js";
 // import Calendar from "./Components/Owener/sub_part/Calendar/Calendar.js";
 
 import AllPhotoFiles from "./Components/Owener/sub_part/Search_photographer/sub_part/AllPhotoFiles.js";
+import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_part/AllServices .js";
 
 function App() {
   const [authStatus, setAuthStatus] = useState({
@@ -502,6 +503,17 @@ function App() {
         />
 
         <Route
+          path="/Owner/search_photographer/:owner_email/all_services"
+          element={
+            authStatus.owner ? (
+              <SetOwnerPage ActivePage={AllServices} />
+            ) : (
+              <LoginRegisterOwener />
+            )
+          }
+        />
+
+        <Route
           path="/Owner/Profile"
           element={
             authStatus.owner ? (
@@ -528,6 +540,34 @@ function App() {
         <Route
           path="/Owner/share_profile/:owner_email"
           element={<OwnerDetails />
+          }
+        />
+
+        <Route
+          path="/Owner/share_profile/:owner_email/:type"
+          element={<DetailedView />
+          }
+        />
+
+        <Route
+          path="/Owner/share_profile/:owner_email/all_photos"
+          element={
+            authStatus.owner ? (
+              <SetOwnerPage ActivePage={AllPhotoFiles} />
+            ) : (
+              <LoginRegisterOwener />
+            )
+          }
+        />
+
+        <Route
+          path="/Owner/share_profile/:owner_email/all_services"
+          element={
+            authStatus.owner ? (
+              <SetOwnerPage ActivePage={AllServices} />
+            ) : (
+              <LoginRegisterOwener />
+            )
           }
         />
 

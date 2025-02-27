@@ -106,8 +106,10 @@ router.post("/owner_drive/get_folder_photos", (req, res) => {
 router.post("/owner_drive/get_folder_preview", (req, res) => {
   const { email } = req.body;
 
+  console.log("ssssssssssssssssssssssssssssssssssssss", req.body);
+
   if (!email) {
-    return res.status(400).json({ error: "Owner email is required" });
+    return res.status(400).json({ message: "Owner email is required" });
   }
 
   // Query to fetch all photos for the user
@@ -376,7 +378,6 @@ router.post("/api/owner-table-all-details", (req, res) => {
     if (err) {
       return res.status(404).json({ error: "Internal Server Error" })
     }
-    console.log("data sent successfully", result)
     res.json({ message: "Successfully sent owner data", owner: result });
   })
 })
