@@ -726,7 +726,6 @@ const OwnerDetails = () => {
                                 ? photoItem.photo
                                 : photoItem.file_data;
                               setFullViewImage(imageSrc);
-                              console.log("This is full view", fullViewImage);
                             }}
                             src={
                               is_first ? photoItem.photo : photoItem.file_data
@@ -798,7 +797,8 @@ const OwnerDetails = () => {
                         <div className="individual_services" >
                           {srv}
                         </div>
-                      </div>)
+                      </div>
+                    )
                   ) : (
                     <span style={{ alignSelf: "center" }}>No services available</span>
                   )}

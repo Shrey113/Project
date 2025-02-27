@@ -121,22 +121,22 @@ function DetailedView() {
     setSortBy("name");
   }
 
-  const lightenColor = (color, percent) => {
-    let num = parseInt(color.replace("#", ""), 16),
-      amt = Math.round(2.55 * percent),
-      r = (num >> 16) + amt,
-      g = ((num >> 8) & 0x00ff) + amt,
-      b = (num & 0x0000ff) + amt;
+  // const lightenColor = (color, percent) => {
+  //   let num = parseInt(color.replace("#", ""), 16),
+  //     amt = Math.round(2.55 * percent),
+  //     r = (num >> 16) + amt,
+  //     g = ((num >> 8) & 0x00ff) + amt,
+  //     b = (num & 0x0000ff) + amt;
 
-    return `#${(
-      0x1000000 +
-      (r < 255 ? (r < 1 ? 0 : r) : 255) * 0x10000 +
-      (g < 255 ? (g < 1 ? 0 : g) : 255) * 0x100 +
-      (b < 255 ? (b < 1 ? 0 : b) : 255)
-    )
-      .toString(16)
-      .slice(1)}`;
-  };
+  //   return `#${(
+  //     0x1000000 +
+  //     (r < 255 ? (r < 1 ? 0 : r) : 255) * 0x10000 +
+  //     (g < 255 ? (g < 1 ? 0 : g) : 255) * 0x100 +
+  //     (b < 255 ? (b < 1 ? 0 : b) : 255)
+  //   )
+  //     .toString(16)
+  //     .slice(1)}`;
+  // };
 
   return (
     <div className="all_user_data_list" id="owner_DetailedView_container">
@@ -146,9 +146,8 @@ function DetailedView() {
         <div className="search-container">
           <input
             type="text"
-            placeholder={`Search ${
-              type === "packages" ? "packages" : "equipment"
-            }...`}
+            placeholder={`Search ${type === "packages" ? "packages" : "equipment"
+              }...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
@@ -216,19 +215,26 @@ function DetailedView() {
           {filteredData.length === 0 ? (
             <div className="no-results">No packages found</div>
           ) : (
-            <div className="package-grid">
+            <div className="packages-grid">
               {filteredData.map((item) => (
                 <div
                   key={item.id}
                   className="package-card"
-                  style={{ backgroundColor: "#ffffff", cursor: "pointer" }}
+                  style={{
+                    backgroundColor: "#ffffff",
+                    borderTop: `6px solid ${item.card_color || "#6fa8dc"}`,
+                    borderLeft: "1px solid #919394",
+                    borderBottom: "1px solid #919394",
+                    borderRight: "1px solid #919394",
+                    cursor: "pointer"
+                  }}
                   onClick={() => {
                     setSelectedData(item);
                     setShowSelectedCard(true);
                   }}
                 >
                   <div className="package_title">
-                    <div
+                    {/* <div
                       className="first_container"
                       style={{
                         backgroundColor: item.card_color || "#6fa8dc",
@@ -255,37 +261,40 @@ function DetailedView() {
                         backgroundColor: item.card_color || "#6fa8dc",
                         color: "#fff",
                       }}
-                    ></div>
-                  </div>
-                  <div className="package_all_details">
-                    <div className="package_Services">
-                      {Array.isArray(item.service) &&
-                      item.service.length > 0 ? (
-                        item.service.map((srv, idx) => {
-                          const baseColor = item.card_color || "#6fa8dc";
-                          const lightColor = lightenColor(baseColor, 20);
+                    ></div> */}
 
-                          return (
-                            <div
-                              key={idx}
-                              className="service-item"
-                              style={{
-                                backgroundColor:
-                                  idx % 2 === 0 ? lightColor : "#ffffff",
-                                width: "100%",
-                                padding: "8px 10px",
-                              }}
-                            >
-                              {srv?.charAt(0)?.toUpperCase() +
-                                srv?.slice(1)?.toLowerCase()}
-                            </div>
-                          );
-                        })
-                      ) : (
-                        <span>No services available</span>
-                      )}
-                    </div>
+                    <div className="package_name">{item.package_name || "Package Name"}</div>
                   </div>
+
+                  <div className="package_pricing" style={{ color: item.card_color || "#6fa8dc" }}>
+                    <div className="rupee_symbol">₹</div>
+                    <div className="value">
+                      {item.price || "Price"}
+                    </div>
+                    <span>/day</span>
+                  </div>
+
+                  <hr style={{ width: "85%", margin: "8px 0" }} />
+
+                  <div className="package_Services">
+                    {Array.isArray(item.service) &&
+                      item.service.length > 0 ? (
+                      item.service.map((srv, idx) =>
+                        <div
+                          key={idx}
+                          className="service-item"
+                        >
+                          <div className="key" style={{ backgroundColor: item.card_color, color: item.text_color || "#fff" }}>{idx + 1}</div>
+                          <div className="individual_services" >
+                            {srv}
+                          </div>
+                        </div>
+                      )
+                    ) : (
+                      <span>No services available</span>
+                    )}
+                  </div>
+
                 </div>
               ))}
             </div>

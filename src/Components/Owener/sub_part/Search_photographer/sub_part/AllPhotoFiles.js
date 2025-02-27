@@ -3,6 +3,8 @@ import "./AllPhotoFiles.css";
 import { useParams } from "react-router-dom";
 import { Server_url } from "../../../../../redux/AllData";
 import socket from "./../../../../../redux/socket";
+import { IoCloseSharp } from "react-icons/io5";
+import { FaCloudDownloadAlt } from "react-icons/fa";
 
 function SkeletonLoader() {
   return (
@@ -21,6 +23,9 @@ function AllPhotoFiles() {
   const [photos, setPhotos] = useState([]);
   const [is_first, set_is_true] = useState(true);
   const [loading, setLoading] = useState(true);
+
+
+  const [fullViewImage, setFullViewImage] = useState("");
 
   useEffect(() => {
     if (socket) {
@@ -56,6 +61,24 @@ function AllPhotoFiles() {
       socket.off(`folderDeleted_${owner_email}`, onFolderDelete);
     };
   }, [owner_email]);
+  useEffect(() => {
+    if (fullViewImage) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [fullViewImage]);
+
+  const handleDownload = () => {
+    if (fullViewImage) {
+      const link = document.createElement("a");
+      link.href = fullViewImage;
+      link.download = fullViewImage.split("/").pop();
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   // useEffect(() => {
   //   if (socket) {
@@ -151,9 +174,8 @@ function AllPhotoFiles() {
           folders?.map((folder, index) => (
             <button
               key={index}
-              className={`folder_tab ${
-                activeFolder?.folder_name === folder.folder_name ? "active" : ""
-              }`}
+              className={`folder_tab ${activeFolder?.folder_name === folder.folder_name ? "active" : ""
+                }`}
               onClick={() => handleTabSwitch(folder, index)}
             >
               {folder.folder_name}
@@ -174,19 +196,42 @@ function AllPhotoFiles() {
                   src={is_first ? photoItem.photo : photoItem.file_data}
                   alt={photoItem.photo_name}
                   className="photo_image"
+                  onClick={() => {
+                    const imageSrc = is_first
+                      ? photoItem.photo
+                      : photoItem.file_data;
+                    setFullViewImage(imageSrc);
+                  }}
                 />
-                {is_first ? (
-                  photoItem.photo_name && (
-                    <div className="photo_name">{photoItem.photo_name}</div>
-                  )
-                ) : (
-                  <div className="photo_name">{photoItem.file_name}</div>
-                )}
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {
+        fullViewImage && (
+          <div
+            className="full_view_image_container" onClick={() => setFullViewImage("")} >
+            <div className="full_view_image_wrapper" onClick={(e) => e.stopPropagation()} >
+              <img src={fullViewImage} className="full_view_image" alt="Full view" />
+              <div className="button_container">
+
+                <button className="download_button" onClick={(e) => { e.stopPropagation(); handleDownload(); }} >
+                  <FaCloudDownloadAlt className="close_logo" style={{ fontSize: "18px" }} />
+                  Download
+                </button>
+
+                <button className="close_button" onClick={() => setFullViewImage("")} >
+                  <IoCloseSharp className="download_logo" style={{ fontSize: "18px" }} />
+                  Close
+                </button>
+
+              </div>
+            </div>
+          </div>
+        )
+      }
     </div>
   );
 }

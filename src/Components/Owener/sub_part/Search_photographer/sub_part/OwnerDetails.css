@@ -349,6 +349,7 @@
 .owner-details-container .equipment_section .equipment_items_container .equipment_item .photo_container_for_equipment {
   display: flex;
   width: 95%;
+  /* background-color: red; */
   align-items: center;
   justify-content: flex-start;
   gap: 15px;
@@ -365,7 +366,15 @@
 
 .owner-details-container .equipment_section .equipment_items_container .equipment_item .photo_container_for_equipment p {
   font-size: 25px;
-  text-wrap: wrap;
+  font-family: var(--Heading);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* Limits to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  max-width: 100%;
 }
 
 .owner-details-container .equipment_section .equipment_items_container .equipment_item .other_details_for_equipment {
@@ -375,12 +384,14 @@
   justify-content: flex-start;
   gap: 10px;
   font-weight: 600;
+  font-family: var(--Heading);
 }
 
 .owner-details-container .equipment_section .equipment_items_container .equipment_item .equipment_price_container p {
   font-size: 20px;
   border-radius: 20px;
   color: green;
+  font-family: var(--Heading);
 }
 
 .owner-details-container .equipment_section .equipment_items_container .equipment_item .equipment_description {
@@ -392,6 +403,10 @@
   gap: 8px;
 }
 
+.owner-details-container .equipment_section .equipment_items_container .equipment_item .equipment_description strong {
+  font-family: var(--Heading);
+}
+
 .owner-details-container .equipment_section .equipment_items_container .equipment_item .equipment_description p {
   width: 100%;
   overflow: hidden;
@@ -401,6 +416,7 @@
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
   font-size: 13px;
+  font-family: var(--Heading);
 }
 
 .owner-details-container .section .no-data {
@@ -765,7 +781,6 @@
 
 .owner-details-container .photo_container .photos_grid .photo_card {
   height: 300px;
-  width: 350px;
   flex: 300px;
 }
 
@@ -1481,8 +1496,6 @@
 }
 
 .owner-details-container .full_view_image_container .full_view_image {
-  /* width: 100%; */
-  /* height: 100%; */
   height: 96vh;
   object-fit: contain;
 }
@@ -1697,6 +1710,11 @@
 
 /* Add responsive design */
 @media (max-width: 885px) {
+  .owner-details-container .photo_container .photos_grid .photo_card {
+    height: 250px;
+    flex: 230px;
+  }
+
   .owner-details-container .email_business_website {
     gap: 0px;
     padding: 0px;
@@ -1720,12 +1738,6 @@
     justify-content: center;
     padding: 10px;
     backdrop-filter: blur(2px);
-  }
-
-  .owner-details-container .full_view_image_container .full_view_image {
-    height: 100vh;
-    width: 100%;
-    object-fit: contain;
   }
 
   .owner-details-container .full_view_image_container .button_container {
@@ -1818,6 +1830,11 @@
 }
 
 @media (max-width: 768px) {
+  .owner-details-container .photo_container .photos_grid .photo_card {
+    height: 230px;
+    flex: 200px;
+  }
+
   .owner-details-container .owner-profile-right {
     border-left: none;
   }
@@ -1895,6 +1912,19 @@
 }
 
 @media (max-width: 650px) {
+  .owner-details-container .section.photo_section .photos-container {
+    padding: 20px 12px;
+  }
+
+  .owner-details-container .photo_container .photos_grid {
+    gap: 8px;
+  }
+
+  .owner-details-container .photo_container .photos_grid .photo_card {
+    height: 200px;
+    flex: 130px;
+  }
+
   .owner-details-container .owner-profile-container {
     padding: 10px 10px;
   }
@@ -1934,13 +1964,30 @@
 }
 
 @media (max-width: 500px) {
+  .owner-details-container .section.photo_section .photos-container {
+    padding: 20px 10px;
+  }
+
+  .owner-details-container .photo_container .photos_grid {
+    gap: 8px;
+  }
+
+  .owner-details-container .photo_container .photos_grid .photo_card {
+    height: 200px;
+    flex: 150px;
+  }
+
+  .owner-details-container .section {
+    padding: 8px;
+  }
+
   .owner-details-container .info-item p {
     max-width: 110px;
     font-size: 10px;
   }
 
   .owner-details-container .info-item label {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .owner-details-container .info-item .icon-container {
@@ -1985,6 +2032,25 @@
 
 
 @media (max-width: 420px) {
+
+  .owner-details-container .equipment_section .equipment_items_container .equipment_item .photo_container_for_equipment p {
+    font-size: 22px;
+    width: 180px;
+  }
+
+  .owner-details-container .section.photo_section .photos-container {
+    padding: 18px 8px;
+  }
+
+  .owner-details-container .photo_container .photos_grid {
+    gap: 8px;
+  }
+
+  .owner-details-container .photo_container .photos_grid .photo_card {
+    height: 180px;
+    flex: 150px;
+  }
+
   .owner-details-container .owner-profile-container {
     padding: 6px;
   }
@@ -1993,17 +2059,106 @@
     padding: 0px;
   }
 
-  .owner-details-container .info-item {
-    gap: 8px;
+  .owner-details-container .info-item .icon-container {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+  }
+
+  .owner-details-container .info-item .icon {
+    font-size: 20px;
+  }
+
+  .owner-details-container .info-item label {
+    font-size: 16px;
   }
 
   .owner-details-container .info-item p {
-    max-width: 90px;
-    font-size: 9px;
+    max-width: 200px;
+    font-size: 14px;
+  }
+
+  .owner-details-container .owner-profile-right {
+    gap: 25px;
+  }
+
+  .owner-details-container .owner-profile-right {
+    padding: 10px 5px;
+    margin-top: 10px;
+  }
+
+  .owner-details-container .email_business_website {
+    gap: 10px;
+    flex-direction: column;
+  }
+
+  .owner-details-container .email_business_website .details_1 {
+    width: 90%;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .owner-details-container .email_business_website .details_2 {
+    width: 90%;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
   }
 }
 
 @media (max-width: 350px) {
+  .owner-details-container .section.photo_section .photos-container {
+    padding: 8px;
+  }
+
+  .owner-details-container .photo_container .photos_grid {
+    gap: 6px;
+  }
+
+  .owner-details-container .photo_container .photos_grid .photo_card {
+    height: 150px;
+    flex: 120px;
+  }
+
+  .owner-details-container .section.equipment_section .equipment-list {
+    padding: 10px 12px;
+  }
+
+  .owner-details-container .section.equipment_section .equipment-list .equipment_items_container .equipment_item .photo_container_for_equipment img {
+    height: 50px;
+    width: 50px;
+  }
+
+  .owner-details-container .section.equipment_section .equipment-list .equipment_items_container .equipment_item {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .owner-details-container .equipment_section .equipment_items_container .equipment_item .equipment_price_container p {
+    font-size: 18px;
+  }
+
+  .owner-details-container .equipment_section .equipment_items_container .equipment_item .equipment_description {
+    gap: 5px;
+  }
+
+  .owner-details-container .equipment_section .equipment_items_container .equipment_item .equipment_description strong {
+    font-size: 14px;
+  }
+
+  .owner-details-container .equipment_section .equipment_items_container .equipment_item .equipment_description p {
+    font-size: 12px;
+
+  }
+
+  .owner-details-container .equipment_section .equipment_items_container .equipment_item .photo_container_for_equipment p {
+    font-size: 16px;
+  }
+
+  .owner-details-container .equipment_section .equipment_items_container .equipment_item .other_details_for_equipment {
+    font-size: 14px;
+  }
 
   .owner-details-container .profile_preview_equipment_title,
   .owner-details-container .profile_preview_packages_title,
@@ -2045,7 +2200,7 @@
   }
 
   .owner-details-container .email_business_website .details_1 {
-    width: 80%;
+    width: 90%;
     gap: 10px;
     display: flex;
     flex-direction: column;
@@ -2056,15 +2211,21 @@
   }
 
   .owner-details-container .email_business_website .details_2 {
-    width: 80%;
+    width: 90%;
     gap: 10px;
     display: flex;
     flex-direction: column;
   }
 
+  .owner-details-container .info-item {
+    gap: 12px;
+  }
+
   .owner-details-container .info-item p {
-    max-width: fit-content;
+    max-width: 200px;
     font-size: 12px;
+    background-color: orangered;
+    box-sizing: border-box;
   }
 
   .owner-details-container .owner-profile-right {

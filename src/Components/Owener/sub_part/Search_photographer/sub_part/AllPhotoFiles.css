@@ -27,6 +27,7 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -36,12 +37,15 @@
 
 .all_photos_and_folder_container {
   height: 100vh;
+  min-height: fit-content;
   width: 100%;
   position: fixed;
   top: 0;
   z-index: 100;
   overflow-y: scroll;
+  position: relative;
 }
+
 .all_photos_and_folder_container .folder_tabs {
   width: 100%;
   padding: 20px 10px;
@@ -49,10 +53,11 @@
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
-  position: sticky;
+  position: fixed;
   top: 70px;
   background: white;
 }
+
 .all_photos_and_folder_container .folder_tabs .folder_tab {
   padding: 10px 15px;
   border: 1px solid #111;
@@ -66,50 +71,51 @@
   justify-content: center;
   gap: 10px;
 }
+
 .all_photos_and_folder_container .folder_tabs .folder_tab:hover {
   background-color: lightgrey;
   scale: 1.05;
 }
+
 .all_photos_and_folder_container .folder_tabs .folder_tab.active {
   background-color: lightblue;
 
   box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px;
 }
-.all_photos_and_folder_container
-  .folder_container
-  .folder_names_toggle_container {
+
+.all_photos_and_folder_container .folder_container .folder_names_toggle_container {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 20px;
   cursor: pointer;
 }
+
 .all_photos_and_folder_container .photo_container .photos_grid {
-  column-count: 5;
-  column-gap: 15px;
-  width: 100%;
+  width: fit-content;
   padding: 10px 15px;
-  margin-top: 80px;
+  margin-top: 65px;
   background: white;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
+
 .all_photos_and_folder_container .photo_container .photos_grid .photo_card {
-  margin-bottom: 25px;
-  display: inline-block;
-  width: 100%;
-  break-inside: avoid;
-  line-height: 2.5;
+  margin-bottom: 20px;
+  flex: 250px;
+  height: 300px;
 }
 
 .all_photos_and_folder_container .photo_container img {
   width: 100%;
+  height: 100%;
   border-radius: 15px;
-  display: block;
-  break-inside: avoid;
-  border: 1px solid black;
+  object-fit: cover;
+  box-shadow: rgba(149, 157, 165, 0.347) 0px 8px 24px;
 }
-.all_photos_and_folder_container .photo_container .name_of_image {
-  font-weight: 550;
-}
+
+
 
 .all_photos_and_folder_container .folder_container {
   display: flex;
@@ -117,10 +123,12 @@
   align-items: center;
   justify-content: center;
 }
+
 .all_photos_and_folder_container .folder_container h3 {
   font-size: 40px;
   text-align: center;
 }
+
 .all_photos_and_folder_container .folder_container .folder_grid {
   display: flex;
   align-items: flex-start;
@@ -131,6 +139,7 @@
   padding: 20px;
   gap: 20px;
 }
+
 .all_photos_and_folder_container .folder_container .individual_folder_preview {
   display: flex;
   flex-direction: column;
@@ -138,21 +147,15 @@
   background-color: white;
 }
 
-.all_photos_and_folder_container
-  .folder_container
-  .individual_folder_preview
-  .image_container {
+.all_photos_and_folder_container .folder_container .individual_folder_preview .image_container {
   height: 200px;
   width: 200px;
   object-fit: cover;
   position: relative;
   cursor: pointer;
 }
-.all_photos_and_folder_container
-  .folder_container
-  .individual_folder_preview
-  .image_container
-  span {
+
+.all_photos_and_folder_container .folder_container .individual_folder_preview .image_container span {
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -165,11 +168,97 @@
   align-items: center;
   justify-content: center;
 }
-.all_photos_and_folder_container
-  .folder_container
-  .individual_folder_preview
-  img {
+
+.all_photos_and_folder_container .folder_container .individual_folder_preview img {
   height: 100%;
   width: 100%;
   object-fit: cover;
+}
+
+.all_photos_and_folder_container .full_view_image_container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.726);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  backdrop-filter: blur(2px);
+}
+
+.all_photos_and_folder_container .full_view_image_container .full_view_image {
+  height: 96vh;
+  object-fit: contain;
+}
+
+.all_photos_and_folder_container .full_view_image_container .button_container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.all_photos_and_folder_container .full_view_image_container button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  font-size: 14px;
+  font-weight: 550;
+  font-family: var(--Heading);
+  box-shadow: rgba(10, 10, 10, 0.66) 1.95px 1.95px 2.6px;
+}
+
+.all_photos_and_folder_container .full_view_image_container button:hover .download_logo,
+.all_photos_and_folder_container .full_view_image_container button:hover .close_logo {
+  animation: upDown 0.6s ease-in-out alternate;
+}
+
+@media (max-width: 850px) {
+  .all_photos_and_folder_container .photo_container .photos_grid .photo_card {
+    margin-bottom: 5px;
+  }
+}
+
+@media (max-width: 550px) {
+  .all_photos_and_folder_container .photo_container .photos_grid .photo_card {
+    margin-bottom: 10px;
+    flex: 180px;
+    height: 200px;
+  }
+}
+
+@media (max-width: 420px) {
+  .all_photos_and_folder_container .photo_container .photos_grid {
+    gap: 6px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .all_photos_and_folder_container .photo_container .photos_grid .photo_card {
+    margin-bottom: 5px;
+  }
+}
+
+@media (max-width: 350px) {
+  .all_photos_and_folder_container .photo_container .photos_grid {
+    gap: 6px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .all_photos_and_folder_container .photo_container .photos_grid .photo_card {
+    margin-bottom: 5px;
+  }
 }

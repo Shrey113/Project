@@ -106,8 +106,6 @@ router.post("/owner_drive/get_folder_photos", (req, res) => {
 router.post("/owner_drive/get_folder_preview", (req, res) => {
   const { email } = req.body;
 
-  console.log("ssssssssssssssssssssssssssssssssssssss", req.body);
-
   if (!email) {
     return res.status(400).json({ message: "Owner email is required" });
   }
@@ -244,9 +242,9 @@ router.get("/get-sent-all-details-by/:sender_email", (req, res) => {
           equipment: equipmentResults,
           service: serviceResults,
         });
-        
+
       })
-      
+
     });
   });
 });

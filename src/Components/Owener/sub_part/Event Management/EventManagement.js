@@ -98,7 +98,7 @@ function EventManagement({ category }) {
         sender_email: item.sender_email,
         event_location: item.location,
       });
-    }else if(item.event_request_type === "service"){
+    } else if (item.event_request_type === "service") {
       setNewEvent({
         id: item.id,
         title: `service - ${item.service_name}`,
@@ -295,8 +295,8 @@ function EventManagement({ category }) {
           <div className="numbers_of_total_request">{count_for_package + count_for_equipment + count_for_service}</div>
         </div>
         <div className="received_request_count">
-          <div className="total_packages">{location.pathname === "/Owner/Event/packages" ? "Package Requests" : location.pathname === "/Owner/Event/equipment" ? "Equipment Request":"Service Request"}</div>
-          <div className="numbers_of_package_request">{location.pathname === "/Owner/Event/packages" ? count_for_package : location.pathname === "/Owner/Event/equipment"? count_for_equipment :location.pathname === "/Owner/Event/services"?count_for_service:null}</div>
+          <div className="total_packages">{location.pathname === "/Owner/Event/packages" ? "Package Requests" : location.pathname === "/Owner/Event/equipment" ? "Equipment Request" : "Service Request"}</div>
+          <div className="numbers_of_package_request">{location.pathname === "/Owner/Event/packages" ? count_for_package : location.pathname === "/Owner/Event/equipment" ? count_for_equipment : location.pathname === "/Owner/Event/services" ? count_for_service : null}</div>
         </div>
       </div>
 
@@ -339,7 +339,7 @@ function EventManagement({ category }) {
                           label="Sender Email"
                           value={selected_sent_item.sender_email}
                         />
-                       
+
                         {selected_sent_item.event_request_type === "package" ? (
                           <>
                             <TRow
@@ -411,7 +411,7 @@ function EventManagement({ category }) {
                   <div className="modal-right">
                     {selected_sent_item && (
                       <div
-                        className={`status-box ${selected_sent_item.event_status.toLowerCase()}`}
+                        className={`status-box ${selected_sent_item.event_status?.toLowerCase()}`}
                       >
                         <table className="details-table">
                           <tbody>
@@ -431,7 +431,7 @@ function EventManagement({ category }) {
                               label="Status"
                               value={
                                 <span
-                                  className={`status ${selected_sent_item.event_status.toLowerCase()}`}
+                                  className={`status ${selected_sent_item.event_status?.toLowerCase()}`}
                                 >
                                   {selected_sent_item.event_status}
                                 </span>
@@ -521,7 +521,7 @@ function EventManagement({ category }) {
                             <td>₹{item.price}</td>
                             <td>{item.receiver_email}</td>
                             <td
-                              className={`status ${item.event_status.toLowerCase()}`}
+                              className={`status ${item.event_status?.toLowerCase()}`}
                             >
                               <span>{item.event_status}</span>
                             </td>
@@ -567,7 +567,7 @@ function EventManagement({ category }) {
                             <td>{item.days_required}</td>
                             <td>{item.receiver_email}</td>
                             <td
-                              className={`status ${item.event_status.toLowerCase()}`}
+                              className={`status ${item.event_status?.toLowerCase()}`}
                             >
                               <span>{item.event_status}</span>
                             </td>
@@ -611,7 +611,7 @@ function EventManagement({ category }) {
                             <td>{item.days_required}</td>
                             <td>{item.receiver_email}</td>
                             <td
-                              className={`status ${item.event_status.toLowerCase()}`}
+                              className={`status ${item.event_status?.toLowerCase()}`}
                             >
                               <span>{item.event_status}</span>
                             </td>
@@ -665,7 +665,7 @@ function EventManagement({ category }) {
                             <td>₹{item.price}</td>
                             <td>{item.location}</td>
                             <td
-                              className={`status ${item.event_status.toLowerCase()}`}
+                              className={`status ${item.event_status?.toLowerCase()}`}
                             >
                               <span>{item.event_status}</span>
                             </td>
@@ -692,7 +692,7 @@ function EventManagement({ category }) {
                                 </>
                               ) : (
                                 <>
-                                  {item.event_status.toLowerCase() === "pending" && (
+                                  {item.event_status?.toLowerCase() === "pending" && (
                                     <>
                                       <button
                                         className="approve-btn"
@@ -759,7 +759,7 @@ function EventManagement({ category }) {
                             <td>{item.days_required}</td>
                             <td>{item.location}</td>
                             <td
-                              className={`status ${item.event_status.toLowerCase()}`}
+                              className={`status ${item.event_status?.toLowerCase()}`}
                             >
                               <span>{item.event_status}</span>
                             </td>
@@ -767,10 +767,10 @@ function EventManagement({ category }) {
                               {window.innerWidth <= 660 ? (
                                 <>
                                   <button
-                                  style={{
-                                    fontSize: "20px",
-                                  }}
-                                  onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}>⋮</button>
+                                    style={{
+                                      fontSize: "20px",
+                                    }}
+                                    onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}>⋮</button>
                                   {isMenuOpen === item.id && (
                                     <div ref={menuRef}>
                                       <ActionMenu
@@ -786,7 +786,7 @@ function EventManagement({ category }) {
                                 </>
                               ) : (
                                 <>
-                                  {item.event_status.toLowerCase() === "pending" && (
+                                  {item.event_status?.toLowerCase() === "pending" && (
                                     <>
                                       <button
                                         className="approve-btn"
@@ -820,7 +820,7 @@ function EventManagement({ category }) {
                 </div>
               </div>
             )}
-            
+
             {category === "Service" && (
               <div className="section-container">
                 <div className="table-container">
@@ -859,10 +859,10 @@ function EventManagement({ category }) {
                               {window.innerWidth <= 660 ? (
                                 <>
                                   <button
-                                  style={{
-                                    fontSize: "20px",
-                                  }}
-                                  onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}>⋮</button>
+                                    style={{
+                                      fontSize: "20px",
+                                    }}
+                                    onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}>⋮</button>
                                   {isMenuOpen === item.id && (
                                     <div ref={menuRef}>
                                       <ActionMenu
