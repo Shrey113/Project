@@ -70,7 +70,6 @@ import OwnerNavbar from "./Components/Owener/OwnerNavbar.js";
 // import Calendar from "./Components/Owener/sub_part/Calendar/Calendar.js";
 
 import AllPhotoFiles from "./Components/Owener/sub_part/Search_photographer/sub_part/AllPhotoFiles.js";
-import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_part/AllServices .js";
 
 function App() {
   const [authStatus, setAuthStatus] = useState({
@@ -135,7 +134,7 @@ function App() {
       setActiveIndex(3);
     } else if (location === "/Owner/Packages") {
       setActiveIndex(4);
-    } else if (location === "/Owner/search_photographer") {
+    } else if (location.includes("/Owner/search_photographer")  ) {
       setActiveIndex(5);
     } else if (location === "/Owner/Event/packages") {
       setActiveIndex(1.1);

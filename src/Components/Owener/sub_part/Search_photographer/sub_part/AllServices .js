@@ -51,7 +51,7 @@ function AllServices() {
 
     return (
         <div className="services-container" >
-            <h1>Our Photography Services</h1>
+            <h1>Photography Services</h1>
             <div className="services-grid">
                 {services.map((service) => (
                     <div key={service.id} className="service-card" onClick={() => handleItemClick(service)}>

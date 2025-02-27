@@ -799,7 +799,10 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  font-family: var(--full_page_background_font_family);
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .title-and-legend {
@@ -812,12 +815,18 @@
   font-size: 20px;
   font-weight: 600;
   margin: 0;
+  color: #2c3e50;
+  position: relative;
 }
+
 
 .status-legend {
   display: flex;
   gap: 24px;
   align-items: center;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
 }
 
 .legend-item {
@@ -826,43 +835,135 @@
   gap: 8px;
   font-size: 14px;
   color: #666;
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+}
+
+.legend-item:hover {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  transition: transform 0.2s ease;
 }
 
+.legend-item:hover .dot {
+  transform: scale(1.2);
+}
 
 .add-member-btn {
-
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: 8px;
-  border: 0;
-  outline: 0;
+  border: 2px solid var(--available_member_button_color);
   background: transparent;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  color: var(--available_member_button_color);
   transition: all 0.2s ease;
-} 
-.add-member-btn:hover{
-  background: #e0e0e0b4;
 }
-  .add-member-btn span:nth-child(1){
-    font-size: 1.2rem;
-    font-weight: 500;
-  }
-  .add-member-btn span:nth-child(2){
-    font-size: 1.2rem;
-    font-weight: 500;
-  }
-.plus-icon {
+
+.add-member-btn:hover {
+  background: var(--available_member_button_color);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.add-member-btn .plus-icon {
   font-size: 18px;
   font-weight: 500;
+  transition: transform 0.2s ease;
+}
+
+.add-member-btn:hover .plus-icon {
+  transform: rotate(90deg);
+}
+
+/* Responsive adjustments for section header */
+@media (max-width: 900px) {
+  .section-header {
+    padding: 12px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .title-and-legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .status-legend {
+    width: 100%;
+    justify-content: center;
+    padding: 6px 12px;
+  }
+
+  .add-member-btn {
+    margin-left: auto;
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .section-header {
+    padding: 10px;
+    margin-bottom: 16px;
+  }
+
+  .title-and-legend h2 {
+    font-size: 18px;
+  }
+
+  .status-legend {
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: flex-start;
+  }
+
+  .legend-item {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+
+  .add-member-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-header {
+    padding: 8px;
+  }
+
+  .title-and-legend h2 {
+    font-size: 16px;
+  }
+
+  .status-legend {
+    padding: 4px 8px;
+  }
+
+  .add-member-btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
 }
 
 /* Members Grid */
@@ -876,7 +977,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .status-indicator span {
@@ -1010,7 +1111,8 @@
 
 @media (max-width: 600px) {
   .members-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px; /* Further reduce gap */
   }
   
   .stats-cards {
@@ -1344,4 +1446,113 @@
   .add-member-btn {
     padding: 6px 12px; /* Adjust button padding */
   }
+}
+
+/* Members Grid Responsive Updates */
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+/* Update responsive breakpoints */
+@media (max-width: 1200px) {
+  .members-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .members-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px; /* Reduce gap for smaller screens */
+  }
+
+  /* Adjust card content sizes */
+  .profile-section h3 {
+    font-size: 16px;
+  }
+
+  .profile-section .role {
+    font-size: 12px;
+  }
+
+  .profile-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .details-btn {
+    font-size: 12px;
+    padding: 6px;
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 600px) {
+  .members-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px; /* Further reduce gap */
+  }
+
+  /* Further reduce sizes for mobile */
+  .member-card {
+    min-height: 150px;
+    padding: 10px;
+  }
+  .divider{
+    display: none;
+  }
+
+  .profile-section h3 {
+    font-size: 14px;
+  }
+
+  .profile-section .role {
+    font-size: 11px;
+  }
+
+  .profile-image {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+  }
+
+  .details-btn {
+    font-size: 11px;
+    padding: 5px;
+    max-width: 90px;
+  }
+
+  .status-indicator span {
+    width: 8px;
+    height: 8px;
+  }
+
+  .more-options span {
+    width: 3px;
+    height: 3px;
+  }
+}
+
+/* Remove the single column layout for mobile */
+@media (max-width: 480px) {
+  .members-grid {
+    grid-template-columns: repeat(2, 1fr); /* Keep 2x2 layout */
+    gap: 8px; /* Minimal gap for very small screens */
+  }
+}
+
+
+.member-card.assigned {
+  border-color: #FF9800;
+}
+
+.status-indicator span.assigned {
+  background-color: #FF9800;
+}
+
+.status.assigned {
+  color: #FF9800;
+  background-color: rgba(255, 152, 0, 0.1);
 }

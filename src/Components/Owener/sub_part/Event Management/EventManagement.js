@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./EventManagement.css";
+import "./EventManagement_Responsive.css";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 // import accept from "./sub_img/correct.png";
@@ -493,7 +494,7 @@ function EventManagement({ category }) {
               <div className="section-container">
                 {/* <h2>Package Requests</h2> */}
                 <div className="table-container">
-                  <table>
+                  <table className="sent_package_table">
                     <thead>
                       <tr>
                         <th style={{ width: "10px" }}>{add_filter("ID")}</th>
@@ -541,7 +542,7 @@ function EventManagement({ category }) {
             {["Equipment"].includes(category) && (
               <div className="section-container">
                 <div className="table-container">
-                  <table>
+                  <table  className="sent_equipment_table">
                     <thead>
                       <tr>
                         <th>{add_filter("ID")}</th>
@@ -587,7 +588,7 @@ function EventManagement({ category }) {
             {["Service"].includes(category) && (
               <div className="section-container">
                 <div className="table-container">
-                  <table>
+                  <table className="sent_service_table">
                     <thead>
                       <tr>
                         <th>{add_filter("ID")}</th>
@@ -638,7 +639,7 @@ function EventManagement({ category }) {
             {category === "Packages" && (
               <div className="section-container">
                 <div className="table-container">
-                  <table>
+                  <table className="received_package_table">
                     <thead>
                       <tr>
                         <th>{add_filter("ID")}</th>
@@ -730,7 +731,7 @@ function EventManagement({ category }) {
             {category === "Equipment" && (
               <div className="section-container">
                 <div className="table-container">
-                  <table>
+                  <table className="received_equipment_table">
                     <thead>
                       <tr>
                         <th style={{ width: "100px" }}>{add_filter("ID")}</th>
@@ -824,10 +825,10 @@ function EventManagement({ category }) {
             {category === "Service" && (
               <div className="section-container">
                 <div className="table-container">
-                  <table>
+                  <table className="received_service_table">
                     <thead>
                       <tr>
-                        <th style={{ width: "100px" }}>{add_filter("ID")}</th>
+                        <th>{add_filter("ID")}</th>
                         <th>{add_filter("Sender Email")}</th>
                         <th>{add_filter("Service Name")}</th>
                         <th>{add_filter("Days")}</th>
@@ -843,16 +844,14 @@ function EventManagement({ category }) {
                             serviceFilter === "all" ||
                             item.event_status === serviceFilter
                         )
-                        ?.map((item, index) => (
+                        .map((item, index) => (
                           <tr key={index}>
                             <td>{item.id}</td>
                             <td>{item.sender_email}</td>
                             <td>{item.service_name}</td>
                             <td>{item.days_required}</td>
                             <td>{item.location}</td>
-                            <td
-                              className={`status ${item.event_status?.toLowerCase()}`}
-                            >
+                            <td className={`status ${item.event_status.toLowerCase()}`}>
                               <span>{item.event_status}</span>
                             </td>
                             <td className="action-buttons">
@@ -862,7 +861,10 @@ function EventManagement({ category }) {
                                     style={{
                                       fontSize: "20px",
                                     }}
-                                    onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}>⋮</button>
+                                    onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}
+                                  >
+                                    ⋮
+                                  </button>
                                   {isMenuOpen === item.id && (
                                     <div ref={menuRef}>
                                       <ActionMenu
@@ -878,7 +880,7 @@ function EventManagement({ category }) {
                                 </>
                               ) : (
                                 <>
-                                  {item.event_status?.toLowerCase() === "pending" && (
+                                  {item.event_status.toLowerCase() === "pending" && (
                                     <>
                                       <button
                                         className="approve-btn"

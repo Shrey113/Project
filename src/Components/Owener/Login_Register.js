@@ -269,14 +269,14 @@ function LoginRegisterOwener() {
       } else if (data.user_key) {
 
         localStorage.setItem(localstorage_key_for_jwt_user_side_key, data.user_key);
-
-        if (!userData) {
-          window.location.reload();
-        } else {
+        window.location.reload();
+    
           if (login_email !== userData?.selectedOwner.user_email) {
-            window.location.href = `/Owner/search_photographer/${userData?.selectedOwner.user_email}`;
+            if(userData !== null){
+              window.location.href = `/Owner/search_photographer/${userData?.selectedOwner.user_email}`;
+            }
           }
-        }
+        
       }
     } catch (error) {
       console.error("Step 6: Error during login fetch request:", error);

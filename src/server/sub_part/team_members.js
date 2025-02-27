@@ -16,38 +16,68 @@ const db = mysql.createConnection({
 
 
 router.post("/get_all_members_status", (req, res) => {
-  const today = moment().format("YYYY-MM-DD HH:mm:ss"); // Current timestamp
-  const { user_email } = req.body; // Extract user email
+    const today = moment().format("YYYY-MM-DD");
+    const { user_email } = req.body;
 
-  if (!user_email) {
-      return res.status(400).json({ error: "user_email is required" });
-  }
+    if (!user_email) {
+        return res.status(400).json({ error: "user_email is required" });
+    }
 
-  const query = `
-      SELECT assigned_team_member, event_request_type, package_name, equipment_name
-      FROM event_request 
-      WHERE ? BETWEEN start_date AND end_date
-  `;
+    // get all team members
+    const membersQuery = `
+        SELECT member_id, member_name 
+        FROM team_member 
+        WHERE owner_email = ?
+    `;
 
-  db.query(query, [today], (err, results) => {
-      if (err) {
-          return res.status(500).json({ error: "Database error", details: err });
-      }
+    // Then check fix vvv
+    const eventsQuery = `
+        SELECT assigned_team_member, event_request_type, package_name, equipment_name, 
+               start_date, end_date
+        FROM event_request 
+        WHERE receiver_email = ?
+        AND DATE(?) BETWEEN DATE(start_date) AND DATE(end_date)
+    `;
 
-      if (results.length === 0) {
-          return res.json({ assigned_team_member: [], event_details: [] }); // No data found
-      }
+    db.query(membersQuery, [user_email], (memberErr, members) => {
+        if (memberErr) {
+            return res.status(500).json({ error: "Database error", details: memberErr });
+        }
 
-      const responseData = results.map(row => ({
-          assigned_team_member: row.assigned_team_member 
-              ? String(row.assigned_team_member).split(",").map(item => item.trim()) 
-              : [],
-          event_request_type: row.event_request_type,  // Include event_request_type
-          event_detail: row.event_request_type === "package" ? row.package_name : row.equipment_name
-      }));
+        db.query(eventsQuery, [user_email, today], (eventErr, events) => {
+            if (eventErr) {
+                return res.status(500).json({ error: "Database error", details: eventErr });
+            }
 
-      res.json(responseData);
-  });
+            const assignedMembers = new Set();
+            events.forEach(event => {
+                let assignedTeamMember = event.assigned_team_member;
+                if (typeof assignedTeamMember === 'string') {
+                    try {
+                        assignedTeamMember = JSON.parse(assignedTeamMember);
+                    } catch (e) {
+                        assignedTeamMember = assignedTeamMember.split(',').map(item => item.trim());
+                    }
+                }
+                if (Array.isArray(assignedTeamMember)) {
+                    assignedTeamMember.forEach(member => assignedMembers.add(member));
+                }
+            });
+
+            // Prepare response data
+            const responseData = {
+                assigned_team_member: Array.from(assignedMembers),
+                event_details: events.map(event => ({
+                    event_request_type: event.event_request_type,
+                    event_detail: event.event_request_type === "package" ? event.package_name : event.equipment_name,
+                    start_date: moment(event.start_date).format('YYYY-MM-DD'),
+                    end_date: moment(event.end_date).format('YYYY-MM-DD')
+                }))
+            };
+
+            res.json(responseData);
+        });
+    });
 });
 
 

@@ -373,8 +373,8 @@ const DetailPopup = ({ member, onClose }) => {
             <img src={member.member_profile_img} alt={member.member_name} />
             <div className="detail-profile-info">
               <h2>{member.member_name}</h2>
-              <span className={`status-badge ${member.member_status.toLowerCase() === 'available' ? 'assigned' : 'available'}`}>
-                {member.member_status.toLowerCase() === 'available' ? 'Assigned' : 'Available'}
+              <span className={`status-badge ${member.member_status.toLowerCase() === 'available' ? 'available' : 'assigned'}`}>
+                {member.member_status.toLowerCase() === 'available' ? 'Available' : 'Assigned'}
               </span>
             </div>
           </div>
@@ -429,7 +429,7 @@ const MemberCard = ({ member, onEdit, onRemove }) => {
   return (
     <div className="member-card">
       <div className="status-indicator">
-        <span className={member.member_status === "Active" ? "available" : "assigned"}></span>
+        <span className={member.member_status === "Available" ? "available" : "assigned"}></span>
         <div className="more-options-container">
           <button 
             className="more-options"
@@ -502,136 +502,65 @@ const TeamOverview = () => {
   
   const fetchTeamMembers = async () => {
     try {
-      // Fetch assigned members
-      const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_email: user.user_email,
-        }),
-      });
-      
-      const statusData = await statusResponse.json();
-      console.log("Fetched Status Data:", statusData);
-  
-      // Extract assigned members and their event details
-      let assignedMembersMap = new Map();
-      
-      // Check if statusData has the expected structure
-      if (statusData && Array.isArray(statusData.assigned_team_member) && Array.isArray(statusData.event_details)) {
-        statusData.assigned_team_member.forEach((member, index) => {
-          if (member) {
-            assignedMembersMap.set(member, {
-              event_request_type: statusData.event_details[index]?.event_request_type || 'Unknown',
-              event_detail: statusData.event_details[index]?.event_detail || 'Unknown'
-            });
-          }
+        // Fetch assigned members
+        const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                user_email: user.user_email,
+            }),
         });
-      }
-  
-      // Rest of the fetch logic remains the same
-      const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_email: user.user_email,
-        }),
-      });
-      
-      const membersData = await membersResponse.json();
-      console.log("Fetched Members Data:", membersData);
-  
-      // Update team members' status based on assignment
-      const updatedTeamData = membersData.map(member => {
-        const assignment = assignedMembersMap.get(member.member_name);
         
-        return {
-          ...member,
-          member_status: assignment ? "Available" : "Active",
-          member_event_assignment: assignment 
-            ? `${assignment.event_request_type} - ${assignment.event_detail}`
-            : "Not Assigned",
-        };
-      });
-  
-      console.log("Updated Team Data:", updatedTeamData);
-      setTeamData(updatedTeamData);
-  
+        const statusData = await statusResponse.json();
+        
+        // Fetch all team members
+        const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                user_email: user.user_email,
+            }),
+        });
+        
+        const membersData = await membersResponse.json();
+
+        // Create a map of assigned members and their events
+        const assignedMembersMap = new Map();
+        if (statusData.assigned_team_member) {
+            statusData.assigned_team_member.forEach((memberName, index) => {
+                const eventDetail = statusData.event_details[index];
+                if (eventDetail) {
+                    assignedMembersMap.set(memberName, {
+                        event_request_type: eventDetail.event_request_type,
+                        event_detail: eventDetail.event_detail
+                    });
+                }
+            });
+        }
+
+        // Update team members with their current status
+        const updatedTeamData = membersData.map(member => {
+            const assignment = assignedMembersMap.get(member.member_name);
+            return {
+                ...member,
+                member_status: assignment ? "Assigned" : "Available", // Changed from "Available"/"Active"
+                member_event_assignment: assignment 
+                    ? `${assignment.event_request_type} - ${assignment.event_detail}`
+                    : "Not Assigned"
+            };
+        });
+
+        setTeamData(updatedTeamData);
     } catch (error) {
-      console.error("Error fetching team members:", error);
+        console.error("Error fetching team members:", error);
     }
   };
   
   useEffect(() => {
-    const fetchTeamMembers = async () => {
-      try {
-        // Fetch assigned members
-        const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_email: user.user_email,
-          }),
-        });
-        
-        const statusData = await statusResponse.json();
-        console.log("Fetched Status Data:", statusData);
-    
-        // Extract assigned members and their event details
-        let assignedMembersMap = new Map();
-        
-        // Check if statusData has the expected structure
-        if (statusData && Array.isArray(statusData.assigned_team_member) && Array.isArray(statusData.event_details)) {
-          statusData.assigned_team_member.forEach((member, index) => {
-            if (member) {
-              assignedMembersMap.set(member, {
-                event_request_type: statusData.event_details[index]?.event_request_type || 'Unknown',
-                event_detail: statusData.event_details[index]?.event_detail || 'Unknown'
-              });
-            }
-          });
-        }
-    
-        // Rest of the fetch logic remains the same
-        const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_email: user.user_email,
-          }),
-        });
-        
-        const membersData = await membersResponse.json();
-        console.log("Fetched Members Data:", membersData);
-    
-        // Update team members' status based on assignment
-        const updatedTeamData = membersData.map(member => {
-          const assignment = assignedMembersMap.get(member.member_name);
-          
-          return {
-            ...member,
-            member_status: assignment ? "Available" : "Active",
-            member_event_assignment: assignment 
-              ? `${assignment.event_request_type} - ${assignment.event_detail}`
-              : "Not Assigned",
-          };
-        });
-    
-        console.log("Updated Team Data:", updatedTeamData);
-        setTeamData(updatedTeamData);
-    
-      } catch (error) {
-        console.error("Error fetching team members:", error);
-      }
-    };
     fetchTeamMembers();
   }, [user.user_email]);
 
