@@ -102,7 +102,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     total_amount:
       type === "equipment"
         ? selectedData.equipment_price_per_day
-        : selectedData.price_per_day * 1,
+        : type === "package" ? selectedData.price * 1 : type === "service" ? selectedData.price_per_day : 0,
   });
 
   const [dateErrors, setDateErrors] = useState({
@@ -125,14 +125,14 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         ...formData,
         [name]: days,
         days_required_error: days < 1 ? "Days must be at least 1" : "",
-        start_date: newStartDate.toISOString(), // Update start_date
-        end_date: newEndDate.toISOString(),     // Update end_date
+        start_date: newStartDate.toISOString(),
+        end_date: newEndDate.toISOString(),
         total_amount:
           type === "equipment"
             ? days * formData.equipment_price_per_day
             : type === "service"
               ? days * formData.service_price
-              : days * formData.price,
+              : type === "package" ? days * formData.price : 0,
       });
     } else {
       setFormData({
@@ -650,7 +650,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                 </div>
                 <div className="info-group">
                   <label>Price</label>
-                  <div className="info-value">{formData.service_price}</div>
+                  <div className="info-value">{formData.price}</div>
                 </div>
               </div>
 
