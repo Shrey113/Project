@@ -211,22 +211,33 @@ function AllPhotoFiles() {
 
       {
         fullViewImage && (
-          <div
-            className="full_view_image_container" onClick={() => setFullViewImage("")} >
-            <div className="full_view_image_wrapper" onClick={(e) => e.stopPropagation()} >
-              <img src={fullViewImage} className="full_view_image" alt="Full view" />
-              <div className="button_container">
-
-                <button className="download_button" onClick={(e) => { e.stopPropagation(); handleDownload(); }} >
-                  <FaCloudDownloadAlt className="close_logo" style={{ fontSize: "18px" }} />
-                  Download
+          <div 
+            className="full_view_image_container" 
+            onClick={(e) => {
+              if (e.target.classList.contains('full_view_image_container')) {
+                setFullViewImage("");
+              }
+            }}
+          >
+            <div className="full_view_image_wrapper" >
+              <div className="image_navigation">
+                <button className="back_button" onClick={() => setFullViewImage("")}>
+                  <IoCloseSharp className="back_icon" />
                 </button>
-
-                <button className="close_button" onClick={() => setFullViewImage("")} >
-                  <IoCloseSharp className="download_logo" style={{ fontSize: "18px" }} />
-                  Close
+              </div>
+              
+              <div className="image_content">
+                <img src={fullViewImage} className="full_view_image" alt="Full view" />
+              </div>
+              
+              <div className="image_controls">
+                <button 
+                  className="control_button download_button" 
+                  onClick={handleDownload}
+                >
+                  <FaCloudDownloadAlt className="button_icon" />
+                  <span>Download</span>
                 </button>
-
               </div>
             </div>
           </div>

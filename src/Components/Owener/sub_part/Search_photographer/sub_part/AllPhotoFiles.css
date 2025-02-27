@@ -41,7 +41,7 @@
   width: 100%;
   position: fixed;
   top: 0;
-  z-index: 100;
+
   overflow-y: scroll;
   position: relative;
 }
@@ -179,50 +179,187 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.726);
-  z-index: 9999;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 1000;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 10px;
-  backdrop-filter: blur(2px);
+  align-items: center;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease;
 }
 
-.all_photos_and_folder_container .full_view_image_container .full_view_image {
-  height: 96vh;
+.full_view_image_wrapper {
+  position: relative;
+  width: 95%;
+  height: 95%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1600px;
+}
+
+.image_navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.image_content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.full_view_image {
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
 }
 
-.all_photos_and_folder_container .full_view_image_container .button_container {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+.back_button {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-}
-
-.all_photos_and_folder_container .full_view_image_container button {
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  padding: 8px 12px;
-  border-radius: 20px;
-  border: none;
-  font-size: 14px;
-  font-weight: 550;
-  font-family: var(--Heading);
-  box-shadow: rgba(10, 10, 10, 0.66) 1.95px 1.95px 2.6px;
+  transition: all 0.3s ease;
 }
 
-.all_photos_and_folder_container .full_view_image_container button:hover .download_logo,
-.all_photos_and_folder_container .full_view_image_container button:hover .close_logo {
-  animation: upDown 0.6s ease-in-out alternate;
+.back_button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.back_icon {
+  color: white;
+  font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.back_button:hover .back_icon {
+  transform: rotate(90deg);
+}
+
+.image_controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 0 20px 20px;
+}
+
+.control_button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.download_button {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+  color: white;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+}
+
+.download_button:hover {
+  background: linear-gradient(135deg, #1976d2, #1565c0);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+}
+
+.button_icon {
+  font-size: 20px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Glass morphism effect for controls */
+.image_controls::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+  pointer-events: none;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .full_view_image_wrapper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .back_button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .control_button {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  .image_navigation {
+    padding: 15px;
+  }
+
+  .image_controls {
+    padding: 0 15px 15px;
+  }
+}
+
+/* Dark mode optimization */
+@media (prefers-color-scheme: dark) {
+  .full_view_image_container {
+    background-color: rgba(0, 0, 0, 0.98);
+  }
+}
+
+/* Add loading state */
+.full_view_image.loading {
+  opacity: 0.7;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0.7; }
 }
 
 @media (max-width: 850px) {
