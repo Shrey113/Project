@@ -70,6 +70,7 @@ import OwnerNavbar from "./Components/Owener/OwnerNavbar.js";
 // import Calendar from "./Components/Owener/sub_part/Calendar/Calendar.js";
 
 import AllPhotoFiles from "./Components/Owener/sub_part/Search_photographer/sub_part/AllPhotoFiles.js";
+import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_part/AllServices .js";
 
 function App() {
   const [authStatus, setAuthStatus] = useState({
