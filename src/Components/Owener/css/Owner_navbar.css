@@ -9,7 +9,62 @@
   top: 0;
   z-index: 1000;
   background-color: white;
-  /* box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px; */
+}
+
+.wrapper_for_show_layout {
+  position: absolute;
+  height: 100%;
+  width: 20%;
+  top: 90%;
+  right: 148px;
+  animation: show_layout 0.2s ease-in-out;
+}
+
+@keyframes show_layout {
+  0% {
+    opacity: 0;
+    margin-top: -30px;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 1;
+    margin-top: 0px;
+  }
+}
+
+#constant_navbar .show_layout {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: #a8a6a68f;
+  border-radius: 10px;
+}
+
+/* #constant_navbar .show_layout.show {
+  position: absolute;
+  top: 90%;
+  right: 148px;
+  background-color: #a8a6a68f;
+  height: 100%;
+  width: 20%;
+  border-radius: 10px;
+} */
+
+
+#constant_navbar .show_layout::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  background-color: #a8a6a68f;
+  height: 20px;
+  width: 25px;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
 }
 
 #constant_navbar .navbar_section_name {
@@ -22,19 +77,19 @@
   font-family: var(--Heading);
 }
 
-#constant_navbar .navebar_profile {
+#constant_navbar .navbar_profile {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
 }
 
-#constant_navbar .navebar_profile .search_bar {
+#constant_navbar .navbar_profile .search_bar {
   width: 300px;
   height: fit-content;
 }
 
-#constant_navbar .navebar_profile .search_bar .search_for_all_section {
+#constant_navbar .navbar_profile .search_bar .search_for_all_section {
   height: 100%;
   width: 100%;
   padding: 10px 15px;
@@ -43,10 +98,22 @@
   border-radius: 20px;
 }
 
-#constant_navbar .navebar_profile .bell_icon {
+#constant_navbar .navbar_profile .bell_icon {
   padding: 5px;
   cursor: pointer;
+  position: relative;
 }
+
+#constant_navbar .navbar_profile .bell_icon .notification_count.show {
+  position: absolute;
+  top: 2px;
+  right: 5px;
+  height: 10px;
+  width: 10px;
+  background-color: #fc5252;
+  border-radius: 50%;
+}
+
 
 .notifications {
   position: fixed;
@@ -131,7 +198,7 @@
     font-size: 20px;
   }
 
-  #constant_navbar .navebar_profile .search_bar {
+  #constant_navbar .navbar_profile .search_bar {
     width: 200px;
   }
 

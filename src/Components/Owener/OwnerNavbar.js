@@ -12,7 +12,10 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const user = useSelector((state) => state.user);
   const isMobile = useSelector((state) => state.user.isMobile);
   const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
+  const [is_new_notification, set_is_new_notification] = useState(true);
 
+  // const [realtime_notification, set_realtime_notification] = useState(false);
+  const [is_show_notification_pop, set_is_show_notification_pop] = useState(true);
   const [navbar_open, set_navbar_open] = useState(false);
   const set_is_sidebar_open = (value) => {
     dispatch({
@@ -135,8 +138,22 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   };
 
   const handleNotificationClick = () => {
+    set_is_new_notification(false);
     set_navbar_open(!navbar_open);
   };
+
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     set_is_show_notification_pop(false);
+  //   }, 1000);
+  // }, []);
+
+  function set_temp_notification() {
+    set_is_show_notification_pop(true);
+    setTimeout(() => {
+      set_is_show_notification_pop(false);
+    }, 1000);
+  }
 
 
   return (
@@ -156,7 +173,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           )}
           {getNavbarName()}
         </div>
-        <div className="navebar_profile">
+        <div className="navbar_profile">
           {setSearchTerm &&
             <div className="search_bar">
               <input
@@ -172,8 +189,9 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
               />
             </div>}
 
-          <div className="bell_icon" onClick={handleNotificationClick}>
+          <div className="bell_icon" onClick={() => { handleNotificationClick(); }}>
             <IoIosNotifications style={{ height: "25px", width: "25px" }} />
+            <div className={`notification_count ${is_new_notification ? "show" : ""}`}></div>
           </div>
           <div
             className="profile"
@@ -189,8 +207,14 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
             </div>
           </div>
         </div>
+        {is_show_notification_pop &&
+          <div className="wrapper_for_show_layout">
+            <div className={`show_layout `}></div>
+          </div>
+        }
+
       </div>
-      <div className={`notifications ${navbar_open ? "active" : ""}`} id="notification_popup">
+      <div className={`notifications ${navbar_open ? "active" : ""}`} id="notification_popup" >
         <p>No Notifications Available </p>
       </div>
     </>

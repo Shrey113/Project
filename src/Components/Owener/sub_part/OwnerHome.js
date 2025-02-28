@@ -175,7 +175,7 @@ function OwnerHome() {
         {/* Invoice Card */}
         <div
           className="dashboard_card"
-          onClick={() => setActiveIndex(1, "Invoice/draft")}
+          onClick={() => setActiveIndex(3, "Invoice")}
         >
           <div className="card_icon invoice">
             <FaFileInvoiceDollar />
