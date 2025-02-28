@@ -173,7 +173,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           </div>
         </div>
         <div className="navebar_profile">
-          {setSearchTerm &&
+          {setSearchTerm && (
             <div className="search_bar">
               <input
                 className="search_for_all_section"
@@ -189,8 +189,9 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
             </div>
           )}
 
-          <div className="bell_icon" onClick={handleNotificationClick}>
+          <div className="bell_icon" onClick={() => { handleNotificationClick(); }}>
             <IoIosNotifications style={{ height: "25px", width: "25px" }} />
+            <div className={`notification_count ${is_new_notification ? "show" : ""}`}></div>
           </div>
           <div
             className="profile"
