@@ -112,11 +112,12 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
 
     return readablePath.map((name, index) => {
-      const isLastItem = index === readablePath.length - 1;
+      // Create the new path by joining the segments up to the current index + 1
+      // const newPath = "/" + pathSegments.slice(0, index + 1).join("/");
       return (
         <span
           key={index}
-          className={`breadcrumb-item ${isLastItem ? 'last-item' : 'previous-item'}`}
+          className="breadcrumb-item"
           style={{
             cursor: index < readablePath.length - 1 ? "pointer" : "default",
             color: index < readablePath.length - 1 ? "#007bff" : "black"
@@ -128,6 +129,8 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           {name} {index < readablePath.length - 1 ? ">" : ""}
         </span>
       );
+
+
     });
 
 
@@ -156,7 +159,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   return (
     <>
       <div id="constant_navbar" className="constant_navbar">
-        <div className="navbar_section_name">
+        <div className="navbar_section_name" style={{ cursor: "pointer" }}>
           {isMobile && (
             <div
               className="toggle_button_con"
@@ -168,12 +171,10 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
               <img src={burger_menu} alt="Menu" />
             </div>
           )}
-          <div className="breadcrumb-container">
-            {getNavbarName()}
-          </div>
+          {getNavbarName()}
         </div>
-        <div className="navebar_profile">
-          {setSearchTerm && (
+        <div className="navbar_profile">
+          {setSearchTerm &&
             <div className="search_bar">
               <input
                 className="search_for_all_section"
@@ -186,8 +187,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
                   }
                 }}
               />
-            </div>
-          )}
+            </div>}
 
           <div className="bell_icon" onClick={() => { handleNotificationClick(); }}>
             <IoIosNotifications style={{ height: "25px", width: "25px" }} />
