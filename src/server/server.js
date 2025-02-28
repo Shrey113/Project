@@ -45,19 +45,6 @@ const emitEventRequestNotification = (userEmail, data) => {
   io.emit(`new_event_request_notification_${userEmail}`, data);
 };
 
-io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
-
-  socket.on('message', (msg) => {
-    console.log('Message received:', msg);
-    io.emit('message', msg);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('A user disconnected:', socket.id);
-  });
-});
-
 
 
 const db = mysql.createConnection({
@@ -302,3 +289,6 @@ server.listen(PORT, () => {
   console.log(`Server is running. .. . . . .`);
 });
 
+
+module.exports = { io, server, app }; 
+require('./sub_part/_io_file');

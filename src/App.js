@@ -72,7 +72,17 @@ import OwnerNavbar from "./Components/Owener/OwnerNavbar.js";
 import AllPhotoFiles from "./Components/Owener/sub_part/Search_photographer/sub_part/AllPhotoFiles.js";
 import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_part/AllServices .js";
 
+
+
 function App() {
+  const user = useSelector((state) => state.user);
+  socket.emit('user_connected', { email: user.user_email });
+  socket.on('disconnect', () => {
+    socket.emit('user_disconnected', { email: user.user_email });
+  });
+
+  
+
   const [authStatus, setAuthStatus] = useState({
     Admin: null,
     owner: null,
@@ -88,30 +98,6 @@ function App() {
   const dispatch = useDispatch();
   const isMobile = useSelector((state) => state.user.isMobile);
 
-  // const activeIndex = useSelector((state) => state.user.activeIndex);
-
-
-
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     const isMobileView = window.innerWidth <= 1200;
-  //     dispatch({
-  //       type: "SET_USER_Owner",
-  //       payload: {
-  //         isMobile: isMobileView,
-  //         isSidebarOpen: !isMobileView,
-  //       },
-  //     });
-  //   };
-
-  //   handleResize(); // Call initially
-  //   window.addEventListener("resize", handleResize);
-
-  //   return () => {
-  //     window.removeEventListener("resize", handleResize);
-  //   };
-  // }, []); // No dependencies since `dispatch` is stable in Redux
-
   useEffect(() => {
     const setActiveIndex = (value) => {
       dispatch({
@@ -121,8 +107,6 @@ function App() {
         },
       });
     };
-
-
 
     const location = window.location.pathname;
     if (location === "/Owner") {

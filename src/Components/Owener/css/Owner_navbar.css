@@ -168,6 +168,10 @@
 }
 
 #constant_navbar .profile_data .user_email {
+  width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 14px;
 }
 
@@ -189,7 +193,11 @@
   width: 100%;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 900px) {
+  #constant_navbar .profile .profile_data {
+    display: none;
+  }
+  
   #constant_navbar {
     padding: 10px 5px;
   }
@@ -221,8 +229,184 @@
   }
 }
 
-@media screen and (max-width: 480px) {
-  #constant_navbar .profile .profile_data {
+
+.constant_navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  gap: 15px;
+}
+
+.navbar_section_name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.breadcrumb-container {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 4px 8px;
+}
+
+/* Default styles for larger screens */
+@media screen and (min-width: 800px) {
+  .previous-item {
+    display: inline-flex;
+  }
+  
+  .breadcrumb-item {
+    font-size: 15px;
+  }
+}
+
+/* Medium screens */
+@media screen and (min-width: 740px) and (max-width: 800px) {
+  .previous-item {
+    display: inline-flex;
+  }
+  
+  .breadcrumb-item {
+    font-size: 14px;
+  }
+}
+
+/* Small screens - only show last item */
+@media screen and (max-width: 740px) {
+  .previous-item {
     display: none;
   }
+  
+  .last-item {
+    display: inline-flex;
+    font-size: 13px;
+  }
+  
+  /* Optional: Add ellipsis before the last item to indicate there are previous items */
+  .last-item::before {
+    content: "...";
+    margin-right: 8px;
+    color: #666;
+  }
+}
+
+.navebar_profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.search_bar {
+  position: relative;
+}
+
+.search_for_all_section {
+  padding: 8px 15px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  width: 220px;
+}
+
+.mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.profile img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile_data {
+  max-width: 160px;
+}
+
+.user_name {
+  font-size: 14.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user_email {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Media Queries */
+@media screen and (max-width: 768px) {
+  .constant_navbar {
+    padding: 8px 12px;
+  }
+
+  .search_bar {
+    display: none;
+  }
+  
+  .breadcrumb-container {
+
+    font-size: 14px;
+  }
+
+
+
+  .profile_data {
+    max-width: 100px;
+  }
+
+  .user_name {
+    font-size: 13.5px;
+  }
+
+  .user_email {
+    font-size: 12px;
+  }
+}
+
+@media screen and (min-width: 769px) {
+  .profile_data {
+    display: block;
+  }
+}
+
+/* Notification styles */
+.notifications {
+  position: absolute;
+  right: 16px;
+  top: 60px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 15px;
+  display: none;
+  z-index: 1000;
+  font-size: 14px;
+}
+
+.notifications.active {
+  display: block;
 }

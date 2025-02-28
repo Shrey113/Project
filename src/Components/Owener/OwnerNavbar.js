@@ -112,12 +112,11 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
 
     return readablePath.map((name, index) => {
-      // Create the new path by joining the segments up to the current index + 1
-      // const newPath = "/" + pathSegments.slice(0, index + 1).join("/");
+      const isLastItem = index === readablePath.length - 1;
       return (
         <span
           key={index}
-          className="breadcrumb-item"
+          className={`breadcrumb-item ${isLastItem ? 'last-item' : 'previous-item'}`}
           style={{
             cursor: index < readablePath.length - 1 ? "pointer" : "default",
             color: index < readablePath.length - 1 ? "#007bff" : "black"
@@ -129,8 +128,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           {name} {index < readablePath.length - 1 ? ">" : ""}
         </span>
       );
-
-
     });
 
 
@@ -159,7 +156,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   return (
     <>
       <div id="constant_navbar" className="constant_navbar">
-        <div className="navbar_section_name" style={{ cursor: "pointer" }}>
+        <div className="navbar_section_name">
           {isMobile && (
             <div
               className="toggle_button_con"
@@ -171,9 +168,11 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
               <img src={burger_menu} alt="Menu" />
             </div>
           )}
-          {getNavbarName()}
+          <div className="breadcrumb-container">
+            {getNavbarName()}
+          </div>
         </div>
-        <div className="navbar_profile">
+        <div className="navebar_profile">
           {setSearchTerm &&
             <div className="search_bar">
               <input
@@ -187,11 +186,11 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
                   }
                 }}
               />
-            </div>}
+            </div>
+          )}
 
-          <div className="bell_icon" onClick={() => { handleNotificationClick(); }}>
+          <div className="bell_icon" onClick={handleNotificationClick}>
             <IoIosNotifications style={{ height: "25px", width: "25px" }} />
-            <div className={`notification_count ${is_new_notification ? "show" : ""}`}></div>
           </div>
           <div
             className="profile"
