@@ -1249,7 +1249,7 @@ router.post("/add-package-request", (req, res) => {
     end_date
   } = req.body;
 
-  console.log("package request.........................", req.body);
+  // console.log("package request.........................", req.body);
 
   // Validate required fields
   if (
@@ -1274,7 +1274,7 @@ router.post("/add-package-request", (req, res) => {
   // If service is an array, convert it to a comma-separated string.
   const serviceString = Array.isArray(service) ? service.join(", ") : service;
 
-  
+
   const formattedStartDate = new Date(start_date).toISOString().slice(0, 19).replace("T", " ");
   const formattedEndDate = new Date(end_date).toISOString().slice(0, 19).replace("T", " ");
   // Build the parameterized INSERT query.
@@ -1306,25 +1306,25 @@ router.post("/add-package-request", (req, res) => {
     )
   `;
 
- 
+
   const values = [
-    "package", // event_request_type
+    "package",
     package_id,
-    package_name, // package_name
-    serviceString, // service
-    description, // description
-    parseFloat(price), // price
-    event_name, // event_name
-    null, // equipment_name (unused)
-    null, // equipment_company (unused)
-    null, // equipment_type (unused)
-    null, // equipment_description (unused)
-    null, // equipment_price_per_day (unused)
-    location, // location
-    requirements, // requirements
-    parseInt(days_required, 10), // days_required
-    parseFloat(total_amount), // total_amount
-    sender_email, // sender_email
+    package_name,
+    serviceString,
+    description,
+    parseFloat(price),
+    event_name,
+    null,
+    null,
+    null,
+    null,
+    null,
+    location,
+    requirements,
+    parseInt(days_required, 10),
+    parseFloat(total_amount),
+    sender_email,
     receiver_email,
     "Pending",
     formattedStartDate,
@@ -1337,7 +1337,8 @@ router.post("/add-package-request", (req, res) => {
       console.error("Error adding package request:", err);
       return res.status(500).json({ error: "Error adding package request" });
     }
-
+    console.log("result.id", result.insertId);
+    // io.emit(`package_notification_${receiver_email}`,result.id);
     res.status(201).json({
       message: "Package request added successfully",
       request_id: result.insertId,
@@ -1386,7 +1387,7 @@ router.post("/add-equipment-request", (req, res) => {
     return res.status(400).json({ error: "Invalid or missing fields" });
   }
 
-  
+
   const formattedStartDate = new Date(start_date).toISOString().slice(0, 19).replace("T", " ");
   const formattedEndDate = new Date(end_date).toISOString().slice(0, 19).replace("T", " ");
 
@@ -1549,7 +1550,7 @@ router.get("/get-equipment-details-by/:receiver_email", (req, res) => {
   const query_equipmentData =
     "SELECT * FROM event_request WHERE receiver_email = ? AND event_request_type = 'equipment'";
 
-    const query_serviceData =
+  const query_serviceData =
     "SELECT * FROM event_request WHERE receiver_email = ? AND event_request_type = 'service'";
 
   // Run both queries in sequence
@@ -1558,13 +1559,13 @@ router.get("/get-equipment-details-by/:receiver_email", (req, res) => {
       console.error("Error fetching package details:", err);
       return res.status(500).json({ error: "Error fetching package details" });
     }
-  
+
     db.query(query_equipmentData, [receiver_email], (err, equipmentResults) => {
       if (err) {
         console.error("Error fetching equipment details:", err);
         return res.status(500).json({ error: "Error fetching equipment details" });
       }
-  
+
       db.query(query_serviceData, [receiver_email], (err, serviceResults) => {
         if (err) {
           console.error("Error fetching service details:", err);
@@ -1586,8 +1587,8 @@ router.post("/add-service", (req, res) => {
 
   // Validate required fields
   if (!service_name || !price_per_day || !user_email) {
-    return res.status(400).json({ 
-      error: "Service name, price per day, and user email are required" 
+    return res.status(400).json({
+      error: "Service name, price per day, and user email are required"
     });
   }
 
@@ -1652,8 +1653,8 @@ router.delete("/remove-service/:id", (req, res) => {
     }
 
     if (results.length === 0) {
-      return res.status(403).json({ 
-        error: "Unauthorized or service not found" 
+      return res.status(403).json({
+        error: "Unauthorized or service not found"
       });
     }
 
@@ -1666,8 +1667,8 @@ router.delete("/remove-service/:id", (req, res) => {
         return res.status(500).json({ error: "Error deleting service" });
       }
 
-      res.status(200).json({ 
-        message: "Service deleted successfully" 
+      res.status(200).json({
+        message: "Service deleted successfully"
       });
     });
   });
@@ -1678,14 +1679,14 @@ router.post("/add-social-media-links", (req, res) => {
   const { user_email, links } = req.body;
 
   if (!user_email || !Array.isArray(links)) {
-    return res.status(400).json({ 
-      error: "User email and array of links are required" 
+    return res.status(400).json({
+      error: "User email and array of links are required"
     });
   }
 
   // First get existing links
   const getQuery = "SELECT social_media_links FROM owner WHERE user_email = ?";
-  
+
   db.query(getQuery, [user_email], (err, results) => {
     if (err) {
       console.error("Error fetching existing links:", err);
@@ -1696,7 +1697,7 @@ router.post("/add-social-media-links", (req, res) => {
     if (results[0]?.social_media_links) {
       try {
         // Handle both string and array formats
-        existingLinks = typeof results[0].social_media_links === 'string' ? 
+        existingLinks = typeof results[0].social_media_links === 'string' ?
           [results[0].social_media_links] :
           Array.isArray(results[0].social_media_links) ?
             results[0].social_media_links : [];
@@ -1713,7 +1714,7 @@ router.post("/add-social-media-links", (req, res) => {
 
     // Update the database with combined links
     const updateQuery = "UPDATE owner SET social_media_links = ? WHERE user_email = ?";
-    
+
     db.query(updateQuery, [linksJson, user_email], (err, result) => {
       if (err) {
         console.error("Error updating social media links:", err);
@@ -1733,14 +1734,14 @@ router.delete("/remove-social-media-links", (req, res) => {
   const { user_email, links } = req.body;
 
   if (!user_email || !Array.isArray(links)) {
-    return res.status(400).json({ 
-      error: "User email and array of links to remove are required" 
+    return res.status(400).json({
+      error: "User email and array of links to remove are required"
     });
   }
 
   // First get existing links
   const getQuery = "SELECT social_media_links FROM owner WHERE user_email = ?";
-  
+
   db.query(getQuery, [user_email], (err, results) => {
     if (err) {
       console.error("Error fetching existing links:", err);
@@ -1775,13 +1776,13 @@ router.delete("/remove-social-media-links", (req, res) => {
     const updatedLinks = existingLinks.filter(link => !links.includes(link));
 
     // Store as JSON string if multiple links, or plain string if single link
-    const linksToStore = updatedLinks.length === 1 ? 
-      updatedLinks[0] : 
+    const linksToStore = updatedLinks.length === 1 ?
+      updatedLinks[0] :
       JSON.stringify(updatedLinks);
 
     // Update the database with remaining links
     const updateQuery = "UPDATE owner SET social_media_links = ? WHERE user_email = ?";
-    
+
     db.query(updateQuery, [linksToStore, user_email], (err, result) => {
       if (err) {
         console.error("Error updating social media links:", err);
@@ -1801,7 +1802,7 @@ router.get("/social-media-links/:user_email", (req, res) => {
   const { user_email } = req.params;
 
   const query = "SELECT social_media_links FROM owner WHERE user_email = ?";
-  
+
   db.query(query, [user_email], (err, results) => {
     if (err) {
       console.error("Error fetching social media links:", err);

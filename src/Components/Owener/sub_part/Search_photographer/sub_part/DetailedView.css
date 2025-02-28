@@ -1,5 +1,5 @@
 #owner_DetailedView_container {
-  padding: 20px;
+  /* padding: 20px; */
   display: flex;
   flex-direction: column;
 
@@ -16,8 +16,8 @@
 #owner_DetailedView_container .packages-grid {
   display: flex;
   flex-wrap: wrap;
-  padding: 20px 0px;
-  gap: 50px;
+  padding: 30px;
+  gap: 30px;
   align-items: center;
   justify-content: space-evenly;
 }
@@ -35,7 +35,8 @@
   line-height: 1.5;
   min-height: fit-content;
   height: 500px;
-  flex: 250px;
+  flex: 280px;
+  max-width: 320px;
   border-radius: 10px;
   position: relative;
 }
@@ -260,7 +261,9 @@
   justify-content: center;
   background-color: transparent;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  /* background-color: red; */
+  width: 100%;
 }
 
 #owner_DetailedView_container .filter-options {
@@ -268,14 +271,10 @@
   align-items: center;
   justify-content: center;
   gap: 15px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   transition: all 0.3s ease;
   padding: 10px 15px;
   border-radius: 8px;
-}
-
-#owner_DetailedView_container .filter-options:hover {
-  background-color: lightgray;
 }
 
 #owner_DetailedView_container .price-filter {

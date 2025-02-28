@@ -244,11 +244,11 @@
   word-wrap: break-word;
 }
 
-.owner-details-container .info-item .service-item::before {
+/* .owner-details-container .info-item .service-item::before {
   content: "•";
   margin-right: 5px;
   color: #4361ee;
-}
+} */
 
 .owner-details-container .info-item label {
   color: #889cb9;

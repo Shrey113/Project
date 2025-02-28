@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./RequestDetailPopup.css";
-import { Server_url,showRejectToast,showWarningToast,showAcceptToast } from "../../../../redux/AllData";
+import { Server_url, showRejectToast, showWarningToast, showAcceptToast } from "../../../../redux/AllData";
 
 const RequestDetailPopup = ({
   requestData,
@@ -12,10 +12,14 @@ const RequestDetailPopup = ({
 }) => {
   const [reason, setReason] = useState("");
 
+  useState(() => {
+    console.log("requestData", requestData)
+  }, [requestData])
+
   // Function to handle rejection and update database
   const handleReject = async () => {
     if (reason.trim() === "") {
-      showRejectToast({message:"Please provide a reason for rejection."});
+      showRejectToast({ message: "Please provide a reason for rejection." });
       return;
     }
 
@@ -40,7 +44,7 @@ const RequestDetailPopup = ({
 
       const data = await response.json();
       if (data.status) {
-        showAcceptToast({message:"Request rejected successfully"});
+        showAcceptToast({ message: "Request rejected successfully" });
         setPopupType(null);
         onClose();
 
@@ -61,14 +65,23 @@ const RequestDetailPopup = ({
             )
           );
         } else {
-          showWarningToast({message:`not a good event_name ${requestData.event_name}`});
+          showWarningToast({ message: `not a good event_name ${requestData.event_name}` });
         }
       }
     } catch (error) {
       console.error("Error rejecting request:", error);
-      showRejectToast({message:"Something went wrong. Please try again."});
+      showRejectToast({ message: "Something went wrong. Please try again." });
     }
   };
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0"); // Ensure two digits
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  }
 
   // Helper function to render Package Details
   const renderPackageDetails = () => (
@@ -81,11 +94,27 @@ const RequestDetailPopup = ({
         <tr><td><strong>Price:</strong></td><td>{requestData.price || "N/A"}</td></tr>
         <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
         <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>
+        <tr>
+          <td><strong>Assigned Team Member:</strong></td>
+          <td>
+            {Array.isArray(requestData.assigned_team_member) ? (
+              requestData.assigned_team_member.map((team_member, index) => (
+                <span key={index}>{team_member}{index !== requestData.assigned_team_member.length - 1 ? ', ' : ''}</span>
+              ))
+            ) : (
+              "Not Assigned"
+            )}
+          </td>
+        </tr>
+
+
+        <tr><td><strong>Start Date:</strong></td><td>{formatDate(requestData.start_date)}</td></tr>
+        <tr><td><strong>End Date:</strong></td><td>{formatDate(requestData.end_date)}</td></tr>
         {requestData.reason && <tr><td><strong>Rejection Reason:</strong></td><td>{requestData.reason}</td></tr>}
       </tbody>
     </table>
   );
-  
+
   const renderEquipmentDetails = () => (
     <table className="details-table">
       <tbody>
@@ -98,11 +127,30 @@ const RequestDetailPopup = ({
         <tr><td><strong>Price:</strong></td><td>{requestData.equipment_price_per_day || "N/A"}</td></tr>
         <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
         <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>
+        <tr><td><strong>Start Date:</strong></td><td>{formatDate(requestData.start_date)}</td></tr>
+        <tr><td><strong>End Date:</strong></td><td>{formatDate(requestData.end_date)}</td></tr>
         {requestData.reason && <tr><td><strong>Rejection Reason:</strong></td><td>{requestData.reason}</td></tr>}
       </tbody>
     </table>
   );
-  
+
+  const renderServiceDetails = () => (
+    <table className="details-table">
+      <tbody>
+        <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr>
+        <tr><td><strong>Service Name:</strong></td><td>{requestData.service_name}</td></tr>
+        <tr><td><strong>Description:</strong></td><td>{requestData.service_description}</td></tr>
+        <tr><td><strong>Price:</strong></td><td>{requestData.service_price_per_day || "N/A"}</td></tr>
+        <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
+        <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>
+        <tr><td><strong>Days Required:</strong></td><td>{requestData.days_required}</td></tr>
+        <tr><td><strong>Start Date:</strong></td><td>{formatDate(requestData.start_date)}</td></tr>
+        <tr><td><strong>End Date:</strong></td><td>{formatDate(requestData.end_date)}</td></tr>
+        {requestData.reason && <tr><td><strong>Rejection Reason:</strong></td><td>{requestData.reason}</td></tr>}
+      </tbody>
+    </table>
+  )
+
 
   return (
     <div className="popup-overlay">
@@ -116,9 +164,9 @@ const RequestDetailPopup = ({
             </button>
           </div>
           <div className="popup-body">
-            {requestData.package_name
-              ? renderPackageDetails()
-              : renderEquipmentDetails()}
+            {requestData.package_name && renderPackageDetails()}
+            {requestData.equipment_name && renderEquipmentDetails()}
+            {requestData.service_name && renderServiceDetails()}
             {requestData.event_status !== "Rejected" && requestData.event_status !== "Accepted" && (
               <button
                 onClick={() => setPopupType("reject")}

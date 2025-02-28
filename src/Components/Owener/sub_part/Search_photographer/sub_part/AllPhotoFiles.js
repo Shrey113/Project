@@ -8,9 +8,9 @@ import { FaCloudDownloadAlt } from "react-icons/fa";
 
 function SkeletonLoader() {
   return (
-    <div className="skeleton-loader-container">
-      {[...Array(6)].map((_, index) => (
-        <div key={index} className="skeleton-loader"></div>
+    <div className="skeleton-loader-all-photos-container">
+      {[...Array(8)].map((_, index) => (
+        <div key={index} className="skeleton-all-photos-loader"></div>
       ))}
     </div>
   );
@@ -169,18 +169,19 @@ function AllPhotoFiles() {
 
   return (
     <div className="all_photos_and_folder_container">
-      <div className="folder_tabs">
-        {folders &&
-          folders?.map((folder, index) => (
+      <div className="wrapper_folder_tabs">
+        <div className="folder_tabs">
+          {folders && folders?.map((folder, index) => (
             <button
               key={index}
-              className={`folder_tab ${activeFolder?.folder_name === folder.folder_name ? "active" : ""
-                }`}
+              className={`folder_tab ${activeFolder?.folder_name === folder.folder_name ? "active" : ""}`}
               onClick={() => handleTabSwitch(folder, index)}
             >
               {folder.folder_name}
             </button>
           ))}
+        </div>
+        <div className="wrapper_folder_tabs_white"></div>
       </div>
 
       <div className="photo_container">
@@ -211,8 +212,8 @@ function AllPhotoFiles() {
 
       {
         fullViewImage && (
-          <div 
-            className="full_view_image_container" 
+          <div
+            className="full_view_image_container"
             onClick={(e) => {
               if (e.target.classList.contains('full_view_image_container')) {
                 setFullViewImage("");
@@ -225,14 +226,14 @@ function AllPhotoFiles() {
                   <IoCloseSharp className="back_icon" />
                 </button>
               </div>
-              
+
               <div className="image_content">
                 <img src={fullViewImage} className="full_view_image" alt="Full view" />
               </div>
-              
+
               <div className="image_controls">
-                <button 
-                  className="control_button download_button" 
+                <button
+                  className="control_button download_button"
                   onClick={handleDownload}
                 >
                   <FaCloudDownloadAlt className="button_icon" />

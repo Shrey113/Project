@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2'); 
+const mysql = require('mysql2');
 const cors = require("cors");
 const app = express();
 
@@ -16,15 +16,15 @@ const calendarRoutes = require('./sub_part/calendar_rout');
 
 // @shrey11_  start ---- 
 // @shrey11_  start ---- 
-app.use(express.json({ limit: '200mb' })); 
+app.use(express.json({ limit: '200mb' }));
 app.use(express.urlencoded({ extended: false, limit: '200mb' }))
 
-app.use(express.json()); 
+app.use(express.json());
 app.use(cors());
 
 const { send_welcome_page, send_otp_page } = require('./modules/send_server_email');
-const {server_request_mode, write_log_file, error_message, info_message, success_message,
-      normal_message,create_jwt_token,check_jwt_token} = require('./modules/_all_help');
+const { server_request_mode, write_log_file, error_message, info_message, success_message,
+  normal_message, create_jwt_token, check_jwt_token } = require('./modules/_all_help');
 
 const { generate_otp, get_otp, clear_otp } = require('./modules/OTP_generate');
 
@@ -35,8 +35,8 @@ const { Server } = require('socket.io');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*', 
-    methods: '*', 
+    origin: '*',
+    methods: '*',
   },
 });
 
@@ -50,7 +50,7 @@ io.on('connection', (socket) => {
 
   socket.on('message', (msg) => {
     console.log('Message received:', msg);
-    io.emit('message', msg); 
+    io.emit('message', msg);
   });
 
   socket.on('disconnect', () => {
@@ -61,12 +61,12 @@ io.on('connection', (socket) => {
 
 
 const db = mysql.createConnection({
-  host: 'localhost', 
-  user: 'root',      
-  password: '12345',      
-  database: 'Trevita_Project_1', 
+  host: 'localhost',
+  user: 'root',
+  password: '12345',
+  database: 'Trevita_Project_1',
   authPlugins: {
-      mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
+    mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
   }
 });
 
@@ -84,20 +84,20 @@ const db = mysql.createConnection({
 
 db.connect(err => {
   if (err) {
-      console.error('Error connecting to MySQL:', err.message);
-      return;
+    console.error('Error connecting to MySQL:', err.message);
+    return;
   }
   console.log('Connected to MySQL database');
 });
 
 // print data in log
 app.use((req, res, next) => {
-    server_request_mode(req.method, req.url, req.body);
-    next();
+  server_request_mode(req.method, req.url, req.body);
+  next();
 });
-  
-app.get("/",(req,res)=>{
-    res.send("hi server user running page will be here '/' ")
+
+app.get("/", (req, res) => {
+  res.send("hi server user running page will be here '/' ")
 });
 
 app.delete("/owner-folders/:folder_id", (req, res) => {
@@ -169,7 +169,7 @@ app.delete("/owner/owner-folders/:folder_id", (req, res) => {
         return res.status(500).json({ error: "Error deleting folder" });
       }
 
-    
+
       io.emit(`folderDeleted_${user_email}`, folder_id);
       res
         .status(200)
@@ -177,6 +177,8 @@ app.delete("/owner/owner-folders/:folder_id", (req, res) => {
     });
   });
 });
+
+// for notifications 
 
 // @shrey11_ other routes
 app.use('/', shrey11_);
@@ -206,7 +208,7 @@ app.use('/calendar', calendarRoutes);
 
 app.post('/add_profile_by_email', (req, res) => {
   const { email, business_profile_base64, user_profile_image_base64 } = req.body;
-  
+
   // Validate inputs
   if (!email || !business_profile_base64 || !user_profile_image_base64) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -270,14 +272,14 @@ app.post('/confirm-equipment-event', (req, res) => {
       if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Event request not found' });
       }
-      
+
       // Emit socket event with relevant data
       emitEventRequestNotification(sender_email, {
         type: 'equipment_confirmation',
         event_id,
         status: 'Accepted'
       });
-      
+
       res.json({ message: 'Equipment event confirmed successfully' });
     }
   );
@@ -297,6 +299,6 @@ app.use("/", praharsh_routes);
 
 const PORT = 4000;
 server.listen(PORT, () => {
-    console.log(`Server is running. .. . . . .`);
+  console.log(`Server is running. .. . . . .`);
 });
 

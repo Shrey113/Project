@@ -182,7 +182,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       sender_email: user.user_email,
       receiver_email: selectedOwner.user_email,
     };
-    console.log("datassssssssssssssssssss", data);
+    // console.log("datassssssssssssssssssss", data);
 
     try {
       const response = await fetch(`${Server_url}/owner/add-package-request`, {

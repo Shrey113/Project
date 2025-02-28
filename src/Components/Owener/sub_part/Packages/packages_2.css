@@ -23,7 +23,7 @@
 }
 
 
-.packages-grid {
+.owner-packages-container .packages-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 18px;
