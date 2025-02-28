@@ -16,7 +16,7 @@
   height: 100%;
   width: 20%;
   top: 90%;
-  right: 148px;
+  right: 125px;
   animation: show_layout 0.2s ease-in-out;
 }
 
@@ -44,6 +44,7 @@
   border-radius: 10px;
 }
 
+
 /* #constant_navbar .show_layout.show {
   position: absolute;
   top: 90%;
@@ -53,7 +54,6 @@
   width: 20%;
   border-radius: 10px;
 } */
-
 
 #constant_navbar .show_layout::before {
   content: '';
@@ -197,7 +197,7 @@
   #constant_navbar .profile .profile_data {
     display: none;
   }
-  
+
   #constant_navbar {
     padding: 10px 5px;
   }
@@ -243,6 +243,7 @@
   align-items: center;
   gap: 12px;
 }
+
 .breadcrumb-container {
   display: flex;
   align-items: center;
@@ -263,7 +264,7 @@
   .previous-item {
     display: inline-flex;
   }
-  
+
   .breadcrumb-item {
     font-size: 15px;
   }
@@ -274,7 +275,7 @@
   .previous-item {
     display: inline-flex;
   }
-  
+
   .breadcrumb-item {
     font-size: 14px;
   }
@@ -285,12 +286,12 @@
   .previous-item {
     display: none;
   }
-  
+
   .last-item {
     display: inline-flex;
     font-size: 13px;
   }
-  
+
   /* Optional: Add ellipsis before the last item to indicate there are previous items */
   .last-item::before {
     content: "...";
@@ -366,7 +367,7 @@
   .search_bar {
     display: none;
   }
-  
+
   .breadcrumb-container {
 
     font-size: 14px;
@@ -394,19 +395,15 @@
 }
 
 /* Notification styles */
-.notifications {
+/* .notifications {
   position: absolute;
   right: 16px;
   top: 60px;
   background: white;
   border-radius: 6px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 15px;
   display: none;
   z-index: 1000;
   font-size: 14px;
-}
-
-.notifications.active {
-  display: block;
-}
+} */
