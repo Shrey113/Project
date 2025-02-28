@@ -265,9 +265,18 @@ function EventManagement({ category }) {
   const ActionMenu = ({ onApprove, onReject, onInfo }) => {
     return (
       <div className="action-menu">
-        <button onClick={onApprove}>Approve</button>
-        <button onClick={onReject}>Reject</button>
-        <button onClick={onInfo}>Info</button>
+        <button onClick={onApprove} className="action-menu-btn approve">
+          <span className="icon">✓</span>
+          <span className="text">Approve</span>
+        </button>
+        <button onClick={onReject} className="action-menu-btn reject">
+          <span className="icon">✕</span>
+          <span className="text">Reject</span>
+        </button>
+        <button onClick={onInfo} className="action-menu-btn info">
+          <span className="icon">ℹ</span>
+          <span className="text">Info</span>
+        </button>
       </div>
     );
   };
@@ -672,12 +681,23 @@ function EventManagement({ category }) {
                             </td>
                             <td className="action-buttons">
                               {window.innerWidth <= 660 ? (
-                                <>
+                                <div style={{ position: 'relative' }}>
                                   <button
+                                    className="mobile-action-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
+                                    }}
                                     style={{
                                       fontSize: "20px",
+                                      padding: "4px 12px",
+                                      borderRadius: "4px",
+                                      background: "transparent",
+                                      border: "1px solid #ddd",
                                     }}
-                                    onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}>⋮</button>
+                                  >
+                                    ⋮
+                                  </button>
                                   {isMenuOpen === item.id && (
                                     <div ref={menuRef}>
                                       <ActionMenu
@@ -685,12 +705,18 @@ function EventManagement({ category }) {
                                           set_data(item);
                                           setIsMenuOpen(null);
                                         }}
-                                        onReject={() => handleRejectClick(item)}
-                                        onInfo={() => handleInfoClick(item)}
+                                        onReject={() => {
+                                          handleRejectClick(item);
+                                          setIsMenuOpen(null);
+                                        }}
+                                        onInfo={() => {
+                                          handleInfoClick(item);
+                                          setIsMenuOpen(null);
+                                        }}
                                       />
                                     </div>
                                   )}
-                                </>
+                                </div>
                               ) : (
                                 <>
                                   {item.event_status?.toLowerCase() === "pending" && (
@@ -766,12 +792,23 @@ function EventManagement({ category }) {
                             </td>
                             <td className="action-buttons">
                               {window.innerWidth <= 660 ? (
-                                <>
+                                <div style={{ position: 'relative' }}>
                                   <button
+                                    className="mobile-action-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
+                                    }}
                                     style={{
                                       fontSize: "20px",
+                                      padding: "4px 12px",
+                                      borderRadius: "4px",
+                                      background: "transparent",
+                                      border: "1px solid #ddd",
                                     }}
-                                    onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}>⋮</button>
+                                  >
+                                    ⋮
+                                  </button>
                                   {isMenuOpen === item.id && (
                                     <div ref={menuRef}>
                                       <ActionMenu
@@ -779,12 +816,18 @@ function EventManagement({ category }) {
                                           set_data(item);
                                           setIsMenuOpen(null);
                                         }}
-                                        onReject={() => handleRejectClick(item)}
-                                        onInfo={() => handleInfoClick(item)}
+                                        onReject={() => {
+                                          handleRejectClick(item);
+                                          setIsMenuOpen(null);
+                                        }}
+                                        onInfo={() => {
+                                          handleInfoClick(item);
+                                          setIsMenuOpen(null);
+                                        }}
                                       />
                                     </div>
                                   )}
-                                </>
+                                </div>
                               ) : (
                                 <>
                                   {item.event_status?.toLowerCase() === "pending" && (
@@ -856,12 +899,20 @@ function EventManagement({ category }) {
                             </td>
                             <td className="action-buttons">
                               {window.innerWidth <= 660 ? (
-                                <>
+                                <div style={{ position: 'relative' }}>
                                   <button
+                                    className="mobile-action-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
+                                    }}
                                     style={{
                                       fontSize: "20px",
+                                      padding: "4px 12px",
+                                      borderRadius: "4px",
+                                      background: "transparent",
+                                      border: "1px solid #ddd",
                                     }}
-                                    onClick={() => setIsMenuOpen(isMenuOpen === item.id ? null : item.id)}
                                   >
                                     ⋮
                                   </button>
@@ -872,12 +923,18 @@ function EventManagement({ category }) {
                                           set_data(item);
                                           setIsMenuOpen(null);
                                         }}
-                                        onReject={() => handleRejectClick(item)}
-                                        onInfo={() => handleInfoClick(item)}
+                                        onReject={() => {
+                                          handleRejectClick(item);
+                                          setIsMenuOpen(null);
+                                        }}
+                                        onInfo={() => {
+                                          handleInfoClick(item);
+                                          setIsMenuOpen(null);
+                                        }}
                                       />
                                     </div>
                                   )}
-                                </>
+                                </div>
                               ) : (
                                 <>
                                   {item.event_status.toLowerCase() === "pending" && (
