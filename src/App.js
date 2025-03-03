@@ -76,12 +76,21 @@ import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_pa
 
 function App() {
   const user = useSelector((state) => state.user);
-  socket.emit('user_connected', { email: user.user_email });
-  socket.on('disconnect', () => {
-    socket.emit('user_disconnected', { email: user.user_email });
-  });
-
+  const dispatch = useDispatch();
+  const isMobile = useSelector((state) => state.user.isMobile);
   
+  // Socket connection management with useEffect
+  useEffect(() => {
+    // Only emit if we have a valid email
+    if (user.user_email) {
+      socket.emit('user_connected', { email: user.user_email });
+      
+      return () => {
+        socket.emit('user_disconnected', { email: user.user_email });
+        socket.off('disconnect'); 
+      };
+    }
+  }, [user.user_email]); 
 
   const [authStatus, setAuthStatus] = useState({
     Admin: null,
@@ -94,9 +103,6 @@ function App() {
 
 
   const { owner_email } = useParams();
-
-  const dispatch = useDispatch();
-  const isMobile = useSelector((state) => state.user.isMobile);
 
   useEffect(() => {
     const setActiveIndex = (value) => {

@@ -411,20 +411,20 @@ const DetailPopup = ({ member, onClose }) => {
   );
 };
 
-const MemberCard = ({ member, onEdit, onRemove }) => {
-  const [showDropdown, setShowDropdown] = useState(false);
+const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdown }) => {
   const [showDetailPopup, setShowDetailPopup] = useState(false);
+  const isDropdownActive = activeDropdown === member.member_id;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showDropdown && !event.target.closest('.more-options-container')) {
-        setShowDropdown(false);
+      if (isDropdownActive && !event.target.closest('.more-options-container')) {
+        setActiveDropdown(null);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showDropdown]);
+  }, [isDropdownActive, setActiveDropdown]);
 
   return (
     <div className="member-card">
@@ -433,19 +433,21 @@ const MemberCard = ({ member, onEdit, onRemove }) => {
         <div className="more-options-container">
           <button 
             className="more-options"
-            onClick={() => setShowDropdown(!showDropdown)}
+            onClick={() => {
+              setActiveDropdown(isDropdownActive ? null : member.member_id);
+            }}
           >
             <span></span>
             <span></span>
             <span></span>
           </button>
-          {showDropdown && (
+          {isDropdownActive && (
             <div className="dropdown-menu">
               <button 
                 className="dropdown-item edit-btn"
                 onClick={() => {
                   onEdit(member);
-                  setShowDropdown(false);
+                  setActiveDropdown(null);
                 }}
               >
                 <img src={Edit_icon} alt="Edit" />
@@ -456,7 +458,7 @@ const MemberCard = ({ member, onEdit, onRemove }) => {
                 className="dropdown-item delete-btn"
                 onClick={() => {
                   onRemove(member.member_id, member.owner_email);
-                  setShowDropdown(false);
+                  setActiveDropdown(null);
                 }}
               >
                 <img src={Remove_icon} alt="Remove" />
@@ -706,6 +708,8 @@ const TeamOverview = () => {
     };
   }, [popupState.show]);
 
+  const [activeDropdown, setActiveDropdown] = useState(null);
+
   return (
     <div className="team-overview-container">
       {/* Stats Cards */}
@@ -749,7 +753,14 @@ const TeamOverview = () => {
 
         <div className="members-grid">
           {teamData.map((member, index) => (
-            <MemberCard key={index} member={member} onEdit={handleEditUser} onRemove={handleRemoveUser} />
+            <MemberCard 
+              key={index} 
+              member={member} 
+              onEdit={handleEditUser} 
+              onRemove={handleRemoveUser}
+              activeDropdown={activeDropdown}
+              setActiveDropdown={setActiveDropdown}
+            />
           ))}
         </div>
       </div>

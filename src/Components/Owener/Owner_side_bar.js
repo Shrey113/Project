@@ -1,30 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import "./css/Owner_side_bar.css";
 
-// import user4 from './img/user4.jpg';
 import app_icon from "./img/app-store.png";
-
-// import close_menu from './img/close.png'
-
-// import dashboard_icon from './img/active/dashboard.png';
-// import dashboard_no_active_icon from './img/no_active/dashboard.png';
-
-// import Event_icon from './img/active/calendar.png'
-// import Event_no_active_icon  from './img/no_active/calendar.png'
-
-// import Team_icon from './img/active/group.png'
-// import Team_no_active_icon from './img/no_active/group.png'
-
-// import client_icon from './img/active/client.png'
-// import client_no_active_icon from './img/no_active/client.png'
-
-// import Packages_icon from './img/active/photo.png'
-// import Packages_no_active_icon from './img/no_active/photo.png'
-
-// import logout_icon from './img/logout.png'
 
 import {
   ConfirmMessage,
@@ -41,9 +21,12 @@ import LogoutIcon from "@mui/icons-material/Logout";
 // import PersonIcon from '@mui/icons-material/Person';
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import MenuItem from "./Owner_side_bar_item";
 
 function OwnerSideBar() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState({
     isVisible: false,
@@ -82,16 +65,15 @@ function OwnerSideBar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // const sidebarRef = useRef(null);
-  const navigate = useNavigate();
-
   const handleItemClick = (index) => {
-    if (index === 1) {
-      setActiveIndex(1.1);
-      navigate(menuItems[1].subMenu[0].path);
-    } else {
+    if (menuItems[index].subMenu) {
       setActiveIndex(index);
-      navigate(menuItems[index].path);
+    } else {
+      const targetPath = menuItems[index].path;
+      if (location.pathname !== targetPath) {
+        setActiveIndex(index);
+        navigate(targetPath);
+      }
     }
 
     if (isMobile) {
@@ -102,35 +84,23 @@ function OwnerSideBar() {
   const menuItems = [
     {
       name: "Dashboard",
-      icon: (
-        <DashboardIcon
-          className={`menu-icon ${activeIndex === 0 ? "active" : ""}`}
-        />
+      icon: ( <DashboardIcon className={`menu-icon ${activeIndex === 0 ? "active" : ""}`} />
       ),
       path: "/Owner",
     },
     {
-      name: "Event Management",
-      icon: (
-        <EventIcon
-          className={`menu-icon ${activeIndex === 1 ? "active" : ""}`}
-        />
+      name: "Event",
+      icon: ( <EventIcon className={`menu-icon ${activeIndex === 1 ? "active" : ""}`} />
       ),
       path: "/Owner/Event/packages",
       subMenu: [
         {
           name: "Packages",
           path: "/Owner/Event/packages",
-          icon: (
-            <LocalOfferIcon
-              className={`menu-icon ${activeIndex === 1.1 ? "active" : ""}`}
-            />
+          icon: ( <LocalOfferIcon className={`menu-icon ${activeIndex === 1.1 ? "active" : ""}`} />
           ),
         },
-        { name: "Equipment", path: "/Owner/Event/equipment", icon: (
-            <CameraAltIcon
-              className={`menu-icon ${activeIndex === 1.2 ? "active" : ""}`}/>),
-        },
+        { name: "Equipment", path: "/Owner/Event/equipment", icon: ( <CameraAltIcon className={`menu-icon ${activeIndex === 1.2 ? "active" : ""}`}/>), },
         
         { name: "Services", path: "/Owner/Event/services", icon: (
             <LocalOfferIcon
@@ -141,39 +111,23 @@ function OwnerSideBar() {
       ],
     },
     {
-      name: "Team Management",
-      icon: (
-        <GroupsIcon
-          className={`menu-icon ${activeIndex === 2 ? "active" : ""}`}
-        />
-      ),
+      name: "Team",
+      icon: ( <GroupsIcon className={`menu-icon ${activeIndex === 2 ? "active" : ""}`} /> ),
       path: "/Owner/Team",
     },
     {
-      name: "Invoice Management",
-      icon: (
-        <ReceiptIcon
-          className={`menu-icon ${activeIndex === 3 ? "active" : ""}`}
-        />
-      ),
+      name: "Invoice",
+      icon: ( <ReceiptIcon className={`menu-icon ${activeIndex === 3 ? "active" : ""}`} /> ),
       path: "/Owner/Invoice",
     },
     {
-      name: "Packages and Pricing",
-      icon: (
-        <LocalOfferIcon
-          className={`menu-icon ${activeIndex === 4 ? "active" : ""}`}
-        />
-      ),
+      name: "Packages",
+      icon: ( <LocalOfferIcon className={`menu-icon ${activeIndex === 4 ? "active" : ""}`} /> ),
       path: "/Owner/Packages",
     },
     {
-      name: "Search Photographer",
-      icon: (
-        <SearchIcon
-          className={`menu-icon ${activeIndex === 5 ? "active" : ""}`}
-        />
-      ),
+      name: "Search",
+      icon: ( <SearchIcon className={`menu-icon ${activeIndex === 5 ? "active" : ""}`} /> ),
       path: "/Owner/search_photographer",
     },
   ];
@@ -251,37 +205,17 @@ function OwnerSideBar() {
           )}
 
           {menuItems.map((item, index) => (
-            <React.Fragment key={index}>
-              <div
-                className={`item ${index === Math.floor(activeIndex) && "active"
-                  }`}
-                onClick={() => handleItemClick(index)}
-              >
-                <div className="icon">{item.icon}</div>
-                <div className={`text`}>{item.name}</div>
-              </div>
-              {item.subMenu && Math.floor(activeIndex) === index && (
-                <div className="sub-menu">
-                  {item.subMenu.map((subItem, subIndex) => (
-                    <div
-                      key={`${index}-${subIndex}`}
-                      className={`sub-item ${activeIndex === index + (subIndex + 1) / 10 && "active"
-                        }`}
-                      onClick={() => {
-                        setActiveIndex(index + (subIndex + 1) / 10);
-                        navigate(subItem.path);
-                        if (isMobile) {
-                          set_is_sidebar_open(false);
-                        }
-                      }}
-                    >
-                      <div className="icon">{subItem.icon}</div>
-                      <div className="text">{subItem.name}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </React.Fragment>
+            <MenuItem
+              key={index}
+              item={item}
+              index={index}
+              activeIndex={activeIndex}
+              handleItemClick={handleItemClick}
+              isMobile={isMobile}
+              set_is_sidebar_open={set_is_sidebar_open}
+              setActiveIndex={setActiveIndex}
+              navigate={navigate}
+            />
           ))}
         </div>
 

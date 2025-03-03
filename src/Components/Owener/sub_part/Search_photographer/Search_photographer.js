@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import "./Search_photographer.css";
 import OwnerList from "./sub_part/Owners_List";
-import { Server_url , showRejectToast, showWarningToast} from "../../../../redux/AllData";
+import { Server_url , showWarningToast} from "../../../../redux/AllData";
 import { TfiLocationPin } from "react-icons/tfi";
 import { BiLoaderAlt } from "react-icons/bi";
 import { TbLocationCancel } from "react-icons/tb";
@@ -177,7 +177,7 @@ function Search_photographer({searchTerm,setSearchTerm}) {
         },
         (error) => {
           console.error("Error getting location:", error);
-          showRejectToast({ message: "Please enable system location to use location filters" });
+          // showRejectToast({ message: "Please enable system location to use location filters" });
           // showNeutralToast("GO > Settings > Location > Enable Location");
         },
         { enableHighAccuracy: true }

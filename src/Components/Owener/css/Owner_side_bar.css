@@ -128,6 +128,7 @@
   }
   #OwnerSideBar .category_con .item.active {
     background: transparent;
+    color: white;
    &:hover{
         background-color: none;
     }
@@ -237,7 +238,7 @@
 
 #OwnerSideBar .category_con .item .text {
   display: inline-block; 
-  font-size: 14px;
+  font-size: 0.9rem;
   white-space: nowrap; 
   overflow: hidden; 
   text-overflow: hidden; 
@@ -354,7 +355,7 @@
 }
 
 .sub-menu {
-  margin-left: 20px;
+  /* background: rebeccapurple; */
   animation: slideDown 0.3s ease-out;
   overflow: hidden;
 }
@@ -363,6 +364,7 @@
   display: flex;
   align-items: center;
   padding: 10px 15px;
+  padding-left: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.9em;
@@ -399,6 +401,33 @@
     max-height: 200px;
     opacity: 1;
   }
+}
+
+.item {
+  /* ... existing styles ... */
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.submenu-arrow {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.submenu-arrow.open {
+  transform: rotate(0deg);
+}
+
+.arrow-icon {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.submenu-arrow.open .arrow-icon {
+  transform: rotate(0deg);
 }
 
 

@@ -802,7 +802,6 @@
   padding: 16px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .title-and-legend {
@@ -825,7 +824,6 @@
   gap: 24px;
   align-items: center;
   padding: 8px 16px;
-  background: #f8f9fa;
   border-radius: 8px;
 }
 
@@ -950,6 +948,9 @@
   .section-header {
     padding: 8px;
   }
+  .stats-cards {
+    gap: 15px;
+  }
 
   .title-and-legend h2 {
     font-size: 16px;
@@ -963,6 +964,12 @@
     width: 100%;
     justify-content: center;
     margin-top: 8px;
+  }
+  .data-container h2{
+    font-size: 12px;
+  }
+  .data-container .count{
+    font-size: 23px;
   }
 }
 
@@ -1114,10 +1121,13 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 12px; /* Further reduce gap */
   }
-  
-  .stats-cards {
-    grid-template-columns: 1fr;
+  .data-container h2{
+    font-size: 16px;
   }
+  .data-container .count{
+    font-size: 28px;
+  }
+  
   
   .title-and-legend {
     flex-direction: column;
@@ -1407,9 +1417,6 @@
     padding: 16px; /* Reduce padding on smaller screens */
   }
 
-  .stats-cards {
-    grid-template-columns: 1fr; /* Stack cards on smaller screens */
-  }
 
   .stat-card {
     margin-bottom: 20px; /* Add space between stacked cards */
@@ -1436,7 +1443,12 @@
   .add-member-btn {
     font-size: 14px; /* Adjust button font size */
   }
+  .stat-card img {
+    display: none;
+  }
+
 }
+
 
 @media (max-width: 500px) {
   .section-header h2 {
