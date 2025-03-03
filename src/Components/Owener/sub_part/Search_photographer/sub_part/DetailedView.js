@@ -233,35 +233,6 @@ function DetailedView() {
                   }}
                 >
                   <div className="package_title">
-                    {/* <div
-                      className="first_container"
-                      style={{
-                        backgroundColor: item.card_color || "#6fa8dc",
-                        color: "#fff",
-                      }}
-                    ></div>
-                    <div
-                      className="second_container"
-                      style={{
-                        backgroundColor: item.card_color || "#6fa8dc",
-                        color: "#fff",
-                      }}
-                    >
-                      <div className="package_name">
-                        {item.package_name || "Not Available"}
-                      </div>
-                      <div className="package_price">
-                        ₹{item.price || "Not Available"}
-                      </div>
-                    </div>
-                    <div
-                      className="third_container"
-                      style={{
-                        backgroundColor: item.card_color || "#6fa8dc",
-                        color: "#fff",
-                      }}
-                    ></div> */}
-
                     <div className="package_name">{item.package_name || "Package Name"}</div>
                   </div>
 
@@ -273,7 +244,7 @@ function DetailedView() {
                     <span>/day</span>
                   </div>
 
-                  <hr style={{ width: "85%", margin: "8px 0" }} />
+                  <hr style={{ width: "96%", margin: "8px 0" }} />
 
                   <div className="package_Services">
                     {Array.isArray(item.service) &&

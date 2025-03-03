@@ -787,7 +787,7 @@ const OwnerDetails = () => {
                   <span>/day</span>
                 </div>
 
-                <hr style={{ width: "85%", margin: "8px 0" }} />
+                <hr style={{ width: "96%", margin: "8px 0" }} />
 
                 <div className="package_Services">
                   {Array.isArray(pkg.service) && pkg.service.length > 0 ? (

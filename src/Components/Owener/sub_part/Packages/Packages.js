@@ -114,7 +114,12 @@ const Packages = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "package_name" || name === "description" || name === "price") {
+      if (name === "package_name") {
+        let updatedValue = value.slice(0, 21);
+        setFormData({ ...formData, [name]: updatedValue });
+      }
       setFormData({ ...formData, [name]: value });
     }
   };
@@ -521,7 +526,7 @@ const Packages = () => {
                         <span>/day</span>
                       </div>
 
-                      <hr style={{ width: "85%", margin: "8px 0" }} />
+                      <hr style={{ width: "96%", margin: "8px 0" }} />
 
                       <div className="package_Services">
                         {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
@@ -675,7 +680,7 @@ const Packages = () => {
               <div className="two_input_field">
                 <label>
                   Package Name:
-                  <input type="text" name="package_name" value={formData.package_name} onChange={handleChange} required />
+                  <input type="text" name="package_name" value={formData.package_name} maxLength={20} onChange={handleChange} required />
                 </label>
                 <label>
                   Price/Day:
@@ -801,11 +806,9 @@ const Packages = () => {
                 borderLeft: "1px solid #919394",
                 borderBottom: "1px solid #919394"
               }}
-
             >
               <div className="package_title">
                 <div className="package_name">{formData.package_name || "Package Name"}</div>
-                {/* <FiEdit style={{cursor: "pointer"}}/> */}
               </div>
               <div className="package_pricing" style={{ color: formData.card_color || "#6fa8dc" }}>
                 <div className="rupee_symbol">₹</div>
@@ -815,7 +818,7 @@ const Packages = () => {
                 <span>/day</span>
               </div>
 
-              <hr style={{ width: "85%", margin: "8px 0" }} />
+              <hr style={{ width: "96%", margin: "8px 0" }} />
 
               <div className="package_Services">
                 {Array.isArray(formData.service) && formData.service.length > 0 ? (
@@ -827,7 +830,7 @@ const Packages = () => {
                       </div>
                     </div>)
                 ) : (
-                  <span style={{ alignSelf: "center" }}>No services available</span>
+                  <span>No services available</span>
                 )}
               </div>
             </div>
