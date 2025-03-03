@@ -198,7 +198,6 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         throw new Error("Request failed");
       }
       showAcceptToast({ message: "Package request added successfully" });
-
       onClose();
     } catch (error) {
       console.error("Error adding package request:", error);

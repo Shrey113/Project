@@ -40,6 +40,27 @@ const bodyParser = require("body-parser");
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
+
+router.post("/get_all_notifications", (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: "user_email is required" })
+  }
+  const query = "SELECT * FROM notifications_PES WHERE user_email=? ORDER BY id DESC"
+  db.query(query, [email], (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    if (result.length > 0) {
+      return res.status(200).json({ success: true, notifications: result });
+    }
+    else {
+      return res.status(200).json({ success: false, message: "no notifications found" });
+    }
+  })
+})
+
 router.post("/fetch_services_for_preview", (req, res) => {
   const { user_email } = req.body;
   if (!user_email) {

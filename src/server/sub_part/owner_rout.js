@@ -1,5 +1,8 @@
 const express = require("express");
 const mysql = require("mysql2");
+// const { io } = require("../server");
+
+
 
 const router = express.Router();
 const jwt = require("jsonwebtoken");
@@ -19,6 +22,7 @@ const {
 } = require("./../modules/OTP_generate");
 const JWT_SECRET_KEY = "Jwt_key_for_photography_website";
 const { create_users_folders } = require("./../Google_Drive/data");
+const { data } = require("react-router-dom");
 
 function create_jwt_token(user_email, user_name) {
   let data_for_jwt = { user_name, user_email };
@@ -1249,20 +1253,18 @@ router.post("/add-package-request", (req, res) => {
     end_date
   } = req.body;
 
-  // console.log("package request.........................", req.body);
-
   // Validate required fields
   if (
     !package_id ||
     !package_name ||
     !service ||
     !description ||
-    isNaN(price) ||
+    isNaN(parseFloat(price)) ||
     !event_name ||
     !location ||
     !requirements ||
-    isNaN(days_required) ||
-    isNaN(total_amount) ||
+    isNaN(parseInt(days_required, 10)) ||
+    isNaN(parseFloat(total_amount)) ||
     !sender_email ||
     !receiver_email ||
     !start_date ||
@@ -1274,9 +1276,24 @@ router.post("/add-package-request", (req, res) => {
   // If service is an array, convert it to a comma-separated string.
   const serviceString = Array.isArray(service) ? service.join(", ") : service;
 
-
+  // Format dates correctly for MySQL
   const formattedStartDate = new Date(start_date).toISOString().slice(0, 19).replace("T", " ");
   const formattedEndDate = new Date(end_date).toISOString().slice(0, 19).replace("T", " ");
+
+  function calculateDays(startDate, endDate) {
+    if (!startDate || !endDate) return "N/A";
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const diffTime = end - start; // Difference in milliseconds
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert to days
+
+    return diffDays > 0 ? `${diffDays} days` : "0 days";
+  }
+
+  const calculatedDaysRequired = calculateDays(start_date, end_date);
+
   // Build the parameterized INSERT query.
   const query = `
     INSERT INTO event_request (
@@ -1287,11 +1304,6 @@ router.post("/add-package-request", (req, res) => {
       description,             
       price,                
       event_name,              
-      equipment_name,          
-      equipment_company,       
-      equipment_type,          
-      equipment_description,   
-      equipment_price_per_day, 
       location,                
       requirements,            
       days_required,           
@@ -1300,12 +1312,10 @@ router.post("/add-package-request", (req, res) => {
       receiver_email,          
       event_status, 
       start_date,  
-      end_date        
-    ) VALUES (
-      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?
-    )
+      end_date,
+      time_stamp        
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,Now())
   `;
-
 
   const values = [
     "package",
@@ -1315,11 +1325,6 @@ router.post("/add-package-request", (req, res) => {
     description,
     parseFloat(price),
     event_name,
-    null,
-    null,
-    null,
-    null,
-    null,
     location,
     requirements,
     parseInt(days_required, 10),
@@ -1331,20 +1336,43 @@ router.post("/add-package-request", (req, res) => {
     formattedEndDate,
   ];
 
-  // Execute the query.
+
+  // Execute the INSERT query.
   db.query(query, values, (err, result) => {
     if (err) {
       console.error("Error adding package request:", err);
       return res.status(500).json({ error: "Error adding package request" });
     }
-    console.log("result.id", result.insertId);
-    // io.emit(`package_notification_${receiver_email}`,result.id);
-    res.status(201).json({
-      message: "Package request added successfully",
-      request_id: result.insertId,
+
+    const insertQuery = `insert into notifications_PES (notification_type,notification_name,user_email,location,days_required,sender_email) values (?,?,?,?,?,?)`;
+    const notifications_values = ["package", package_name, receiver_email, location, calculatedDaysRequired, sender_email];
+
+    db.query(insertQuery, notifications_values, (insertErr, insertResult) => {
+      if (insertErr) {
+        console.error("Error adding notification:", insertErr);
+        return res.status(500).json({ error: "Error adding notification" });
+      }
+      const insertedId = insertResult.insertId;
+      // Fetch the inserted record
+      const fetchQuery = `SELECT * FROM notifications_PES WHERE id = ?`;
+      db.query(fetchQuery, [insertedId], (fetchErr, fetchResult) => {
+        if (fetchErr) {
+          console.error("Error fetching package request:", fetchErr);
+          return res.status(500).json({ error: "Error fetching package request" });
+        }
+        req.io.emit(`package_notification_${receiver_email}`, { all_data: fetchResult[0], type: fetchResult[0].notification_type });
+
+
+        // Send response to client
+        res.status(201).json({
+          message: "Package request added successfully",
+          request_id: insertedId,
+        });
+      });
     });
   });
 });
+
 
 // Add equipment request
 router.post("/add-equipment-request", (req, res) => {
@@ -1391,6 +1419,21 @@ router.post("/add-equipment-request", (req, res) => {
   const formattedStartDate = new Date(start_date).toISOString().slice(0, 19).replace("T", " ");
   const formattedEndDate = new Date(end_date).toISOString().slice(0, 19).replace("T", " ");
 
+  function calculateDays(startDate, endDate) {
+    if (!startDate || !endDate) return "N/A";
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const diffTime = end - start; // Difference in milliseconds
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert to days
+
+    return diffDays > 0 ? `${diffDays} days` : "0 days";
+  }
+
+  const calculatedDaysRequired = calculateDays(start_date, end_date);
+
+
   const query = `
     INSERT INTO event_request (
       equipment_id,
@@ -1408,8 +1451,9 @@ router.post("/add-equipment-request", (req, res) => {
       sender_email,
       receiver_email,
       event_status,start_date,
-      end_date
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
+      end_date,
+      time_stamp
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,Now())
   `;
 
   const values = [
@@ -1420,7 +1464,7 @@ router.post("/add-equipment-request", (req, res) => {
     equipment_company,
     equipment_type,
     equipment_description,
-    parseFloat(equipment_price_per_day), // Ensure numeric values
+    parseFloat(equipment_price_per_day),
     location,
     requirements,
     parseInt(days_required),
@@ -1438,9 +1482,28 @@ router.post("/add-equipment-request", (req, res) => {
       return res.status(500).json({ error: "Error adding equipment request" });
     }
 
-    res.status(201).json({
-      message: "Equipment request added successfully",
-      request_id: result.insertId,
+    const insertQuery = `insert into notifications_PES (notification_type,notification_name,user_email,location,days_required,sender_email) values (?,?,?,?,?,?)`;
+    const notifications_values = ["equipment", equipment_name, receiver_email, location, calculatedDaysRequired, sender_email];
+
+    db.query(insertQuery, notifications_values, (insertErr, insertResult) => {
+      if (insertErr) {
+        console.error("Error adding notification:", insertErr);
+        return res.status(500).json({ error: "Error adding notification" });
+      }
+
+      const insertedId = insertResult.insertId;
+      const fetchQuery = `select * from notifications_PES where id = ?`;
+      db.query(fetchQuery, [insertedId], (fetchErr, fetchResult) => {
+        if (fetchErr) {
+          console.error("Error fetching equipment request:", err);
+          return res.status(500).json({ error: "Error fetching equipment request" });
+        }
+        req.io.emit(`equipment_notification_${receiver_email}`, { all_data: fetchResult[0], type: fetchResult[0].notification_type });
+      });
+      res.status(201).json({
+        message: "Equipment request added successfully",
+        request_id: insertedId,
+      });
     });
   });
 });
@@ -1475,6 +1538,21 @@ router.post("/add-service-request", (req, res) => {
   const formattedStartDate = formatDate(start_date);
   const formattedEndDate = formatDate(end_date);
 
+
+  function calculateDays(startDate, endDate) {
+    if (!startDate || !endDate) return "N/A";
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const diffTime = end - start; // Difference in milliseconds
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert to days
+
+    return diffDays > 0 ? `${diffDays} days` : "0 days";
+  }
+
+  const calculatedDaysRequired = calculateDays(start_date, end_date);
+
   const query = `
     INSERT INTO event_request (
       event_request_type, 
@@ -1491,9 +1569,10 @@ router.post("/add-service-request", (req, res) => {
       end_date,
       event_status,
       location,
-      days_required
+      days_required,
+      time_stamp
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, Now())
   `;
 
   const values = [
@@ -1520,9 +1599,29 @@ router.post("/add-service-request", (req, res) => {
       return res.status(500).json({ error: "Error adding service request" });
     }
 
-    res.status(201).json({
-      message: "Service request added successfully",
-      request_id: result.insertId,
+    const insertQuery = `insert into notifications_PES (notification_type,notification_name,user_email,location,days_required,sender_email) values (?,?,?,?,?,?)`;
+    const notifications_values = ["service", service_name, receiver_email, location, calculatedDaysRequired, sender_email];
+
+    db.query(insertQuery, notifications_values, (insertErr, insertResult) => {
+      if (insertErr) {
+        console.error("Error adding notification:", insertErr);
+        return res.status(500).json({ error: "Error adding notification" });
+      }
+      const insertedId = insertResult.insertId;
+
+      const fetchQuery = `select * from notifications_PES where id = ?`;
+      db.query(fetchQuery, [insertedId], (err, fetchResult) => {
+        if (err) {
+          console.error("Error fetching service request:", err);
+          return res.status(500).json({ error: "Error fetching service request" });
+        }
+        req.io.emit(`service_notification_${receiver_email}`, { all_data: fetchResult[0], type: fetchResult[0].notification_type });
+      });
+
+      res.status(201).json({
+        message: "Service request added successfully",
+        request_id: insertedId,
+      });
     });
   });
 });
@@ -1571,6 +1670,8 @@ router.get("/get-equipment-details-by/:receiver_email", (req, res) => {
           console.error("Error fetching service details:", err);
           return res.status(500).json({ error: "Error fetching service details" });
         }
+
+
         res.json({
           package: packageResults,
           equipment: equipmentResults,

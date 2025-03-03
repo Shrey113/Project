@@ -22,6 +22,11 @@ app.use(express.urlencoded({ extended: false, limit: '200mb' }))
 app.use(express.json());
 app.use(cors());
 
+app.use((req, res, next) => {
+  req.io = io; // Attach io to request object
+  next();
+});
+
 const { send_welcome_page, send_otp_page } = require('./modules/send_server_email');
 const { server_request_mode, write_log_file, error_message, info_message, success_message,
   normal_message, create_jwt_token, check_jwt_token } = require('./modules/_all_help');
@@ -93,9 +98,9 @@ app.delete("/owner-folders/:folder_id", (req, res) => {
 
   // First verify the user owns this folder
   const verifyQuery = `
-    SELECT folder_id FROM owner_folders 
-    WHERE folder_id = ? AND user_email = ?
-  `;
+      SELECT folder_id FROM owner_folders 
+      WHERE folder_id = ? AND user_email = ?
+    `;
 
   db.query(verifyQuery, [folder_id, user_email], (err, results) => {
     if (err) {
@@ -131,9 +136,9 @@ app.delete("/owner/owner-folders/:folder_id", (req, res) => {
 
   // First verify the user owns this folder
   const verifyQuery = `
-    SELECT folder_id FROM owner_folders
-    WHERE folder_id = ? AND user_email = ?
-  `;
+      SELECT folder_id FROM owner_folders
+      WHERE folder_id = ? AND user_email = ?
+    `;
 
   db.query(verifyQuery, [folder_id, user_email], (err, results) => {
     if (err) {
@@ -289,6 +294,5 @@ server.listen(PORT, () => {
   console.log(`Server is running. .. . . . .`);
 });
 
-
-module.exports = { io, server, app }; 
+module.exports = { io, server, app };
 require('./sub_part/_io_file');
