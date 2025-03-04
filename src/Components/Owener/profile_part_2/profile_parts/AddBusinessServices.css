@@ -23,22 +23,26 @@
 
 .add-business-services-container .services-header h2 {
   color: var(--color_5_owner);
-  font-size: 2.2rem;
+  font-size:var(--owner_profile_title_font_size);
   font-weight: var(--Heading_weight);
   font-family: var(--Heading);
 }
 
 .add-business-services-container .add-service-btn {
-  background-color: var(--color_4_owner);
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: var(--owner_profile_pages_main_color);
   color: var(--color_1_owner);
   border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--body_button);
   font-weight: var(--body_button_weight);
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  white-space: nowrap;
 }
 
 .add-business-services-container .add-service-btn:hover {
@@ -102,7 +106,7 @@
   display: flex;
   gap: 1rem;
   width: 50%;
-  min-width: 100px;
+  min-width: fit-content;
 }
 
 .save-btn,
@@ -117,10 +121,12 @@
 }
 
 .add-business-services-container .save-btn {
-  background-color: var(--color_4_owner);
+  background-color: var(--owner_profile_pages_main_color);
   color: var(--color_1_owner);
   font-family: var(--body_button);
   font-weight: var(--body_button_weight);
+  width: fit-content;
+  text-wrap: nowrap;
 }
 
 .add-business-services-container .save-btn:hover {
@@ -146,15 +152,18 @@
 }
 
 .add-business-services-container .service-item {
-  position: relative;
+  padding: 20px;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  border-radius: 10px;
+  min-height: fit-content;
+  height: 150px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
-  background-color: var(--color_1_owner);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  flex: 280px;
+  gap: 20px;
+  position: relative;
 }
 
 .add-business-services-container .service-content {
@@ -175,6 +184,23 @@
   font-weight: var(--body_data_weight);
   margin-bottom: 0.5rem;
   line-height: 1.5;
+  display: flex;
+  align-items: flex-end;
+}
+.add-business-services-container .service-item p .service_price{
+  font-size: 28px;
+  color: #4f46e5;
+  font-weight: 600;
+  line-height: 1;
+  margin: 0 3px;
+}
+.add-business-services-container .service-item p .rupee_symbol{
+  font-size: 18px;
+  color: #4f46e5;
+  font-weight: 550;
+}
+.add-business-services-container .service-item p .per_day{
+  font-size: 12px;
 }
 
 .add-business-services-container .service-item p:first-of-type {

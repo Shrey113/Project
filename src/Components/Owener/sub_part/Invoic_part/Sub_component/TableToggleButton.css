@@ -23,7 +23,7 @@
 }
 
 
-.button_con {
+.button_con_wrap .button_con {
   position: relative;
   display: flex;
   background-color: white;

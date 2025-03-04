@@ -457,7 +457,10 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
               <button 
                 className="dropdown-item delete-btn"
                 onClick={() => {
-                  onRemove(member.member_id, member.owner_email);
+                  let is_confrom = window.confirm("You wont to remove member")
+                  if (is_confrom){
+                    onRemove(member.member_id, member.owner_email);
+                  }
                   setActiveDropdown(null);
                 }}
               >

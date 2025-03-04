@@ -1,13 +1,6 @@
 * {
   box-sizing: border-box; 
 }
-:root{
-  --color_1:#000C20;
-  --color_2:#01316F;
-  --color_3:#6FAFDB;
-  --color_4:#E2E2B7;
-  --input_font_size:.9rem;
-}
 
 .full_blur_bg_1 {
   height: 100vh;
@@ -68,7 +61,7 @@
 }
 
 .user_login_con .forgot_password{
-  color:var(--color_3);
+  color:var(--color_secondary_button_owner);
   cursor: pointer;
   align-self: flex-end;
   /* margin-right: 20px; */
@@ -87,7 +80,7 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 40px;
-  color: var(--color_2);
+  color: var(--color_main_button_owner);
 }
 
 .register_part .title {
@@ -104,7 +97,7 @@
 
 #go_to_register,
 #go_to_login {
-  color: var(--color_3);
+  color: var(--color_secondary_button_owner);
   cursor: pointer;
 
   &:hover {
@@ -233,7 +226,7 @@
   will-change: top;
   top: -20px;
   font-size: var(--input_font_size);
-  color: var(--color_3);
+  color: var(--color_secondary_button_owner);
 }
 
 .Login_register_input_group_Owener .bar {
@@ -249,7 +242,7 @@
   height: 2px;
   width: 0;
   /* bottom: 1px; */
-  background: var(--color_3);
+  background: var(--color_secondary_button_owner);
   transition: 0.2s ease all;
   will-change: width;
 }
@@ -315,7 +308,7 @@
   font-size: 17px;
   border-radius: 500px;
   overflow: hidden;
-  background: var(--color_2);
+  background: var(--color_main_button_owner);
   color: ghostwhite;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -363,7 +356,7 @@
 }
 
 .swiper-pagination-bullet-active {
-  background-color: var(--color_2);
+  background-color: var(--color_main_button_owner);
   opacity: 1;
 }
 

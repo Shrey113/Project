@@ -104,13 +104,10 @@
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
-    font-family: var(--body_button);
-    font-weight: var(--body_button_weight);
-
 }
 
 #AddProfileDataPopup  .upload-btn {
-    background-color: var(--owner_home_page_ui_color);
+    background-color: var(--owner_profile_pages_main_color);
     color: white;
 }
 

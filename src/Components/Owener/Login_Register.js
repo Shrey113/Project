@@ -378,7 +378,7 @@ function LoginRegisterOwener() {
 
     const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}[Z]{1}[A-Z0-9]{1}$/;
     if (!gstRegex.test(register_business_GST_number)) {
-      set_register_business_GST_number_error("GST number must be exactly 15 characters long.And GST validation");
+      set_register_business_GST_number_error("Add a valid GST number");
       is_valid = false;
     } else {
       set_register_business_GST_number_error("");

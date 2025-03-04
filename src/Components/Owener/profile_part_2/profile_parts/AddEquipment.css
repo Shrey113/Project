@@ -76,11 +76,19 @@
 
 #AddEquipment .add-equipment-btn{
   padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
+  font-size: 14px;
+  background-color: var(--owner_profile_pages_main_color);
+  color: var(--color_1_owner);
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--body_button);
+  font-weight: var(--body_button_weight);
+  white-space: nowrap;
 }
 
 #AddEquipment .equipment-img {

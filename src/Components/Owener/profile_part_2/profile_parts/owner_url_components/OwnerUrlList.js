@@ -37,36 +37,43 @@ function OwnerUrlList() {
   const handleAddUrl = async (e) => {
     e.preventDefault();
     if (!newUrl.trim()) return;
-    
+
+    // Limit check: Maximum 5 links allowed
+    if (urls.length >= 5) {
+        showWarningToast({ message: 'You can only add up to 5 links!' });
+        return;
+    }
+
     const formattedUrl = newUrl.includes('://') ? newUrl : `http://${newUrl}`;
-    
+
     if (urls.includes(formattedUrl)) {
-      showWarningToast({message:'This URL already exists in your list!'});
-      return;
+        showWarningToast({ message: 'This URL already exists in your list!' });
+        return;
     }
 
     try {
-      const response = await fetch(`${Server_url}/owner/add-social-media-links`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_email,
-          links: [formattedUrl]
-        })
-      });
+        const response = await fetch(`${Server_url}/owner/add-social-media-links`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_email,
+                links: [formattedUrl]
+            })
+        });
 
-      const data = await response.json();
-      if (data.links) {
-        setUrls(data.links);
-        setNewUrl('');
-      }
+        const data = await response.json();
+        if (data.links) {
+            setUrls(data.links);
+            setNewUrl('');
+        }
     } catch (err) {
-      console.error('Error adding URL:', err);
-      showWarningToast({message:'Failed to add URL. Please try again.'});
+        console.error('Error adding URL:', err);
+        showWarningToast({ message: 'Failed to add URL. Please try again.' });
     }
-  };
+};
+
 
   const handleDeleteUrl = (index) => {
     setUrlToDelete(index);

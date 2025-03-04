@@ -17,14 +17,17 @@
 
 .AddPortfolio .media-stats {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   height: 40px;
   gap: 10px;
   margin-bottom: 20px;
 }
 
-.AddPortfolio .media-stats span {
-  display: none; /* Hiding the title */
+.AddPortfolio .media-stats span div {
+  color: var(--color_5_owner);
+  font-size:var(--owner_profile_title_font_size);
+  font-weight: var(--Heading_weight);
+  font-family: var(--Heading);
 }
 
 .AddPortfolio .media-stats p {
@@ -44,7 +47,7 @@
 .AddPortfolio .add-btn_ {
   padding: 8px 16px;
   font-size: 14px;
-  background-color: var(--color_4_owner);
+  background-color: var(--owner_profile_pages_main_color);
   color: var(--color_1_owner);
   border: none;
   border-radius: 5px;

@@ -506,7 +506,7 @@ function EventManagement({ category }) {
                   <table className="sent_package_table">
                     <thead>
                       <tr>
-                        <th style={{ width: "10px" }}>{add_filter("ID")}</th>
+                        <th style={{ width: "10px" }}>{add_filter("NO.")}</th>
                         <th>{add_filter("Package Name")}</th>
                         <th>{add_filter("Service")}</th>
                         <th>{add_filter("Description")}</th>
@@ -522,7 +522,7 @@ function EventManagement({ category }) {
                             key={index}
                             onClick={() => set_selected_sent_item(item)}
                           >
-                            <td>{item.id}</td>
+                            <td>{index + 1}</td>
                             <td className="package_name">
                               {item.package_name}
                             </td>
@@ -554,7 +554,7 @@ function EventManagement({ category }) {
                   <table  className="sent_equipment_table">
                     <thead>
                       <tr>
-                        <th>{add_filter("ID")}</th>
+                        <th>{add_filter("No.")}</th>
                         <th>{add_filter("Equipment Name")}</th>
                         <th>{add_filter("Company")}</th>
                         <th>{add_filter("Type")}</th>
@@ -570,7 +570,7 @@ function EventManagement({ category }) {
                             key={index}
                             onClick={() => set_selected_sent_item(item)}
                           >
-                            <td>{item.id}</td>
+                            <td>{index + 1}</td>
                             <td>{item.equipment_name}</td>
                             <td>{item.equipment_company}</td>
                             <td>{item.equipment_type}</td>
@@ -600,7 +600,7 @@ function EventManagement({ category }) {
                   <table className="sent_service_table">
                     <thead>
                       <tr>
-                        <th>{add_filter("ID")}</th>
+                        <th>{add_filter("NO.")}</th>
                         <th>{add_filter("Service Name")}</th>
                         <th>{add_filter("Price")}</th>
                         <th>{add_filter("Days")}</th>
@@ -615,7 +615,7 @@ function EventManagement({ category }) {
                             key={index}
                             onClick={() => set_selected_sent_item(item)}
                           >
-                            <td>{item.id}</td>
+                            <td>{index + 1}</td>
                             <td>{item.service_name}</td>
                             <td>{item.total_amount}</td>
                             <td>{item.days_required}</td>
@@ -651,7 +651,7 @@ function EventManagement({ category }) {
                   <table className="received_package_table">
                     <thead>
                       <tr>
-                        <th>{add_filter("ID")}</th>
+                        <th>{add_filter("NO.")}</th>
                         <th>{add_filter("Sender Email")}</th>
                         <th>{add_filter("Package Name")}</th>
                         <th>{add_filter("Price")}</th>
@@ -669,7 +669,7 @@ function EventManagement({ category }) {
                         )
                         .map((item, index) => (
                           <tr key={index}>
-                            <td>{item.id}</td>
+                            <td>{index + 1}</td>
                             <td>{item.sender_email}</td>
                             <td>{item.package_name}</td>
                             <td>₹{item.price}</td>
@@ -760,7 +760,7 @@ function EventManagement({ category }) {
                   <table className="received_equipment_table">
                     <thead>
                       <tr>
-                        <th style={{ width: "100px" }}>{add_filter("ID")}</th>
+                        <th style={{ width: "100px" }}>{add_filter("NO.")}</th>
                         <th>{add_filter("Sender Email")}</th>
                         <th>{add_filter("Equipment Name")}</th>
                         <th>{add_filter("Company")}</th>
@@ -779,7 +779,7 @@ function EventManagement({ category }) {
                         )
                         .map((item, index) => (
                           <tr key={index}>
-                            <td>{item.id}</td>
+                            <td>{index + 1}</td>
                             <td>{item.sender_email}</td>
                             <td>{item.equipment_name}</td>
                             <td>{item.equipment_company}</td>
@@ -871,7 +871,7 @@ function EventManagement({ category }) {
                   <table className="received_service_table">
                     <thead>
                       <tr>
-                        <th>{add_filter("ID")}</th>
+                        <th>{add_filter("NO.")}</th>
                         <th>{add_filter("Sender Email")}</th>
                         <th>{add_filter("Service Name")}</th>
                         <th>{add_filter("Days")}</th>
@@ -889,7 +889,7 @@ function EventManagement({ category }) {
                         )
                         .map((item, index) => (
                           <tr key={index}>
-                            <td>{item.id}</td>
+                            <td>{index + 1}</td>
                             <td>{item.sender_email}</td>
                             <td>{item.service_name}</td>
                             <td>{item.days_required}</td>

@@ -115,8 +115,8 @@ const EventDetailsPop = ({ setShowEventDetails, selectedEvent,setEvents,
     const today = dayjs().startOf('day');
 
   return (
-    <div className='modal-overlay_event_details'>
-      <div className='modal-content'>
+    <div className='modal-overlay_event_details'  onClick={() => setShowEventDetails(false)} >
+      <div className='modal-content'  onClick={(e) => e.stopPropagation()} >
         <button 
           className='modal-close' 
           onClick={() => setShowEventDetails(false)}
@@ -191,6 +191,7 @@ const EventDetailsPop = ({ setShowEventDetails, selectedEvent,setEvents,
                                 value={dayjs(editedEvent.end)}
                                 onChange={(newValue) => handleDateTimeChange(newValue, 'end')}
                                 minDate={dayjs(editedEvent.start)}
+                                 format="MMM DD, YYYY"
                                 slotProps={{
                                     textField: {
                                         variant: "outlined",

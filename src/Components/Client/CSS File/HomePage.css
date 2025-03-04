@@ -1,12 +1,6 @@
 /* side bar start */
 /* 
-:root {
-  --owner_home_page_bg: #686868;
-  --owner_home_page_ui: #272727;
-  --owner_home_page_ui_color: #0084da;
-  --owner_home_page_hover_coloer: #bcbcbc28;
-  --owner_home_page_sidebar_time: 0.3s;
-}
+
 .side_bar {
   height: 100vh;
   width: 280px;

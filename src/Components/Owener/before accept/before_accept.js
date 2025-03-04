@@ -160,7 +160,7 @@ export const PendingStatus = () => {
               <div className="dec">
                   Your request is currently awaiting approval. The admin
                   will review it promptly and take the necessary action.
-                  Thank you for your understanding, <span>{user.user_email}</span>.
+                  Thank you for your understanding, <span>{user.user_name}</span>.
               </div>
               <div className="button_con">
                   <button className="view-details-button" onClick={() => setShowPopup(true)}>
@@ -275,7 +275,6 @@ export const BeforeAccept = () => {
           <div className='step_name'>Equipments</div>
         </div>
       </div>
-   
         {currentStep === 1 && <UserProfilePage  setIs_Page1={setIs_Page1} setCurrentStep={setCurrentStep}/>}
         {currentStep === 2 && <BusinessProfilePage  setIs_Page2={setIs_Page2} setCurrentStep={setCurrentStep}/>}
         {currentStep === 3 && <PortfolioPage  setIs_Page3={setIs_Page3} setCurrentStep={setCurrentStep}/>}

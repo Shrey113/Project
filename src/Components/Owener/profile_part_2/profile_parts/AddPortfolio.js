@@ -357,9 +357,9 @@ function AddPortfolio() {
                       </div>
                       <div className="folder-info">
                         <span>{folder.folder_name}</span>
-                        <span className="photo-count">
+                        {/* <span className="photo-count">
                           {folder.photo_count} items
-                        </span>
+                        </span> */}
                       </div>
                     </div>
                   ))
@@ -403,12 +403,12 @@ function AddPortfolio() {
                           e.target.src = not_find_data;
                         }}
                       />
-                      <div className="gallery-item-info">
+                      {/* <div className="gallery-item-info">
                         <span>{item.name}</span>
                         <span>
                           {new Date(item.createdTime).toLocaleDateString()}
                         </span>
-                      </div>
+                      </div> */}
                     </div>
                   ))
                 ) : (

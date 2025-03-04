@@ -1,14 +1,19 @@
-import React, { useState } from 'react'
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react'
+import { useSelector,useDispatch } from 'react-redux';
 import './UserProfilePage.css'
 import { FaCamera } from 'react-icons/fa'
 
-import { Server_url, showWarningToast } from './../../../../redux/AllData';
+import { Server_url, showWarningToast,showAcceptToast,showRejectToast } from './../../../../redux/AllData';
 
 
 function UserProfilePage({setIs_Page1,setCurrentStep}) {
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const [profileImage, setProfileImage] = useState(null);
+
+  useEffect(()=>{
+    setProfileImage(user.user_profile_image_base64 || null)
+  },[user.user_profile_image_base64]);
 
 
   const [formData, setFormData] = useState({
@@ -32,22 +37,119 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
     socialMedia: ''
   });
 
-  
 
-  const handleImageUpload = (event) => {
+  
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
-    if (file) {
+    
+    // Validate file type
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!file || !validImageTypes.includes(file.type)) {
+      showWarningToast({message: "Please select a valid image file (JPEG, PNG, or GIF)" });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      showWarningToast({message: "Image size should be less than 5MB" });
+      return;
+    }
+
+    try {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
+      
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+        setProfileImage(base64Image);
+        dispatch({ type: "SET_USER_Owner", payload: {
+          user_profile_image_base64: base64Image
+        }});
+        
+
+        try {
+          const response = await fetch(`${Server_url}/owner/update-user-profile-image`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user_email: user.user_email,
+              userProfileImage: base64Image
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          if(data.message === "User profile image updated successfully."){
+            showAcceptToast({message: "Profile image updated successfully" });
+          }
+        } catch (error) {
+          console.error('Error updating profile image:', error);
+          showRejectToast({message: "Failed to update profile image. Please try again." });
+        }
       };
+
+      reader.onerror = () => {
+        showRejectToast({message: "Error reading file. Please try again." });
+      };
+
       reader.readAsDataURL(file);
+      
+    } catch (error) {
+      console.error('Error handling image upload:', error);
+      showRejectToast({message: "An unexpected error occurred. Please try again." });
     }
   };
 
-  const handleDeleteImage = () => {
-    setProfileImage(null);
+
+
+
+  const handleDeleteImage = async () => {
+    // Show confirmation dialog
+    const isConfirmed = window.confirm("Are you sure you want to remove the business profile image?");
+    
+    if (!isConfirmed) return;
+
+    try {
+      const response = await fetch(`${Server_url}/owner/remove-profile-image-type`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_email: user.user_email,
+          type: 'user'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete profile image');
+      }
+
+      let data = await response.json();
+      if(data.message === "user profile image removed successfully."){
+        dispatch({ 
+          type: "SET_USER_Owner", 
+          payload: {
+            user_profile_image_base64: null
+          }
+        });
+      }
+
+      showAcceptToast({message: "Profile image removed successfully" });
+
+
+    } catch (error) {
+      console.error('Error deleting profile image:', error);
+      showRejectToast({message: "Failed to delete profile image" });
+    }
   };
+  
+
 
   // Add handle input change function
   const handleInputChange = (e) => {

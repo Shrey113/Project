@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react'
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import "./BusinessProfilePage.css"
 
 import { FaCamera } from 'react-icons/fa'
@@ -9,7 +9,7 @@ import { Server_url, showRejectToast, showAcceptToast } from './../../../../redu
 function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
   const user = useSelector(state => state.user);
 
-
+  const dispatch = useDispatch();
 
 
 
@@ -20,6 +20,10 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
   const [customServices, setCustomServices] = useState([]);
 
   const [profileImage, setProfileImage] = useState(null);
+
+  useEffect(()=>{
+    setProfileImage(user.business_profile_base64 || null);
+  },[user.business_profile_base64]);
 
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
@@ -36,11 +40,11 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
   });
 
   useEffect(() => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       services: user.services || []
-    });
-  }, [user,formData]);
+    }));
+  }, [user]);
 
   const [errors, setErrors] = useState({
     businessName: '',
@@ -54,22 +58,86 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
 
 
  
+  const handleDeleteImage = async () => {
+    // Show confirmation dialog
+    const isConfirmed = window.confirm("Are you sure you want to remove the business profile image?");
+    
+    if (!isConfirmed) return;
+
+    try {
+      const response = await fetch(`${Server_url}/owner/remove-profile-image-type`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_email: user.user_email,
+          type: 'business'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete profile image');
+      }
+
+      let data = await response.json();
+      if(data.message === "user profile image removed successfully."){
+        dispatch({ 
+          type: "SET_USER_Owner", 
+          payload: {
+            business_profile_base64: null
+          }
+        });
+      }
+
+      showAcceptToast({message: "Profile image removed successfully" });
+
+
+    } catch (error) {
+      console.error('Error deleting profile image:', error);
+      showRejectToast({message: "Failed to delete profile image" });
+    }
+  };
   
  
-
-  const handleImageUpload = (event) => {
+   
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+        setProfileImage(base64Image);
+        dispatch({ type: "SET_USER_Owner", payload: {
+          business_profile_base64: base64Image
+        }});
+
+        
+        try {
+          const response = await fetch(`${Server_url}/owner/update-business-profile-image`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user_email: user.user_email,
+              businessProfileImage: base64Image
+            })
+          });
+
+
+
+          if (!response.ok) {
+            showRejectToast({message: 'Failed to update profile image' });
+          }
+          showAcceptToast({message: 'Profile image updated' });
+        } catch (error) {
+          console.error('Error updating profile image:', error);
+          showRejectToast({message: 'Failed to update profile image' });
+        }
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const handleDeleteImage = () => {
-    setProfileImage(null);
   };
 
 
@@ -484,7 +552,6 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
                 onKeyPress={handleKeyPress}
                 onBlur={handleInputBlur}
                 className="other-input"
-                onResize={false}
               />
               {errors.services && <span className="error">{errors.services}</span>}
               {showSuggestions && filteredSuggestions.length > 0 && (

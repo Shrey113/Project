@@ -281,7 +281,7 @@ function AddBusinessData() {
             </div>
             <div className="profile-actions">
                 <label htmlFor="profile-image-input" className="upload-btn">
-                    Upload business logo
+                    Upload business
                     <input 
                         type="file"
                         accept="image/*"

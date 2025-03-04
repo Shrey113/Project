@@ -261,7 +261,7 @@ function AddBusinessServices() {
       <div className='services-header'>
         <h2>Business Services</h2>
         <button className='add-service-btn' onClick={handleAddService}>
-          + Add Service
+          Add Service
         </button>
       </div>
 
@@ -348,7 +348,12 @@ function AddBusinessServices() {
             <div key={index} className='service-item'>
               <div className="service-content">
                 <h3>{service.service_name}</h3>
-                <p>Rs. {service.price_per_day} per day</p>
+                <p>
+                <div class="rupee_symbol"> ₹</div>
+                <div className="service_price">{service.price_per_day || "Not Available"}</div>
+                <span class="per_day">/Day</span>
+                </p>
+                <hr style={{width:"90%"}} />
                 <p>{service.description}</p>
               </div>
               <button 

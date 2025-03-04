@@ -176,7 +176,10 @@
     border-radius: 4px;
     font-size: 14px;
 }
-
+#TeamOverview_pop_menu .popup-actions {
+  display: flex;
+  flex-direction: row-reverse;
+}
 #TeamOverview_pop_menu .popup-actions button {
     padding: 8px 16px;
     margin: 5px;
@@ -837,11 +840,11 @@
   transition: all 0.2s ease;
 }
 
-.legend-item:hover {
+/* .legend-item:hover {
   background: #fff;
   border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
+} */
 
 .dot {
   width: 8px;
