@@ -38,7 +38,7 @@ import shillong from './all_data/shillong.png'
 
 const locations = [
   // Major Cities in India
-  { name: 'Delhi NCR', value: 'delhi-ncr', image: delhi },
+  { name: 'Delhi', value: 'delhi-ncr', image: delhi },
   { name: 'Mumbai', value: 'mumbai', image: bombay },
   { name: 'Bangalore', value: 'bangalore', image: bangalore },
   { name: 'Hyderabad', value: 'hyderabad', image: hyderabad },

@@ -703,6 +703,30 @@ router.post("/add-one-equipment", (req, res) => {
   );
 });
 
+router.post("/get-name", (req, res) => {
+  const { user_email } = req.body;
+  
+  if (!user_email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  const query = "SELECT user_name FROM owner WHERE user_email = ?";
+  
+  db.query(query, [user_email], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: "Database error", details: err });
+    }
+    
+    if (results.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const { user_name} = results[0];
+    res.json({ user_name: `${user_name}` });
+  });
+});
+
+
 router.get("/search", (req, res) => {
   const searchTerm = req.query.term;
 
@@ -710,7 +734,8 @@ router.get("/search", (req, res) => {
     SELECT * FROM owner 
     WHERE user_name LIKE CONCAT(?, '%') 
     OR user_email LIKE CONCAT(?, '%') 
-    OR business_name LIKE CONCAT(?, '%');
+    OR business_name LIKE CONCAT(?, '%')
+    OR business_address LIKE CONCAT(?, '%');
   `;
 
   const equipmentQuery = `
@@ -727,7 +752,7 @@ router.get("/search", (req, res) => {
 
   db.query(
     ownerQuery,
-    [searchTerm, searchTerm, searchTerm],
+    [searchTerm, searchTerm, searchTerm,searchTerm],
     (err, ownerResults) => {
       if (err) {
         return res.status(500).json({ error: err.message });

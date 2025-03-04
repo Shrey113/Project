@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   height: 85vh;
-  width: 70%;
+  width: 100%;
   flex-direction: column;
 }
 .default-page img {

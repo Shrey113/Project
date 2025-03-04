@@ -19,7 +19,7 @@
     left: 0;
     top: 0;
     transition: all var(--owner_home_page_sidebar_time) ease-in-out;
-    z-index: 1000;
+    z-index: 999;
     box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
     /* display: none; */
  

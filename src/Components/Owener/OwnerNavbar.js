@@ -9,6 +9,7 @@ import socket from "./../../redux/socket";
 import { Server_url } from "../../redux/AllData";
 import { PiUserCheckFill } from "react-icons/pi";
 import { GrServices } from "react-icons/gr";
+import { BiSearch } from "react-icons/bi";
 
 function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const [is_show_notification_pop, set_is_show_notification_pop] = useState(false);
   const [navbar_open, set_navbar_open] = useState(false);
 
+  const [owner_name,set_owner_name] = useState(null);
+
   const [all_data, set_all_data] = useState([]);
   const set_is_sidebar_open = (value) => {
     dispatch({
@@ -35,6 +38,47 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     });
   };
 
+  useEffect(() => {
+  function handleClickOutside(event) {
+    if (
+      !navbar_open &&
+      !event.target.closest("#notification_popup")  &&
+      !event.target.closest(".bell_icon")
+    ) {
+      set_navbar_open(false);
+    }
+  }
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [is_show_notification_pop,navbar_open]);
+
+async function getUserNameByEmail(user_email) {
+  try {
+    const response = await fetch(`${Server_url}/owner/get-name`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user_email }),
+    });
+
+    const data = await response.json();
+    set_owner_name(data.user_name)
+    
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to fetch user name");
+    }
+
+    return data.name;
+  } catch (error) {
+    return `Error: ${error.message}`;
+  }
+}
+
 
   const setActiveIndex = (value) => {
     dispatch({
@@ -44,6 +88,23 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       },
     });
   };
+
+  // Move email check to useEffect
+  useEffect(() => {
+    const checkAndGetUserName = async () => {
+      const { pathname } = location;
+      const pathSegments = pathname.split("/").filter(Boolean);
+      pathSegments.map((segment) => {
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(segment)) {
+          getUserNameByEmail(segment);
+          return segment;
+        }
+        return segment;
+      });
+    };
+    
+    checkAndGetUserName();
+  }, [location]); 
 
   const getNavbarName = () => {
     const { pathname } = location;
@@ -121,12 +182,11 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
             goBack(index);
           }}
         >
-          {name} {index < readablePath.length - 1 ? ">" : ""}
+          {/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(name) && owner_name ? owner_name : name}
+          {index < readablePath.length - 1 ? ">" : ""}
         </span>
       );
-
     });
-
   };
 
   const handleNotificationClick = () => {
@@ -196,6 +256,26 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   // for package notification 
 
   useEffect(() => {
+    const get_all_notifications = async () => {
+      try {
+        const response = await fetch(`${Server_url}/get_all_notifications`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: user.user_email
+          })
+        })
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("Error:", data.message);
+        }
+        set_all_data(data.notifications);
+      } catch (error) {
+        console.log(error)
+      }
+    }
     function showNotification(data, type) {
       console.log("this is package notification id:", data, type);
       set_temp_notification(data);
@@ -212,10 +292,31 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     return () => {
       socket.off(`package_notification_${user.user_email}`, showNotification);
     };
-  }, [user.user_email]);
+  }, [user.user_email,navbar_open]);
 
   // for service notification 
   useEffect(() => {
+    const get_all_notifications = async () => {
+      try {
+        const response = await fetch(`${Server_url}/get_all_notifications`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: user.user_email
+          })
+        })
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("Error:", data.message);
+        }
+        set_all_data(data.notifications);
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
     function showNotificationService(data, type) {
       console.log("this is serivce notification id:", data, type);
       set_temp_notification(data, type);
@@ -231,10 +332,32 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     return () => {
       socket.off(`service_notification_${user.user_email}`, showNotificationService);
     };
-  }, [user.user_email]);
+  }, [user.user_email,navbar_open]);
 
   // for equipment notification 
   useEffect(() => {
+    const get_all_notifications = async () => {
+      try {
+        const response = await fetch(`${Server_url}/get_all_notifications`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: user.user_email
+          })
+        })
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("Error:", data.message);
+        }
+        set_all_data(data.notifications);
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+
     function showNotificationEquipment(data, type) {
       console.log("this is equipment notification id:", data, type);
       set_temp_notification(data, type);
@@ -253,7 +376,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     return () => {
       socket.off(`equipment_notification_${user.user_email}`, showNotificationEquipment);
     };
-  }, [user.user_email]);
+  }, [user.user_email,navbar_open]);
 
 
   // function calculateDays(startDate, endDate) {
@@ -329,18 +452,18 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         <div className="navbar_profile">
           {setSearchTerm &&
             <div className="search_bar">
-              <input
-                className="search_for_all_section"
-                type="text"
-                placeholder="Search"
-                value={searchTerm}
-                onChange={(e) => {
-                  if (setSearchTerm) {
-                    setSearchTerm(e.target.value);
-                  }
-                }}
-              />
-            </div>}
+            <BiSearch className="search_icon" />
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => {
+                if (setSearchTerm) {
+                  setSearchTerm(e.target.value);
+                }
+              }}
+            />
+          </div>}
 
           <div className="bell_icon" onClick={() => { handleNotificationClick(); get_all_notifications(); }}>
             <IoIosNotifications style={{ height: "25px", width: "25px" }} />
