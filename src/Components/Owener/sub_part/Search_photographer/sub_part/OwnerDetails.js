@@ -885,7 +885,7 @@ const OwnerDetails = () => {
                 </li>
               ))}
             </div> */}
-            <div className="swiper_container">
+            <div className="swiper_container_for_equipment">
 
               <div className="custom-swiper-button-prev">❮</div>
               <Swiper
