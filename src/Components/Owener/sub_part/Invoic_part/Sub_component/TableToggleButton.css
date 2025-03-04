@@ -2,7 +2,7 @@
   padding: 20px;
   justify-content: center;
   align-items: center;
-  
+
   display: flex;
   padding-left: var(--owner_side_bar_width);
   position: absolute;
@@ -10,14 +10,16 @@
   right: 0;
   z-index: 90;
 }
-.table_con{
+
+.table_con {
   position: relative;
   top: 0;
   right: 0;
-  z-index: 10;
+  /* z-index: 10; */
   margin-top: 80px;
 }
-.button_con_wrap.for_mobile{
+
+.button_con_wrap.for_mobile {
   padding-left: 0;
 
 }
@@ -30,10 +32,12 @@
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-.button_con.set_it_null{
+
+.button_con.set_it_null {
   padding-left: 0;
   display: none;
 }
+
 .button_con button {
   position: relative;
   padding: 12px 25px;
@@ -105,9 +109,10 @@
 }
 
 @media (max-width: 780px) {
-  .table_con{
+  .table_con {
     margin-top: 90px;
   }
+
   :root {
     --button-width: 140px;
   }
@@ -119,15 +124,16 @@
 }
 
 @media (max-width: 600px) {
-  .table_con{
+  .table_con {
     margin-top: 100px;
   }
+
   :root {
     --button-width: 130px;
   }
 
   .button_con {
-    flex-wrap: nowrap; 
+    flex-wrap: nowrap;
 
   }
 
@@ -174,14 +180,16 @@
   max-width: 250px;
   margin: 0 auto;
 }
-.seleted_table_button span{
+
+.seleted_table_button span {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   text-wrap: nowrap;
- 
+
 }
+
 /* Add dropdown arrow */
 .seleted_table_button::after {
   content: "▼";

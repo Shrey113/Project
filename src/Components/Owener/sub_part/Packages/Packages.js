@@ -429,18 +429,18 @@ const Packages = () => {
     </div>
   );
 
-  const darkenColor = (color, percent) => {
-    let num = parseInt(color.slice(1), 16),
-      amt = Math.round(2.55 * percent), // Increase darkening effect
-      r = (num >> 16) - amt,
-      g = ((num >> 8) & 0x00ff) - amt,
-      b = (num & 0x0000ff) - amt;
+  // const darkenColor = (color, percent) => {
+  //   let num = parseInt(color.slice(1), 16),
+  //     amt = Math.round(2.55 * percent), // Increase darkening effect
+  //     r = (num >> 16) - amt,
+  //     g = ((num >> 8) & 0x00ff) - amt,
+  //     b = (num & 0x0000ff) - amt;
 
-    return `rgb(${Math.max(r, 0)}, ${Math.max(g, 0)}, ${Math.max(b, 0)})`;
-  };
+  //   return `rgb(${Math.max(r, 0)}, ${Math.max(g, 0)}, ${Math.max(b, 0)})`;
+  // };
 
   const cardColor = formData.card_color || "#6fa8dc";
-  const darkerTextColor = darkenColor(cardColor, 20);
+  // const darkerTextColor = darkenColor(cardColor, 20);
 
   // const editForPackage = (index) => {
   //   setIsEditable((prevIndex) => (prevIndex === index ? null : index));
@@ -558,7 +558,7 @@ const Packages = () => {
                                   </div>
                                 ) : (
                                   <>
-                                    <div className="key" style={{ backgroundColor: pkg.card_color, color: pkg.text_color || "#fff" }}>{idx + 1}</div>
+                                    <div className="key" style={{ backgroundColor: pkg.card_color, color: "#fff" }}>{idx + 1}</div>
                                     <div className="individual_services" >
                                       {srv}
                                     </div>
@@ -830,7 +830,7 @@ const Packages = () => {
                 {Array.isArray(formData.service) && formData.service.length > 0 ? (
                   formData.service.map((srv, idx) =>
                     <div key={idx} className="service_item">
-                      <div className="key" style={{ backgroundColor: cardColor, color: darkerTextColor }}>{idx + 1}</div>
+                      <div className="key" style={{ backgroundColor: cardColor, color: "#ffffff" }}>{idx + 1}</div>
                       <div className="individual_services" >
                         {srv}
                       </div>

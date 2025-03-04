@@ -18,6 +18,13 @@
 .invoice_and_table_container {
   padding: var(--spacing-xl);
   font-family: "Inter", sans-serif;
+  position: relative;
+}
+
+.invoice_and_table_container h2 {
+  position: absolute;
+  top: -34%;
+  left: 5%;
 }
 
 /* Toggle Buttons */
@@ -713,27 +720,23 @@
   /* Adjust as needed */
 }
 
-.invoice_and_table_container table th {
-  background-color: #f2f2f2;
-}
+
 
 .invoice_and_table_container .invoice_list {
   width: 100%;
   padding: 17px 20px;
   overflow: hidden;
-  background: #fff;
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  /* overflow: hidden; */
   animation: fadeIn 0.5s ease-in-out;
-  /* background: rebeccapurple; */
+  position: relative;
 }
+
 
 .invoice_and_table_container .invoice_list .invoice_table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  background: #fff;
+  background: #ffffff;
   border-radius: 8px;
   /* overflow: hidden; */
   margin: 20px 0;
@@ -746,31 +749,45 @@
   font-size: 14px;
   transition: all 0.3s ease;
   text-wrap: wrap;
+  border-bottom: 1px solid #e9ecef;
 }
 
-.invoice_and_table_container .invoice_list .invoice_table thead {
-  background: #f8f9fa;
+.invoice_and_table_container .invoice_list .invoice_table td button {
+  height: 30px;
+  width: 25px;
+  background-color: transparent;
+  border: 1px solid #3d3d3d8e;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: all 0.5s ease;
+}
+
+.invoice_and_table_container .invoice_list .invoice_table td button:nth-child(1):hover {
+  background-color: #7c77da;
+  color: rgb(255, 255, 255);
 }
 
 .invoice_and_table_container .invoice_list .invoice_table th {
-  padding: 15px;
-  text-transform: uppercase;
-  font-size: 14px;
-  font-weight: 600;
-  color: #2c3e50;
+  padding: 16px;
+  /* text-transform: uppercase; */
+  font-size: 15px;
+  font-weight: 650;
+  color: #495057;
   border-bottom: 2px solid #e9ecef;
-  transition: background-color 0.3s ease;
 }
 
 .invoice_and_table_container .invoice_list .invoice_table tbody tr {
   transition: all 0.3s ease;
-  border-bottom: 1px solid #e9ecef;
   animation: slideIn 0.5s ease-out;
 }
 
-.invoice_and_table_container .invoice_list .invoice_table tbody tr:nth-child(even) {
+/* .invoice_and_table_container .invoice_list .invoice_table tbody tr:nth-child(even) {
   background-color: #f8f9fa;
-}
+} */
 
 .invoice_and_table_container .invoice_list .invoice_table tbody tr:hover {
   background-color: #f8f9fa;
@@ -1055,6 +1072,15 @@
   }
 }
 
+@media (max-width:770px) {
+  .invoice_and_table_container h2 {
+    position: absolute;
+    top: -37%;
+    left: 6%;
+    font-size: 16px;
+  }
+}
+
 @media (max-width: 750px) {
   .invoice_and_table_container .invoice_form {
     width: 100%;
@@ -1067,28 +1093,14 @@
   }
 }
 
-@media (max-width: 620px) {
-  .invoice_and_table_container {
-    padding: 0;
-  }
-
-  .invoice_and_table_container .invoice_form {
-    padding: 15px;
-  }
-
-  .invoice_and_table_container .mobile-invoice-generator {
-    padding: 10px;
-  }
-
-  .invoice_and_table_container .invoice-item {
-    flex-direction: column;
-
-    padding: 10px;
-  }
-}
-
-/* Responsive Design */
 @media (max-width: 650px) {
+  .invoice_and_table_container h2 {
+    position: absolute;
+    top: -35%;
+    left: 8%;
+    font-size: 24px;
+  }
+
   .invoice_and_table_container .input-wrapper {
     width: 100%;
   }
@@ -1134,6 +1146,38 @@
     gap: 10px;
   }
 }
+
+@media (max-width: 620px) {
+  .invoice_and_table_container {
+    padding: 0;
+  }
+
+  .invoice_and_table_container .invoice_form {
+    padding: 15px;
+  }
+
+  .invoice_and_table_container .mobile-invoice-generator {
+    padding: 10px;
+  }
+
+  .invoice_and_table_container .invoice-item {
+    flex-direction: column;
+
+    padding: 10px;
+  }
+}
+
+@media (max-width: 550px) {
+  .invoice_and_table_container h2 {
+    position: absolute;
+    top: -50%;
+    left: 5%;
+    font-size: 24px;
+  }
+}
+
+/* Responsive Design */
+
 
 @media screen and (max-width: 500px) {
   .invoice_and_table_container .company_logo_invoice .logo_for_invoice {
@@ -1190,5 +1234,23 @@
 
   .invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name {
     width: 100%;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  .invoice_and_table_container h2 {
+    position: absolute;
+    top: -45%;
+    left: 5%;
+    font-size: 20px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .invoice_and_table_container h2 {
+    position: absolute;
+    top: -45%;
+    left: 7%;
+    font-size: 16px;
   }
 }

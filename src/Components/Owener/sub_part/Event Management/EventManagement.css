@@ -204,8 +204,9 @@
   justify-content: center;
   flex-direction: column;
 }
-  #owner-main-container-EventManagement .received_request #EventManagement .section-container,
-  #owner-main-container-EventManagement .sent_request #EventManagement .section-container{
+
+#owner-main-container-EventManagement .received_request #EventManagement .section-container,
+#owner-main-container-EventManagement .sent_request #EventManagement .section-container {
   min-width: 100%;
   display: flex;
   align-items: center;
@@ -236,7 +237,7 @@
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.modal-header {
+.details-modal .modal-header {
   text-align: left;
   font-size: 1.7rem;
   font-weight: bold;
@@ -392,7 +393,7 @@
 }
 
 /* Close Button */
-.close-button {
+.details-modal .close-button {
   display: block;
   width: 100px;
   margin: 20px auto 0;
@@ -673,9 +674,13 @@
 }
 
 
-
-
-
+.no-data-message {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #495057;
+  padding: 20px;
+}
 
 
 
@@ -744,7 +749,7 @@
     left: 50%;
     transform: translateX(-50%);
   }
-  
+
   /* Adjust position when near screen edges */
   tr:last-child .action-menu,
   tr:nth-last-child(2) .action-menu {

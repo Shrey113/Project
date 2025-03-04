@@ -24,7 +24,7 @@ function InvoicePage2() {
   const { incrementCount, setCount } = useCount();
   const [invoice_id, setInvoice_id] = useState(null);
   const [logoPreview, setLogoPreview] = useState("");
-  const [base64Image, setBase64Image] = useState("");
+  // const [base64Image, setBase64Image] = useState("");
 
   // const [services, setService] = useState([]);
 
@@ -418,17 +418,16 @@ function InvoicePage2() {
           justify-content: space-between;
           margin-bottom: 30px;
         ">
-          ${
-            logoPreview
-              ? `
+          ${logoPreview
+        ? `
             <div class="logo" style="width: 150px; height: 90px;">
               <img src="${logoPreview}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
             </div>
           `
-              : `
+        : `
             <div style="width: 150px; height: 80px;"></div>
           `
-          }
+      }
           <div class="invoice-title" style="text-align: right; font-size: 24px; font-weight: bold;">
             INVOICE<br/>
             <span style="font-size: 14px;">Invoice No: ${invoice_id}</span><br/>
@@ -467,25 +466,23 @@ function InvoicePage2() {
           </thead>
           <tbody>
             ${invoice.items
-              .map(
-                (item) => `
+        .map(
+          (item) => `
               <tr>
-                <td style="padding: 12px; border: 1px solid #dee2e6;">${
-                  item.item
-                }</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">${
-                  item.quantity
-                }</td>
+                <td style="padding: 12px; border: 1px solid #dee2e6;">${item.item
+            }</td>
+                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">${item.quantity
+            }</td>
                 <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
-                  item.price
-                )}</td>
+              item.price
+            )}</td>
                 <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
-                  item.amount
-                )}</td>
+              item.amount
+            )}</td>
               </tr>
             `
-              )
-              .join("")}
+        )
+        .join("")}
           </tbody>
         </table>
 
@@ -582,22 +579,65 @@ function InvoicePage2() {
     }
   };
 
+  // const handleImageChange = (event) => {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setLogoPreview(reader.result); // Set the preview image
+  //       uploadBase64Image(reader.result); // Auto-upload after setting preview
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+
+
+  // const uploadBase64Image = async () => {
+  //   if (!base64Image) {
+  //     showWarningToast({ message: "Please upload an image first." });
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await fetch(`${Server_url}/upload-invoice-logo`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         image: base64Image,
+  //         user_email: user.user_email,
+  //       }),
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to upload image.");
+  //     }
+
+  //     const data = await response.json();
+  //     console.log(data);
+  //     showAcceptToast({ message: "Image uploaded successfully!" });
+  //   } catch (error) {
+  //     console.error("Error uploading image:", error);
+  //     showRejectToast({ message: "Error uploading image. Please try again." });
+  //   }
+  // };
+
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-
-      reader.onloadend = () => {
-        setBase64Image(reader.result);
+      reader.onloadend = async () => {
         setLogoPreview(reader.result);
+        // await setBase64Image(reader.result);
+        uploadBase64Image(reader.result);
       };
-
-      console.log(reader.readAsDataURL(file));
+      reader.readAsDataURL(file);
     }
   };
 
-  const uploadBase64Image = async () => {
-    if (!base64Image) {
+  const uploadBase64Image = async (base64) => {
+    if (!base64) {
       showWarningToast({ message: "Please upload an image first." });
       return;
     }
@@ -609,7 +649,7 @@ function InvoicePage2() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          image: base64Image,
+          image: base64, // Use the base64 parameter instead of state
           user_email: user.user_email,
         }),
       });
@@ -677,21 +717,8 @@ function InvoicePage2() {
                 {!logoPreview && <span>Click to upload</span>}
               </div>
             </div>
-            <button
-              onClick={uploadBase64Image}
-              style={{
-                marginTop: "10px",
-                padding: "6px 12px",
-                backgroundColor: "#333",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Upload Image
-            </button>
           </div>
+
           <div className="invoice_and_gst_no">
             <div className="invoice_id">
               <strong>INVOICE No :</strong> {invoice_id}

@@ -13,7 +13,7 @@ import AddDetailsPop from "./AddDetailsPop";
 import socket from "../../../../redux/socket";
 import { IoCloseOutline } from "react-icons/io5";
 import { IoInformation } from "react-icons/io5";
-import { HiOutlineChevronUpDown } from "react-icons/hi2";
+// import { HiOutlineChevronUpDown } from "react-icons/hi2";
 // import { add } from "date-fns";
 
 function EventManagement({ category }) {
@@ -231,27 +231,27 @@ function EventManagement({ category }) {
     });
   };
 
-  const add_filter = (name) => {
-    return (
-      <span
-        style={{
-          display: "flex",
-          gap: "2px",
-        }}
-      >
-        <div>{name}</div>{" "}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <HiOutlineChevronUpDown />
-        </div>
-      </span>
-    );
-  };
+  // const add_filter = (name) => {
+  //   return (
+  //     <span
+  //       style={{
+  //         display: "flex",
+  //         gap: "2px",
+  //       }}
+  //     >
+  //       <div>{name}</div>{" "}
+  //       <div
+  //         style={{
+  //           display: "flex",
+  //           alignItems: "center",
+  //           justifyContent: "center",
+  //         }}
+  //       >
+  //         <HiOutlineChevronUpDown />
+  //       </div>
+  //     </span>
+  //   );
+  // };
 
   useEffect(() => {
     const equipment_count = receiver_equipment_data?.length;
@@ -501,95 +501,79 @@ function EventManagement({ category }) {
           <div id="EventManagement">
             {["Packages"].includes(category) && (
               <div className="section-container">
-                {/* <h2>Package Requests</h2> */}
                 <div className="table-container">
-                  <table className="sent_package_table">
-                    <thead>
-                      <tr>
-                        <th style={{ width: "10px" }}>{add_filter("NO.")}</th>
-                        <th>{add_filter("Package Name")}</th>
-                        <th>{add_filter("Service")}</th>
-                        <th>{add_filter("Description")}</th>
-                        <th>{add_filter("Price")}</th>
-                        <th>{add_filter("Receiver")}</th>
-                        <th>{add_filter("Status")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sent_package_data.length > 0 ? (
-                        sent_package_data.map((item, index) => (
-                          <tr
-                            key={index}
-                            onClick={() => set_selected_sent_item(item)}
-                          >
+                  {sent_package_data.length > 0 ? (
+                    <table className="sent_package_table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: "10px" }}>NO.</th>
+                          <th>Package Name</th>
+                          <th>Service</th>
+                          <th>Description</th>
+                          <th>Price</th>
+                          <th>Receiver</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sent_package_data.map((item, index) => (
+                          <tr key={index} onClick={() => set_selected_sent_item(item)}>
                             <td>{index + 1}</td>
-                            <td className="package_name">
-                              {item.package_name}
-                            </td>
+                            <td className="package_name">{item.package_name}</td>
                             <td>{item.service}</td>
                             <td className="description">{item.description}</td>
                             <td>₹{item.price}</td>
                             <td>{item.receiver_email}</td>
-                            <td
-                              className={`status ${item.event_status?.toLowerCase()}`}
-                            >
+                            <td className={`status ${item.event_status?.toLowerCase()}`}>
                               <span>{item.event_status}</span>
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="7">No Sent Package Requests</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="no-data-message">No Sent Package Requests</p>
+                  )}
                 </div>
               </div>
             )}
 
+
             {["Equipment"].includes(category) && (
               <div className="section-container">
                 <div className="table-container">
-                  <table  className="sent_equipment_table">
-                    <thead>
-                      <tr>
-                        <th>{add_filter("No.")}</th>
-                        <th>{add_filter("Equipment Name")}</th>
-                        <th>{add_filter("Company")}</th>
-                        <th>{add_filter("Type")}</th>
-                        <th>{add_filter("Days")}</th>
-                        <th>{add_filter("Receiver")}</th>
-                        <th>{add_filter("Status")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sent_equipment_data.length > 0 ? (
-                        sent_equipment_data.map((item, index) => (
-                          <tr
-                            key={index}
-                            onClick={() => set_selected_sent_item(item)}
-                          >
+                  {sent_equipment_data.length > 0 ? (
+                    <table className="sent_equipment_table">
+                      <thead>
+                        <tr>
+                          <th>No.</th>
+                          <th>Equipment Name</th>
+                          <th>Company</th>
+                          <th>Type</th>
+                          <th>Days</th>
+                          <th>Receiver</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sent_equipment_data.map((item, index) => (
+                          <tr key={index} onClick={() => set_selected_sent_item(item)}>
                             <td>{index + 1}</td>
                             <td>{item.equipment_name}</td>
                             <td>{item.equipment_company}</td>
                             <td>{item.equipment_type}</td>
                             <td>{item.days_required}</td>
                             <td>{item.receiver_email}</td>
-                            <td
-                              className={`status ${item.event_status?.toLowerCase()}`}
-                            >
+                            <td className={`status ${item.event_status?.toLowerCase()}`}>
                               <span>{item.event_status}</span>
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="7">No Sent Equipment Requests</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="no-data-message">No Sent Equipment Requests</p>
+                  )}
                 </div>
               </div>
             )}
@@ -597,46 +581,40 @@ function EventManagement({ category }) {
             {["Service"].includes(category) && (
               <div className="section-container">
                 <div className="table-container">
-                  <table className="sent_service_table">
-                    <thead>
-                      <tr>
-                        <th>{add_filter("NO.")}</th>
-                        <th>{add_filter("Service Name")}</th>
-                        <th>{add_filter("Price")}</th>
-                        <th>{add_filter("Days")}</th>
-                        <th>{add_filter("Receiver")}</th>
-                        <th>{add_filter("Status")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sent_service_data.length > 0 ? (
-                        sent_service_data.map((item, index) => (
-                          <tr
-                            key={index}
-                            onClick={() => set_selected_sent_item(item)}
-                          >
+                  {sent_service_data.length > 0 ? (
+                    <table className="sent_service_table">
+                      <thead>
+                        <tr>
+                          <th>NO.</th>
+                          <th>Service Name</th>
+                          <th>Price</th>
+                          <th>Days</th>
+                          <th>Receiver</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sent_service_data.map((item, index) => (
+                          <tr key={index} onClick={() => set_selected_sent_item(item)}>
                             <td>{index + 1}</td>
                             <td>{item.service_name}</td>
-                            <td>{item.total_amount}</td>
+                            <td>₹{item.total_amount}</td>
                             <td>{item.days_required}</td>
                             <td>{item.receiver_email}</td>
-                            <td
-                              className={`status ${item.event_status?.toLowerCase()}`}
-                            >
+                            <td className={`status ${item.event_status?.toLowerCase()}`}>
                               <span>{item.event_status}</span>
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="7">No Sent Service Requests</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="no-data-message">No Sent Service Requests</p>
+                  )}
                 </div>
               </div>
             )}
+
           </div>
         </div>
       )}
@@ -648,329 +626,308 @@ function EventManagement({ category }) {
             {category === "Packages" && (
               <div className="section-container">
                 <div className="table-container">
-                  <table className="received_package_table">
-                    <thead>
-                      <tr>
-                        <th>{add_filter("NO.")}</th>
-                        <th>{add_filter("Sender Email")}</th>
-                        <th>{add_filter("Package Name")}</th>
-                        <th>{add_filter("Price")}</th>
-                        <th>{add_filter("Location")}</th>
-                        <th>{add_filter("Status")}</th>
-                        <th>{add_filter("Action")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {receiver_package_data
-                        ?.filter(
-                          (item) =>
-                            packageFilter === "all" ||
-                            item.event_status === packageFilter
-                        )
-                        .map((item, index) => (
-                          <tr key={index}>
-                            <td>{index + 1}</td>
-                            <td>{item.sender_email}</td>
-                            <td>{item.package_name}</td>
-                            <td>₹{item.price}</td>
-                            <td>{item.location}</td>
-                            <td
-                              className={`status ${item.event_status?.toLowerCase()}`}
-                            >
-                              <span>{item.event_status}</span>
-                            </td>
-                            <td className="action-buttons">
-                              {window.innerWidth <= 660 ? (
-                                <div style={{ position: 'relative' }}>
-                                  <button
-                                    className="mobile-action-btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
-                                    }}
-                                    style={{
-                                      fontSize: "20px",
-                                      padding: "4px 12px",
-                                      borderRadius: "4px",
-                                      background: "transparent",
-                                      border: "1px solid #ddd",
-                                    }}
-                                  >
-                                    ⋮
-                                  </button>
-                                  {isMenuOpen === item.id && (
-                                    <div ref={menuRef}>
-                                      <ActionMenu
-                                        onApprove={() => {
-                                          set_data(item);
-                                          setIsMenuOpen(null);
-                                        }}
-                                        onReject={() => {
-                                          handleRejectClick(item);
-                                          setIsMenuOpen(null);
-                                        }}
-                                        onInfo={() => {
-                                          handleInfoClick(item);
-                                          setIsMenuOpen(null);
-                                        }}
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <>
-                                  {item.event_status?.toLowerCase() === "pending" && (
-                                    <>
-                                      <button
-                                        className="approve-btn"
-                                        onClick={() => {
-                                          set_data(item);
-                                        }}
-                                      >
-                                        Approve
-                                      </button>
-                                      <button
-                                        className="reject-btn"
-                                        onClick={() => handleRejectClick(item)}
-                                      >
-                                        <IoCloseOutline style={{ height: "20px", width: "20px" }} />
-                                      </button>
-                                    </>
-                                  )}
-                                  <button
-                                    className="info-btn"
-                                    onClick={() => handleInfoClick(item)}
-                                  >
-                                    <IoInformation style={{ height: "20px", width: "20px" }} />
-                                  </button>
-                                </>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
+                  {receiver_package_data?.filter(
+                    (item) => packageFilter === "all" || item.event_status === packageFilter
+                  ).length > 0 ? (
+                    <table className="received_package_table">
+                      <thead>
+                        <tr>
+                          <th>NO.</th>
+                          <th>Sender Email</th>
+                          <th>Package Name</th>
+                          <th>Price</th>
+                          <th>Location</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {receiver_package_data
+                          ?.filter(
+                            (item) => packageFilter === "all" || item.event_status === packageFilter
+                          )
+                          .map((item, index) => (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{item.sender_email}</td>
+                              <td>{item.package_name}</td>
+                              <td>₹{item.price}</td>
+                              <td>{item.location}</td>
+                              <td className={`status ${item.event_status?.toLowerCase()}`}>
+                                <span>{item.event_status}</span>
+                              </td>
+                              <td className="action-buttons">
+                                {window.innerWidth <= 660 ? (
+                                  <div style={{ position: "relative" }}>
+                                    <button
+                                      className="mobile-action-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
+                                      }}
+                                      style={{
+                                        fontSize: "20px",
+                                        padding: "4px 12px",
+                                        borderRadius: "4px",
+                                        background: "transparent",
+                                        border: "1px solid #ddd",
+                                      }}
+                                    >
+                                      ⋮
+                                    </button>
+                                    {isMenuOpen === item.id && (
+                                      <div ref={menuRef}>
+                                        <ActionMenu
+                                          onApprove={() => {
+                                            set_data(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onReject={() => {
+                                            handleRejectClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onInfo={() => {
+                                            handleInfoClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <>
+                                    {item.event_status?.toLowerCase() === "pending" && (
+                                      <>
+                                        <button className="approve-btn" onClick={() => set_data(item)}>
+                                          Approve
+                                        </button>
+                                        <button className="reject-btn" onClick={() => handleRejectClick(item)}>
+                                          <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                        </button>
+                                      </>
+                                    )}
+                                    <button className="info-btn" onClick={() => handleInfoClick(item)}>
+                                      <IoInformation style={{ height: "20px", width: "20px" }} />
+                                    </button>
+                                  </>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="no-data-message">No Data Available</p>
+                  )}
                 </div>
               </div>
             )}
+
 
             {category === "Equipment" && (
               <div className="section-container">
                 <div className="table-container">
-                  <table className="received_equipment_table">
-                    <thead>
-                      <tr>
-                        <th style={{ width: "100px" }}>{add_filter("NO.")}</th>
-                        <th>{add_filter("Sender Email")}</th>
-                        <th>{add_filter("Equipment Name")}</th>
-                        <th>{add_filter("Company")}</th>
-                        <th>{add_filter("Days")}</th>
-                        <th>{add_filter("Location")}</th>
-                        <th>{add_filter("Status")}</th>
-                        <th>{add_filter("Action")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {receiver_equipment_data
-                        ?.filter(
-                          (item) =>
-                            equipmentFilter === "all" ||
-                            item.event_status === equipmentFilter
-                        )
-                        .map((item, index) => (
-                          <tr key={index}>
-                            <td>{index + 1}</td>
-                            <td>{item.sender_email}</td>
-                            <td>{item.equipment_name}</td>
-                            <td>{item.equipment_company}</td>
-                            <td>{item.days_required}</td>
-                            <td>{item.location}</td>
-                            <td
-                              className={`status ${item.event_status?.toLowerCase()}`}
-                            >
-                              <span>{item.event_status}</span>
-                            </td>
-                            <td className="action-buttons">
-                              {window.innerWidth <= 660 ? (
-                                <div style={{ position: 'relative' }}>
-                                  <button
-                                    className="mobile-action-btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
-                                    }}
-                                    style={{
-                                      fontSize: "20px",
-                                      padding: "4px 12px",
-                                      borderRadius: "4px",
-                                      background: "transparent",
-                                      border: "1px solid #ddd",
-                                    }}
-                                  >
-                                    ⋮
-                                  </button>
-                                  {isMenuOpen === item.id && (
-                                    <div ref={menuRef}>
-                                      <ActionMenu
-                                        onApprove={() => {
-                                          set_data(item);
-                                          setIsMenuOpen(null);
-                                        }}
-                                        onReject={() => {
-                                          handleRejectClick(item);
-                                          setIsMenuOpen(null);
-                                        }}
-                                        onInfo={() => {
-                                          handleInfoClick(item);
-                                          setIsMenuOpen(null);
-                                        }}
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <>
-                                  {item.event_status?.toLowerCase() === "pending" && (
-                                    <>
-                                      <button
-                                        className="approve-btn"
-                                        onClick={() => {
-                                          set_data(item);
-                                        }}
-                                      >
-                                        Approve
-                                      </button>
-                                      <button
-                                        className="reject-btn"
-                                        onClick={() => handleRejectClick(item)}
-                                      >
-                                        <IoCloseOutline style={{ height: "20px", width: "20px" }} />
-                                      </button>
-                                    </>
-                                  )}
-                                  <button
-                                    className="info-btn"
-                                    onClick={() => handleInfoClick(item)}
-                                  >
-                                    <IoInformation style={{ height: "20px", width: "20px" }} />
-                                  </button>
-                                </>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
+                  {receiver_equipment_data?.filter(
+                    (item) => equipmentFilter === "all" || item.event_status === equipmentFilter
+                  ).length > 0 ? (
+                    <table className="received_equipment_table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: "100px" }}>NO.</th>
+                          <th>Sender Email</th>
+                          <th>Equipment Name</th>
+                          <th>Company</th>
+                          <th>Days</th>
+                          <th>Location</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {receiver_equipment_data
+                          ?.filter(
+                            (item) => equipmentFilter === "all" || item.event_status === equipmentFilter
+                          )
+                          .map((item, index) => (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{item.sender_email}</td>
+                              <td>{item.equipment_name}</td>
+                              <td>{item.equipment_company}</td>
+                              <td>{item.days_required}</td>
+                              <td>{item.location}</td>
+                              <td className={`status ${item.event_status?.toLowerCase()}`}>
+                                <span>{item.event_status}</span>
+                              </td>
+                              <td className="action-buttons">
+                                {window.innerWidth <= 660 ? (
+                                  <div style={{ position: "relative" }}>
+                                    <button
+                                      className="mobile-action-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
+                                      }}
+                                      style={{
+                                        fontSize: "20px",
+                                        padding: "4px 12px",
+                                        borderRadius: "4px",
+                                        background: "transparent",
+                                        border: "1px solid #ddd",
+                                      }}
+                                    >
+                                      ⋮
+                                    </button>
+                                    {isMenuOpen === item.id && (
+                                      <div ref={menuRef}>
+                                        <ActionMenu
+                                          onApprove={() => {
+                                            set_data(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onReject={() => {
+                                            handleRejectClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onInfo={() => {
+                                            handleInfoClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <>
+                                    {item.event_status?.toLowerCase() === "pending" && (
+                                      <>
+                                        <button className="approve-btn" onClick={() => set_data(item)}>
+                                          Approve
+                                        </button>
+                                        <button className="reject-btn" onClick={() => handleRejectClick(item)}>
+                                          <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                        </button>
+                                      </>
+                                    )}
+                                    <button className="info-btn" onClick={() => handleInfoClick(item)}>
+                                      <IoInformation style={{ height: "20px", width: "20px" }} />
+                                    </button>
+                                  </>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="no-data-message">No Data Available</p>
+                  )}
                 </div>
               </div>
             )}
 
+
             {category === "Service" && (
               <div className="section-container">
                 <div className="table-container">
-                  <table className="received_service_table">
-                    <thead>
-                      <tr>
-                        <th>{add_filter("NO.")}</th>
-                        <th>{add_filter("Sender Email")}</th>
-                        <th>{add_filter("Service Name")}</th>
-                        <th>{add_filter("Days")}</th>
-                        <th>{add_filter("Location")}</th>
-                        <th>{add_filter("Status")}</th>
-                        <th>{add_filter("Action")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {receiver_service_data
-                        ?.filter(
-                          (item) =>
-                            serviceFilter === "all" ||
-                            item.event_status === serviceFilter
-                        )
-                        .map((item, index) => (
-                          <tr key={index}>
-                            <td>{index + 1}</td>
-                            <td>{item.sender_email}</td>
-                            <td>{item.service_name}</td>
-                            <td>{item.days_required}</td>
-                            <td>{item.location}</td>
-                            <td className={`status ${item.event_status.toLowerCase()}`}>
-                              <span>{item.event_status}</span>
-                            </td>
-                            <td className="action-buttons">
-                              {window.innerWidth <= 660 ? (
-                                <div style={{ position: 'relative' }}>
-                                  <button
-                                    className="mobile-action-btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
-                                    }}
-                                    style={{
-                                      fontSize: "20px",
-                                      padding: "4px 12px",
-                                      borderRadius: "4px",
-                                      background: "transparent",
-                                      border: "1px solid #ddd",
-                                    }}
-                                  >
-                                    ⋮
-                                  </button>
-                                  {isMenuOpen === item.id && (
-                                    <div ref={menuRef}>
-                                      <ActionMenu
-                                        onApprove={() => {
-                                          set_data(item);
-                                          setIsMenuOpen(null);
-                                        }}
-                                        onReject={() => {
-                                          handleRejectClick(item);
-                                          setIsMenuOpen(null);
-                                        }}
-                                        onInfo={() => {
-                                          handleInfoClick(item);
-                                          setIsMenuOpen(null);
-                                        }}
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <>
-                                  {item.event_status.toLowerCase() === "pending" && (
-                                    <>
-                                      <button
-                                        className="approve-btn"
-                                        onClick={() => {
-                                          set_data(item);
-                                        }}
-                                      >
-                                        Approve
-                                      </button>
-                                      <button
-                                        className="reject-btn"
-                                        onClick={() => handleRejectClick(item)}
-                                      >
-                                        <IoCloseOutline style={{ height: "20px", width: "20px" }} />
-                                      </button>
-                                    </>
-                                  )}
-                                  <button
-                                    className="info-btn"
-                                    onClick={() => handleInfoClick(item)}
-                                  >
-                                    <IoInformation style={{ height: "20px", width: "20px" }} />
-                                  </button>
-                                </>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
+                  {receiver_service_data?.filter(
+                    (item) => serviceFilter === "all" || item.event_status === serviceFilter
+                  ).length > 0 ? (
+                    <table className="received_service_table">
+                      <thead>
+                        <tr>
+                          <th>NO.</th>
+                          <th>Sender Email</th>
+                          <th>Service Name</th>
+                          <th>Days</th>
+                          <th>Location</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {receiver_service_data
+                          ?.filter(
+                            (item) =>
+                              serviceFilter === "all" || item.event_status === serviceFilter
+                          )
+                          .map((item, index) => (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{item.sender_email}</td>
+                              <td>{item.service_name}</td>
+                              <td>{item.days_required}</td>
+                              <td>{item.location}</td>
+                              <td className={`status ${item.event_status.toLowerCase()}`}>
+                                <span>{item.event_status}</span>
+                              </td>
+                              <td className="action-buttons">
+                                {window.innerWidth <= 660 ? (
+                                  <div style={{ position: "relative" }}>
+                                    <button
+                                      className="mobile-action-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
+                                      }}
+                                      style={{
+                                        fontSize: "20px",
+                                        padding: "4px 12px",
+                                        borderRadius: "4px",
+                                        background: "transparent",
+                                        border: "1px solid #ddd",
+                                      }}
+                                    >
+                                      ⋮
+                                    </button>
+                                    {isMenuOpen === item.id && (
+                                      <div ref={menuRef}>
+                                        <ActionMenu
+                                          onApprove={() => {
+                                            set_data(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onReject={() => {
+                                            handleRejectClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onInfo={() => {
+                                            handleInfoClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <>
+                                    {item.event_status.toLowerCase() === "pending" && (
+                                      <>
+                                        <button className="approve-btn" onClick={() => set_data(item)}>
+                                          Approve
+                                        </button>
+                                        <button className="reject-btn" onClick={() => handleRejectClick(item)}>
+                                          <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                        </button>
+                                      </>
+                                    )}
+                                    <button className="info-btn" onClick={() => handleInfoClick(item)}>
+                                      <IoInformation style={{ height: "20px", width: "20px" }} />
+                                    </button>
+                                  </>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="no-data-message">No Data Available</p>
+                  )}
                 </div>
               </div>
             )}
+
 
             {show_calender_popup && (
               <AddDetailsPop

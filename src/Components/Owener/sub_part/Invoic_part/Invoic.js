@@ -165,13 +165,12 @@ const InvoiceForm = () => {
                 margin-bottom: 50px;
                 align-items: flex-start;
               ">
-                ${
-                  invoice.invoice_logo
-                    ? `<div class="logo" style="width: 150px; height: 80px;">
+                ${invoice.invoice_logo
+        ? `<div class="logo" style="width: 150px; height: 80px;">
                       <img src="${invoice.invoice_logo}" style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
                      </div>`
-                    : '<div style="width: 150px; height: 80px;"></div>'
-                }
+        : '<div style="width: 150px; height: 80px;"></div>'
+      }
                 <div style="
                   height: 100px;
                   font-size: 26px;
@@ -179,12 +178,10 @@ const InvoiceForm = () => {
                   text-align: right;
                 ">
                   INVOICE<br/>
-                  <span style="font-size: 16px; display: block; margin-top: 10px;">Invoice No: ${
-                    invoice.invoice_id
-                  }</span>
-                  <span style="font-size: 15px; font-weight: 300; display: block; margin-top: 5px;">Date: ${
-                    formatDateTime(invoice.date).date
-                  }</span>
+                  <span style="font-size: 16px; display: block; margin-top: 10px;">Invoice No: ${invoice.invoice_id
+      }</span>
+                  <span style="font-size: 15px; font-weight: 300; display: block; margin-top: 5px;">Date: ${formatDateTime(invoice.date).date
+      }</span>
                 </div>
               </div>
     
@@ -197,32 +194,25 @@ const InvoiceForm = () => {
               ">
                 <div style="flex: 1;">
                   <h3 style="margin-bottom: 20px; color: #333;">From:</h3>
-                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${
-                    user.user_name
-                  }</p>
-                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${
-                    user.business_address
-                  }</p>
-                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${
-                    user.user_email
-                  }</p>
-                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">GST No: ${
-                    user.gst_number
-                  }</p>
+                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${user.user_name
+      }</p>
+                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${user.business_address
+      }</p>
+                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${user.user_email
+      }</p>
+                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">GST No: ${user.gst_number
+      }</p>
                 </div>
                 <div style="flex: 1; text-align: right;">
                   <h3 style="margin-bottom: 20px; color: #333;">Bill To:</h3>
-                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${
-                    invoice.invoice_to
-                  }</p>
-                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${
-                    invoice.invoice_items[0]?.invoice_to_address ||
-                    "Address not available"
-                  }</p>
-                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${
-                    invoice.invoice_items[0]?.invoice_to_email ||
-                    "Email not available"
-                  }</p>
+                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${invoice.invoice_to
+      }</p>
+                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${invoice.invoice_items[0]?.invoice_to_address ||
+      "Address not available"
+      }</p>
+                  <p style="margin-bottom: 12px; font-size: 14px; line-height: 1.5;">${invoice.invoice_items[0]?.invoice_to_email ||
+      "Email not available"
+      }</p>
                 </div>
               </div>
     
@@ -242,33 +232,28 @@ const InvoiceForm = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  ${
-                    invoice.invoice_items
-                      ? invoice.invoice_items
-                          .map(
-                            (item, index) => `
+                  ${invoice.invoice_items
+        ? invoice.invoice_items
+          .map(
+            (item, index) => `
                       <tr>
-                        <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center;">${
-                          index + 1
-                        }</td>
-                        <td style="padding: 12px; border: 1px solid #dee2e6; text-align: left;">${
-                          item.item
-                        }</td>
-                        <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">${
-                          item.quantity
-                        }</td>
-                        <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${
-                          item.price
-                        }</td>
+                        <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center;">${index + 1
+              }</td>
+                        <td style="padding: 12px; border: 1px solid #dee2e6; text-align: left;">${item.item
+              }</td>
+                        <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">${item.quantity
+              }</td>
+                        <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.price
+              }</td>
                         <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
-                          item.quantity * item.price
-                        )}</td>
+                item.quantity * item.price
+              )}</td>
                       </tr>
                     `
-                          )
-                          .join("")
-                      : ""
-                  }
+          )
+          .join("")
+        : ""
+      }
                 </tbody>
               </table>
     
@@ -331,9 +316,8 @@ const InvoiceForm = () => {
 
   return (
     <div className="invoice_and_table_container">
+      <h2>Invoice List</h2>
       <div className="invoice_list">
-        <h2>Invoice List</h2>
-
         {loading ? (
           <p>Loading invoices...</p>
         ) : error ? (
@@ -365,7 +349,6 @@ const InvoiceForm = () => {
                   invoices.map((inv, index) => (
                     <tr
                       key={index}
-                      // onClick={() => handleRowClick(inv)}
                       style={{ cursor: "pointer" }}
                     >
                       <td>{index + 1}</td>
@@ -380,40 +363,20 @@ const InvoiceForm = () => {
                         style={{
                           display: "flex",
                           alignItems: "center",
-
                           gap: "10px",
                         }}
                       >
                         <button
                           onClick={() => handleRowClick(inv)}
-                          style={{
-                            height: "25px",
-                            width: "25px",
-                            backgroundColor: "lightgrey",
-                            border: "none",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                          }}
                         >
-                          <IoInformation />
+                          <IoInformation style={{ fontSize: "20px" }} />
                         </button>
                         <button
                           onClick={() => {
                             generatePDFPreview(inv);
                           }}
-                          style={{
-                            height: "25px",
-                            width: "25px",
-                            backgroundColor: "lightgrey",
-                            border: "none",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
                         >
-                          <VscOpenPreview />
+                          <VscOpenPreview style={{ fontSize: "20px" }} />
                         </button>
                       </td>
                     </tr>
@@ -421,17 +384,18 @@ const InvoiceForm = () => {
                 )}
               </tbody>
             </table>
-            {isEditModalOpen && (
-              <EditInvoiceModal
-                invoice={selectedInvoice}
-                user={user}
-                onClose={() => setIsEditModalOpen(false)}
-                formatDateTime={formatDateTime}
-              />
-            )}
+
           </>
         )}
       </div>
+      {isEditModalOpen && (
+        <EditInvoiceModal
+          invoice={selectedInvoice}
+          user={user}
+          onClose={() => setIsEditModalOpen(false)}
+          formatDateTime={formatDateTime}
+        />
+      )}
     </div>
   );
 };

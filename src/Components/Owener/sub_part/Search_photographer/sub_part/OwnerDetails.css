@@ -10,18 +10,27 @@
   gap: 20px;
   display: flex;
   overflow: visible !important;
+  padding-bottom: 50px;
 }
 
 .swiper_container_for_packages .swiper {
   width: 100%;
   display: flex;
   overflow: hidden !important;
+  padding-bottom: 50px;
+}
+
+.swiper_container_for_services .swiper {
+  width: 100%;
+  display: flex;
+  overflow: hidden !important;
+  padding-bottom: 50px;
 }
 
 .swiper_container_for_equipment {
   width: 100%;
   position: relative;
-  padding: 15px 10px 5px 10px;
+  padding: 15px 10px 0px 10px;
 }
 
 /* .swiper_container_for_packages {
@@ -79,15 +88,16 @@
 .custom-swiper-pagination-bullet {
   width: 12px;
   height: 12px;
-  background-color: #ff6600;
+  background-color: rgba(77, 77, 77, 0.311);
   border-radius: 50%;
   transition: all 0.3s ease;
   cursor: pointer;
+  transform: scale(0.7);
 }
 
 .custom-swiper-pagination-bullet.swiper-pagination-bullet-active {
-  background-color: #000;
-  transform: scale(1.1);
+  background-color: #2c2c2cac;
+  transform: scale(1.05);
 }
 
 .owner-details-container {
@@ -365,6 +375,7 @@
   border: 1px solid #c1c1c1;
   border-radius: 8px;
   width: 97%;
+  padding-bottom: 0px;
 }
 
 
@@ -379,6 +390,7 @@
   position: relative;
   border: 1px solid #c1c1c1;
   border-radius: 8px;
+  padding-bottom: 15px;
 }
 
 .owner-details-container .section.equipment_section .equipment-list {
@@ -466,7 +478,7 @@
   font-size: 25px;
   font-family: var(--Heading);
   display: -webkit-box;
-  line-clamp:2;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   /* Limits to 2 lines */
   -webkit-box-orient: vertical;
@@ -640,6 +652,7 @@
   position: relative;
   margin-top: 20px;
   flex-wrap: nowrap;
+  padding-bottom: 0px;
 }
 
 /* .owner-details-container .section.services_section .services-list .services_items_container {

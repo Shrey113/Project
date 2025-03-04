@@ -6,7 +6,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+
   height: 100%;
   width: 100%;
   background-color: rgba(47, 47, 47, 0.176);
@@ -17,6 +17,7 @@
   padding: 2rem;
   border-radius: 8px;
   width: 95%;
+  z-index: 99999;
   max-width: 900px;
   max-height: 95vh;
   height: auto;
@@ -27,6 +28,7 @@
 .modal-overlay .modal-content::-webkit-scrollbar {
   width: 0px;
 }
+
 .modal-overlay .modal-content:hover::-webkit-scrollbar {
   width: 5px;
 }
@@ -119,6 +121,7 @@
 .modal-overlay .modal-content .table-container .invoice-table tbody tr {
   transition: all 0.5s ease;
 }
+
 .modal-overlay .modal-content .table-container .invoice-table tbody tr:hover {
   background-color: #f1ded358;
 }
@@ -153,6 +156,7 @@
   padding: 0px 1rem;
   margin-top: 25px;
 }
+
 .modal-overlay .modal-content .modal-footer button {
   padding: 6px;
   border: none;
@@ -160,6 +164,7 @@
   font-size: 14px;
   transition: all 0.3s ease;
 }
+
 .modal-overlay .modal-content .modal-footer button:hover {
   background-color: #a3a3a3;
 }
@@ -284,10 +289,12 @@
   .preview_image {
     width: 30%;
   }
+
   .preview_image img {
     width: 100%;
     object-fit: cover;
   }
+
   .preview_and_invoice_details_wrapper {
     height: 220px;
   }
@@ -314,6 +321,7 @@
     width: 100%;
     max-height: 95vh;
   }
+
   .modal-header {
     height: 40px;
   }
@@ -321,14 +329,17 @@
   .modal-overlay .modal-content .modal-header h2 {
     font-size: 1.2rem;
   }
+
   .preview_image {
     width: 30%;
     height: 70%;
   }
+
   .preview_image img {
     width: 100%;
     object-fit: cover;
   }
+
   .modal-overlay .modal-content .invoice-details {
     width: 60%;
     padding: 10px 15px;
@@ -353,6 +364,7 @@
     text-align: left;
     border-bottom: 1px solid #eee;
   }
+
   .modal-overlay .modal-content .modal-footer {
     width: 100%;
   }
@@ -362,6 +374,7 @@
     font-size: 12px;
   }
 }
+
 @media screen and (max-width: 480px) {
   .modal-content {
     padding: 10px;
@@ -390,11 +403,13 @@
     width: 100%;
     object-fit: contain;
   }
+
   .modal-overlay .modal-content .invoice-details {
     padding: 1rem;
     border-radius: 6px;
     width: 100%;
   }
+
   .modal-overlay .modal-content .invoice-details .detail-item span {
     font-size: 14px;
   }
