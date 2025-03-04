@@ -8,6 +8,10 @@
     background: transparent;
 }
 
+* {
+    font-family: "Poppins", serif;
+}
+
 *::-webkit-scrollbar-thumb {
     width: 5px;
     background: transparent;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, } from "react";
+import React, { useEffect, useRef, useState, } from "react";
 import { useLocation, useNavigate, useParams, } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import "./OwnerDetails.css";
@@ -9,6 +9,12 @@ import { FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import SeletedCard from "./SeletedCard";
 import { MdOutlineInsertLink, MdOutlineDesignServices, MdBusinessCenter, MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
 import { IoIosShareAlt } from "react-icons/io";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Navigation, Pagination } from "swiper/modules";
+
 
 
 
@@ -49,6 +55,7 @@ const OwnerDetails = () => {
     return equipment ? equipment.icon : camera_icon; // Default to Camera icon if no match
   }
 
+  const swiperRef = useRef(null);
   const [packagesMoreThan4, setpackagesMoreThan4] = useState(false);
   const [equipmentMoreThan4, setEquipmentMoreThan4] = useState(false);
   const [servicesMoreThan4, setServicesMoreThan4] = useState(false);
@@ -70,7 +77,14 @@ const OwnerDetails = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [at_share_link, set_at_share_link] = useState(false);
-
+  useEffect(() => {
+    if (swiperRef.current && swiperRef.current.swiper) {
+      swiperRef.current.swiper.params.navigation.prevEl = ".custom-swiper-button-prev";
+      swiperRef.current.swiper.params.navigation.nextEl = ".custom-swiper-button-next";
+      swiperRef.current.swiper.navigation.init();
+      swiperRef.current.swiper.navigation.update();
+    }
+  }, []);
 
   useEffect(() => {
     if (!location.state?.ownerData) {
@@ -764,7 +778,7 @@ const OwnerDetails = () => {
         <hr style={{ width: "98%", margin: "auto" }} />
         <div className="packages-grid">
           {ownerData.packages?.length > 0 ? (
-            ownerData?.packages?.slice(0, 3).map((pkg, index) => (
+            ownerData?.packages?.map((pkg, index) => (
               <div
                 key={pkg.id || index}
                 className="package-card"
@@ -835,8 +849,8 @@ const OwnerDetails = () => {
 
             <hr style={{ width: "98%", margin: "auto" }} />
 
-            <div className="equipment_items_container">
-              {ownerData.equipment.slice(0, 3).map((item, index) => (
+            {/* <div className="equipment_items_container">
+              {ownerData.equipment?.map((item, index) => (
                 <li
                   key={index}
                   className="equipment_item"
@@ -870,6 +884,59 @@ const OwnerDetails = () => {
                   </button>
                 </li>
               ))}
+            </div> */}
+            <div className="swiper_container">
+
+              <div className="custom-swiper-button-prev">❮</div>
+              <Swiper
+                modules={[Navigation, Pagination]}
+                slidesPerView="auto"
+                ref={swiperRef}
+                spaceBetween={10}
+                pagination={{
+                  clickable: true,
+                  renderBullet: (index, className) =>
+                    `<span class="${className} custom-swiper-pagination-bullet">${index + 1}</span>`,
+                }}
+                breakpoints={{
+                  450: { spaceBetween: 5 },
+                  500: { spaceBetween: 8 },
+                  640: { slidesPerView: 1.5, spaceBetween: 10 },
+                  768: { slidesPerView: 2, spaceBetween: 10 },
+                  1024: { slidesPerView: 3, spaceBetween: 15 },
+                }}
+              >
+
+                {ownerData.equipment?.map((item, index) => (
+                  <SwiperSlide key={index} className="equipment_item">
+                    {/* <li className="equipment_item"> */}
+                    <div className="photo_container_for_equipment">
+                      <img src={get_img_by_name(item.equipment_type)} alt={item.equipment_type} />
+                      <p>{item.name || "Not Available"}</p>
+                    </div>
+                    <div className="other_details_for_equipment">
+                      <div>{item.equipment_company || "Not Available"}</div>
+                      <div>• {item.equipment_type || "Not Available"}</div>
+                    </div>
+                    <div className="equipment_price_container">
+                      <p>Rs. {item.equipment_price_per_day || "Not Available"} /Day</p>
+                    </div>
+                    <div className="equipment_description">
+                      <strong>Details:</strong>
+                      <p>{item.equipment_description || "Not Available"}</p>
+                    </div>
+                    <button
+                      className="book-equipment-button"
+                      onClick={() => handleItemClick(item, "equipment")}
+                    >
+                      Book Equipment
+                    </button>
+                    {/* </li> */}
+
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <div className="custom-swiper-button-next">❯</div>
             </div>
           </ul>
         ) : (

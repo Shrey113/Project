@@ -9,7 +9,8 @@ import { useSelector } from "react-redux";
 import MobilePackageView from "./MobilePackageView";
 import { Server_url, showAcceptToast, showRejectToast, showWarningToast } from "./../../../../redux/AllData";
 import { IoClose, IoAdd } from "react-icons/io5";
-import { FiEdit } from "react-icons/fi";
+// import { FiEdit } from "react-icons/fi";
+// import { MdDeleteOutline } from "react-icons/md";
 import { MdDeleteOutline } from "react-icons/md";
 import { RiEditLine } from "react-icons/ri";
 
@@ -28,7 +29,7 @@ const Packages = () => {
   });
 
 
-  const [isEditable, setIsEditable] = useState(false);
+  // const [isEditable, setIsEditable] = useState(false);
   const [mobile_view, setMobile_view] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
 
@@ -344,7 +345,7 @@ const Packages = () => {
     setSelectedPackage(packageId);
     setSelectedPackageName(package_name);
     setShowConfirm(true);
-    setIsEditable(false);
+    // setIsEditable(false);
   };
 
   const add_service = (packageIndex) => {
@@ -441,9 +442,9 @@ const Packages = () => {
   const cardColor = formData.card_color || "#6fa8dc";
   const darkerTextColor = darkenColor(cardColor, 20);
 
-  const editForPackage = (index) => {
-    setIsEditable((prevIndex) => (prevIndex === index ? null : index));
-  };
+  // const editForPackage = (index) => {
+  //   setIsEditable((prevIndex) => (prevIndex === index ? null : index));
+  // };
 
   return (
     <div className="owner-packages-container">
@@ -515,7 +516,8 @@ const Packages = () => {
                     >
                       <div className="package_title">
                         <div className="package_name">{pkg.package_name || "Package Name"}</div>
-                        <FiEdit style={{ cursor: "pointer" }} onClick={() => editForPackage(index)} />
+                        {/* <FiEdit style={{ cursor: "pointer" }} onClick={() => editForPackage(index)} /> */}
+                        <MdDeleteOutline onClick={() => handleDeleteClick(pkg.id, pkg.package_name)} style={{ cursor: "pointer" }} />
                       </div>
 
                       <div className="package_pricing" style={{ color: pkg.card_color || "#6fa8dc" }}>
@@ -523,7 +525,7 @@ const Packages = () => {
                         <div className="value">
                           {pkg.price || "Price"}
                         </div>
-                        <span>/day</span>
+                        <span>/Day</span>
                       </div>
 
                       <hr style={{ width: "96%", margin: "8px 0" }} />
@@ -574,8 +576,12 @@ const Packages = () => {
                           <span>No services available</span>
                         )}
                       </div>
+                      <button onClick={() => handleEditToggle(index)}>
+                        <RiEditLine />
+                        {pkg.isEditing ? "Save" : "Edit"}
+                      </button>
 
-                      {isEditable === index &&
+                      {/* {isEditable === index &&
                         <div className="actions_button">
                           <button onClick={() => handleEditToggle(index)}>
                             <RiEditLine />
@@ -589,7 +595,7 @@ const Packages = () => {
                             Delete
                           </button>
                         </div>
-                      }
+                      } */}
                     </div>
                   ))}
                 </div>

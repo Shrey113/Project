@@ -21,7 +21,7 @@ const TableToggleButtons = () => {
   const handleTableToggle = (tableName, label) => {
     setSelectedTable(tableName);
     setSelectedItem(label);
-  
+
     setIsDropdownOpen(false);
   };
   const [test, setTest] = useState(0);
@@ -114,7 +114,7 @@ const TableToggleButtons = () => {
 
           {/* Buttons */}
           <button onClick={() => handleTableToggle("firstTable", "Invoice List")}>
-            <span>Invoice List {test}</span>
+            <span>Invoice List </span>
           </button>
 
           <button onClick={() => handleTableToggle("secondTable", "Invoice Generator")}>

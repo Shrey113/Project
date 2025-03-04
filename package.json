@@ -53,7 +53,7 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "sonner": "^1.7.4",
-    "swiper": "^11.1.15",
+    "swiper": "^11.2.4",
     "web-vitals": "^4.2.4"
   },
   "scripts": {
