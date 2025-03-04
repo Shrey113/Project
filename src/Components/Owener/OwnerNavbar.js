@@ -109,8 +109,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
 
     return readablePath.map((name, index) => {
-      // Create the new path by joining the segments up to the current index + 1
-      // const newPath = "/" + pathSegments.slice(0, index + 1).join("/");
       return (
         <span
           key={index}

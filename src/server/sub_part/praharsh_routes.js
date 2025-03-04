@@ -40,7 +40,6 @@ const bodyParser = require("body-parser");
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
-
 router.post("/get_all_notifications", (req, res) => {
   const { email } = req.body;
   if (!email) {

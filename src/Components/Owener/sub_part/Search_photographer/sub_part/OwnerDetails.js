@@ -13,7 +13,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { Navigation, Pagination } from "swiper/modules";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
 
 
 
@@ -55,7 +55,6 @@ const OwnerDetails = () => {
     return equipment ? equipment.icon : camera_icon; // Default to Camera icon if no match
   }
 
-  const swiperRef = useRef(null);
   const [packagesMoreThan4, setpackagesMoreThan4] = useState(false);
   const [equipmentMoreThan4, setEquipmentMoreThan4] = useState(false);
   const [servicesMoreThan4, setServicesMoreThan4] = useState(false);
@@ -77,12 +76,24 @@ const OwnerDetails = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [at_share_link, set_at_share_link] = useState(false);
+
+  const swiperRefPackage = useRef(null);
+  const swiperRefEquipment = useRef(null);
   useEffect(() => {
-    if (swiperRef.current && swiperRef.current.swiper) {
-      swiperRef.current.swiper.params.navigation.prevEl = ".custom-swiper-button-prev";
-      swiperRef.current.swiper.params.navigation.nextEl = ".custom-swiper-button-next";
-      swiperRef.current.swiper.navigation.init();
-      swiperRef.current.swiper.navigation.update();
+    if (swiperRefPackage.current && swiperRefPackage.current.swiper) {
+      swiperRefPackage.current.swiper.params.navigation.prevEl = ".custom-swiper-button-prev-packages";
+      swiperRefPackage.current.swiper.params.navigation.nextEl = ".custom-swiper-button-next-packages";
+      swiperRefPackage.current.swiper.navigation.init();
+      swiperRefPackage.current.swiper.navigation.update();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (swiperRefEquipment.current && swiperRefEquipment.current.swiper) {
+      swiperRefEquipment.current.swiper.params.navigation.prevEl = ".custom-swiper-button-prev-equipment";
+      swiperRefEquipment.current.swiper.params.navigation.nextEl = ".custom-swiper-button-next-equipment";
+      swiperRefEquipment.current.swiper.navigation.init();
+      swiperRefEquipment.current.swiper.navigation.update();
     }
   }, []);
 
@@ -765,6 +776,7 @@ const OwnerDetails = () => {
       </div>
 
       {/* Packages Section */}
+
       <div className="section packages_section">
         <div className="profile_preview_packages_title">
           <div className="packages-card-title">Packages</div>
@@ -776,62 +788,93 @@ const OwnerDetails = () => {
         </div>
 
         <hr style={{ width: "98%", margin: "auto" }} />
-        <div className="packages-grid">
-          {ownerData.packages?.length > 0 ? (
-            ownerData?.packages?.map((pkg, index) => (
-              <div
-                key={pkg.id || index}
-                className="package-card"
-                style={{
-                  backgroundColor: `#ffffff`, borderTop: `6px solid ${pkg.card_color || "#6fa8dc"}`, borderRight: "1px solid #919394",
+
+        <div className="swiper_container_for_packages">
+          {/* Previous Button */}
+          <div className="custom-swiper-button-prev-packages">❮</div>
+
+          <Swiper
+            modules={[Navigation, Pagination, Autoplay]}
+            useRef={swiperRefPackage}
+            slidesPerView="auto"
+            autoplay={{
+              delay: 2000, // Time in milliseconds between slides
+            }}
+            loop={true}
+            navigation={{
+              nextEl: ".custom-swiper-button-next-packages",
+              prevEl: ".custom-swiper-button-prev-packages",
+            }}
+
+            spaceBetween={10}
+            pagination={{
+              clickable: true,
+              renderBullet: (index, className) =>
+                `<span class="${className} custom-swiper-pagination-bullet"></span>`,
+            }}
+            breakpoints={{
+              450: { spaceBetween: 5 },
+              500: { spaceBetween: 8 },
+              640: { slidesPerView: 1.5, spaceBetween: 10 },
+              768: { slidesPerView: 2, spaceBetween: 10 },
+              1024: { slidesPerView: 3, spaceBetween: 15 },
+            }}
+          >
+            {ownerData.packages?.length > 0 ? (
+              ownerData.packages.map((pkg, index) => (
+                <SwiperSlide key={pkg.id || index} className="package-card" style={{
+                  backgroundColor: `#ffffff`,
+                  borderTop: `6px solid ${pkg.card_color || "#6fa8dc"}`,
+                  borderRight: "1px solid #919394",
                   borderLeft: "1px solid #919394",
-                  borderBottom: "1px solid #919394"
+                  borderBottom: "1px solid #919394",
                 }}
-                onClick={() => handleItemClick(pkg, "package")}
-              >
-                <div className="package_title">
-                  <div className="package_name">{pkg.package_name || "Package Name"}</div>
-                </div>
+                  onClick={() => handleItemClick(pkg, "package")}>
 
-                <div className="package_pricing" style={{ color: pkg.card_color || "#6fa8dc" }}>
-                  <div className="rupee_symbol">₹</div>
-                  <div className="value">
-                    {pkg.price || "Price"}
+                  <div className="package_title">
+                    <div className="package_name">{pkg.package_name || "Package Name"}</div>
                   </div>
-                  <span>/day</span>
-                </div>
 
-                <hr style={{ width: "96%", margin: "8px 0" }} />
+                  <div className="package_pricing" style={{ color: pkg.card_color || "#6fa8dc" }}>
+                    <div className="rupee_symbol">₹</div>
+                    <div className="value">{pkg.price || "Price"}</div>
+                    <span>/day</span>
+                  </div>
 
-                <div className="package_Services">
-                  {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
-                    pkg.service.map((srv, idx) =>
-                      <div key={idx} className="service_item">
-                        <div className="key" style={{ backgroundColor: pkg.card_color, color: pkg.text_color || "#fff" }}>{idx + 1}</div>
-                        <div className="individual_services" >
-                          {srv}
+                  <hr style={{ width: "96%", margin: "8px 0" }} />
+
+                  <div className="package_Services">
+                    {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
+                      pkg.service.map((srv, idx) => (
+                        <div key={idx} className="service_item">
+                          <div className="key" style={{ backgroundColor: pkg.card_color, color: pkg.text_color || "#fff" }}>
+                            {idx + 1}
+                          </div>
+                          <div className="individual_services">{srv}</div>
                         </div>
-                      </div>
-                    )
-                  ) : (
-                    <span style={{ alignSelf: "center" }}>No services available</span>
-                  )}
-                </div>
-                <div
-                  className="book-package-button"
-                  onClick={() => handleItemClick(pkg, "package")}
-                  style={{ backgroundColor: pkg.card_color || "#6fa8dc", color: "#fff" }}
-                >
-                  Book Package
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="no_equipments">
-              <img src={NoDataForEquipment} alt="" />
+                      ))
+                    ) : (
+                      <span style={{ alignSelf: "center" }}>No services available</span>
+                    )}
+                  </div>
+
+                  <div
+                    className="book-package-button"
+                    onClick={() => handleItemClick(pkg, "package")}
+                    style={{ backgroundColor: pkg.card_color || "#6fa8dc", color: "#fff" }}
+                  >
+                    Book Package
+                  </div>
+                </SwiperSlide>
+              ))
+            ) : (
+
               <p className="no-data">NO PACKAGES AVAILABLE</p>
-            </div>
-          )}
+
+            )}
+          </Swiper>
+          {/* Next Button */}
+          <div className="custom-swiper-button-next-packages">❯</div>
         </div>
       </div>
 
@@ -849,54 +892,23 @@ const OwnerDetails = () => {
 
             <hr style={{ width: "98%", margin: "auto" }} />
 
-            {/* <div className="equipment_items_container">
-              {ownerData.equipment?.map((item, index) => (
-                <li
-                  key={index}
-                  className="equipment_item"
-                >
-                  <div className="photo_container_for_equipment">
-                    <img
-                      src={get_img_by_name(item.equipment_type)}
-                      alt={item.equipment_type}
-                    />
-                    <p>{item.name || "Not Available"}</p>
-                  </div>
-                  <div className="other_details_for_equipment">
-                    <div>{item.equipment_company || "Not Available"}</div>
-                    <div>• {item.equipment_type || "Not Available"}</div>
-                  </div>
 
-                  <div className="equipment_price_container">
-                    <p>
-                      Rs. {item.equipment_price_per_day || "Not Available"} /Day
-                    </p>
-                  </div>
-                  <div className="equipment_description">
-                    <strong>Details:</strong>
-                    <p>{item.equipment_description || "Not Available"}</p>
-                  </div>
-                  <button
-                    className="book-equipment-button"
-                    onClick={() => handleItemClick(item, "equipment")}
-                  >
-                    Book Equipment
-                  </button>
-                </li>
-              ))}
-            </div> */}
             <div className="swiper_container_for_equipment">
 
-              <div className="custom-swiper-button-prev">❮</div>
+              <div className="custom-swiper-button-prev-equipment">❮</div>
               <Swiper
-                modules={[Navigation, Pagination]}
+                modules={[Navigation, Pagination, Autoplay]}
                 slidesPerView="auto"
-                ref={swiperRef}
+                ref={swiperRefEquipment}
                 spaceBetween={10}
+                autoplay={{
+                  delay: 3000,
+                }}
+                loop={true}
                 pagination={{
                   clickable: true,
                   renderBullet: (index, className) =>
-                    `<span class="${className} custom-swiper-pagination-bullet">${index + 1}</span>`,
+                    `<span class="${className} custom-swiper-pagination-bullet"></span>`,
                 }}
                 breakpoints={{
                   450: { spaceBetween: 5 },
@@ -907,7 +919,7 @@ const OwnerDetails = () => {
                 }}
               >
 
-                {ownerData.equipment?.map((item, index) => (
+                {ownerData?.equipment?.map((item, index) => (
                   <SwiperSlide key={index} className="equipment_item">
                     {/* <li className="equipment_item"> */}
                     <div className="photo_container_for_equipment">
@@ -936,7 +948,7 @@ const OwnerDetails = () => {
                   </SwiperSlide>
                 ))}
               </Swiper>
-              <div className="custom-swiper-button-next">❯</div>
+              <div className="custom-swiper-button-next-equipment">❯</div>
             </div>
           </ul>
         ) : (
@@ -948,7 +960,7 @@ const OwnerDetails = () => {
       </div>
 
       {/* Services Section  */}
-      <div className="section services_section">
+      {/* <div className="section services_section">
         {ownerData.services?.length > 0 ? (
           <ul className="services-list">
             <div className="profile_preview_services_title">
@@ -977,14 +989,81 @@ const OwnerDetails = () => {
                       <div className="rupee_symbol"> ₹</div> <div className="service_price">{item.price_per_day || "Not Available"}</div> <span className="per_day">/Day</span>
                     </div>
                     <hr style={{ width: "98%", marginTop: "5px" }} />
-                    {/* <div className="services_description">
-                      <strong>Details:</strong>
-                      <p>{item.description || "Not Available"}</p>
-                    </div> */}
                     <button>Book Service</button>
                   </div>
                 </li>
               ))}
+            </div>
+          </ul>
+        ) : (
+          <div className="no_services">
+            <p className="no-data">NO SERVICES AVAILABLE</p>
+          </div>
+        )}
+      </div> */}
+
+      <div className="section services_section">
+        {ownerData.services?.length > 0 ? (
+          <ul className="services-list">
+            <div className="profile_preview_services_title">
+              <div className="services-card-title">Services</div>
+              {servicesMoreThan4 && (
+                <div onClick={() => handleShowAllClick("services")} className="see_all_button">
+                  See All <MdOutlineKeyboardDoubleArrowRight style={{ fontSize: "20px" }} />
+                </div>
+              )}
+            </div>
+
+            <hr style={{ width: "98%", margin: "auto" }} />
+
+            <div className="swiper_container_for_services">
+              <div className="custom-swiper-button-prev-services">❮</div>
+
+              <Swiper
+                modules={[Navigation, Pagination, Autoplay]}
+                slidesPerView="auto"
+                spaceBetween={10}
+                autoplay={{
+                  delay: 2000,
+                }}
+                loop={true}
+                navigation={{
+                  nextEl: ".custom-swiper-button-next-services",
+                  prevEl: ".custom-swiper-button-prev-services",
+                }}
+                pagination={{
+                  clickable: true,
+                  renderBullet: (index, className) =>
+                    `<span class="${className} custom-swiper-pagination-bullet"></span>`,
+                }}
+                breakpoints={{
+                  450: { spaceBetween: 5 },
+                  500: { spaceBetween: 8 },
+                  640: { slidesPerView: 1.5, spaceBetween: 10 },
+                  768: { slidesPerView: 2, spaceBetween: 10 },
+                  1024: { slidesPerView: 3, spaceBetween: 15 },
+                }}
+              >
+                {ownerData.services.map((item, index) => (
+                  <SwiperSlide key={index} className="service_item">
+                    <div className="container_for_services_name">
+                      <p>{item.service_name || "Not Available"}</p>
+                    </div>
+
+                    <div className="for_service_price_and_book_button">
+                      <div className="services_price_container">
+                        <div className="rupee_symbol"> ₹</div>
+                        <div className="service_price">{item.price_per_day || "Not Available"}</div>
+                        <span className="per_day">/Day</span>
+                      </div>
+                      <hr style={{ width: "98%", marginTop: "5px" }} />
+                      <button>Book Service</button>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+
+              <div className="custom-swiper-button-next-services">❯</div>
             </div>
           </ul>
         ) : (
