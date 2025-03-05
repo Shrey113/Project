@@ -57,9 +57,13 @@ const MobilePackageView = ({ selectedPackage, onClose, onUpdatePackage }) => {
         ×
       </button>
 
-      <div className="mobile-package-card">
+      <div className="mobile-package-card" style={{
+        backgroundColor: `#ffffff`, borderTop: `6px solid ${editedPackage.card_color || "#6fa8dc"}`, borderRight: "1px solid #919394",
+        borderLeft: "1px solid #919394",
+        borderBottom: "1px solid #919394"
+      }}>
         <div className="package_title">
-          <div
+          {/* <div
             className="first_container"
             style={{
               backgroundColor: editedPackage.card_color || "#6fa8dc",
@@ -111,36 +115,41 @@ const MobilePackageView = ({ selectedPackage, onClose, onUpdatePackage }) => {
               backgroundColor: editedPackage.card_color || "#6fa8dc",
               color: "#fff",
             }}
-          ></div>
+          ></div> */}
+          <div className="package_name">{editedPackage.package_name || "Package Name"}</div>
         </div>
 
-        <div className="package_all_details">
-          <div className="package_Services">
-            {Array.isArray(editedPackage.service) &&
-              editedPackage.service.map((srv, idx) => (
-                <div
-                  key={idx}
-                  className="service-item"
-                  style={{
-                    backgroundColor:
-                      idx % 2 === 0
-                        ? lightenColor(editedPackage.card_color, 20)
-                        : "#ffffff",
-                  }}
-                >
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={srv}
-                      onChange={(e) => handleServiceEdit(idx, e.target.value)}
-                    />
-                  ) : (
-                    srv.charAt(0).toUpperCase() + srv.slice(1).toLowerCase()
-                  )}
-                </div>
-              ))}
+        <div className="package_pricing" style={{ color: editedPackage.card_color || "#6fa8dc" }}>
+          <div className="rupee_symbol">₹</div>
+          <div className="value">
+            {editedPackage.price || "Price"}
           </div>
+          <span>/Day</span>
         </div>
+
+        <hr style={{ width: "96%", margin: "8px 0" }} />
+
+        {/* <div className="package_all_details"> */}
+        <div className="package_Services">
+          {Array.isArray(editedPackage.service) &&
+            editedPackage.service.map((srv, idx) => (
+              <div
+                key={idx}
+                className="service-item"
+              >
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={srv}
+                    onChange={(e) => handleServiceEdit(idx, e.target.value)}
+                  />
+                ) : (
+                  srv.charAt(0).toUpperCase() + srv.slice(1).toLowerCase()
+                )}
+              </div>
+            ))}
+        </div>
+        {/* </div> */}
 
         <div className="edit-actions">
           <button onClick={handleEditToggle}>

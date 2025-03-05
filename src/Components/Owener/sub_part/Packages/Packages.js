@@ -605,16 +605,17 @@ const Packages = () => {
                     <div
                       key={index}
                       className="package-card"
-                      style={{ backgroundColor: pkg.card_color || "#6fa8dc", borderTop: `6px solid ${formData.card_color || "#6fa8dc"}`, }}
+                      style={{ borderTop: `6px solid ${pkg.card_color || "#6fa8dc"}`, }}
                     >
                       <div className="package-card-header">
                         <h3 className="package-title">{pkg.package_name}</h3>
-                        <div
+                        {/* <div
                           className="package-card-i-button"
                           onClick={() => handleMobileViewToggle(pkg)}
                         >
                           i
-                        </div>
+                        </div> */}
+                        <MdDeleteOutline onClick={() => handleDeleteClick(pkg.id, pkg.package_name)} style={{ height: "20px", cursor: "pointer" }} />
                       </div>
                       <div className="package-card-body">
                         <div classpackages_sectionName="price-tag">
@@ -633,16 +634,17 @@ const Packages = () => {
                               }}
                             />
                           ) : (
-                            <>
-                              <span className="currency">₹</span>
+                            <div style={{ color: pkg.card_color }} className="pricing_part">
+                              <span className="currency" >₹</span>
                               <span className="amount">{pkg.price}</span>
                               <span className="period">/Day</span>
-                            </>
+                            </div>
                           )}
                         </div>
-                        <div className="description-container">
+                        {/* <div className="description-container">
                           <p className="package-description">{pkg.description}</p>
-                        </div>
+                        </div> */}
+                        <button className="edit_package_mobile" onClick={() => handleMobileViewToggle(pkg)}><RiEditLine /> Edit</button>
                       </div>
                     </div>
                   ))}
@@ -849,6 +851,8 @@ const Packages = () => {
           selectedPackage={selectedPackage}
           onClose={handleCloseMobileView}
           onUpdatePackage={handleMobilePackageUpdate}
+          selected_index={selectedPackage.id}
+          handleEditToggle={() => { handleEditToggle(selectedPackage.id) }}
         />
       )}
     </div>
