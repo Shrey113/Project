@@ -316,7 +316,7 @@ const InvoiceForm = () => {
 
   return (
     <div className="invoice_and_table_container">
-      <h2>Invoice List</h2>
+      {/* <h2>Invoice List</h2> */}
       <div className="invoice_list">
         {loading ? (
           <p>Loading invoices...</p>

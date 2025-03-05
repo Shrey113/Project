@@ -626,3 +626,33 @@
 /* .owner-packages-container .packages-grid .package-card button:hover {
   background-color: rgba(211, 211, 211, 0.737);
 } */
+
+
+@media screen and (max-width: 980px) {
+  .package-form-modal .preview-section{
+    display: none;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .form_lables_input .two_input_field{
+    flex-direction: column;
+  }
+  .owner-packages-container .package-form-modal .package-form .form_lables_input .two_input_field label {
+    width: 100%;
+  }
+  .form_lables_input .color-palette {
+    display: flex;
+    gap: 5px;
+    padding: 5px;
+  }
+  .form_lables_input .theme-preview {
+    width:60px;
+    height: 60px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+}

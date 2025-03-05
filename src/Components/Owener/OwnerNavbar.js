@@ -11,6 +11,8 @@ import { PiUserCheckFill } from "react-icons/pi";
 import { GrServices } from "react-icons/gr";
 import { BiSearch } from "react-icons/bi";
 
+import { IoArrowBack } from "react-icons/io5"; // Import back icon
+
 function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -106,13 +108,15 @@ async function getUserNameByEmail(user_email) {
     checkAndGetUserName();
   }, [location]); 
 
+
   const getNavbarName = () => {
     const { pathname } = location;
-
+    const isMobile = window.innerWidth < 800; // Check if it's mobile view
+  
     if (pathname === "/" || pathname === "/Owner") {
       return "Dashboard";
     }
-
+  
     const pathSegments = pathname.split("/").filter(Boolean);
     const pathMap = {
       Owner: "Dashboard",
@@ -126,49 +130,38 @@ async function getUserNameByEmail(user_email) {
       services: "Services Requests",
       equipments: "All Equipment",
     };
-    console.log("pathSegments:", pathSegments);
-    const packagesIndex = pathSegments.indexOf("packages");
-
+  
     let readablePath = pathSegments.map((segment) => pathMap[segment] || segment);
-    console.log("readablePath:", readablePath);
-
+    const packagesIndex = pathSegments.indexOf("packages");
+  
     if (pathSegments.length >= 2 && pathSegments[1] === "Event" && pathSegments[2] === "packages") {
       readablePath[packagesIndex] = "Packages Requests";
     }
     if (pathSegments.length >= 3 && pathSegments[3] === "packages") {
-      readablePath[packagesIndex] = "All Packages ";
+      readablePath[packagesIndex] = "All Packages";
     }
-
+  
     if (pathSegments.length === 1 && pathSegments[0] === "Owner") {
       return "Dashboard";
     }
-
+  
     if (pathSegments[0] === "Owner") {
       readablePath.shift();
     }
-
-    function goBack(index) {
-      console.log("Index:", index);
-
-      if (readablePath.length - 1 === index) {
-        return;
-      }
-
-      let run_data = (readablePath.length - 1) - index;
-
-      function goBackStep(step) {
-        if (step > 0) {
-          setTimeout(() => {
-            window.history.back();
-            goBackStep(step - 1);
-          }, 100);
-        }
-      }
-
-      goBackStep(run_data);
+  
+    const goBack = () => {
+      window.history.back();
+    };
+  
+    if (isMobile) {
+      return (
+        <span className="breadcrumb-item" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+          <IoArrowBack onClick={goBack} className="breadcrumb-item-icon" />
+          {readablePath[readablePath.length - 1]}
+        </span>
+      );
     }
-
-
+  
     return readablePath.map((name, index) => {
       return (
         <span
@@ -179,7 +172,7 @@ async function getUserNameByEmail(user_email) {
             color: index < readablePath.length - 1 ? "#007bff" : "black"
           }}
           onClick={() => {
-            goBack(index);
+            if (index < readablePath.length - 1) goBack();
           }}
         >
           {/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(name) && owner_name ? owner_name : name}
@@ -188,6 +181,7 @@ async function getUserNameByEmail(user_email) {
       );
     });
   };
+  
 
   const handleNotificationClick = () => {
     set_is_new_notification(false);

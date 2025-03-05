@@ -455,6 +455,30 @@
     .modal-overlay_event_details .modal-actions button {
         width: 100%;
     }
+    .modal-overlay_event_details .event-title {
+        font-size: 1.2rem;
+        margin-bottom: 1.2rem;
+    }
+    .modal-overlay_event_details .event-details label {
+        font-size: 0.8rem;
+        font-weight: 400;
+      }
+      .modal-overlay_event_details .form-control {
+        font-size: 0.8rem;
+    }
+    .modal-overlay_event_details .form-row {
+        gap: 5px;
+    }
+    .modal-overlay_event_details .datetime-picker-group > *{
+       font-size: 0.8rem;
+       color: #6B7280;
+    }
+    .modal-overlay_event_details .primary-btn, .secondary-btn, .edit-btn,
+.modal-overlay_event_details .delete-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+}
+
 }
 @media (max-width: 500px) {
     .modal-overlay_event_details .modal-content {
@@ -472,3 +496,5 @@
         width: 100%;
     }
 }
+
+

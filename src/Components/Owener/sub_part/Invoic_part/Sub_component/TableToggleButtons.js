@@ -8,13 +8,16 @@ import { useCount } from "../../../../../redux/CountContext";
 import InvoicePage2 from "./../invoicePage2.js";
 import DraftInvoices from "./DraftInvoices.js";
 import InvoiceForm from "./../Invoic";
-
+import { PiInvoiceLight } from "react-icons/pi";
+import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
+import { FaFileInvoiceDollar } from "react-icons/fa";
 
 const TableToggleButtons = () => {
 
   const [selectedTable, setSelectedTable] = useState("firstTable");
   const user = useSelector((state) => state.user);
   const { count, setCount } = useCount();
+
 
   const dropdownRef = useRef(null); // Reference for dropdown
 
@@ -24,13 +27,10 @@ const TableToggleButtons = () => {
 
     setIsDropdownOpen(false);
   };
-  const [test, setTest] = useState(0);
-
+ 
   useEffect(() => {
-    setTimeout(() => {
-      setTest(5);
-    }, 1000);
-  }, []);
+    console.log(count);
+  }, [count]);
 
 
 
@@ -98,6 +98,15 @@ const TableToggleButtons = () => {
   return (
     <>
       <div className={`button_con_wrap ${user.isMobile ? "for_mobile" : ""}`}>
+        {selectedTable === "firstTable" && <div className="title_for_buttons">
+          <h2>Invoice List</h2>
+        </div>}
+        {selectedTable === "secondTable" && <div className="title_for_buttons">
+          <h2>Invoice Generator</h2>
+        </div>}
+        {selectedTable === "draftTable" && <div className="title_for_buttons">
+          <h2>Draft Invoices</h2>
+        </div>}
         <div className={`button_con ${is_size_set ? "set_it_null" : ""}`}>
           {/* Animated Active Button */}
           <div
@@ -107,35 +116,22 @@ const TableToggleButtons = () => {
                 selectedTable === "firstTable"
                   ? "0px"
                   : selectedTable === "secondTable"
-                    ? "180px"
-                    : "360px",
+                    ? "60px"
+                    : "120px",
             }}
           ></div>
 
           {/* Buttons */}
           <button onClick={() => handleTableToggle("firstTable", "Invoice List")}>
-            <span>Invoice List </span>
+            <PiInvoiceLight style={{ fontSize: "22px", color: selectedTable === "firstTable" ? "#4F46E5" : "black" }} />
           </button>
 
           <button onClick={() => handleTableToggle("secondTable", "Invoice Generator")}>
-            <span>Invoice Generator</span>
+            <LiaFileInvoiceDollarSolid style={{ fontSize: "22px", color: selectedTable === "secondTable" ? "#4F46E5" : "black" }} />
           </button>
 
           <button onClick={() => handleTableToggle("draftTable", "Draft Invoices")}>
-            <div
-              className="draft_count"
-              style={{
-                position: "absolute",
-                top: "0px",
-                right: "10px",
-                padding: "2px 7px",
-                backgroundColor: "lightblue",
-                borderRadius: "50%",
-              }}
-            >
-              {count}
-            </div>
-            <span>Draft Invoices</span>
+            <FaFileInvoiceDollar style={{ fontSize: "22px", color: selectedTable === "draftTable" ? "#4F46E5" : "black" }} />
           </button>
         </div>
 

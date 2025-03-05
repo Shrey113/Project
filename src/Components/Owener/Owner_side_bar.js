@@ -66,18 +66,22 @@ function OwnerSideBar() {
   }, []);
 
   const handleItemClick = (index) => {
-    if (menuItems[index].subMenu) {
-      setActiveIndex(index);
-    } else {
-      const targetPath = menuItems[index].path;
-      if (location.pathname !== targetPath) {
+    if (menuItems[index].name === 'Event') {
+        // Toggle the sub-menu visibility without setting active index
+        setActiveIndex(activeIndex === index ? 1 : 1.1);
+        navigate(menuItems[index].path);
+    } else if (menuItems[index].subMenu) {
         setActiveIndex(index);
-        navigate(targetPath);
-      }
+    } else {
+        const targetPath = menuItems[index].path;
+        if (location.pathname !== targetPath) {
+            setActiveIndex(index);
+            navigate(targetPath);
+        }
     }
 
     if (isMobile) {
-      set_is_sidebar_open(false);
+        set_is_sidebar_open(false);
     }
   };
 

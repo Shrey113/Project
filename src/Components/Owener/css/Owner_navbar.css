@@ -294,6 +294,10 @@
   white-space: nowrap;
   padding: 4px 8px;
 }
+.breadcrumb-item-icon{
+  cursor: pointer;
+  font-size: 20px;
+}
 
 /* Default styles for larger screens */
 @media screen and (min-width: 800px) {
@@ -444,3 +448,42 @@
   z-index: 1000;
   font-size: 14px;
 } */
+
+@media screen and (max-width: 500px) {
+  .owner-packages-container .package-form-modal {
+    padding: 10px;
+
+  }
+  .owner-packages-container .package-form-modal .package-form h2 {
+   font-size: 18px;
+  }
+  .owner-packages-container .package-form-modal .package-form .form_lables_input .two_input_field label input {
+    font-size: 12px;
+  }
+  .breadcrumb-item {
+    font-size: 12px;
+  }
+  .breadcrumb-item span{
+    font-size: 12px;
+  }
+  .breadcrumb-item-icon{
+    cursor: pointer;
+    font-size: 15px;
+  }
+  .owner-packages-container .service-input input {
+    font-size: 12px;
+  }
+  .owner-packages-container .service-input button {
+    font-size: 12px;
+  }
+  .owner-packages-container .package-form-modal .package-form .form_lables_input label {
+    font-size: 12px;
+  }
+  
+.owner-packages-container .package-form-modal .package-form .form-buttons button {
+  font-size: 12px;
+}
+
+}
+
+
