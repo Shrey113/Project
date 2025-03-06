@@ -494,9 +494,9 @@
   background: white;
   gap: 16px;
   flex-direction: column;
-  line-height: 1.5;
+  line-height: 1.4;
   min-height: fit-content;
-  height: 450px;
+  height: 520px;
   width: 280px;
   border-radius: 10px;
   position: relative;
@@ -513,7 +513,7 @@
   align-items: flex-start;
   justify-content: space-between;
   font-family: var(--Heading);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -598,7 +598,7 @@
 
 .owner-packages-container .package-form-modal .preview-section .package-card .package_Services .service_item .individual_services,
 .owner-packages-container .packages-grid .package-card .package_Services .service_item .individual_services {
-  font-size: 16px;
+  font-size: 15px;
   font-family: var(--Heading);
   overflow-wrap: break-word;
   max-width: calc(100% - 40px);

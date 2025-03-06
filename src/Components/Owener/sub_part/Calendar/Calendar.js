@@ -58,6 +58,14 @@ function Calendar() {
   const [is_button_disabled, set_is_button_disabled] = useState(false);
 
   useEffect(() => {
+    if (showEventDetails) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [showEventDetails]);
+
+  useEffect(() => {
     const fetchEvents = async () => {
         try {
             const response = await fetch(`${Server_url}/calendar/events_by_user`, {

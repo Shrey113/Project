@@ -24,7 +24,7 @@ function Profile() {
     <div className="profile-container-after-accept">
       <div className="profile-header-mobile" onClick={() => setShowMenu(!showMenu)}>
         <span>{activeSection}</span>
-        <span className="menu-icon">{showMenu ? '▼' : '▶'}</span>
+        <span className={`menu-icon ${showMenu ? 'show-menu' : ''}`}>▶</span>
       </div>
 
       <div className={`sidebar ${showMenu ? 'show-menu' : ''}`}>

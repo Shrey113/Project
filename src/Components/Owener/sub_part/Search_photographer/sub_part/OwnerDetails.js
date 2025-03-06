@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import "./OwnerDetails.css";
 import NoDataForEquipment from "./NoDataForEquipment.png";
 import { Server_url } from "../../../../../redux/AllData";
-import { IoArrowBack } from "react-icons/io5";
+// import { IoArrowBack } from "react-icons/io5";
 import { FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import SeletedCard from "./SeletedCard";
 import { MdOutlineInsertLink, MdOutlineDesignServices, MdBusinessCenter, MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
@@ -557,16 +557,7 @@ const OwnerDetails = () => {
   return (
     <div className="owner-details-container">
       {at_share_link ? (<div style={{ marginTop: "50px" }}></div>) : (
-        <nav className="back_with_owner_title">
-          <button
-            className="back-button"
-            onClick={() => {
-              navigate(`/Owner/search_photographer`);
-            }}
-          >
-            <IoArrowBack className="icon" /> Back
-          </button>
-        </nav>)
+       <></>)
       }
 
       <div className="owner-info-details">

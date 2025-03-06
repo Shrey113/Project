@@ -144,48 +144,51 @@ function Search_photographer({searchTerm,setSearchTerm}) {
     return () => window.removeEventListener('resize', calculateVisibleLocations);
   }, [selectedLocation]);
 
+
   useEffect(() => {
-  
     const getCityName = async (lat, lon) => {
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+          `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lon}`
         );
         const data = await response.json();
         
-        const cityName = data.address?.city || data.address?.town || data.address?.village || "Vadodara";
-        console.log("City Name get from location:", cityName);
+        const cityName =
+          data.address?.city ||
+          data.address?.town ||
+          data.address?.village ||
+          "Vadodara";
+        console.log("City Name from location:", cityName);
         setLocationData(cityName);
-        setIsLocationLoading(false);
-
       } catch (error) {
         console.error("Error fetching city:", error);
-        
         setLocationData("Vadodara");
+      } finally {
         setIsLocationLoading(false);
       }
     };
-    
   
-
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          getCityName(latitude, longitude);
           setIsLocationPermissionGranted(true);
+          getCityName(latitude, longitude);
         },
         (error) => {
           console.error("Error getting location:", error);
-          // showRejectToast({ message: "Please enable system location to use location filters" });
-          // showNeutralToast("GO > Settings > Location > Enable Location");
+          // Fallback if location permission is denied or an error occurs
+          setLocationData("Vadodara");
+          setIsLocationLoading(false);
         },
         { enableHighAccuracy: true }
       );
     } else {
       showWarningToast({ message: "Your browser doesn't support geolocation" });
+      setIsLocationLoading(false);
     }
   }, []);
+  
 
 
 

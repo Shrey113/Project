@@ -6,16 +6,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-
   height: 100%;
   width: 100%;
-  background-color: rgba(47, 47, 47, 0.176);
+  background-color: rgba(47, 47, 47, 0.5);
+  z-index: 9999;
 }
 
 .modal-overlay .modal-content {
-  background-color: var(--color_1_owner);
+  background-color: #ffffff;
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: 10px;
   width: 95%;
   z-index: 99999;
   max-width: 900px;
@@ -39,14 +39,14 @@
 
 .modal-overlay .modal-content .modal-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-bottom: 1.5rem;
 }
 
 .modal-overlay .modal-content .modal-header h2 {
   color: #333;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
 }
 
 .modal-overlay .modal-content .close-button {
@@ -54,19 +54,19 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #000000;
+  color: #000;
   padding: 0.5rem;
 }
 
 .modal-overlay .modal-content .close-button:hover {
-  color: #333;
+  color: #ff0000;
 }
 
 .modal-overlay .modal-content .invoice-details {
-  background-color: #b67b5b7c;
+  background-color: #f8f9fa;
   padding: 1rem;
   border-radius: 6px;
-  width: 60%;
+  width: 100%;
 }
 
 .modal-overlay .modal-content .invoice-details .detail-item {
@@ -77,32 +77,23 @@
 .modal-overlay .modal-content .invoice-details .detail-item .label {
   font-weight: 600;
   width: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #f8f7f7;
-  margin-right: 20px;
-  text-wrap: nowrap;
+  color: #333;
 }
 
 .modal-overlay .modal-content .invoice-details .detail-item .value {
-  color: #ffffff;
+  color: #555;
 }
 
 .modal-overlay .modal-content .table-container {
   width: 100%;
-  overflow-x: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
   margin-top: 20px;
 }
 
 .modal-overlay .modal-content .table-container .invoice-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: white;
+  background-color: #ffffff;
+  /* margin-top: 20px; */
 }
 
 .modal-overlay .modal-content .table-container .invoice-table th,
@@ -113,38 +104,12 @@
 }
 
 .modal-overlay .modal-content .table-container .invoice-table th {
-  background-color: #f5b08bab;
-  font-weight: 600;
-  color: #333;
-}
-
-.modal-overlay .modal-content .table-container .invoice-table tbody tr {
-  transition: all 0.5s ease;
+  background-color: #007bff;
+  color: #ffffff;
 }
 
 .modal-overlay .modal-content .table-container .invoice-table tbody tr:hover {
-  background-color: #f1ded358;
-}
-
-.modal-overlay .modal-content .table-container .invoice-table td {
-  color: #555;
-}
-
-/* Loading state styles */
-.modal-overlay .modal-content .loading {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-}
-
-/* Error message styles */
-.modal-overlay .modal-content .error-message {
-  color: #dc3545;
-  padding: 1rem;
-  text-align: center;
-  background-color: #f8d7da;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  background-color: #f1f1f1;
 }
 
 .modal-overlay .modal-content .modal-footer {
@@ -153,20 +118,30 @@
   align-items: center;
   width: 100%;
   gap: 1.5rem;
-  padding: 0px 1rem;
-  margin-top: 25px;
+  padding: 1rem 0;
 }
 
 .modal-overlay .modal-content .modal-footer button {
-  padding: 6px;
+  padding: 10px 15px;
   border: none;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
+  border-radius: 5px;
+}
+
+.modal-overlay .modal-content .modal-footer .print-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.modal-overlay .modal-content .modal-footer .download-button {
+  background-color: #007bff;
+  color: white;
 }
 
 .modal-overlay .modal-content .modal-footer button:hover {
-  background-color: #a3a3a3;
+  opacity: 0.8;
 }
 
 .modal-content {
@@ -181,6 +156,7 @@
   align-items: center;
   justify-content: center;
   height: 230px;
+  min-height: fit-content;
   gap: 20px;
 }
 
@@ -283,33 +259,15 @@
 @media screen and (max-width: 768px) {
   .modal-overlay .modal-content {
     padding: 1rem;
-    max-height: 90vh;
   }
-
-  .preview_image {
-    width: 30%;
+  .modal-overlay .modal-content .modal-header h2 {
+    font-size: 1.5rem;
   }
-
-  .preview_image img {
-    width: 100%;
-    object-fit: cover;
+  .modal-overlay .modal-content .invoice-details {
+    padding: 0.5rem;
   }
-
-  .preview_and_invoice_details_wrapper {
-    height: 220px;
-  }
-
-  .detail-item .label {
-    width: 130px;
-    font-size: 14px;
-  }
-
-  .detail-item .value {
-    font-size: 14px;
-  }
-
-  .invoice-table th,
-  .invoice-table td {
+  .modal-overlay .modal-content .table-container .invoice-table th,
+  .modal-overlay .modal-content .table-container .invoice-table td {
     padding: 8px;
     font-size: 14px;
   }

@@ -10,6 +10,7 @@ import { Server_url } from "../../redux/AllData";
 import { PiUserCheckFill } from "react-icons/pi";
 import { GrServices } from "react-icons/gr";
 import { BiSearch } from "react-icons/bi";
+// import { Bell } from "lucide-react";
 
 import { IoArrowBack } from "react-icons/io5"; // Import back icon
 
@@ -386,122 +387,161 @@ async function getUserNameByEmail(user_email) {
   // }
 
 
-  const renderNotificationContent = (notification) => {
+  const RenderNotificationContent = ({ notification }) => {
+    const [profile_image, set_profile_image] = useState(null);
+  
+    useEffect(() => {
+      const get_profile_image = async () => {
+        const response = await fetch(`${Server_url}/owner/get-profile-image/${notification.sender_email}`);
+        const data = await response.json();
+        set_profile_image(data.profile_image);
+      };
+  
+      get_profile_image();
+    }, [notification]);
+
+    useEffect(() => {
+      console.log("this is notification:", notification);
+    }, [notification]);
+
+    const updateNotificationIsSeen = async (notification_id) => {
+      const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_id}`);
+      const data = await response.json();
+      console.log("this is update notification is seen:", data);
+    }
+  
+    if (!notification) return null;
+  
+    const { notification_type, notification_name, sender_email, location, days_required, is_seen } = notification;
+  
     return (
-
-      <>
-
-        {notification?.notification_type === "package" && (
-          <>
-            <p>id:{notification.id}</p>
-            <p><strong>Package Name:</strong> {notification.notification_name || "N/A"}</p>
-            <p><strong>Requested By:</strong> {notification.sender_email || "N/A"}</p>
-            <p><strong>Location :</strong> {notification.location || "N/A"}</p>
-            <p><strong>Days Required:</strong> {notification.days_required || "N/A"}</p>
-          </>
-        )}
-
-        {notification?.notification_type === "service" && (
-          <>
-            <p>id:{notification.id}</p>
-            <p><strong>Service Name:</strong> {notification.notification_name || "N/A"}</p>
-            <p><strong>Requested By:</strong> {notification.sender_email || "N/A"}</p>
-            <p><strong>Location:</strong> {notification.location || "N/A"}</p>
-            <p><strong>Days Required:</strong> {notification.days_required || "N/A"}</p>
-          </>
-        )}
-
-        {notification.notification_type === "equipment" && (
-          <>
-            <p>id:{notification.id}</p>
-            <p><strong>Equipment Name:</strong> {notification.notification_name || "N/A"}</p>
-            <p><strong>Requested By:</strong> {notification.sender_email || "N/A"}</p>
-            <p><strong>Location:</strong> {notification.location || "N/A"}</p>
-            <p><strong>Days Required:</strong> {notification.days_required || "N/A"}</p>
-          </>
-        )}
-      </>
+      <div 
+        className={`notification-item ${notification_type}-notification ${is_seen ? 'read' : 'unread'}`} 
+        onClick={() => {
+          updateNotificationIsSeen(notification.id);
+          if (notification_type === "package") {
+            navigate(`/Owner/Event/packages`);
+          } else if (notification_type === "service") {
+            navigate(`/Owner/Event/services`);
+          } else if (notification_type === "equipment") {
+            navigate(`/Owner/Event/equipment`);
+          }
+         
+        }}
+      >
+        {/* Left: Profile/Icon */}
+        <div className="notification-left">
+          <img
+            src={`${profile_image}`}
+            alt="profile"
+            className="notification-profile-img"
+          />
+        </div>
+  
+        {/* Middle: Notification Content */}
+        <div className="notification-middle">
+          <div className="notification-user-line">
+            <span className="notification-user-name">
+              {sender_email || "N/A"}
+            </span>
+            <span className="notification-action">
+              {notification_name || "N/A"}
+              <div className="rounded-dot" />
+              {notification_type || "N/A"}
+            </span>
+          </div>
+  
+          <div className="notification-content">
+            {location || "N/A"}
+          </div>
+        </div>
+  
+        {/* Right: Time */}
+        <div className="notification-right">
+          <span className="notification-time">
+            {days_required || "N/A"}
+          </span>
+        </div>
+      </div>
     );
-
   };
+  
+          return (
+            <>
+              <div id="constant_navbar" className="constant_navbar">
+                <div className="navbar_section_name" style={{ cursor: "pointer" }}>
+                  {isMobile && (
+                    <div className="toggle_button_con"
+                    id="toggle_button_con_home_page"
+                    onClick={() => {
+                      set_is_sidebar_open(!isSidebarOpen);
+                    }}
+                  >
+                    <img src={burger_menu} alt="Menu" />
+                  </div>
+                )}
+                {getNavbarName()}
+              </div>
+              <div className="navbar_profile">
+                {setSearchTerm &&
+                  <div className="search_bar">
+                  <BiSearch className="search_icon" />
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    value={searchTerm}
+                    onChange={(e) => {
+                      if (setSearchTerm) {
+                        setSearchTerm(e.target.value);
+                      }
+                    }}
+                  />
+                </div>}
+
+                <div className="bell_icon" onClick={() => { handleNotificationClick(); get_all_notifications(); }}>
+                  <IoIosNotifications style={{ height: "25px", width: "25px" }} />
+                  <div className={`notification_count ${is_new_notification ? "show" : ""}`}></div>
+                </div>
+                <div
+                  className="profile"
+                  onClick={() => {
+                    setActiveIndex(10);
+                    navigate("/Owner/Profile");
+                  }}
+                >
+                  <img src={user.user_profile_image_base64} alt="" />
+                  <div className="profile_data">
+                    <div className="user_name">{user.user_name}</div>
+                    <div className="user_email">{user.user_email}</div>
+                  </div>
+                </div>
+              </div>
+              {is_show_notification_pop && (
+                <div className="wrapper_for_show_layout">
+                  <div className="show_layout">
 
 
-  return (
-    <>
-      <div id="constant_navbar" className="constant_navbar">
-        <div className="navbar_section_name" style={{ cursor: "pointer" }}>
-          {isMobile && (
-            <div
-              className="toggle_button_con"
-              id="toggle_button_con_home_page"
-              onClick={() => {
-                set_is_sidebar_open(!isSidebarOpen);
-              }}
-            >
-              <img src={burger_menu} alt="Menu" />
+                    {temp_data?.notification_type === "package" && renderViewPackageData(temp_data)}
+                    {temp_data?.notification_type === "service" && renderViewServiceData(temp_data)}
+                    {temp_data?.notification_type === "equipment" && renderViewEquipmentData(temp_data)}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-          {getNavbarName()}
-        </div>
-        <div className="navbar_profile">
-          {setSearchTerm &&
-            <div className="search_bar">
-            <BiSearch className="search_icon" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => {
-                if (setSearchTerm) {
-                  setSearchTerm(e.target.value);
-                }
-              }}
-            />
-          </div>}
-
-          <div className="bell_icon" onClick={() => { handleNotificationClick(); get_all_notifications(); }}>
-            <IoIosNotifications style={{ height: "25px", width: "25px" }} />
-            <div className={`notification_count ${is_new_notification ? "show" : ""}`}></div>
-          </div>
-          <div
-            className="profile"
-            onClick={() => {
-              setActiveIndex(10);
-              navigate("/Owner/Profile");
-            }}
-          >
-            <img src={user.user_profile_image_base64} alt="" />
-            <div className="profile_data">
-              <div className="user_name">{user.user_name}</div>
-              <div className="user_email">{user.user_email}</div>
+            <div className={`notifications ${navbar_open ? "active" : ""}`} id="notification_popup" >
+            <h2>Notification List </h2>
+              {all_data?.length > 0 ? (
+                all_data?.map((notification, index) => (
+                  <div key={index} className="notification-item_for_all_notification">
+                    <RenderNotificationContent notification={notification}/>
+                  </div>
+                ))
+              ) : (
+                <p>No Notifications Available</p>
+              )}
             </div>
-          </div>
-        </div>
-        {is_show_notification_pop && (
-          <div className="wrapper_for_show_layout">
-            <div className="show_layout">
-
-
-              {temp_data?.notification_type === "package" && renderViewPackageData(temp_data)}
-              {temp_data?.notification_type === "service" && renderViewServiceData(temp_data)}
-              {temp_data?.notification_type === "equipment" && renderViewEquipmentData(temp_data)}
-            </div>
-          </div>
-        )}
-      </div>
-      <div className={`notifications ${navbar_open ? "active" : ""}`} id="notification_popup" >
-        {all_data?.length > 0 ? (
-          all_data?.map((notification, index) => (
-            <div key={index} className="notification-item">
-              {renderNotificationContent(notification)}
-            </div>
-          ))
-        ) : (
-          <p>No Notifications Available</p>
-        )}
-      </div>
-    </>
-  );
+          </>
+        );
 }
 
 export default OwnerNavbar;

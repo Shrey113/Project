@@ -17,14 +17,14 @@ const EditInvoiceModal = ({
   }, [invoice]);
 
   if (loading) {
-    return <div className="modal">Loading invoice details...</div>;
+    return <div className="modal loading">Loading invoice details...</div>;
   }
 
   if (error) {
     return (
-      <div className="modal">
-        <div className="error-message">{error}</div>
-        <button onClick={onClose}>Close</button>
+      <div className="modal error-message">
+        <div>{error}</div>
+        <button className="close-button" onClick={onClose}>Close</button>
       </div>
     );
   }
@@ -261,7 +261,7 @@ const EditInvoiceModal = ({
         </div>
         <div className="preview_and_invoice_details_wrapper">
           <div className="preview_image">
-            <img src={invoice.invoice_logo} alt="" />
+            <img src={invoice.invoice_logo} alt="Invoice Logo" />
           </div>
           <div className="invoice-details">
             <div className="detail-item">
@@ -313,9 +313,7 @@ const EditInvoiceModal = ({
           </div>
         </div>
         <div className="table-container">
-          <h2 className="invoice_list_heading" style={{ margin: "0px" }}>
-            Invoice Items
-          </h2>
+          <h2 className="invoice_list_heading">Invoice Items</h2>
           {/* <div className="table-responsive"> */}
           <table className="invoice-table">
             <thead>
@@ -330,7 +328,7 @@ const EditInvoiceModal = ({
             <tbody>
               {invoice.invoice_items &&
                 invoice.invoice_items.map((item, index) => (
-                  <tr key={index}>
+                  <tr key={index} className="table-row">
                     <td>{index + 1}</td>
                     <td>{item.item}</td>
                     <td>{item.quantity}</td>

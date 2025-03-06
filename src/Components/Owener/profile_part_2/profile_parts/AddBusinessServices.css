@@ -160,7 +160,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
   flex: 280px;
   gap: 20px;
   position: relative;
@@ -398,24 +398,20 @@
 }
 
 .add-business-services-container .remove-service-btn {
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.3s ease;
-  background-color: #ff4444;
-  color: white;
+  color: #ff4444;
+  background: transparent;
   border: none;
-  padding: 5px 10px;
+  font-size: 25px;
   border-radius: 4px;
   cursor: pointer;
 
   position: absolute;
   right: 10px;
-  top: 10px;
+  /* top: 10px; */
 }
 
-.add-business-services-container .service-item:hover .remove-service-btn {
-  opacity: 1;
-}
 
-.add-business-services-container .remove-service-btn:hover {
-  background-color: #cc0000;
-}
+
+

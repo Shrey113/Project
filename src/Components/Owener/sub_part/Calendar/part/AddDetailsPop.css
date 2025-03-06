@@ -30,6 +30,7 @@
   max-width: 900px;
   position: relative;
   display: flex;
+  flex-direction: column;
 }
 
 .modal-overlay_add_event .add_event_modal.set_equipment_event{
@@ -146,6 +147,7 @@
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
+  flex: 1;
 }
 
 .modal-actions button {
@@ -423,6 +425,13 @@
   align-items: center;
   justify-content: center;
 }
+.modal-overlay_add_event .team-members-section .member-info  strong{
+ text-wrap: nowrap;
+ font-size: 12px;
+ width: 80px;
+ text-overflow: ellipsis;
+ overflow: hidden;
+}
 .modal-overlay_add_event .team-members-section .assign-btn {
   background-color: transparent;
   border-radius: 50%;
@@ -463,3 +472,29 @@
     width: 100%;
   }
 }
+
+@media (max-width: 950px) {
+  .modal-overlay_add_event .team-members-section .team-list ,
+  .modal-overlay_add_event .assigned-members-section .team-list{
+    display: grid;
+    grid-template-columns: 1fr 1fr ;
+    column-gap: 1px;
+  }
+}
+
+
+@media (max-width: 690px) {
+  .modal-overlay_add_event .add_event_modal {
+    flex-direction: column;
+  }
+  .modal-overlay_add_event .modal-content-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-overlay_add_event .assign_team_member_section {
+    width: 100%;
+  }
+}
+
+

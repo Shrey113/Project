@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './AddBusinessServices.css';
 import { Server_url ,ConfirmMessage} from '../../../../redux/AllData';
 import { useSelector } from 'react-redux';
+import { MdDeleteOutline } from 'react-icons/md';
 
 function AddBusinessServices() {
     const user = useSelector(state => state.user);
@@ -360,7 +361,7 @@ function AddBusinessServices() {
                 className='remove-service-btn'
                 onClick={() => handleRemoveService(service.id)}
               >
-                Remove
+                <MdDeleteOutline/>
               </button>
             </div>
           ))

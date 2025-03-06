@@ -155,8 +155,9 @@ function OwnerSideBar() {
       message_title: "Confirm Logout",
       message: "Are you sure you want to log out?",
       onConfirm: () => {
+        window.location.href = "/"; 
         localStorage.removeItem(localstorage_key_for_jwt_user_side_key); // Remove admin token from localStorage
-        window.location.reload(); // Reload the page to reset the app state
+        // window.location.reload();
       },
     });
   };

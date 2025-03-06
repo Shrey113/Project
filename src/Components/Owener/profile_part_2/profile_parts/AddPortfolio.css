@@ -637,7 +637,7 @@
   width: 25px;
   height: 25px;
   cursor: pointer;
-  display: none;
+  /* display: none; */
   z-index: 1;
   font-size: 18px;
   line-height: 1;

@@ -343,7 +343,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   };
 
   const renderEventForm = () => (
-    <form onSubmit={handleAddEvent}>
+    <form>
       <h2>Add New Event</h2>
       <div className="form-field">
         <label className="form-label">Event Title</label>
@@ -446,12 +446,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         </div>
       </div>
 
-      <div className="modal-actions">
-        <button type="submit">Confirm Event</button>
-        <button type="button" onClick={() => setShowEventModal(false)}>
-          Cancel
-        </button>
-      </div>
+
     </form>
   );
 
@@ -505,17 +500,22 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   return (
     <div className="modal-overlay_add_event">
       <div className={`modal-content add_event_modal ${newEvent.event_request_type === "equipment" ? "set_equipment_event" : ""}`}>
-        <button
-          className="modal-close"
-          onClick={() => setShowEventModal(false)}
-
-        >
+        <button className="modal-close" onClick={() => setShowEventModal(false)} >
           ×
         </button>
+        <div className="modal-content-container">
         {renderEventForm()}
         
         {newEvent.event_request_type === "equipment" ? null  :  renderTeamMemberSection()}
-        
+        </div>
+        <div className="modal-actions">
+          <button type="submit" onClick={handleAddEvent}>Confirm Event</button>
+          <button type="button" onClick={() => setShowEventModal(false)}>
+            Cancel
+          </button>
+        </div>
+
+
       </div>
     </div>
 

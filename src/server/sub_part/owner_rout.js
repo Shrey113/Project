@@ -1959,4 +1959,39 @@ router.get("/social-media-links/:user_email", (req, res) => {
   });
 });
 
+router.get("/get-profile-image/:user_email", (req, res) => {
+  const { user_email } = req.params;
+  const query = `SELECT business_profile_base64 FROM owner WHERE user_email = ?`;
+  db.query(query, [user_email], (err, results) => {
+    if (err) {
+      console.error("Error fetching profile image:", err);
+      return res.status(500).json({ error: "Error fetching profile image" });
+    }
+    if(results.length === 0){
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json({
+      profile_image: results[0].business_profile_base64
+    });
+  });
+});
+
+router.get("/update-Notification-is-seen/:notification_id", (req, res) => {
+  const { notification_id } = req.params;
+  const query = `UPDATE notifications_pes SET is_seen = 1 WHERE id = ?`;
+  db.query(query, [notification_id], (err, results) => {
+    if(err) {
+      console.error("Error updating notification:", err);
+      return res.status(500).json({ error: "Error updating notification" });
+    }
+    if(results.affectedRows === 0){
+      return res.status(404).json({ error: "Notification not found" });
+    }
+
+    res.status(200).json({ message: "Notification updated successfully" });
+  });
+});
+
+
+
 module.exports = router;

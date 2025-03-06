@@ -853,6 +853,7 @@ const Packages = () => {
           onUpdatePackage={handleMobilePackageUpdate}
           selected_index={selectedPackage.id}
           handleEditToggle={() => { handleEditToggle(selectedPackage.id) }}
+          delete_serveice_by_id={delete_serveice_by_id}
         />
       )}
     </div>

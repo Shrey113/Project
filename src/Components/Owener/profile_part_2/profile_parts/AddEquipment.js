@@ -8,6 +8,7 @@ import tripod_icon from './test_img_equipment/Tripod.png'
 import lens_icon from './test_img_equipment/lens.png'
 
 import { Server_url, showRejectToast, ConfirmMessage } from '../../../../redux/AllData';
+import { MdDeleteOutline } from 'react-icons/md';
 
 function AddEquipment() {
 
@@ -262,7 +263,9 @@ function AddEquipment() {
             </div>
 
             <div className="remove-btn">
-              <button onClick={() => handleRemove(equipment.id,equipment.user_equipment_id)}>Remove</button>
+              <button onClick={() => handleRemove(equipment.id,equipment.user_equipment_id)}>
+              <MdDeleteOutline/>
+              </button>
             </div>
           </div>
         )) : <p className='not-found-data'>No equipment found</p>}

@@ -111,6 +111,12 @@
 .profile-container-after-accept .profile-header-mobile .menu-icon {
   font-size: 1.2rem;
   margin-left: 10px;
+  transform: rotate(0deg);
+  transition: all 0.3s ease;
+}
+
+.profile-container-after-accept .profile-header-mobile .menu-icon.show-menu {
+  transform: rotate(90deg);
 }
 
 @media screen and (max-width: 650px) {
@@ -144,7 +150,7 @@
     left: 25px;
     right: 0;
     background-color: white;
-    z-index: 100;
+    z-index: 1000;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
 

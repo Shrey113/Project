@@ -19,6 +19,11 @@
   max-width: 90%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   position: absolute;
+  max-height: 90svh;
+  height: fit-content;
+  width: 90%;
+  max-width: 600px;
+  overflow-y: scroll;
 }
 
 .popup-header {
@@ -34,9 +39,6 @@
   cursor: pointer;
 }
 
-.popup-body {
-  margin-top: 20px;
-}
 
 textarea {
   width: 100%;
@@ -73,3 +75,7 @@ textarea {
 .cancel-btn:hover {
   opacity: 0.8;
 } */
+
+
+
+

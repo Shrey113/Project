@@ -298,10 +298,6 @@
     display: none;
   }
 
-  .dashboard_cards_container {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
 
   .dashboard_card {
     padding: 1.2rem;
@@ -320,6 +316,11 @@
 @media (max-width: 480px) {
   .owner_home_page_container {
     padding: 1rem;
+  }
+  
+  .dashboard_cards_container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .welcome_section {

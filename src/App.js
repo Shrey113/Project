@@ -1,8 +1,8 @@
 import {
-  BrowserRouter as Router,
   Route,
   Routes,
-  useParams,
+  // useParams,
+  useLocation,
 } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import LoginRegisterOwener from "./Components/Owener/Login_Register.js";
@@ -77,6 +77,7 @@ import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_pa
 function App() {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const location = useLocation(); 
   const isMobile = useSelector((state) => state.user.isMobile);
   
   // Socket connection management with useEffect
@@ -102,42 +103,50 @@ function App() {
   const [OwnerStatus, setOwnerStatus] = useState("");
 
 
-  const { owner_email } = useParams();
+  // const { owner_email } = useParams();
 
   useEffect(() => {
     const setActiveIndex = (value) => {
       dispatch({
         type: "SET_USER_Owner",
-        payload: {
-          activeIndex: value,
-        },
+        payload: { activeIndex: value },
       });
     };
 
-    const location = window.location.pathname;
-    if (location === "/Owner") {
-      setActiveIndex(0);
-    } else if (location === "/Owner/Event") {
-      setActiveIndex(1);
-    } else if (location === "/Owner/Team") {
-      setActiveIndex(2);
-    } else if (location === "/Owner/Invoice") {
-      setActiveIndex(3);
-    } else if (location === "/Owner/Packages") {
-      setActiveIndex(4);
-    } else if (location.includes("/Owner/search_photographer")  ) {
-      setActiveIndex(5);
-    } else if (location === "/Owner/Event/packages") {
-      setActiveIndex(1.1);
-    } else if (location === "/Owner/Event/equipment") {
-      setActiveIndex(1.2);
-    } else if (location === "/Owner/Event/services") {
-      setActiveIndex(1.3);
-    } else if (location === "/Owner/Profile") {
-      setActiveIndex(8);
+    switch (location.pathname) {
+      case "/Owner":
+        setActiveIndex(0);
+        break;
+      case "/Owner/Event":
+        setActiveIndex(1);
+        break;
+      case "/Owner/Team":
+        setActiveIndex(2);
+        break;
+      case "/Owner/Invoice":
+        setActiveIndex(3);
+        break;
+      case "/Owner/Packages":
+        setActiveIndex(4);
+        break;
+      case "/Owner/Event/packages":
+        setActiveIndex(1.1);
+        break;
+      case "/Owner/Event/equipment":
+        setActiveIndex(1.2);
+        break;
+      case "/Owner/Event/services":
+        setActiveIndex(1.3);
+        break;
+      case "/Owner/Profile":
+        setActiveIndex(8);
+        break;
+      default:
+        if (location.pathname.includes("/Owner/search_photographer")) {
+          setActiveIndex(5);
+        }
     }
-
-  }, [dispatch, owner_email]);
+  }, [dispatch, location.pathname]);
 
   const renderStatus = () => {
     switch (OwnerStatus) {
@@ -329,7 +338,7 @@ function App() {
   }
 
   return (
-    <Router>
+    <>
       <Routes>
         {/* testing part */}
         <Route path="/Admin2" element={<Admin2 socket={socket} />} />
@@ -592,7 +601,7 @@ function App() {
       )}
 
       <Toaster position="top-right" />
-    </Router>
+   </>
   );
 }
 

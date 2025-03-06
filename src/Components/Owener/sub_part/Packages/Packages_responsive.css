@@ -7,6 +7,8 @@
   overflow-x: hidden;
   flex-wrap: wrap;
   padding: 15px;
+  row-gap: 25px;
+  column-gap: 25px;
 }
 
 .packages-grid-for-mobile::-webkit-scrollbar {
