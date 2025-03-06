@@ -449,7 +449,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           } else if (notification_type === "equipment") {
             navigate(`/Owner/Event/equipment`);
           }
-         
+
         }}
       >
         {/* Left: Profile/Icon */}
@@ -468,9 +468,9 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
               {sender_email || "N/A"}
             </span>
             <span className="notification-action">
-              {notification_name || "N/A"}
+              <span>{notification_name || "N/A"}</span>
               <div className="rounded-dot" />
-              {notification_type || "N/A"}
+              <span>{notification_type || "N/A"}</span>
             </span>
           </div>
 
@@ -483,8 +483,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         <div className="notification-right">
           <span className="notification-time">
             <span>{days_required || "N/A"}</span>
-            <span>{getTimeDifference(created_at) || "N/A"}</span>
-
+            <span className="timing">{getTimeDifference(created_at) || "N/A"}</span>
           </span>
         </div>
       </div>
@@ -544,8 +543,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         {is_show_notification_pop && (
           <div className="wrapper_for_show_layout">
             <div className="show_layout">
-
-
               {temp_data?.notification_type === "package" && renderViewPackageData(temp_data)}
               {temp_data?.notification_type === "service" && renderViewServiceData(temp_data)}
               {temp_data?.notification_type === "equipment" && renderViewEquipmentData(temp_data)}

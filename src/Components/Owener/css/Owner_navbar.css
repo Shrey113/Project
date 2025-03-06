@@ -487,7 +487,7 @@
   top: 80px;
   right: -550px;
   width: 500px;
-  height: calc(100vh - 80px);
+  height: 90%;
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -498,7 +498,6 @@
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-
   justify-content: flex-start;
 }
 
@@ -525,11 +524,17 @@
 
 .notification-left {
   margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  /* background-color: red; */
+  /* margin-top: 5%; */
 }
 
 .notification-profile-img {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -581,7 +586,6 @@
   gap: 30px;
   /* background-color: red; */
   color: #999;
-  margin-right: 15px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -597,12 +601,132 @@
 }
 
 
-
+/* 
 .notification-item.unread::after {
   content: "•";
   color: var(--owner_profile_pages_main_color);
   font-size: 18px;
   position: absolute;
-  right: 10px;
-  top: 6px;
+  left: 10px;
+  top: 0px;
+} */
+
+@media screen and (max-width: 900px) {
+  .notifications {
+    top: 65px;
+    height: 90%;
+  }
+}
+
+@media screen and (max-width: 530px) {
+  .notifications {
+    top: 65px;
+    height: 90%;
+    width: 450px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .notifications {
+    top: 65px;
+    height: 90%;
+    width: 400px;
+  }
+
+  .notification-user-name {
+    font-size: 14px;
+  }
+
+  .notification-action {
+    font-size: 12px;
+  }
+
+  .notification-content {
+    font-size: 12px;
+  }
+
+  .timing {
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-width: 390px) {
+
+  .notification-profile-img {
+    height: 40px;
+    width: 40px;
+    justify-self: center;
+  }
+
+  .notifications {
+    top: 65px;
+    height: 90%;
+    width: 100%;
+  }
+
+  .notifications.active {
+    right: 0;
+  }
+
+  .notification-user-name {
+    font-size: 12px;
+  }
+
+  .notification-action {
+    font-size: 12px;
+  }
+
+  .notification-content {
+    font-size: 12px;
+  }
+
+  .timing {
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-width: 375px) {
+
+  .notification-profile-img {
+    height: 40px;
+    width: 40px;
+    justify-self: center;
+  }
+
+  .notifications {
+    top: 65px;
+    height: 90%;
+    width: 100%;
+  }
+
+  .notifications.active {
+    right: 0;
+  }
+
+  .notification-user-name {
+    font-size: 12px;
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* background-color: red; */
+  }
+
+  .notification-action {
+    font-size: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0px;
+  }
+
+  .rounded-dot {
+    display: none;
+  }
+
+  .notification-content {
+    display: none;
+  }
+
+  .timing {
+    font-size: 10px;
+  }
 }
