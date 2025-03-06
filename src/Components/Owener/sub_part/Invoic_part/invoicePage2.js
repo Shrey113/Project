@@ -83,10 +83,11 @@ function InvoicePage2() {
 
 
   const handleFocus = () => {
-    if (terms.trim() === "") {
+    if (!terms || terms.trim() === "") {
       setTerms("1. ");
     }
   };
+
 
   const handleBullet = (e) => {
     if (e.key === "Enter") {
@@ -947,7 +948,7 @@ function InvoicePage2() {
               <div className="business_address">{user.business_address}</div>
               <div>{user.user_email}</div>
             </div>
-          </div> */}.
+          </div> */}
           <div className="invoice_and_gst_no">
             <div className="invoice_id">
               <strong>INVOICE No :</strong> {invoice_id}
@@ -993,7 +994,7 @@ function InvoicePage2() {
                       autoComplete="off"
                       placeholder="Enter name"
                       className="input-field"
-                      autoFocus="true"
+                      autoFocus={true}
                     />
                     {filter_services && (
                       <ul className="dropdown">

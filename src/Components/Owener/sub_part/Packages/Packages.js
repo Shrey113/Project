@@ -496,9 +496,9 @@ const Packages = () => {
                 <div className="tooltip-container" onClick={() => handleFormToggle()}>
                   <button
                     className="add-package-button"
-
                   >
-                    Create New Package
+                    <span>Create New Package</span>
+                    <span className="plus-icon">+</span>
                   </button>
                 </div>
               </div>
@@ -576,7 +576,7 @@ const Packages = () => {
                           <span>No services available</span>
                         )}
                       </div>
-                      <button onClick={() => handleEditToggle(index)}>
+                      <button onClick={() => handleEditToggle(index)} style={{ backgroundColor: pkg.card_color || "#6fa8dc", color: "#fff" }}>
                         <RiEditLine />
                         {pkg.isEditing ? "Save" : "Edit"}
                       </button>
@@ -644,7 +644,7 @@ const Packages = () => {
                         {/* <div className="description-container">
                           <p className="package-description">{pkg.description}</p>
                         </div> */}
-                        <button className="edit_package_mobile" onClick={() => handleMobileViewToggle(pkg)}><RiEditLine /> Edit</button>
+                        <button className="edit_package_mobile" onClick={() => handleMobileViewToggle(pkg)} style={{ backgroundColor: pkg.card_color }}><RiEditLine /> Edit / View</button>
                       </div>
                     </div>
                   ))}

@@ -247,10 +247,12 @@
     width: 30px;
   }
 }
+
 @media screen and (max-width: 508px) {
   #constant_navbar .navbar_profile .search_bar {
     width: 100px;
   }
+
   #constant_navbar .navbar_profile .search_bar .search_icon {
     display: none;
   }
@@ -278,7 +280,8 @@
   white-space: nowrap;
   padding: 4px 8px;
 }
-.breadcrumb-item-icon{
+
+.breadcrumb-item-icon {
   cursor: pointer;
   font-size: 20px;
 }
@@ -438,35 +441,43 @@
     padding: 10px;
 
   }
+
   .owner-packages-container .package-form-modal .package-form h2 {
-   font-size: 18px;
+    font-size: 18px;
   }
+
   .owner-packages-container .package-form-modal .package-form .form_lables_input .two_input_field label input {
     font-size: 12px;
   }
+
   .breadcrumb-item {
     font-size: 12px;
   }
-  .breadcrumb-item span{
+
+  .breadcrumb-item span {
     font-size: 12px;
   }
-  .breadcrumb-item-icon{
+
+  .breadcrumb-item-icon {
     cursor: pointer;
     font-size: 15px;
   }
+
   .owner-packages-container .service-input input {
     font-size: 12px;
   }
+
   .owner-packages-container .service-input button {
     font-size: 12px;
   }
+
   .owner-packages-container .package-form-modal .package-form .form_lables_input label {
     font-size: 12px;
   }
-  
-.owner-packages-container .package-form-modal .package-form .form-buttons button {
-  font-size: 12px;
-}
+
+  .owner-packages-container .package-form-modal .package-form .form-buttons button {
+    font-size: 12px;
+  }
 
 }
 
@@ -507,7 +518,8 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-.notification-item:hover{
+
+.notification-item:hover {
   background-color: #f0f0f0;
 }
 
@@ -545,6 +557,7 @@
   color: #555;
   font-size: 14px;
 }
+
 .rounded-dot {
   width: 5px;
   height: 5px;
@@ -565,8 +578,14 @@
 
 .notification-time {
   font-size: 12px;
+  gap: 30px;
+  /* background-color: red; */
   color: #999;
   margin-right: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
 }
 
 .notification-item {

@@ -557,7 +557,7 @@ const OwnerDetails = () => {
   return (
     <div className="owner-details-container">
       {at_share_link ? (<div style={{ marginTop: "50px" }}></div>) : (
-       <></>)
+        <></>)
       }
 
       <div className="owner-info-details">
@@ -911,7 +911,7 @@ const OwnerDetails = () => {
               >
 
                 {ownerData?.equipment?.map((item, index) => (
-                  <SwiperSlide key={index} className="equipment_item">
+                  <SwiperSlide key={index} className="equipment_item" onClick={() => handleItemClick(item, "equipment")}>
                     {/* <li className="equipment_item"> */}
                     <div className="photo_container_for_equipment">
                       <img src={get_img_by_name(item.equipment_type)} alt={item.equipment_type} />
@@ -928,12 +928,13 @@ const OwnerDetails = () => {
                       <strong>Details:</strong>
                       <p>{item.equipment_description || "Not Available"}</p>
                     </div>
-                    <button
+                    {/* <button
                       className="book-equipment-button"
                       onClick={() => handleItemClick(item, "equipment")}
                     >
                       Book Equipment
-                    </button>
+                    </button> */}
+
                     {/* </li> */}
 
                   </SwiperSlide>
@@ -1048,7 +1049,7 @@ const OwnerDetails = () => {
                         <span className="per_day">/Day</span>
                       </div>
                       <hr style={{ width: "98%", marginTop: "5px" }} />
-                      <button>Book Service</button>
+                      <button onClick={() => handleItemClick(item, "service")}>Book Service</button>
                     </div>
                   </SwiperSlide>
                 ))}

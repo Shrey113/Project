@@ -172,16 +172,16 @@
 .packages-grid-for-mobile .edit_package_mobile {
   border-radius: 20px;
   border: none;
-  background-color: #d7e0ff;
+  /* background-color: var(--owner_profile_pages_main_color); */
   padding: 5px 12px;
-  color: black;
-  font-weight: 600;
+  color: white;
+  font-weight: 500;
   font-size: 15px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 /* 

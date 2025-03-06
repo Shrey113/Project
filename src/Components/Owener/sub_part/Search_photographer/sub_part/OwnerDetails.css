@@ -24,7 +24,7 @@
   width: 100%;
   display: flex;
   overflow: hidden !important;
-  padding-bottom: 50px;
+  padding-bottom: 40px;
 }
 
 .swiper_container_for_equipment {
@@ -350,7 +350,7 @@
   color: #889cb9;
   font-size: 15px;
   font-weight: 600;
-  margin-bottom: 4px;
+  /* margin-bottom: 4px; */
   display: block;
   font-family: var(--Heading);
 }
@@ -366,7 +366,7 @@
   word-wrap: break-word;
   white-space: normal;
   overflow: hidden;
-  padding: 5px;
+  /* padding: 5px; */
 }
 
 /* base for all sections  */
@@ -451,6 +451,7 @@
   gap: 12px;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
   /* min-width: 380px; */
 }
 
@@ -537,7 +538,7 @@
 
 /* no equipment section  */
 
-.book-equipment-button {
+/* .book-equipment-button {
   background: none;
   border: none;
   padding: 0;
@@ -556,7 +557,9 @@
   color: #4361ee;
   font-weight: 550;
   font-size: 12px;
-}
+} */
+
+/*
 
 @keyframes slide-in {
   0% {
@@ -575,7 +578,7 @@
 
 .equipment_item .book-equipment-button:hover {
   color: #0808b4;
-}
+} */
 
 .owner-details-container .section.equipment_section .no_equipments {
   height: 300px;
@@ -765,7 +768,8 @@
 }
 
 .owner-details-container .tabs .folder_tab.active {
-  background-color: #c0e3ec;
+  background-color: var(--owner_profile_pages_main_color);
+  color: white;
 }
 
 .owner-details-container .see_all_button {
