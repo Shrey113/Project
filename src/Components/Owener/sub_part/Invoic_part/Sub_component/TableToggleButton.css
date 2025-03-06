@@ -114,6 +114,10 @@
 }
 
 @media (max-width: 780px) {
+  .title_for_buttons{
+    font-size: 12px;
+    text-wrap: nowrap;
+  }
   .table_con {
     margin-top: 90px;
   }
@@ -130,7 +134,7 @@
 
 @media (max-width: 600px) {
   .table_con {
-    margin-top: 100px;
+    margin-top: 120px;
   }
 
   :root {
@@ -241,3 +245,29 @@
 .hidden {
   display: none;
 }
+
+@media (max-width: 480px) {
+  .button_con_wrap {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  .title_for_buttons{
+    margin-left: 0;
+  }
+  .table_con {
+    margin-top: 120px;
+  }
+  .seleted_table_button {
+    width: fit-content;
+  }
+  .title_for_buttons {
+   font-size: 10px;
+  }
+  .seleted_table_button {
+    font-size: 12px;
+  }
+}
+

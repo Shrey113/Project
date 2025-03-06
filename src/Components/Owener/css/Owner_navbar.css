@@ -485,7 +485,7 @@
 .notifications {
   position: fixed;
   top: 80px;
-  right: -100%;
+  right: -550px;
   width: 500px;
   height: calc(100vh - 80px);
   background: white;

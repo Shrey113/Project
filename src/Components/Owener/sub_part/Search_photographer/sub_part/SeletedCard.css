@@ -160,7 +160,7 @@
 }
 
 /* Add to your existing CSS */
-.total-amount {
+.info-group.total-amount {
   margin-top: 15px;
   padding-top: 15px;
   border-top: 2px solid #f0f0f0;

@@ -449,7 +449,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           } else if (notification_type === "equipment") {
             navigate(`/Owner/Event/equipment`);
           }
-
+         
         }}
       >
         {/* Left: Profile/Icon */}

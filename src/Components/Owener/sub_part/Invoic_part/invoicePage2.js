@@ -994,7 +994,7 @@ function InvoicePage2() {
                       autoComplete="off"
                       placeholder="Enter name"
                       className="input-field"
-                      autoFocus={true}
+                      autoFocus="true"
                     />
                     {filter_services && (
                       <ul className="dropdown">

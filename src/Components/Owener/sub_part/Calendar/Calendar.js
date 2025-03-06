@@ -187,34 +187,37 @@ function Calendar() {
     if (start < currentDate) {
         showWarningToast({message: "You cannot drop past events" });
         return; // Keep the event in its original position
+    }else{
+      return;
     }
+    
 
-    // Update the event locally
-    const updatedEvent = { ...event, start, end };
-    const updatedEvents = events.map((e) => 
-        e.id === event.id ? updatedEvent : e
-    );
-    setEvents(updatedEvents);
+    // // Update the event locally
+    // const updatedEvent = { ...event, start, end };
+    // const updatedEvents = events.map((e) => 
+    //     e.id === event.id ? updatedEvent : e
+    // );
+    // setEvents(updatedEvents);
 
-    try {
-        const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                ...updatedEvent,
-                id: event.id,
-            }),
-        });
+    // try {
+    //     const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
+    //         method: 'PUT',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             ...updatedEvent,
+    //             id: event.id,
+    //         }),
+    //     });
 
-        const data = await response.json();
-        if (!response.ok) {
-            console.error(data.error || 'Failed to update event on server');
-        }
-    } catch (err) {
-        console.error('Failed to save updated event:', err.message);
-    }
+    //     const data = await response.json();
+    //     if (!response.ok) {
+    //         console.error(data.error || 'Failed to update event on server');
+    //     }
+    // } catch (err) {
+    //     console.error('Failed to save updated event:', err.message);
+    // }
 
 
 };
@@ -229,33 +232,36 @@ const handleEventResize = async ({ event, start, end }) => {
   if (start < currentDate) {
     showWarningToast({message: "You cannot resize past events" });
     return; // Keep the event in its original position
+}else{
+  return;
 }
-  const updatedEvent = { ...event, start, end };
-  const updatedEvents = events.map((e) => 
-      e.id === event.id ? updatedEvent : e
-  );
-  setEvents(updatedEvents);
+
+  // const updatedEvent = { ...event, start, end };
+  // const updatedEvents = events.map((e) => 
+  //     e.id === event.id ? updatedEvent : e
+  // );
+  // setEvents(updatedEvents);
 
 
-  try {
-      const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
-          method: 'PUT',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              ...updatedEvent,
-              id: event.id,
-          }),
-      });
+  // try {
+  //     const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
+  //         method: 'PUT',
+  //         headers: {
+  //             'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //             ...updatedEvent,
+  //             id: event.id,
+  //         }),
+  //     });
 
-      const data = await response.json();
-      if (!response.ok) {
-          console.error(data.error || 'Failed to update event on server');
-      }
-  } catch (err) {
-      console.error('Failed to save updated event:', err.message);
-  }
+  //     const data = await response.json();
+  //     if (!response.ok) {
+  //         console.error(data.error || 'Failed to update event on server');
+  //     }
+  // } catch (err) {
+  //     console.error('Failed to save updated event:', err.message);
+  // }
 };
 
 
