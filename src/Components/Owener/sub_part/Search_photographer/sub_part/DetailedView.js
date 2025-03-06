@@ -143,6 +143,16 @@ function DetailedView() {
       {/* <h1>{type === "packages" ? "Packages" : "Equipments"}</h1> */}
 
       <div className="filters-container">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder={`Search ${type === "packages" ? "packages" : "equipment"
+              }...`}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
+        </div>
         <div className="filter-options">
           <div className="price-filter">
             <input
@@ -194,16 +204,7 @@ function DetailedView() {
             Clear
           </button>
         </div>
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder={`Search ${type === "packages" ? "packages" : "equipment"
-              }...`}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-        </div>
+
       </div>
 
       {type === "packages" && (

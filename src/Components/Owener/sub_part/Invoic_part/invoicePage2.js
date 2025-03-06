@@ -8,6 +8,9 @@ import {
   showWarningToast,
   showRejectToast,
 } from "../../../../redux/AllData";
+import { MdEmail } from "react-icons/md";
+import { FaLocationDot } from "react-icons/fa6";
+import { FaUser } from "react-icons/fa";
 import { useCount } from "../../../../redux/CountContext";
 import "./Invoice.css";
 
@@ -24,6 +27,7 @@ function InvoicePage2() {
   const { incrementCount, setCount } = useCount();
   const [invoice_id, setInvoice_id] = useState(null);
   const [logoPreview, setLogoPreview] = useState("");
+
   // const [base64Image, setBase64Image] = useState("");
 
   // const [services, setService] = useState([]);
@@ -34,6 +38,68 @@ function InvoicePage2() {
   const [is_mobile, set_is_mobile] = useState(true);
 
   const formatAmount = (amount) => parseFloat(amount).toFixed(2);
+
+  const [terms, setTerms] = useState("1. ");
+  const [signature_file, set_signature_file] = useState(null);
+
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async function () {
+      const base64String = reader.result;
+      set_signature_file(base64String);
+
+      try {
+        const response = await fetch(`${Server_url}/upload-signature`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            signature_file: base64String,
+            user_email: user.user_email,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to upload image.");
+        }
+
+        const data = await response.json();
+        if (data.message === "Signature uploaded successfully") {
+          console.log("Signature uploaded successfully");
+        }
+      } catch (error) {
+        console.error("Error uploading signature:", error);
+      }
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+
+  const handleFocus = () => {
+    if (terms.trim() === "") {
+      setTerms("1. ");
+    }
+  };
+
+  const handleBullet = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent default Enter behavior
+
+      const lines = terms.split("\n").filter(line => line.trim() !== "");
+      const lastLine = lines[lines.length - 1];
+      const lastNumber = parseInt(lastLine?.split(".")[0], 10) || 0;
+      const nextNumber = lastNumber + 1;
+
+      setTerms(terms + "\n" + nextNumber + ". ");
+    }
+  };
 
   useEffect(() => {
     const handle_mobile_resize = () => {
@@ -291,6 +357,8 @@ function InvoicePage2() {
         date: date,
         user_email: user.user_email,
         invoice_photo: logoPreview,
+        invoice_signature: signature_file ? signature_file : "",
+        terms_condition: terms ? terms : "",
       };
 
       const response = await fetch(`${Server_url}/add-invoice`, {
@@ -692,6 +760,36 @@ function InvoicePage2() {
     }
   }, [user.user_email]);
 
+  // signature image fetch 
+  useEffect(() => {
+    const fetchSignature = async () => {
+      try {
+        const response = await fetch(`${Server_url}/fetch_signature_terms`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_email: user.user_email,
+          }),
+        })
+        const data = await response.json();
+        if (response.ok) {
+          // data.image should now be the actual signature image string
+          set_signature_file(data.image);
+          setTerms(data.terms);
+        } else {
+          set_signature_file(null);
+        }
+      } catch (error) {
+        console.error("Error fetching signature:", error);
+      }
+    }
+    if (user.user_email) {
+      fetchSignature();
+    }
+  }, [user.user_email])
+
   return (
     <div className="invoice_and_table_container">
       <div className="invoice_form">
@@ -718,24 +816,33 @@ function InvoicePage2() {
               </div>
             </div>
           </div>
+          <div className="bill_from">
+            {/* <div className="recipient_name"> */}
 
-          <div className="invoice_and_gst_no">
-            <div className="invoice_id">
-              <strong>INVOICE No :</strong> {invoice_id}
+            <div className="business_name">{user.business_name}</div>
+
+            <div className="invoice_top_field">
+              <FaUser style={{ color: "var(--color_main_button_owner)" }} />
+              <div>{user.user_name}</div>
             </div>
-            <div className="invoice_id">
-              {" "}
-              <strong>GST No :</strong> {user.gst_number}
+            <div className="invoice_top_field">
+              <FaLocationDot style={{ color: "var(--color_main_button_owner)" }} />
+              <div className="">{user.business_address}</div>
             </div>
+
+            <div className="invoice_top_field">
+              <MdEmail style={{ color: "var(--color_main_button_owner)" }} />
+              <div>{user.user_email}</div>
+            </div>
+
+            {/* </div> */}
           </div>
+
         </div>
         <h1>INVOICE</h1>
         <div className="bill_details">
           <div className="bill_to">
             <div className="recipient_name">
-              <div className="date">
-                <strong>Date</strong> : {invoice.date}
-              </div>
               <div className="recipient-input" ref={inputRef}>
                 {/* <strong>Bill to:</strong> */}
                 {toggle_recipient_input ? (
@@ -833,12 +940,25 @@ function InvoicePage2() {
               </div>
             </div>
           </div>
-          <div className="bill_from">
+          {/* <div className="bill_from">
             <div className="recipient_name">
               <strong>From:</strong>
               <div>{user.user_name}</div>
               <div className="business_address">{user.business_address}</div>
               <div>{user.user_email}</div>
+            </div>
+          </div> */}.
+          <div className="invoice_and_gst_no">
+            <div className="invoice_id">
+              <strong>INVOICE No :</strong> {invoice_id}
+            </div>
+            <div className="date">
+              <strong>Date</strong> : {invoice.date}
+            </div>
+
+            <div className="invoice_id">
+              {" "}
+              <strong>GST No :</strong> {user.gst_number}
             </div>
           </div>
         </div>
@@ -1025,7 +1145,7 @@ function InvoicePage2() {
                     <td className="total_amount">{item.amount}</td>
                     <td>
                       {index > 0 && (
-                        <button type="button" onClick={() => removeRow(index)}>
+                        <button type="button" className="delete-btn" onClick={() => removeRow(index)}>
                           Delete
                         </button>
                       )}
@@ -1066,66 +1186,126 @@ function InvoicePage2() {
           </button>
         </div>
 
-        <div className="invoice-summary">
-          <div className="summary-row">
-            <span className="summary-label">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              Invoice To
-            </span>
-            <span className="summary-value">{invoice.invoice_to}</span>
+        {/* terms and summary section */}
+        <div className="terms_and_summary">
+          <div className="invoice_terms">
+            <div className="terms_heading">Terms & Conditions</div>
+            <textarea
+              className="terms_textarea"
+              value={terms ? terms : ""}
+              onFocus={handleFocus}
+              onChange={(e) => setTerms(e.target.value)}
+              onKeyDown={handleBullet}
+              placeholder="Enter terms and conditions..."
+            ></textarea>
           </div>
 
-          <div className="summary-row">
-            <span className="summary-label">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-              Date
-            </span>
-            {/* {formatDateTime(invoice.date)} */}
+
+          <div className="invoice-summary">
+            {/* <div className="summary-row">
+              <span className="summary-label">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                Invoice To
+              </span>
+              <span className="summary-value">{invoice.invoice_to}</span>
+            </div>
+
+            <div className="summary-row">
+              <span className="summary-label">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Date
+              </span>
             <span className="summary-value">{invoice.date}</span>
-          </div>
+            </div> */}
+            <div className="summary_calculate">
+              <div className="summary-row">
+                <span className="summary-label">Subtotal</span>
+                <span className="summary-value">₹{invoice.sub_total}</span>
+              </div>
 
-          <div className="summary-row">
-            <span className="summary-label">Subtotal</span>
-            <span className="summary-value">₹{invoice.sub_total}</span>
-          </div>
+              <div className="summary-row">
+                <span className="summary-label">GST (18%)</span>
+                <span className="summary-value">₹{invoice.gst}</span>
+              </div>
 
-          <div className="summary-row">
-            <span className="summary-label">GST (18%)</span>
-            <span className="summary-value">₹{invoice.gst}</span>
-          </div>
+              <div className="summary-row">
+                <span className="summary-label">Total Amount</span>
+                <span className="summary-value total-value">₹{invoice.total}</span>
+              </div>
+            </div>
 
-          <div className="summary-row">
-            <span className="summary-label">Total Amount</span>
-            <span className="summary-value total-value">₹{invoice.total}</span>
-          </div>
+            <div className="signature_wrapper">
+              <div className="invoice_signature">
+                <input
+                  type="file"
+                  id="signatureInput"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                />
 
-          <div className="invoice-actions">
+                <div className="signature_file" onClick={() => document.getElementById("signatureInput").click()}
+                  style={{
+                    backgroundImage: signature_file ? `url(${signature_file})` : "none",
+                  }}>
+                  {!signature_file && <span>Click to upload</span>}
+                </div>
+              </div>
+              <div className="signature_text">
+                Signature
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div className="invoice-actions">
+          <button
+            className="btn btn-secondary"
+            onClick={generatePDF}
+            type="button"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>Download PDF</span>
+          </button>
+
+          <div className="wrapper_for_buttons">
             <button
-              className="btn btn-secondary"
-              onClick={generatePDF}
-              type="button"
+              className="btn btn-primary"
+              onClick={handleSubmit}
+              type="submit"
             >
               <svg
                 width="20"
@@ -1135,60 +1315,38 @@ function InvoicePage2() {
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
+                <line x1="16" y1="5" x2="22" y2="5" />
+                <line x1="19" y1="2" x2="19" y2="8" />
               </svg>
-              <span>Download PDF</span>
+              <span>Generate Invoice</span>
             </button>
 
-            <div className="wrapper_for_buttons">
-              <button
-                className="btn btn-primary"
-                onClick={handleSubmit}
-                type="submit"
+            <button
+              className="btn btn-secondary"
+              onClick={handleSaveDraft}
+              type="submit"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
               >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
-                  <line x1="16" y1="5" x2="22" y2="5" />
-                  <line x1="19" y1="2" x2="19" y2="8" />
-                </svg>
-                <span>Generate Invoice</span>
-              </button>
-
-              <button
-                className="btn btn-secondary"
-                onClick={handleSaveDraft}
-                type="submit"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M4 4h16v16H4z" />
-                  <path d="M4 8h16" />
-                  <path d="M4 12h16" />
-                  <path d="M4 16h16" />
-                  <path d="M9 12l2 2l4-4" />
-                </svg>
-                <span>Save as Draft</span>
-              </button>
-            </div>
+                <path d="M4 4h16v16H4z" />
+                <path d="M4 8h16" />
+                <path d="M4 12h16" />
+                <path d="M4 16h16" />
+                <path d="M9 12l2 2l4-4" />
+              </svg>
+              <span>Save as Draft</span>
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

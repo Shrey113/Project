@@ -798,7 +798,7 @@ const OwnerDetails = () => {
             useRef={swiperRefPackage}
             slidesPerView="auto"
             autoplay={{
-              delay: 2000, // Time in milliseconds between slides
+              delay: 5000, // Time in milliseconds between slides
             }}
             loop={true}
             navigation={{
@@ -817,7 +817,7 @@ const OwnerDetails = () => {
               500: { spaceBetween: 8 },
               640: { slidesPerView: 1.5, spaceBetween: 10 },
               768: { slidesPerView: 2, spaceBetween: 10 },
-              1024: { slidesPerView: 3, spaceBetween: 15 },
+              1024: { slidesPerView: 3.5, spaceBetween: 15 },
             }}
           >
             {ownerData.packages?.length > 0 ? (
@@ -902,7 +902,7 @@ const OwnerDetails = () => {
                 ref={swiperRefEquipment}
                 spaceBetween={10}
                 autoplay={{
-                  delay: 3000,
+                  delay: 4000,
                 }}
                 loop={true}
                 pagination={{
@@ -1024,7 +1024,7 @@ const OwnerDetails = () => {
                 slidesPerView="auto"
                 spaceBetween={10}
                 autoplay={{
-                  delay: 2000,
+                  delay: 7000,
                 }}
                 loop={true}
                 navigation={{

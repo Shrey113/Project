@@ -260,10 +260,9 @@
   padding: 10px 15px;
   border-radius: 8px;
   width: fit-content;
-  align-self: center;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background-color: transparent;
   gap: 10px;
   flex-wrap: nowrap;

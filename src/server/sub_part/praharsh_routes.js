@@ -1412,6 +1412,33 @@ router.post("/invoice-items", (req, res) => {
   });
 });
 
+router.post("/upload-signature", (req, res) => {
+  const { user_email, signature_file } = req.body;
+
+  const query = `UPDATE trevita_project_1.owner_main_invoice SET signature_image = ? WHERE user_email = ?`;
+
+  db.query(query, [signature_file, user_email], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Signature uploaded successfully" });
+  });
+
+})
+
+
+router.post("/fetch_signature_terms", (req, res) => {
+  const { user_email } = req.body;
+  if (!user_email) {
+    return res.status(400).json({ error: "User email is required." });
+  }
+  const query = `select signature_image, terms_conditions from owner_main_invoice where user_email = ?`;
+  db.query(query, [user_email], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    const image = result.length > 0 ? result[0].signature_image : null;
+    // console.log("result of the owner main", result[0])
+    res.json({ image, terms: result[0].terms_conditions });
+  })
+})
+
 router.post("/add-invoice", (req, res) => {
   const {
     invoice_id,
@@ -1425,6 +1452,8 @@ router.post("/add-invoice", (req, res) => {
     user_email,
     items,
     invoice_photo,
+    invoice_signature,
+    terms_condition,
   } = req.body;
 
   if (!date) {
@@ -1433,8 +1462,8 @@ router.post("/add-invoice", (req, res) => {
 
   // Insert the invoice into the invoices table
   const queryInvoice = `INSERT INTO invoices (
-      invoice_id, user_email, date, sub_total, gst, total, invoice_to,as_draft,invoice_logo
-    ) VALUES (?, ?, ?, ?, ?, ?, ?,0,?);`;
+      invoice_id, user_email, date, sub_total, gst, total, invoice_to,as_draft,invoice_logo,signature_image,terms_conditions
+    ) VALUES (?, ?, ?, ?, ?, ?, ?,0,?,?,?);`;
 
   db.query(
     queryInvoice,
@@ -1447,6 +1476,8 @@ router.post("/add-invoice", (req, res) => {
       total,
       invoice_to,
       invoice_photo,
+      invoice_signature,
+      terms_condition,
     ],
     (err, result) => {
       if (err) {
@@ -1489,8 +1520,11 @@ router.post("/add-invoice", (req, res) => {
 
               if (completedItems === items.length) {
                 db.query(
-                  "UPDATE owner_main_invoice SET max_invoice_id = max_invoice_id + 1 WHERE user_email = ?",
-                  [user_email],
+                  `UPDATE owner_main_invoice 
+                  SET max_invoice_id = max_invoice_id + 1, 
+                      terms_conditions = ? 
+                  WHERE user_email = ?`,
+                  [terms_condition, user_email],
                   (err, updateResult) => {
                     if (err) {
                       console.error(err);

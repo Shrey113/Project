@@ -33,15 +33,18 @@
     --color_5_owner: #262626;
 
     --color_Delete_button_owner: #FFB2B5;
-    --color_main_button_owner: #4F46E5;   /* login - 2  */
-    --color_secondary_button_owner: #FE5722; /* login - 1  */
-    --color_service_button_owner: #EA1E63; 
+    --color_main_button_owner: #4F46E5;
+    /* login - 2  */
+    --color_secondary_button_owner: #FE5722;
+    /* login - 1  */
+    --color_service_button_owner: #EA1E63;
+    --color_green_button: #c6ffb7;
 
     /* profile */
-    --owner_profile_pages_main_color:var(--color_main_button_owner);
+    --owner_profile_pages_main_color: var(--color_main_button_owner);
     --owner_profile_title_font_size: 24px;
 
-    
+
     --border_radius_button: 10px;
 
     --Heading: "Poppins", serif;
@@ -60,13 +63,13 @@
 
     --owner_home_page_bg: var(--color_2_owner);
     --owner_home_page_ui: var(--color_1_owner);
-    --owner_home_page_ui_color: var( --color_main_button_owner);
+    --owner_home_page_ui_color: var(--color_main_button_owner);
     --owner_home_page_hover_coloer: #bcbcbc28;
     --owner_home_page_sidebar_time: 0.3s;
     --owner_home_page_ui_box_shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
     --owner_profile_border-radius: 12px;
     --owner_profile_box_shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
- 
+
     --owner_profile_title_padding: 20px;
     --owner_profile_padding: 30px;
 
