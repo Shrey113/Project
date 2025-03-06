@@ -448,3 +448,9 @@
 .submenu-arrow.open .arrow-icon {
   transform: rotate(0deg);
 }
+
+@media (max-width: 480px) {
+  #OwnerSideBar .category_con .item .text {
+    font-size: 12px;
+  }
+}

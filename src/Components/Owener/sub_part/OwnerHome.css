@@ -327,6 +327,17 @@
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
+  .card_icon {
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .card_content h3 {
+    font-size: 0.8rem;
+  }
+  .card_content .number {
+    font-size: 1rem;
+  }
 
   .welcome_section {
     padding: 1.2rem;
@@ -347,12 +358,9 @@
   }
 
   .dashboard_card {
-    padding: 1rem;
+    padding: 0.7rem;
   }
 
-  .card_content .number {
-    font-size: 1.5rem;
-  }
 
   .card_content .label {
     font-size: 0.8rem;
