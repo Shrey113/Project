@@ -128,7 +128,7 @@ function InvoicePage2() {
         console.log("services", data);
 
         set_services(data);
-        set_filter_services(data);
+        // set_filter_services(data);
       } catch (error) {
         console.error("Error fetching services:", error);
       }
@@ -994,7 +994,6 @@ function InvoicePage2() {
                       autoComplete="off"
                       placeholder="Enter name"
                       className="input-field"
-                      autoFocus="true"
                     />
                     {filter_services && (
                       <ul className="dropdown">
