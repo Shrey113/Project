@@ -2,34 +2,92 @@
     padding: 1rem;
     margin: 0 auto;
     width: 100%;
-    max-width: 1200px;
+    height: fit-content;
+    /* max-width: 1200px; */
+    background-color: white;
+
 }
-.services-container h1{
+
+.services-container h1 {
     font-size: 2rem;
 }
 
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1rem;
+    width: 100%;
     margin-top: 20px;
     padding: 0 1rem;
+    /* background-color: white; */
 }
 
 .service-card {
-    padding: 15px;
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    padding: 20px;
     border-radius: 10px;
-    min-height: 120px;
+    min-height: fit-content;
+    max-height: 180px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    width: 100%;
-    gap: 10px;
+    gap: 20px;
+    border: 1px solid #e2e8f0;
 }
 
-.service-name {
+.service-card .container_for_services_name {
+    font-size: 20px;
+    font-family: var(--Heading);
+    text-align: center;
+}
+
+.service-card .for_service_price_and_book_button {
+    font-size: 20px;
+    font-family: var(--Heading);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.service-card .services_price_container {
+    display: flex;
+    gap: 5px;
+    min-height: fit-content;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.service-card .services_price_container .rupee_symbol {
+    font-size: 18px;
+    color: #4f46e5;
+    font-weight: 550;
+}
+
+.service-card .service_price {
+    font-size: 28px;
+    color: #4f46e5;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.service-card .per_day {
+    font-size: 12px;
+}
+
+.service-card .for_service_price_and_book_button button {
+    border: none;
+    background-color: #4f46e5;
+    padding: 8px 14px;
+    border-radius: 20px;
+    margin-top: 5px;
+    font-family: var(--Heading);
+    color: #f0f0f0;
+    font-weight: 550;
+    cursor: pointer;
+}
+
+/* .service-name {
     font-size: 20px;
     font-family: var(--Heading);
     text-align: center;
@@ -55,21 +113,16 @@
 
 .book-button:hover {
     background-color: #2b6cb0;
-}
+} */
 
 @media screen and (max-width: 768px) {
-    .service-name {
+    .service-card .container_for_services_name {
         font-size: 18px;
     }
 
-    .service-price {
+    .service-card .services_price_container {
         font-size: 1.1rem;
         margin-bottom: 0.75rem;
-    }
-
-    .book-button {
-        padding: 0.5rem 1.25rem;
-        font-size: 0.9rem;
     }
 
     .services-grid {
@@ -78,44 +131,33 @@
     }
 }
 
+@media screen and (max-width: 620px) {
+    .services-container {
+        padding: 0.75rem;
+    }
+
+    .service-card .container_for_services_name {
+        font-size: 16px;
+    }
+}
+
 @media screen and (max-width: 480px) {
     .services-container {
         padding: 0.5rem;
     }
-    .services-container h1{
-        font-size: 1.5rem;
+
+    .services-container h1 {
+        font-size: 1rem;
     }
 
     .services-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(1, 1fr);
         gap: 0.5rem;
         padding: 0 0.5rem;
     }
 
     .service-card {
         padding: 10px;
-        min-height: 100px;
-    }
-
-    .service-name {
-        font-size: 14px;
-    }
-
-    .service-price {
-        font-size: 0.9rem;
-        margin-bottom: 0.3rem;
-    }
-
-    .book-button {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.75rem;
-    }
-}
-
-@media screen and (max-width: 480px) {
-
-    .services-container h1{
-        font-size: 1.2rem;
     }
 
 }

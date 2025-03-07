@@ -9,7 +9,7 @@
   margin-top: 5px;
   gap: 20px;
   display: flex;
-  overflow: visible !important;
+  overflow: hidden !important;
   padding-bottom: 50px;
 }
 
@@ -276,7 +276,7 @@
 .owner-details-container .owner-profile-right {
   border-left: 1px solid #c1c1c1;
   padding: 10px 14px;
-  gap: 50px;
+  /* gap: 0px; */
   width: 70%;
   display: flex;
   align-items: flex-start;
@@ -304,8 +304,34 @@
 
 .owner-details-container .services_in_profile {
   width: 100%;
+  padding: 4px 14px;
 }
 
+.owner-details-container .services_in_profile .service-list {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 10px;
+  width: 100%;
+  overflow-x: auto;
+  max-width: 750px;
+}
+
+.owner-details-container .services_in_profile .service-list .service_items {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  /* flex-direction: column; */
+  flex-wrap: nowrap;
+  gap: 10px;
+  width: 100%;
+  overflow-x: auto;
+  max-width: 750px;
+}
+
+/* 
 .owner-details-container .services_in_profile .service-list {
   display: flex;
   align-items: center;
@@ -315,9 +341,9 @@
   width: 100%;
   overflow-x: auto;
   max-width: 750px;
-}
+} */
 
-.owner-details-container .services_in_profile .service-list::-webkit-scrollbar {
+.owner-details-container .services_in_profile .service-list .service_items::-webkit-scrollbar {
   height: 0px;
 }
 
@@ -325,7 +351,7 @@
   display: flex;
   gap: 16px;
   border-radius: 10px;
-  padding: 4px 10px;
+  padding: 10px 0px;
   align-items: center;
 }
 
@@ -347,6 +373,15 @@
 } */
 
 .owner-details-container .info-item label {
+  color: #889cb9;
+  font-size: 15px;
+  font-weight: 600;
+  /* margin-bottom: 4px; */
+  display: block;
+  font-family: var(--Heading);
+}
+
+.owner-details-container .info-item .service_title {
   color: #889cb9;
   font-size: 15px;
   font-weight: 600;
@@ -671,7 +706,7 @@
 
 .owner-details-container .swiper_container_for_services .service_item {
   padding: 20px;
-  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  /* box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px; */
   border-radius: 10px;
   min-height: fit-content;
   height: 150px;
@@ -680,6 +715,7 @@
   justify-content: flex-start;
   align-items: center;
   gap: 20px;
+  border: 1px solid #e2e8f0;
 }
 
 .owner-details-container .swiper_container_for_services .service_item .container_for_services_name {
@@ -1958,6 +1994,22 @@
 }
 
 @media (max-width: 768px) {
+
+  .custom-swiper-button-prev-packages,
+  .custom-swiper-button-next-packages {
+    display: none !important;
+  }
+
+  .custom-swiper-button-prev-equipment,
+  .custom-swiper-button-next-equipment {
+    display: none !important;
+  }
+
+  .custom-swiper-button-prev-services,
+  .custom-swiper-button-next-services {
+    display: none !important;
+  }
+
   .owner-details-container .photo_container .photos_grid .photo_card {
     height: 230px;
     flex: 200px;

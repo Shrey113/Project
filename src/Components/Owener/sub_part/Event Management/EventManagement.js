@@ -301,7 +301,7 @@ function EventManagement({ category }) {
       {/* received request count  */}
       <div className="requests_count">
         <div className="received_request_total_count">
-          <div className="heading_for_total_requests">Total Received Request</div>
+          <div className="heading_for_total_requests">Total Request</div>
           <div className="numbers_of_total_request">{count_for_package + count_for_equipment + count_for_service}</div>
         </div>
         <div className="received_request_count">

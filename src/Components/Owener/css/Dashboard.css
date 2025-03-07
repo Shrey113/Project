@@ -25,6 +25,11 @@
     border-radius: 10px;
 }
 
+@font-face {
+    font-family: "Helvetica";
+    src: url("./../../../Helvetica-Bold.woff") format('woff');
+}
+
 :root {
     --color_1_owner: #fffefe;
     --color_2_owner: #ecf1ee;
@@ -58,6 +63,8 @@
 
     --body_button: "Poppins", serif;
     --body_button_weight: 500;
+
+    --helvetica_font: "Helvetica";
 
 
 

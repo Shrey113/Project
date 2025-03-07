@@ -497,7 +497,7 @@ const Packages = () => {
                   <button
                     className="add-package-button"
                   >
-                    <span>Create New Package</span>
+                    <span>Add Package</span>
                     <span className="plus-icon">+</span>
                   </button>
                 </div>

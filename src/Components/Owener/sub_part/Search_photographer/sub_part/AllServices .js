@@ -55,14 +55,27 @@ function AllServices() {
             <div className="services-grid">
                 {services.map((service) => (
                     <div key={service.id} className="service-card" onClick={() => handleItemClick(service)}>
-                        <h2 className="service-name">{service.service_name}</h2>
+                        {/* <h2 className="service-name">{service.service_name}</h2>
                         <p className="service-price">₹{service.price_per_day}/day</p>
                         <button
                             className="book-button"
                             onClick={() => handleBooking(service.id)}
                         >
                             Book Now
-                        </button>
+                        </button> */}
+                        <div className="container_for_services_name">
+                            <p>{service.service_name || "Not Available"}</p>
+                        </div>
+
+                        <div className="for_service_price_and_book_button">
+                            <div className="services_price_container">
+                                <div className="rupee_symbol"> ₹</div>
+                                <div className="service_price">{service.price_per_day || "Not Available"}</div>
+                                <span className="per_day">/Day</span>
+                            </div>
+                            <hr style={{ width: "98%", marginTop: "5px" }} />
+                            <button onClick={() => handleBooking(service.id)}>Book Service</button>
+                        </div>
                     </div>
                 ))}
             </div>

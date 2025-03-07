@@ -10,6 +10,7 @@ import { Server_url } from "../../redux/AllData";
 import { PiUserCheckFill } from "react-icons/pi";
 import { GrServices } from "react-icons/gr";
 import { BiSearch } from "react-icons/bi";
+import no_notification from "./img/no_notification.png"
 // import { Bell } from "lucide-react";
 
 import { IoArrowBack } from "react-icons/io5"; // Import back icon
@@ -32,6 +33,15 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const [owner_name, set_owner_name] = useState(null);
 
   const [all_data, set_all_data] = useState([]);
+
+  const [isChecked, setIsChecked] = useState(() => {
+    return localStorage.getItem(`switchState_for_${user.user_email}`) === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem(`switchState_for_${user.user_email}`, isChecked);
+  }, [isChecked, user.user_email]);
+
   const set_is_sidebar_open = (value) => {
     dispatch({
       type: "SET_USER_Owner",
@@ -56,7 +66,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [is_show_notification_pop, navbar_open]);
+  }, [navbar_open]);
 
   async function getUserNameByEmail(user_email) {
     try {
@@ -130,6 +140,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       equipment: "Equipment Requests",
       services: "Services Requests",
       equipments: "All Equipment",
+      all_services: "All Services",
     };
 
     let readablePath = pathSegments.map((segment) => pathMap[segment] || segment);
@@ -273,21 +284,23 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     }
     function showNotification(data, type) {
       console.log("this is package notification id:", data, type);
-      set_temp_notification(data);
+      if (!isChecked) {
+        console.log("running package notification", isChecked)
+        set_temp_notification(data, type);
+        console.log("running dot ", isChecked);
+        set_is_new_notification(true);
+      }
       get_all_notifications();
       if (navbar_open) {
         set_is_new_notification(false);
-      } else {
-        set_is_new_notification(true);
       }
-
     }
     socket.on(`package_notification_${user.user_email}`, (data) => showNotification(data.all_data, data.type));
 
     return () => {
       socket.off(`package_notification_${user.user_email}`, showNotification);
     };
-  }, [user.user_email, navbar_open]);
+  }, [user.user_email, navbar_open, isChecked]);
 
   // for service notification 
   useEffect(() => {
@@ -314,12 +327,15 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
     function showNotificationService(data, type) {
       console.log("this is serivce notification id:", data, type);
-      set_temp_notification(data, type);
-      get_all_notifications();
-      if (navbar_open === true) {
-        set_is_new_notification(false);
-      } else {
+      if (!isChecked) {
+        set_temp_notification(data, type);
         set_is_new_notification(true);
+      }
+
+      // set_temp_notification(data, type);
+      get_all_notifications();
+      if (navbar_open) {
+        set_is_new_notification(false);
       }
     }
     socket.on(`service_notification_${user.user_email}`, (data) => showNotificationService(data.all_data, data.type));
@@ -327,7 +343,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     return () => {
       socket.off(`service_notification_${user.user_email}`, showNotificationService);
     };
-  }, [user.user_email, navbar_open]);
+  }, [user.user_email, navbar_open, isChecked]);
 
   // for equipment notification 
   useEffect(() => {
@@ -355,12 +371,14 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
     function showNotificationEquipment(data, type) {
       console.log("this is equipment notification id:", data, type);
-      set_temp_notification(data, type);
-      get_all_notifications();
-      if (navbar_open === true) {
-        set_is_new_notification(false);
-      } else {
+      if (!isChecked) {
+        set_temp_notification(data, type);
         set_is_new_notification(true);
+      }
+
+      get_all_notifications();
+      if (navbar_open) {
+        set_is_new_notification(false);
       }
     }
 
@@ -371,7 +389,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     return () => {
       socket.off(`equipment_notification_${user.user_email}`, showNotificationEquipment);
     };
-  }, [user.user_email, navbar_open]);
+  }, [user.user_email, navbar_open, isChecked]);
 
 
   // function calculateDays(startDate, endDate) {
@@ -551,7 +569,21 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         )}
       </div>
       <div className={`notifications ${navbar_open ? "active" : ""}`} id="notification_popup" >
-        <h2>Notification List </h2>
+        <div className="notification_header">
+          <h2>Notifications </h2>
+
+          <div className="switch-container">
+            <p>Do not disturb</p>
+            <input
+              type="checkbox"
+              id="toggleSwitch"
+              hidden
+              checked={isChecked}
+              onChange={() => setIsChecked(!isChecked)}
+            />
+            <label className="switch" htmlFor="toggleSwitch"></label>
+          </div>
+        </div>
         {all_data?.length > 0 ? (
           all_data?.map((notification, index) => (
             <div key={index} className="notification-item_for_all_notification">
@@ -559,7 +591,12 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
             </div>
           ))
         ) : (
-          <p>No Notifications Available</p>
+
+          <div className="no_notification">
+            <img src={no_notification} alt="" />
+            <p>No Notifications Available</p>
+          </div>
+
         )}
       </div>
     </>

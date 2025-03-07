@@ -5,9 +5,9 @@ import "./OwnerDetails.css";
 import NoDataForEquipment from "./NoDataForEquipment.png";
 import { Server_url } from "../../../../../redux/AllData";
 // import { IoArrowBack } from "react-icons/io5";
-import { FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+// import {  FaMapMarkerAlt } from "react-icons/fa";
 import SeletedCard from "./SeletedCard";
-import { MdOutlineInsertLink, MdOutlineDesignServices, MdBusinessCenter, MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
+import { MdOutlineAttachEmail, MdOutlineInsertLink, MdOutlineDesignServices, MdBusinessCenter, MdOutlineKeyboardDoubleArrowRight, MdLocationPin } from "react-icons/md";
 import { IoIosShareAlt } from "react-icons/io";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -615,7 +615,7 @@ const OwnerDetails = () => {
                 <div className="info-card">
                   <div className="info-item">
                     <div className="icon-container">
-                      <FaEnvelope className="icon" />
+                      <MdOutlineAttachEmail className="icon" />
                     </div>
                     <div>
                       <label>Email</label>
@@ -626,7 +626,7 @@ const OwnerDetails = () => {
                 <div className="info-card">
                   <div className="info-item">
                     <div className="icon-container">
-                      <FaMapMarkerAlt className="icon" />
+                      <MdLocationPin className="icon" />
                     </div>
                     <div>
                       <label>Business Address</label>
@@ -671,15 +671,18 @@ const OwnerDetails = () => {
                   <MdOutlineDesignServices className="icon" />
                 </div>
                 <div className="service-list">
-                  {services && services?.length > 0 ? (
-                    services?.map((service, index) => (
-                      <p className="service-item" key={index}>
-                        {service.service_name}
-                      </p>
-                    ))
-                  ) : (
-                    <p>No services available</p>
-                  )}
+                  <div className="service_title">Services</div>
+                  <div className="service_items">
+                    {services && services?.length > 0 ? (
+                      services?.map((service, index) => (
+                        <p className="service-item" key={index}>
+                          {service.service_name}
+                        </p>
+                      ))
+                    ) : (
+                      <p>No services available</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -804,10 +807,14 @@ const OwnerDetails = () => {
                 `<span class="${className} custom-swiper-pagination-bullet"></span>`,
             }}
             breakpoints={{
-              450: { spaceBetween: 5 },
-              500: { spaceBetween: 8 },
-              640: { slidesPerView: 1.5, spaceBetween: 10 },
-              768: { slidesPerView: 2, spaceBetween: 10 },
+              350: { slidesPerView: 1.2 },
+              450: { slidesPerView: 1.2, spaceBetween: 5 },
+              500: { slidesPerView: 1.5 },
+              580: { slidesPerView: 1.5, spaceBetween: 8 },
+
+              640: { slidesPerView: 2.2, spaceBetween: 10 },
+              768: { slidesPerView: 2.5, spaceBetween: 10 },
+              860: { slidesPerView: 3, spaceBetween: 10 },
               1024: { slidesPerView: 3.5, spaceBetween: 15 },
             }}
           >
@@ -902,8 +909,9 @@ const OwnerDetails = () => {
                     `<span class="${className} custom-swiper-pagination-bullet"></span>`,
                 }}
                 breakpoints={{
-                  450: { spaceBetween: 5 },
-                  500: { spaceBetween: 8 },
+                  320: { slidesPerView: 1.1, spaceBetween: 5 },
+                  450: { slidesPerView: 1.2, spaceBetween: 5 },
+                  500: { slidesPerView: 1.2, spaceBetween: 8 },
                   640: { slidesPerView: 1.5, spaceBetween: 10 },
                   768: { slidesPerView: 2, spaceBetween: 10 },
                   1024: { slidesPerView: 3, spaceBetween: 15 },
@@ -928,12 +936,6 @@ const OwnerDetails = () => {
                       <strong>Details:</strong>
                       <p>{item.equipment_description || "Not Available"}</p>
                     </div>
-                    {/* <button
-                      className="book-equipment-button"
-                      onClick={() => handleItemClick(item, "equipment")}
-                    >
-                      Book Equipment
-                    </button> */}
 
                     {/* </li> */}
 
@@ -952,47 +954,6 @@ const OwnerDetails = () => {
       </div>
 
       {/* Services Section  */}
-      {/* <div className="section services_section">
-        {ownerData.services?.length > 0 ? (
-          <ul className="services-list">
-            <div className="profile_preview_services_title">
-              <div className="services-card-title">Services</div>
-              {servicesMoreThan4 && (
-                <div onClick={() => handleShowAllClick("services")} className="see_all_button">
-                  See All <MdOutlineKeyboardDoubleArrowRight style={{ fontSize: "20px" }} />
-                </div>
-              )}
-            </div>
-            <hr style={{ width: "98%", margin: "auto" }} />
-            <div className="services_items_container">
-              {ownerData.services.slice(0, 3).map((item, index) => (
-                <li
-                  key={index}
-                  className="service_item"
-                  onClick={() => handleItemClick(item, "service")}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="container_for_services_name">
-                    <p>{item.service_name || "Not Available"}</p>
-                  </div>
-
-                  <div className="for_service_price_and_book_button">
-                    <div className="services_price_container">
-                      <div className="rupee_symbol"> ₹</div> <div className="service_price">{item.price_per_day || "Not Available"}</div> <span className="per_day">/Day</span>
-                    </div>
-                    <hr style={{ width: "98%", marginTop: "5px" }} />
-                    <button>Book Service</button>
-                  </div>
-                </li>
-              ))}
-            </div>
-          </ul>
-        ) : (
-          <div className="no_services">
-            <p className="no-data">NO SERVICES AVAILABLE</p>
-          </div>
-        )}
-      </div> */}
 
       <div className="section services_section">
         {ownerData.services?.length > 0 ? (

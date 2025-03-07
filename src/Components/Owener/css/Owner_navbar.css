@@ -481,6 +481,22 @@
 
 }
 
+.no_notification {
+  width: 100%;
+  height: 100%;
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.no_notification img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+}
+
 
 .notifications {
   position: fixed;
@@ -493,13 +509,85 @@
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(61, 61, 61, 0.1);
   padding: 10px;
-  z-index: 100;
+  z-index: 101;
   transition: right 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
   justify-content: flex-start;
 }
+
+.notifications .notification_header {
+  width: 100%;
+  padding: 16px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 15px;
+  /* background-color: red; */
+}
+
+.notifications .notification_header h2 {
+  font-size: 20px;
+  font-weight: 550;
+}
+
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.switch-container p {
+  font-size: 12px;
+}
+
+/* Switch styling */
+.switch-container .switch {
+  display: inline-block;
+  position: relative;
+  width: 50px;
+  height: 25px;
+  border-radius: 20px;
+  background: #dfd9ea;
+  transition: background 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.switch-container .switch::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  background: #fafafa;
+  border-radius: 50%;
+  transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1), background 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switch-container .switch:active::before {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28), 0 0 0 20px rgba(128, 128, 128, 0.1);
+}
+
+.switch-container input:checked+.switch {
+  background: #72da67;
+}
+
+.switch-container input:checked+.switch::before {
+  left: 27px;
+  background: #fff;
+}
+
+.switch-container input:checked+.switch:active::before {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28), 0 0 0 20px rgba(0, 150, 136, 0.2);
+}
+
+
 
 .notifications.active {
   right: 5px;

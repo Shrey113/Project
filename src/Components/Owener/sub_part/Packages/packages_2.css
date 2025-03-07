@@ -17,20 +17,10 @@
 }
 
 .owner-packages-container .package-cards-container .packages-header .add-package-button {
-  /* background-color: transparent;
-  border: none;
-  border-radius: var(--border_radius_button);
-  background-color: #c6ffb7;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-family: Helvetica;
-  cursor: pointer;
-  font-weight: 550;
-  color: #333; */
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 5px 12px;
   border-radius: 8px;
   border: 2px solid var(--available_member_button_color);
   background: transparent;
@@ -39,6 +29,11 @@
   font-weight: 500;
   color: var(--available_member_button_color);
   transition: all 0.2s ease;
+}
+
+.owner-packages-container .package-cards-container .packages-header .add-package-button span {
+
+  font-family: var(--helvetica_font);
 }
 
 .owner-packages-container .package-cards-container .packages-header .add-package-button:hover {

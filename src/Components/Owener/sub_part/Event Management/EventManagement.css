@@ -13,7 +13,7 @@
 /* {received request count } */
 #owner-main-container-EventManagement .requests_count {
   display: flex;
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
   gap: 20px;
   margin-bottom: 40px;
   padding: 0px 20px;
@@ -51,7 +51,7 @@
   flex-direction: column;
   justify-content: flex-start;
   background-color: var(--top_bar_background_color_2);
-  flex: 300px;
+  flex: 250px;
 }
 
 #owner-main-container-EventManagement .requests_count .received_request_count .total_packages {
@@ -754,5 +754,128 @@
   tr:nth-last-child(2) .action-menu {
     bottom: 100%;
     margin-bottom: 8px;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  #owner-main-container-EventManagement .requests_count .received_request_total_count .heading_for_total_requests {
+    font-size: 18px;
+    font-weight: 550;
+    font-family: var(--Heading);
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_count .total_packages {
+    font-size: 18px;
+    font-weight: 550;
+    font-family: var(--Heading);
+  }
+}
+
+@media screen and (max-width: 520px) {
+  #owner-main-container-EventManagement {
+    padding: 15px 0px;
+  }
+
+  #owner-main-container-EventManagement .requests_count {
+    gap: 14px;
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_count {
+    padding: 15px;
+    min-height: 100px;
+    flex: 250px;
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_total_count {
+    padding: 15px;
+    min-height: 100px;
+    flex: 250px;
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_total_count .heading_for_total_requests {
+    font-size: 16px;
+    font-weight: 550;
+    font-family: var(--Heading);
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_count .total_packages {
+    font-size: 16px;
+    font-weight: 550;
+    font-family: var(--Heading);
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_total_count .numbers_of_total_request {
+    font-size: 30px;
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_count .numbers_of_package_request {
+    font-size: 30px;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  #owner-main-container-EventManagement {
+    padding: 15px 0px;
+  }
+
+  #owner-main-container-EventManagement .requests_count {
+    gap: 12px;
+    padding: 10px;
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_count {
+    padding: 12px;
+    min-height: 80px;
+    flex: 250px;
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_total_count {
+    padding: 12px;
+    min-height: 80px;
+    flex: 250px;
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_total_count .heading_for_total_requests {
+    font-size: 16px;
+    font-weight: 550;
+    font-family: var(--Heading);
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_count .total_packages {
+    font-size: 16px;
+    font-weight: 550;
+    font-family: var(--Heading);
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_total_count .numbers_of_total_request {
+    font-size: 30px;
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_count .numbers_of_package_request {
+    font-size: 30px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+
+
+  #owner-main-container-EventManagement .requests_count .received_request_total_count .heading_for_total_requests {
+    font-size: 18px;
+    font-weight: 550;
+    font-family: var(--Heading);
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_count .total_packages {
+    font-size: 18px;
+    font-weight: 550;
+    font-family: var(--Heading);
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_total_count .numbers_of_total_request {
+    font-size: 30px;
+  }
+
+  #owner-main-container-EventManagement .requests_count .received_request_count .numbers_of_package_request {
+    font-size: 30px;
   }
 }
