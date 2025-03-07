@@ -42,6 +42,7 @@ function InvoicePage2() {
   const [terms, setTerms] = useState("1. ");
   const [signature_file, set_signature_file] = useState(null);
 
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
@@ -467,115 +468,203 @@ function InvoicePage2() {
   };
 
   const generatePDF = () => {
-    // Create a container div for the PDF content
     const element = document.createElement("div");
     element.className = "pdf-container";
-
-    // Generate the HTML content
+  
     element.innerHTML = `
-      <div class="invoice-page" style="
-        padding: 40px;
-        font-family: Arial, sans-serif;
-        position: relative;
-        background: white;
-        width: 210mm;
-        min-height: 297mm;
-        margin: 0 auto;
-      ">
-        <div class="header" style="
+      <style>
+        .invoice-page {
+          padding: 40px;
+          font-family: 'Arial', sans-serif;
+          background: #fff;
+          width: 210mm;
+          min-height: 297mm;
+          margin: 20px auto;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+          border-radius: 8px;
+        }
+        .header {
           display: flex;
           justify-content: space-between;
+          align-items: center;
           margin-bottom: 30px;
-        ">
-          ${logoPreview
-        ? `
-            <div class="logo" style="width: 150px; height: 90px;">
-              <img src="${logoPreview}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-            </div>
-          `
-        : `
-            <div style="width: 150px; height: 80px;"></div>
-          `
-      }
-          <div class="invoice-title" style="text-align: right; font-size: 24px; font-weight: bold;">
+        }
+        .logo img {
+          max-width: 100%;
+          max-height: 90px;
+          object-fit: contain;
+        }
+        .invoice-title {
+          text-align: right;
+          font-size: 24px;
+          font-weight: bold;
+          line-height: 1.2;
+        }
+        .address-section {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 40px;
+        }
+        .address-section h3 {
+          margin-bottom: 10px;
+          font-size: 18px;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 30px;
+        }
+        table thead tr {
+          background-color: #f8f9fa;
+        }
+        table th,
+        table td {
+          padding: 12px;
+          border: 1px solid #dee2e6;
+        }
+        table th {
+          text-align: left;
+        }
+        table td {
+          text-align: right;
+        }
+        table td:first-child {
+          text-align: left;
+        }
+        .summary-section {
+          margin-left: auto;
+          width: 300px;
+        }
+        .summary-section div {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 10px;
+        }
+        .summary-section .total {
+          font-weight: bold;
+          border-top: 2px solid #dee2e6;
+          padding-top: 10px;
+          margin-top: 10px;
+        }
+        .terms {
+          margin-top: 30px;
+          margin-bottom: 30px;
+          font-size: 12px;
+          white-space: pre-line;
+        }
+        .signature-section {
+          margin-top: 50px;
+          display: flex;
+          justify-content: flex-end;
+        }
+        .signature {
+          text-align: center;
+        }
+        .signature img {
+          max-width: 150px;
+          height: auto;
+          margin-bottom: 10px;
+        }
+        .footer {
+          margin-top: 30px;
+          text-align: center;
+          font-size: 12px;
+          color: #6c757d;
+        }
+      </style>
+  
+      <div class="invoice-page">
+        <div class="header">
+          ${
+            logoPreview
+              ? `<div class="logo"><img src="${logoPreview}" alt="Logo" /></div>`
+              : `<div class="logo" style="width: 150px; height: 80px;"></div>`
+          }
+          <div class="invoice-title">
             INVOICE<br/>
             <span style="font-size: 14px;">Invoice No: ${invoice_id}</span><br/>
             <span style="font-size: 14px;">Date: ${invoice.date}</span>
           </div>
         </div>
-
-        <div class="address-section" style="
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 40px;
-        ">
+  
+        <div class="address-section">
           <div class="from-address">
-            <h3 style="margin-bottom: 10px;">From:</h3>
+            <h3>From:</h3>
             <p style="margin: 0;">${user.user_name}</p>
             <p style="margin: 0;">${user.business_address}</p>
             <p style="margin: 0;">${user.user_email}</p>
             <p style="margin: 0;">GST No: ${user.gst_number}</p>
           </div>
           <div class="to-address" style="text-align: right;">
-            <h3 style="margin-bottom: 10px;">Bill To:</h3>
+            <h3>Bill To:</h3>
             <p style="margin: 0;">${invoice.invoice_to}</p>
             <p style="margin: 0;">${invoice.invoice_to_address || ""}</p>
             <p style="margin: 0;">${invoice.invoice_to_email || ""}</p>
           </div>
         </div>
-
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+  
+        <table>
           <thead>
-            <tr style="background-color: #f8f9fa;">
-              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: left;">Item</th>
-              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Quantity</th>
-              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Price</th>
-              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Amount</th>
+            <tr>
+              <th>Item</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Amount</th>
             </tr>
           </thead>
           <tbody>
             ${invoice.items
-        .map(
-          (item) => `
-              <tr>
-                <td style="padding: 12px; border: 1px solid #dee2e6;">${item.item
-            }</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">${item.quantity
-            }</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
-              item.price
-            )}</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${formatAmount(
-              item.amount
-            )}</td>
-              </tr>
-            `
-        )
-        .join("")}
+              .map(
+                (item) => `
+                  <tr>
+                    <td>${item.item}</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${formatAmount(item.price)}</td>
+                    <td>₹${formatAmount(item.amount)}</td>
+                  </tr>
+                `
+              )
+              .join("")}
           </tbody>
         </table>
-
-        <div class="summary-section" style="margin-left: auto; width: 300px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+  
+        <div class="summary-section">
+          <div>
             <span>Subtotal:</span>
             <span>₹${formatAmount(invoice.sub_total)}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+          <div>
             <span>GST (18%):</span>
             <span>₹${formatAmount(invoice.gst)}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; border-top: 2px solid #dee2e6; padding-top: 10px;">
+          <div class="total">
             <span>Total:</span>
             <span>₹${formatAmount(invoice.total)}</span>
           </div>
         </div>
-
-        <div class="footer" style="margin-top: 50px; text-align: center; font-size: 12px; color: #6c757d;">
+  
+        <div class="terms">
+          <h3>Terms & Conditions:</h3>
+          ${terms || "No terms specified"}
+        </div>
+  
+        <div class="signature-section">
+          <div class="signature">
+            ${
+              signature_file
+                ? `<img src="${signature_file}" alt="Signature" />`
+                : '<div style="width: 150px; border-top: 1px solid #000;"></div>'
+            }
+            <div style="font-size: 14px;">Authorized Signature</div>
+          </div>
+        </div>
+  
+        <div class="footer">
           <p>Thank you for your business!</p>
         </div>
       </div>
     `;
-
+  
     // Configure pdf options
     const opt = {
       margin: 0,
@@ -593,10 +682,11 @@ function InvoicePage2() {
       },
       pagebreak: { mode: "css", before: ".page-break" },
     };
-
+  
     // Generate PDF
     html2pdf().from(element).set(opt).save();
   };
+  
 
   const handleSaveDraft = async () => {
     if (!invoice_id || !user.user_email || !invoice.invoice_to) {
@@ -790,6 +880,219 @@ function InvoicePage2() {
       fetchSignature();
     }
   }, [user.user_email])
+
+  // const generatePDFPreview = () => {
+  //   const element = document.createElement("div");
+  //   element.className = "pdf-container";
+  
+  //   element.innerHTML = `
+  //     <style>
+  //       .invoice-page {
+  //         padding: 40px;
+  //         font-family: 'Arial', sans-serif;
+  //         background: #fff;
+  //         width: 210mm;
+  //         min-height: 297mm;
+  //         margin: 20px auto;
+  //         box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  //         border-radius: 8px;
+  //       }
+  //       .header {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         align-items: center;
+  //         margin-bottom: 30px;
+  //       }
+  //       .logo img {
+  //         max-width: 100%;
+  //         max-height: 90px;
+  //         object-fit: contain;
+  //       }
+  //       .invoice-title {
+  //         text-align: right;
+  //         font-size: 24px;
+  //         font-weight: bold;
+  //         line-height: 1.2;
+  //       }
+  //       .address-section {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         margin-bottom: 40px;
+  //       }
+  //       .address-section h3 {
+  //         margin-bottom: 10px;
+  //         font-size: 18px;
+  //       }
+  //       table {
+  //         width: 100%;
+  //         border-collapse: collapse;
+  //         margin-bottom: 30px;
+  //       }
+  //       table thead tr {
+  //         background-color: #f8f9fa;
+  //       }
+  //       table th,
+  //       table td {
+  //         padding: 12px;
+  //         border: 1px solid #dee2e6;
+  //       }
+  //       table th {
+  //         text-align: left;
+  //       }
+  //       table td {
+  //         text-align: right;
+  //       }
+  //       table td:first-child {
+  //         text-align: left;
+  //       }
+  //       .summary-section {
+  //         margin-left: auto;
+  //         width: 300px;
+  //       }
+  //       .summary-section div {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         margin-bottom: 10px;
+  //       }
+  //       .summary-section .total {
+  //         font-weight: bold;
+  //         border-top: 2px solid #dee2e6;
+  //         padding-top: 10px;
+  //         margin-top: 10px;
+  //       }
+  //       .terms {
+  //         margin-top: 30px;
+  //         margin-bottom: 30px;
+  //         font-size: 12px;
+  //         white-space: pre-line;
+  //       }
+  //       .signature-section {
+  //         margin-top: 50px;
+  //         display: flex;
+  //         justify-content: flex-end;
+  //       }
+  //       .signature {
+  //         text-align: center;
+  //       }
+  //       .signature img {
+  //         max-width: 150px;
+  //         height: auto;
+  //         margin-bottom: 10px;
+  //       }
+  //       .footer {
+  //         margin-top: 30px;
+  //         text-align: center;
+  //         font-size: 12px;
+  //         color: #6c757d;
+  //       }
+  //     </style>
+  
+  //     <div class="invoice-page">
+  //       <div class="header">
+  //         ${
+  //           logoPreview
+  //             ? `<div class="logo"><img src="${logoPreview}" alt="Logo" /></div>`
+  //             : `<div class="logo" style="width: 150px; height: 80px;"></div>`
+  //         }
+  //         <div class="invoice-title">
+  //           INVOICE<br/>
+  //           <span style="font-size: 14px;">Invoice No: ${invoice_id}</span><br/>
+  //           <span style="font-size: 14px;">Date: ${invoice.date}</span>
+  //         </div>
+  //       </div>
+  
+  //       <div class="address-section">
+  //         <div class="from-address">
+  //           <h3>From:</h3>
+  //           <p style="margin: 0;">${user.user_name}</p>
+  //           <p style="margin: 0;">${user.business_address}</p>
+  //           <p style="margin: 0;">${user.user_email}</p>
+  //           <p style="margin: 0;">GST No: ${user.gst_number}</p>
+  //         </div>
+  //         <div class="to-address" style="text-align: right;">
+  //           <h3>Bill To:</h3>
+  //           <p style="margin: 0;">${invoice.invoice_to}</p>
+  //           <p style="margin: 0;">${invoice.invoice_to_address || ""}</p>
+  //           <p style="margin: 0;">${invoice.invoice_to_email || ""}</p>
+  //         </div>
+  //       </div>
+  
+  //       <table>
+  //         <thead>
+  //           <tr>
+  //             <th>Item</th>
+  //             <th>Quantity</th>
+  //             <th>Price</th>
+  //             <th>Amount</th>
+  //           </tr>
+  //         </thead>
+  //         <tbody>
+  //           ${invoice.items
+  //             .map(
+  //               (item) => `
+  //                 <tr>
+  //                   <td>${item.item}</td>
+  //                   <td>${item.quantity}</td>
+  //                   <td>₹${formatAmount(item.price)}</td>
+  //                   <td>₹${formatAmount(item.amount)}</td>
+  //                 </tr>
+  //               `
+  //             )
+  //             .join("")}
+  //         </tbody>
+  //       </table>
+  
+  //       <div class="summary-section">
+  //         <div>
+  //           <span>Subtotal:</span>
+  //           <span>₹${formatAmount(invoice.sub_total)}</span>
+  //         </div>
+  //         <div>
+  //           <span>GST (18%):</span>
+  //           <span>₹${formatAmount(invoice.gst)}</span>
+  //         </div>
+  //         <div class="total">
+  //           <span>Total:</span>
+  //           <span>₹${formatAmount(invoice.total)}</span>
+  //         </div>
+  //       </div>
+  
+  //       <div class="terms">
+  //         <h3>Terms & Conditions:</h3>
+  //         ${terms || "No terms specified"}
+  //       </div>
+  
+  //       <div class="signature-section">
+  //         <div class="signature">
+  //           ${
+  //             signature_file
+  //               ? `<img src="${signature_file}" alt="Signature" />`
+  //               : '<div style="width: 150px; border-top: 1px solid #000;"></div>'
+  //           }
+  //           <div style="font-size: 14px;">Authorized Signature</div>
+  //         </div>
+  //       </div>
+  
+  //       <div class="footer">
+  //         <p>Thank you for your business!</p>
+  //       </div>
+  //     </div>
+  //   `;
+  
+  //   // Return the element for preview
+  //   return element;
+  // };
+
+  // const handlePreview = () => {
+  //   const previewElement = generatePDFPreview();
+  //   // Add the preview element to a preview container in your DOM
+  //   const previewContainer = document.getElementById('preview-container');
+  //   if (previewContainer) {
+  //     previewContainer.innerHTML = '';
+  //     previewContainer.appendChild(previewElement);
+  //   }
+  //   setShowPreview(true);
+  // };
 
   return (
     <div className="invoice_and_table_container">
@@ -993,7 +1296,7 @@ function InvoicePage2() {
                       }
                       autoComplete="off"
                       placeholder="Enter name"
-                      className="input-field"
+                      className="input-field input-field-first"
                     />
                     {filter_services && (
                       <ul className="dropdown">
@@ -1096,7 +1399,6 @@ function InvoicePage2() {
                             200
                           )
                         }
-                        autoFocus={true}
                         autoComplete="off"
                       />
 
@@ -1346,6 +1648,11 @@ function InvoicePage2() {
           </div>
         </div>
       </div>
+      {showPreview && (
+        <div id="preview-container" className="preview-modal">
+          <button onClick={() => setShowPreview(false)}>Close Preview</button>
+        </div>
+      )}
     </div >
   );
 }

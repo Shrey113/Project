@@ -131,6 +131,23 @@ const InvoiceForm = () => {
               body { background: white; }
               .preview-container { padding: 0; }
             }
+            .terms-section {
+              margin-top: 30px;
+              margin-bottom: 30px;
+              padding: 20px;
+              border: 1px solid #dee2e6;
+              border-radius: 4px;
+            }
+            .signature-section {
+              margin-top: 40px;
+              text-align: right;
+              padding-right: 20px;
+            }
+            .signature-image {
+              max-width: 150px;
+              max-height: 80px;
+              margin-bottom: 10px;
+            }
           </style>
         </head>
         <body>
@@ -294,6 +311,23 @@ const InvoiceForm = () => {
                 </div>
               </div>
     
+              <!-- Terms and Conditions Section -->
+              <div class="terms-section">
+                <h3 style="margin-bottom: 15px; color: #333;">Terms & Conditions:</h3>
+                <div style="font-size: 14px; line-height: 1.6;">
+                  ${invoice.terms_conditions || "No terms specified"}
+                </div>
+              </div>
+
+              <!-- Signature Section -->
+              <div class="signature-section">
+                ${invoice.signature_image 
+                  ? `<img src="${invoice.signature_image}" alt="Signature" class="signature-image" />`
+                  : '<div style="width: 150px; border-top: 1px solid #000; margin-left: auto;"></div>'
+                }
+                <div style="font-size: 14px; margin-top: 10px;">Authorized Signature</div>
+              </div>
+
               <!-- Footer with more space -->
               <div style="
                 text-align: center;
@@ -341,7 +375,7 @@ const InvoiceForm = () => {
               <tbody>
                 {invoices.length === 0 ? (
                   <tr>
-                    <td colSpan="9" style={{ textAlign: "center" }}>
+                    <td colSpan="10" style={{ textAlign: "center" }}>
                       No Invoices Generated yet. Please Create an Invoice.
                     </td>
                   </tr>

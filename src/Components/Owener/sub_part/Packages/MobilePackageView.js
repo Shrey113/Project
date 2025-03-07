@@ -66,7 +66,9 @@ const MobilePackageView = ({ selectedPackage, onClose, onUpdatePackage }) => {
   };
 
   return (
-    <div className="mobile_view_container" id="mobile_view_container">
+    <div className="mobile_view_container" id="mobile_view_container"
+    onClick={onClose}
+    >
       <button className="close-button" onClick={onClose}>
         ×
       </button>
@@ -75,7 +77,9 @@ const MobilePackageView = ({ selectedPackage, onClose, onUpdatePackage }) => {
         backgroundColor: `#ffffff`, borderTop: `6px solid ${editedPackage.card_color || "#6fa8dc"}`, borderRight: "1px solid #919394",
         borderLeft: "1px solid #919394",
         borderBottom: "1px solid #919394"
-      }}>
+      }}
+      onClick={(e) => e.stopPropagation()}
+      >
         <div className="package_title">
           {/* <div
             className="first_container"

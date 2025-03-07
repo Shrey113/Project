@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import "./css/Owner_navbar.css";
 import { IoIosNotifications } from "react-icons/io";
@@ -23,6 +23,8 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const isMobile = useSelector((state) => state.user.isMobile);
   const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
   const [is_new_notification, set_is_new_notification] = useState(false);
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const searchInputRef = useRef(null);
 
   const [temp_data, set_temp_data] = useState(null);
 
@@ -67,6 +69,37 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [navbar_open]);
+
+  // Add useEffect for handling click outside search bar
+  useEffect(() => {
+    function handleClickOutside(event) {
+      const searchBar = document.querySelector('.search_bar');
+      if (window.innerWidth <= 650 && 
+          searchBar && 
+          !searchBar.contains(event.target) && 
+          isSearchVisible) {
+        setIsSearchVisible(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSearchVisible]);
+
+  // Modified useEffect to handle focus with a slight delay
+  useEffect(() => {
+    if (isSearchVisible && window.innerWidth <= 650) {
+      // Add a small delay to ensure the element is rendered and transition is complete
+      const timer = setTimeout(() => {
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isSearchVisible]);
 
   async function getUserNameByEmail(user_email) {
     try {
@@ -508,6 +541,11 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     );
   };
 
+  const handleSearchIconClick = (e) => {
+    e.stopPropagation();
+    setIsSearchVisible(!isSearchVisible);
+  };
+
   return (
     <>
       <div id="constant_navbar" className="constant_navbar">
@@ -525,10 +563,14 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           {getNavbarName()}
         </div>
         <div className="navbar_profile">
-          {setSearchTerm &&
-            <div className="search_bar">
-              <BiSearch className="search_icon" />
+          {setSearchTerm && (
+            <div className={`search_bar ${isSearchVisible ? 'expanded' : ''}`}>
+              <BiSearch 
+                className="search_icon" 
+                onClick={handleSearchIconClick}
+              />
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Search"
                 value={searchTerm}
@@ -537,11 +579,13 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
                     setSearchTerm(e.target.value);
                   }
                 }}
+                onClick={(e) => e.stopPropagation()}
               />
-            </div>}
+            </div>
+          )}
 
           <div className="bell_icon" onClick={() => { handleNotificationClick(); get_all_notifications(); }}>
-            <IoIosNotifications style={{ height: "25px", width: "25px" }} />
+            <IoIosNotifications className="bell_icon_icon" />
             <div className={`notification_count ${is_new_notification ? "show" : ""}`}></div>
           </div>
           <div

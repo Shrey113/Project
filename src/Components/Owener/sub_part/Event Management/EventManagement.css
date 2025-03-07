@@ -405,7 +405,7 @@
   font-size: 14px;
 }
 
-.close-button:hover {
+.details-modal .close-button:hover {
   background: #e60000;
 }
 

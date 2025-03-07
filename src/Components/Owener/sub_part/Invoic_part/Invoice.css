@@ -647,6 +647,7 @@
 
 .invoice_and_table_container .invoice_form .invoice_generator tbody tr .name_of_item .dropdown li {
   padding: 10px;
+  font-size: 14px;
   margin-top: 3px;
   /* background-color: lightgray; */
   transition: all 0.2s ease-in-out;
@@ -1181,6 +1182,9 @@
   .invoice_and_table_container .subtotal {
     font-size: 14px;
   }
+  .invoice_and_table_container .invoice_form .invoice_generator tbody tr .name_of_item .dropdown li {
+    font-size: 14px;
+  }
   .invoice_and_table_container .invoice_form .add_row button {
     font-size: 14px;
   }
@@ -1216,6 +1220,9 @@
     width: 100%;
     min-width: auto;
     font-size: 12px;
+  }
+  .invoice_and_table_container .input-field-first{
+    min-width: 200px;
   }
 
   .invoice_and_table_container .delete-btn {
@@ -1275,6 +1282,9 @@
     font-size: 12px;
   }
   .invoice_and_table_container .bill_from .invoice_top_field {
+    font-size: 12px;
+  }
+  .invoice_and_table_container .invoice_form .invoice_generator tbody tr .name_of_item .dropdown li {
     font-size: 12px;
   }
   .invoice_and_table_container .subtotal {
@@ -1468,4 +1478,40 @@
     left: 7%;
     font-size: 16px;
   }
+}
+
+/* Add these to your Invoice.css file */
+.status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status.draft {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status.final {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+/* .invoice_and_table_container .terms-section {
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+}
+
+.signature-section {
+  text-align: right;
+  margin-top: 30px;
+} */
+
+.signature-image {
+  max-width: 150px;
+  max-height: 80px;
+  object-fit: contain;
 }
