@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('mysql2');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 const JWT_SECRET_KEY = 'Jwt_key_for_photography_website';
 function create_jwt_token(user_email,user_name){
     let data_for_jwt = {user_name,user_email}
@@ -21,15 +22,17 @@ function create_jwt_token(user_email,user_name){
   }
 
   
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '12345',
-    database: 'Trevita_Project_1',
+  const db = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     authPlugins: {
-        mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
-    }
-});
+      mysql_native_password: () =>
+        require("mysql2/lib/auth_plugins").mysql_native_password,
+    },
+  });
+  
 
 const { send_forgot_password_email } = require('../modules/send_server_email');
 router.post('/login', (req, res) => {
@@ -91,7 +94,7 @@ router.post('/check-jwt', (req, res) => {
 });
 
 router.get('/owners', async (req, res) => {
-    const query = 'SELECT * FROM trevita_project_1.owner;';
+    const query = `SELECT * FROM ${process.env.DB_NAME}.owner;`;
     db.query(query, (err, results) => {
         if (err) {
             console.error('Error executing query at admin owners:', err.message);
@@ -290,7 +293,7 @@ router.delete('/delete_data', (req, res) => {
         return res.status(200).json({ message: "Admin ID is required" });
     }
 
-    const deleteQuery = 'DELETE FROM trevita_project_1.Admins WHERE admin_id = ?';
+    const deleteQuery = `DELETE FROM ${process.env.DB_NAME}.Admins WHERE admin_id = ?`;
 
     db.query(deleteQuery, [admin_id], (err, results) => {
         if (err) {
@@ -409,7 +412,7 @@ router.post('/get_admin_by_email', (req, res) => {
         });
     }
 
-    const query = 'SELECT * FROM trevita_project_1.admins WHERE admin_email = ?';
+    const query = `SELECT * FROM ${process.env.DB_NAME}.admins WHERE admin_email = ?`;
     
     db.query(query, [admin_email], (err, results) => {
         if (err) {
@@ -438,7 +441,7 @@ router.delete('/delete_admin', (req, res) => {
     }
 
     // First check if admin exist ------
-    const checkQuery = 'SELECT admin_password FROM trevita_project_1.admins WHERE admin_email = ?';
+    const checkQuery = `SELECT admin_password FROM ${process.env.DB_NAME}.admins WHERE admin_email = ?`;
     
     db.query(checkQuery, [admin_email], (err, results) => {
         if (err) {
@@ -464,7 +467,7 @@ router.delete('/delete_admin', (req, res) => {
         }
 
         // If password matches===== == = = 
-        const deleteQuery = 'DELETE FROM trevita_project_1.admins WHERE admin_email = ?';
+        const deleteQuery = `DELETE FROM ${process.env.DB_NAME}.admins WHERE admin_email = ?`;
         
         db.query(deleteQuery, [admin_email], (deleteErr, result) => {
             if (deleteErr) {
@@ -494,7 +497,7 @@ router.post("/forgot-password", (req, res) => {
     }
 
     // Find admin by email
-    const findQuery = 'SELECT admin_password FROM trevita_project_1.admins WHERE admin_email = ?';
+    const findQuery = `SELECT admin_password FROM ${process.env.DB_NAME}.admins WHERE admin_email = ?`;
     
     db.query(findQuery, [admin_email], async (err, results) => {
         if (err) {
@@ -541,7 +544,7 @@ router.post("/change-password", (req, res) => {
     }
 
     // Step 1: Find admin by email
-    const findQuery = 'SELECT admin_password FROM trevita_project_1.admins WHERE admin_email = ?';
+    const findQuery = `SELECT admin_password FROM ${process.env.DB_NAME}.admins WHERE admin_email = ?`;
     
     db.query(findQuery, [admin_email], (err, results) => {
         if (err) {
@@ -569,7 +572,7 @@ router.post("/change-password", (req, res) => {
         }
 
         // Step 3: Update with new password
-        const updateQuery = 'UPDATE trevita_project_1.admins SET admin_password = ? WHERE admin_email = ?';
+        const updateQuery = `UPDATE ${process.env.DB_NAME}.admins SET admin_password = ? WHERE admin_email = ?`;
         
         db.query(updateQuery, [new_password, admin_email], (updateErr) => {
             if (updateErr) {

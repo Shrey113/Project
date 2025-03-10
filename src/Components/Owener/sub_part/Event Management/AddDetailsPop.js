@@ -498,8 +498,12 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   );
 
   return (
-    <div className="modal-overlay_add_event">
-      <div className={`modal-content add_event_modal ${newEvent.event_request_type === "equipment" ? "set_equipment_event" : ""}`}>
+    <div className="modal-overlay_add_event"
+    onClick={() => setShowEventModal(false)}
+    >
+      <div className={`modal-content add_event_modal ${newEvent.event_request_type === "equipment" ? "set_equipment_event" : ""}`}
+      onClick={(e) => e.stopPropagation()}
+      >
         <button className="modal-close" onClick={() => setShowEventModal(false)} >
           ×
         </button>

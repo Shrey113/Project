@@ -2,6 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require("cors");
 const app = express();
+require('dotenv').config();
 
 const shrey11_ = require('./sub_part/other_rout_shrey_11');
 const praharsh_routes = require("./sub_part/praharsh_routes");
@@ -53,25 +54,68 @@ const emitEventRequestNotification = (userEmail, data) => {
 
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '12345',
-  database: 'Trevita_Project_1',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   authPlugins: {
     mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
   }
 });
 
+
 // const db = mysql.createConnection({
-//   host: "127.0.0.1:3306",
-//   user: "u300194546_ph",
-//   password: "Trevit@2599",
-//   database: "u300194546_ph",
+//   host: 'localhost',
+//   user: 'root',
+//   password: '12345',
+//   database: 'u300194546_ph',
+//   authPlugins: {
+//     mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
+//   }
+// });
+
+
+// const dbConfig = {
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_NAME,
+//   connectTimeout: 10000, // 10 seconds
+//   waitForConnections: true,
+//   connectionLimit: 10,
+//   queueLimit: 0,
 //   authPlugins: {
 //     mysql_native_password: () =>
 //       require("mysql2/lib/auth_plugins").mysql_native_password,
 //   },
-// });
+// };
+
+// let db;
+
+// function handleDisconnect() {
+//   db = mysql.createConnection(dbConfig);
+
+//   db.connect((err) => {
+//     if (err) {
+//       console.error("Database connection failed:", err);
+//       setTimeout(handleDisconnect, 5000); // Try to reconnect after 5 sec
+//     } else {
+//       console.log("Connected to MySQL database");
+//     }
+//   });
+
+//   db.on("error", (err) => {
+//     console.error("Database error:", err);
+//     if (err.code === "PROTOCOL_CONNECTION_LOST" || err.code === "ECONNRESET") {
+//       console.log("Reconnecting to database...");
+//       handleDisconnect(); // Reconnect on error
+//     } else {
+//       throw err;
+//     }
+//   });
+// }
+
+// handleDisconnect();
 
 
 db.connect(err => {

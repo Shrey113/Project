@@ -1,5 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2'); 
+require('dotenv').config();
 
 const router = express.Router();
 
@@ -13,16 +14,18 @@ const fs = require('fs');
 
   
 
-  const db = mysql.createConnection({
-    host: 'localhost', 
-    user: 'root',      
-    password: '12345',      
-    database: 'Trevita_Project_1', 
+const db = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     authPlugins: {
-        mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
-    }
+      mysql_native_password: () =>
+        require("mysql2/lib/auth_plugins").mysql_native_password,
+    },
   });
-
+  
+  
 
   router.post('/upload-file', async (req, res) => {
     console.log(req.body);

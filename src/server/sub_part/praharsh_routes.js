@@ -2,7 +2,7 @@ const express = require("express");
 const mysql = require("mysql2");
 
 const router = express.Router();
-
+require('dotenv').config();
 const {
   server_request_mode,
   write_log_file,
@@ -24,15 +24,16 @@ const {
 } = require("./../modules/send_server_email");
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "12345",
-  database: "Trevita_Project_1",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   authPlugins: {
     mysql_native_password: () =>
       require("mysql2/lib/auth_plugins").mysql_native_password,
   },
 });
+
 
 const app = express();
 const bodyParser = require("body-parser");
@@ -518,7 +519,7 @@ router.post("/upload-invoice-logo", async (req, res) => {
   }
 
   const query = `
-   INSERT INTO trevita_project_1.owner_main_invoice (user_email, invoice_logo)
+   INSERT INTO ${process.env.DB_NAME}.owner_main_invoice (user_email, invoice_logo)
      VALUES (?, ?)
      ON DUPLICATE KEY UPDATE invoice_logo = VALUES(invoice_logo);
   `;
@@ -598,7 +599,7 @@ router.post("/get-invoice-logo", (req, res) => {
 
   const query = `
       SELECT invoice_logo
-      FROM trevita_project_1.owner_main_invoice
+      FROM ${process.env.DB_NAME}.owner_main_invoice
       WHERE user_email = ?
     `;
 
@@ -1178,7 +1179,7 @@ router.post("/get-invoice-items", (req, res) => {
   const { invoice_id, user_email } = req.body;
 
   const queryItems =
-    "SELECT * FROM trevita_project_1.invoice_items WHERE invoice_id = ? AND user_email = ?";
+    `SELECT * FROM ${process.env.DB_NAME}.invoice_items WHERE invoice_id = ? AND user_email = ?`;
 
   db.query(queryItems, [invoice_id, user_email], (err, items) => {
     if (err) {
@@ -1354,7 +1355,7 @@ router.post("/save-draft", (req, res) => {
 router.post("/check_email_owner", (req, res) => {
   const { user_email } = req.body;
   const query =
-    "SELECT * FROM trevita_project_1.owner_main_invoice WHERE user_email = ?";
+    `SELECT * FROM ${process.env.DB_NAME}.owner_main_invoice WHERE user_email = ?`;
 
   db.query(query, [user_email], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -1363,7 +1364,7 @@ router.post("/check_email_owner", (req, res) => {
       return res.json(result);
     } else {
       const insertQuery =
-        "INSERT INTO trevita_project_1.owner_main_invoice (user_email, max_invoice_id) VALUES (?, 0)";
+        `INSERT INTO ${process.env.DB_NAME}.owner_main_invoice (user_email, max_invoice_id) VALUES (?, 0)`;
       db.query(insertQuery, [user_email], (insertErr, insertResult) => {
         if (insertErr) {
           console.log("insertErr", insertErr);
@@ -1405,7 +1406,7 @@ router.post("/generate-invoice", (req, res) => {
 router.post("/invoice-items", (req, res) => {
   const { invoice_id, user_email } = req.body;
   const query =
-    "SELECT * FROM trevita_project_1.invoice_items WHERE invoice_id = ? AND user_email = ?";
+    `SELECT * FROM ${process.env.DB_NAME}.invoice_items WHERE invoice_id = ? AND user_email = ?`;
   db.query(query, [invoice_id, user_email], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(result);
@@ -1415,7 +1416,7 @@ router.post("/invoice-items", (req, res) => {
 router.post("/upload-signature", (req, res) => {
   const { user_email, signature_file } = req.body;
 
-  const query = `UPDATE trevita_project_1.owner_main_invoice SET signature_image = ? WHERE user_email = ?`;
+  const query = `UPDATE ${process.env.DB_NAME}.owner_main_invoice SET signature_image = ? WHERE user_email = ?`;
 
   db.query(query, [signature_file, user_email], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -1565,7 +1566,7 @@ router.post("/add-invoice", (req, res) => {
 
 //   // Query for invoices without drafts
 //   const queryWithoutDraft =
-//     "SELECT * FROM trevita_project_1.invoices WHERE user_email = ? AND as_draft = 0 ORDER BY id";
+//     "SELECT * FROM u300194546_ph.invoices WHERE user_email = ? AND as_draft = 0 ORDER BY id";
 
 //   // Execute the query
 //   db.query(queryWithoutDraft, [user_email], (err, result) => {
@@ -1581,7 +1582,7 @@ router.post("/invoices/without-draft", (req, res) => {
 
   // Query to get all invoices for the user without drafts
   const queryWithoutDraft = `
-      SELECT * FROM trevita_project_1.invoices 
+      SELECT * FROM ${process.env.DB_NAME}.invoices 
       WHERE user_email = ? AND as_draft = 0 
       ORDER BY id`;
 
@@ -1599,7 +1600,7 @@ router.post("/invoices/without-draft", (req, res) => {
 
     // Query to get all items related to these invoices
     const itemsQuery = `
-        SELECT * FROM trevita_project_1.invoice_items 
+        SELECT * FROM ${process.env.DB_NAME}.invoice_items 
         WHERE invoice_id IN (?) AND user_email = ?`;
 
     db.query(itemsQuery, [invoiceIds, user_email], (err, items) => {
@@ -1627,7 +1628,7 @@ router.post("/invoices/with-draft", (req, res) => {
 
   // Query for invoices with drafts
   const queryWithDraft =
-    "SELECT * FROM trevita_project_1.invoices WHERE user_email = ? AND as_draft = 1 ORDER BY id";
+    `SELECT * FROM ${process.env.DB_NAME}.invoices WHERE user_email = ? AND as_draft = 1 ORDER BY id`;
 
   // Execute the query
   db.query(queryWithDraft, [user_email], (err, result) => {
@@ -1756,7 +1757,7 @@ router.post("/get_client_data_from_jwt", async (req, res) => {
       return res.status(200).json({ error: "Invalid or incomplete JWT token" });
     }
     const find_user =
-      "SELECT * FROM trevita_project_1.clients WHERE user_name = ? AND user_email = ?";
+      `SELECT * FROM ${process.env.DB_NAME}.clients WHERE user_name = ? AND user_email = ?`;
 
     db.query(
       find_user,
@@ -1821,7 +1822,7 @@ router.post("/client/register_user", async (req, res) => {
   try {
     // Check if the email already exists
     db.query(
-      "SELECT * FROM trevita_project_1.clients WHERE user_email = ? OR user_name = ?",
+      `SELECT * FROM ${process.env.DB_NAME}.clients WHERE user_email = ? OR user_name = ?`,
       [user_email, user_name],
       (err, rows) => {
         if (err) {
@@ -1854,7 +1855,7 @@ router.post("/client/login", (req, res) => {
   }
 
   const query =
-    "SELECT * FROM trevita_project_1.clients WHERE user_email = ? AND user_password = ?";
+    `SELECT * FROM ${process.env.DB_NAME}.clients WHERE user_email = ? AND user_password = ?`;
   db.query(query, [user_email, user_password], (err, results) => {
     if (err) {
       console.error("Database error:", err.message);
@@ -1883,7 +1884,7 @@ router.post("/api/get-user-data", (req, res) => {
 
   const query = `
       SELECT phone, address, gender
-      FROM trevita_project_1.clients
+      FROM ${process.env.DB_NAME}.clients
       WHERE user_email = ?
     `;
 
@@ -1910,7 +1911,7 @@ router.post("/api/update-profile", (req, res) => {
 
   try {
     const query = `
-      UPDATE trevita_project_1.clients
+      UPDATE ${process.env.DB_NAME}.clients
       SET user_name = ?, phone = ?, address = ?, gender = ?
       WHERE user_email = ?
     `;
@@ -1938,7 +1939,7 @@ router.post("/get-invoice-items", (req, res) => {
   const { invoice_id, user_email } = req.body;
 
   const queryItems =
-    "SELECT * FROM trevita_project_1.invoice_items WHERE invoice_id = ? AND user_email = ?";
+    `SELECT * FROM ${process.env.DB_NAME}.invoice_items WHERE invoice_id = ? AND user_email = ?`;
 
   db.query(queryItems, [invoice_id, user_email], (err, items) => {
     if (err) {

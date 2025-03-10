@@ -135,8 +135,10 @@ const AddDetailsPop = ({setShowEventModal, newEvent, setNewEvent, events, setEve
     
 
   return (
-    <div className='modal-overlay_add_event'>
-    <div className='modal-content'>
+    <div className='modal-overlay_add_event'
+    onClick={() => setShowEventModal(false)}
+    >
+    <div className='modal-content' onClick={(e) => e.stopPropagation()}>
       <button 
         className='modal-close' 
         onClick={() => setShowEventModal(false)}

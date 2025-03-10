@@ -3,7 +3,7 @@ const fs = require('fs');
 const {google} = require('googleapis');
 
 const mysql = require('mysql2');
-
+require('dotenv').config();
 
 const Client_id ='1003015936704-sfpga73cctpmlb4o2u636f63p2pbhil5.apps.googleusercontent.com'
 const Client_secret ='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'
@@ -32,14 +32,19 @@ const main_folder_id = '1-57j0wnCUqytJFiuN9nFGbC0FSxX9NcQ';
 
 
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '12345',
-    database: 'Trevita_Project_1',
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     authPlugins: {
-        mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
-    }
-});
+      mysql_native_password: () =>
+        require("mysql2/lib/auth_plugins").mysql_native_password,
+    },
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+  });
+  
 
 async function createRootFolderIfNotExist() {
     try {
@@ -183,7 +188,7 @@ async function create_users_folders(user_email) {
 
         // Step 4: Insert data into the database
         const query = `
-            INSERT INTO trevita_project_1.owner_folders (
+            INSERT INTO ${process.env.DB_NAME}.owner_folders (
                 user_email,
                 user_folder_id,
                 profile_pics_folder_id,

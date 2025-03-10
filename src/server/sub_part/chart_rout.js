@@ -1,19 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql2');
-
+require('dotenv').config();
 
 
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '12345',
-    database: 'Trevita_Project_1',
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     authPlugins: {
-        mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
-    }
-});
-
+      mysql_native_password: () =>
+        require("mysql2/lib/auth_plugins").mysql_native_password,
+    },
+  });
+  
 
 
 router.get('/status-count', (req, res) => {

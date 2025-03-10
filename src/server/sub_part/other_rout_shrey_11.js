@@ -1,6 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2'); 
-
+require('dotenv').config();
 const router = express.Router();
 
 const {server_request_mode,write_log_file,error_message,info_message,success_message,normal_message,create_jwt_token,check_jwt_token} = require('./../modules/_all_help');
@@ -8,15 +8,16 @@ const { generate_otp, get_otp, clear_otp } = require('./../modules/OTP_generate'
 const { send_welcome_page, send_otp_page } = require('./../modules/send_server_email');
 
 
-  const db = mysql.createConnection({
-    host: 'localhost', 
-    user: 'root',      
-    password: '12345',      
-    database: 'Trevita_Project_1', 
-    authPlugins: {
-        mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
-    }
-  });
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  authPlugins: {
+    mysql_native_password: () =>
+      require("mysql2/lib/auth_plugins").mysql_native_password,
+  },
+});
 
 
   

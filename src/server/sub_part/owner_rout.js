@@ -23,24 +23,24 @@ const {
 const JWT_SECRET_KEY = "Jwt_key_for_photography_website";
 const { create_users_folders } = require("./../Google_Drive/data");
 const { data } = require("react-router-dom");
-
+require('dotenv').config();
 function create_jwt_token(user_email, user_name) {
   let data_for_jwt = { user_name, user_email };
   let jwt_token = jwt.sign(data_for_jwt, JWT_SECRET_KEY);
   return jwt_token;
 }
 
+
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "12345",
-  database: "Trevita_Project_1",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   authPlugins: {
     mysql_native_password: () =>
       require("mysql2/lib/auth_plugins").mysql_native_password,
   },
 });
-
 router.post("/add_owner", (req, res) => {
   const {
     user_name,
@@ -83,7 +83,7 @@ router.post("/login", (req, res) => {
   }
 
   const query =
-    "SELECT * FROM trevita_project_1.owner WHERE user_email = ? AND user_password = ?";
+    `SELECT * FROM ${process.env.DB_NAME}.owner WHERE user_email = ? AND user_password = ?`;
 
   db.query(query, [user_email, user_password], (err, results) => {
     if (err) {
@@ -114,7 +114,7 @@ router.delete("/delete-by-email", (req, res) => {
     return res.status(400).json({ error: "Email is required" });
   }
 
-  const query = "DELETE FROM trevita_project_1.owner WHERE user_email = ?";
+  const query = `DELETE FROM ${process.env.DB_NAME}.owner WHERE user_email = ?`;
 
   db.query(query, [user_email], (err, result) => {
     if (err) {
