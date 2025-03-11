@@ -53,78 +53,47 @@ const emitEventRequestNotification = (userEmail, data) => {
 
 
 
-const db = mysql.createConnection({
+const dbConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  connectTimeout: 10000, // 10 seconds
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
   authPlugins: {
-    mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
-  }
-});
+    mysql_native_password: () =>
+      require("mysql2/lib/auth_plugins").mysql_native_password,
+  },
+};
 
+let db;
 
-// const db = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'root',
-//   password: '12345',
-//   database: 'u300194546_ph',
-//   authPlugins: {
-//     mysql_native_password: () => require('mysql2/lib/auth_plugins').mysql_native_password
-//   }
-// });
+function handleDisconnect() {
+  db = mysql.createConnection(dbConfig);
 
+  db.connect((err) => {
+    if (err) {
+      console.error("Database connection failed:", err);
+      setTimeout(handleDisconnect, 5000); // Try to reconnect after 5 sec
+    } else {
+      console.log("Connected to MySQL database");
+    }
+  });
 
-// const dbConfig = {
-//   host: process.env.DB_HOST,
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PASSWORD,
-//   database: process.env.DB_NAME,
-//   connectTimeout: 10000, // 10 seconds
-//   waitForConnections: true,
-//   connectionLimit: 10,
-//   queueLimit: 0,
-//   authPlugins: {
-//     mysql_native_password: () =>
-//       require("mysql2/lib/auth_plugins").mysql_native_password,
-//   },
-// };
+  db.on("error", (err) => {
+    console.error("Database error:", err);
+    if (err.code === "PROTOCOL_CONNECTION_LOST" || err.code === "ECONNRESET") {
+      console.log("Reconnecting to database...");
+      handleDisconnect(); // Reconnect on error
+    } else {
+      throw err;
+    }
+  });
+}
 
-// let db;
-
-// function handleDisconnect() {
-//   db = mysql.createConnection(dbConfig);
-
-//   db.connect((err) => {
-//     if (err) {
-//       console.error("Database connection failed:", err);
-//       setTimeout(handleDisconnect, 5000); // Try to reconnect after 5 sec
-//     } else {
-//       console.log("Connected to MySQL database");
-//     }
-//   });
-
-//   db.on("error", (err) => {
-//     console.error("Database error:", err);
-//     if (err.code === "PROTOCOL_CONNECTION_LOST" || err.code === "ECONNRESET") {
-//       console.log("Reconnecting to database...");
-//       handleDisconnect(); // Reconnect on error
-//     } else {
-//       throw err;
-//     }
-//   });
-// }
-
-// handleDisconnect();
-
-
-db.connect(err => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err.message);
-    return;
-  }
-  console.log('Connected to MySQL database');
-});
+handleDisconnect();
 
 // print data in log
 app.use((req, res, next) => {
