@@ -470,7 +470,7 @@ function InvoicePage2() {
   const generatePDF = () => {
     const element = document.createElement("div");
     element.className = "pdf-container";
-  
+
     element.innerHTML = `
       <style>
         .invoice-page {
@@ -575,11 +575,10 @@ function InvoicePage2() {
   
       <div class="invoice-page">
         <div class="header">
-          ${
-            logoPreview
-              ? `<div class="logo"><img src="${logoPreview}" alt="Logo" /></div>`
-              : `<div class="logo" style="width: 150px; height: 80px;"></div>`
-          }
+          ${logoPreview
+        ? `<div class="logo"><img src="${logoPreview}" alt="Logo" /></div>`
+        : `<div class="logo" style="width: 150px; height: 80px;"></div>`
+      }
           <div class="invoice-title">
             INVOICE<br/>
             <span style="font-size: 14px;">Invoice No: ${invoice_id}</span><br/>
@@ -614,8 +613,8 @@ function InvoicePage2() {
           </thead>
           <tbody>
             ${invoice.items
-              .map(
-                (item) => `
+        .map(
+          (item) => `
                   <tr>
                     <td>${item.item}</td>
                     <td>${item.quantity}</td>
@@ -623,8 +622,8 @@ function InvoicePage2() {
                     <td>₹${formatAmount(item.amount)}</td>
                   </tr>
                 `
-              )
-              .join("")}
+        )
+        .join("")}
           </tbody>
         </table>
   
@@ -650,11 +649,10 @@ function InvoicePage2() {
   
         <div class="signature-section">
           <div class="signature">
-            ${
-              signature_file
-                ? `<img src="${signature_file}" alt="Signature" />`
-                : '<div style="width: 150px; border-top: 1px solid #000;"></div>'
-            }
+            ${signature_file
+        ? `<img src="${signature_file}" alt="Signature" />`
+        : '<div style="width: 150px; border-top: 1px solid #000;"></div>'
+      }
             <div style="font-size: 14px;">Authorized Signature</div>
           </div>
         </div>
@@ -664,7 +662,7 @@ function InvoicePage2() {
         </div>
       </div>
     `;
-  
+
     // Configure pdf options
     const opt = {
       margin: 0,
@@ -682,11 +680,11 @@ function InvoicePage2() {
       },
       pagebreak: { mode: "css", before: ".page-break" },
     };
-  
+
     // Generate PDF
     html2pdf().from(element).set(opt).save();
   };
-  
+
 
   const handleSaveDraft = async () => {
     if (!invoice_id || !user.user_email || !invoice.invoice_to) {
@@ -884,7 +882,7 @@ function InvoicePage2() {
   // const generatePDFPreview = () => {
   //   const element = document.createElement("div");
   //   element.className = "pdf-container";
-  
+
   //   element.innerHTML = `
   //     <style>
   //       .invoice-page {
@@ -986,7 +984,7 @@ function InvoicePage2() {
   //         color: #6c757d;
   //       }
   //     </style>
-  
+
   //     <div class="invoice-page">
   //       <div class="header">
   //         ${
@@ -1000,7 +998,7 @@ function InvoicePage2() {
   //           <span style="font-size: 14px;">Date: ${invoice.date}</span>
   //         </div>
   //       </div>
-  
+
   //       <div class="address-section">
   //         <div class="from-address">
   //           <h3>From:</h3>
@@ -1016,7 +1014,7 @@ function InvoicePage2() {
   //           <p style="margin: 0;">${invoice.invoice_to_email || ""}</p>
   //         </div>
   //       </div>
-  
+
   //       <table>
   //         <thead>
   //           <tr>
@@ -1041,7 +1039,7 @@ function InvoicePage2() {
   //             .join("")}
   //         </tbody>
   //       </table>
-  
+
   //       <div class="summary-section">
   //         <div>
   //           <span>Subtotal:</span>
@@ -1056,12 +1054,12 @@ function InvoicePage2() {
   //           <span>₹${formatAmount(invoice.total)}</span>
   //         </div>
   //       </div>
-  
+
   //       <div class="terms">
   //         <h3>Terms & Conditions:</h3>
   //         ${terms || "No terms specified"}
   //       </div>
-  
+
   //       <div class="signature-section">
   //         <div class="signature">
   //           ${
@@ -1072,13 +1070,13 @@ function InvoicePage2() {
   //           <div style="font-size: 14px;">Authorized Signature</div>
   //         </div>
   //       </div>
-  
+
   //       <div class="footer">
   //         <p>Thank you for your business!</p>
   //       </div>
   //     </div>
   //   `;
-  
+
   //   // Return the element for preview
   //   return element;
   // };
@@ -1498,6 +1496,7 @@ function InvoicePage2() {
               onFocus={handleFocus}
               onChange={(e) => setTerms(e.target.value)}
               onKeyDown={handleBullet}
+              maxLength={150}
               placeholder="Enter terms and conditions..."
             ></textarea>
           </div>

@@ -205,7 +205,10 @@
 }
 
 .invoice_and_table_container .invoice_terms textarea {
-  /* height: 85%; */
+  max-height: 300px;
+  max-width: 400px;
+  height: 250px;
+  width: 350px;
   font-size: 18px;
 }
 
@@ -1150,55 +1153,71 @@
     max-width: 100%;
     min-width: 100%;
   }
+
   .invoice_and_table_container h2 {
     font-size: 14px;
   }
+
   .invoice_and_table_container .invoice_form h1 {
     font-size: 30px;
   }
+
   .invoice_and_table_container .bill_from .business_name {
     font-size: 18px;
     font-weight: 500;
   }
+
   .invoice_and_table_container .bill_from div {
     font-size: 14px;
     font-weight: 400;
   }
+
   .invoice_and_table_container .bill_from .invoice_top_field {
     font-size: 14px;
   }
-  .invoice_and_table_container .invoice_form .bill_details .invoice_and_gst_no > * {
+
+  .invoice_and_table_container .invoice_form .bill_details .invoice_and_gst_no>* {
     font-size: 14px;
   }
+
   .invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name .recipient-input {
     font-size: 14px;
   }
+
   .invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name .recipient-input input {
     font-size: 14px;
   }
+
   .invoice_and_table_container .total-amount {
     font-size: 14px;
   }
+
   .invoice_and_table_container .subtotal {
     font-size: 14px;
   }
+
   .invoice_and_table_container .invoice_form .invoice_generator tbody tr .name_of_item .dropdown li {
     font-size: 14px;
   }
+
   .invoice_and_table_container .invoice_form .add_row button {
     font-size: 14px;
   }
+
   .invoice_and_table_container .invoice_terms .terms_heading {
     font-size: 16px;
     font-weight: 600;
   }
+
   .invoice_and_table_container .invoice_form .invoice-summary .summary_calculate .summary-row .summary-label {
-    font-size:  14px;
+    font-size: 14px;
     font-weight: 600;
   }
+
   .invoice_and_table_container .invoice_form .invoice-summary .summary_calculate .summary-row .summary-value {
     font-size: 14px;
   }
+
   .invoice_and_table_container .invoice_terms textarea {
     font-size: 14px;
   }
@@ -1221,7 +1240,8 @@
     min-width: auto;
     font-size: 12px;
   }
-  .invoice_and_table_container .input-field-first{
+
+  .invoice_and_table_container .input-field-first {
     min-width: 200px;
   }
 
@@ -1255,63 +1275,80 @@
     flex-wrap: wrap;
     gap: 10px;
   }
+
   .invoice_and_table_container h2 {
     font-size: 12px;
   }
+
   .invoice_and_table_container .invoice_form h1 {
     font-size: 16px;
   }
+
   .invoice_and_table_container .bill_from .business_name {
     font-size: 18px;
     font-weight: 500;
   }
+
   .invoice_and_table_container .bill_from div {
     font-size: 12px;
     font-weight: 400;
   }
-  .invoice_and_table_container .invoice_form .bill_details .invoice_and_gst_no > * {
+
+  .invoice_and_table_container .invoice_form .bill_details .invoice_and_gst_no>* {
     font-size: 12px;
   }
+
   .invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name .recipient-input {
     font-size: 12px;
   }
+
   .invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name .recipient-input input {
     font-size: 12px;
   }
+
   .invoice_and_table_container .total-amount {
     font-size: 12px;
   }
+
   .invoice_and_table_container .bill_from .invoice_top_field {
     font-size: 12px;
   }
+
   .invoice_and_table_container .invoice_form .invoice_generator tbody tr .name_of_item .dropdown li {
     font-size: 12px;
   }
+
   .invoice_and_table_container .subtotal {
     font-size: 12px;
   }
+
   .invoice_and_table_container .invoice_form .add_row button {
     font-size: 12px;
   }
+
   .invoice_and_table_container .invoice_form .invoice-summary .summary_calculate .summary-row .summary-label {
-    font-size:  12px;
+    font-size: 12px;
     font-weight: 600;
   }
+
   .invoice_and_table_container .invoice_terms .terms_heading {
     font-size: 14px;
     font-weight: 600;
   }
+
   .invoice_and_table_container .invoice_form .invoice-summary .summary_calculate .summary-row .summary-label {
-    font-size:  14px;
+    font-size: 14px;
     font-weight: 600;
   }
+
   .invoice_and_table_container .invoice_form .invoice-summary .summary_calculate .summary-row .summary-value {
     font-size: 14px;
   }
+
   .invoice_and_table_container .invoice_terms textarea {
     font-size: 12px;
   }
-  
+
 }
 
 @media (max-width: 620px) {
@@ -1342,12 +1379,14 @@
     font-size: 24px;
   }
 }
+
 @media (max-width: 510px) {
   .invoice_and_table_container .invoice_form .company_logo_invoice {
     display: flex;
     flex-direction: column;
     gap: 15px;
   }
+
   .invoice_and_table_container .invoice_form .bill_details {
     height: fit-content;
     display: flex;
@@ -1356,18 +1395,22 @@
     align-items: flex-start;
     justify-content: flex-start;
   }
+
   .invoice_and_table_container .invoice_form .bill_details .invoice_and_gst_no {
     display: flex;
     align-items: flex-start;
   }
+
   .invoice_and_table_container .terms_and_summary {
     display: flex;
     flex-direction: column;
     gap: 15px;
   }
+
   .invoice_and_table_container .invoice_terms {
     width: 100%;
   }
+
   .invoice_and_table_container .invoice-summary {
     width: 100%;
     display: flex;
@@ -1377,23 +1420,27 @@
     padding: 0px 10px;
     /* background: rebeccapurple; */
   }
+
   .invoice_and_table_container .invoice-summary .signature_wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     /* background-color: red; */
   }
+
   .invoice_and_table_container .invoice_form .add_row {
     margin: 0;
     padding: 0;
   }
+
   .invoice_and_table_container .invoice_terms {
-    padding : 0px;
+    padding: 0px;
   }
-  .summary_calculate{
+
+  .summary_calculate {
     min-width: 160px;
   }
-  
+
 
 }
 
@@ -1453,10 +1500,12 @@
   .invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name {
     width: 100%;
   }
+
   .invoice_and_table_container .invoice-summary {
     flex-direction: column-reverse;
     gap: 10px;
   }
+
   .invoice_and_table_container .invoice-summary .signature_wrapper {
     align-items: flex-end;
   }
