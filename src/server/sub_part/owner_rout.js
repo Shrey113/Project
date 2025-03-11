@@ -1366,7 +1366,7 @@ router.post("/add-package-request", (req, res) => {
       return res.status(500).json({ error: "Error adding package request" });
     }
 
-    const insertQuery = `insert into notifications_PES (notification_type,notification_name,user_email,location,days_required,sender_email) values (?,?,?,?,?,?)`;
+    const insertQuery = `insert into notifications_pes (notification_type,notification_name,user_email,location,days_required,sender_email) values (?,?,?,?,?,?)`;
     const notifications_values = ["package", package_name, receiver_email, location, calculatedDaysRequired, sender_email];
 
     db.query(insertQuery, notifications_values, (insertErr, insertResult) => {
@@ -1376,7 +1376,7 @@ router.post("/add-package-request", (req, res) => {
       }
       const insertedId = insertResult.insertId;
       // Fetch the inserted record
-      const fetchQuery = `SELECT * FROM notifications_PES WHERE id = ?`;
+      const fetchQuery = `SELECT * FROM notifications_pes WHERE id = ?`;
       db.query(fetchQuery, [insertedId], (fetchErr, fetchResult) => {
         if (fetchErr) {
           console.error("Error fetching package request:", fetchErr);
@@ -1504,7 +1504,7 @@ router.post("/add-equipment-request", (req, res) => {
       return res.status(500).json({ error: "Error adding equipment request" });
     }
 
-    const insertQuery = `insert into notifications_PES (notification_type,notification_name,user_email,location,days_required,sender_email) values (?,?,?,?,?,?)`;
+    const insertQuery = `insert into notifications_pes (notification_type,notification_name,user_email,location,days_required,sender_email) values (?,?,?,?,?,?)`;
     const notifications_values = ["equipment", equipment_name, receiver_email, location, calculatedDaysRequired, sender_email];
 
     db.query(insertQuery, notifications_values, (insertErr, insertResult) => {
@@ -1514,7 +1514,7 @@ router.post("/add-equipment-request", (req, res) => {
       }
 
       const insertedId = insertResult.insertId;
-      const fetchQuery = `select * from notifications_PES where id = ?`;
+      const fetchQuery = `select * from notifications_pes where id = ?`;
       db.query(fetchQuery, [insertedId], (fetchErr, fetchResult) => {
         if (fetchErr) {
           console.error("Error fetching equipment request:", err);
@@ -1621,7 +1621,7 @@ router.post("/add-service-request", (req, res) => {
       return res.status(500).json({ error: "Error adding service request" });
     }
 
-    const insertQuery = `insert into notifications_PES (notification_type,notification_name,user_email,location,days_required,sender_email) values (?,?,?,?,?,?)`;
+    const insertQuery = `insert into notifications_pes (notification_type,notification_name,user_email,location,days_required,sender_email) values (?,?,?,?,?,?)`;
     const notifications_values = ["service", service_name, receiver_email, location, calculatedDaysRequired, sender_email];
 
     db.query(insertQuery, notifications_values, (insertErr, insertResult) => {
@@ -1631,7 +1631,7 @@ router.post("/add-service-request", (req, res) => {
       }
       const insertedId = insertResult.insertId;
 
-      const fetchQuery = `select * from notifications_PES where id = ?`;
+      const fetchQuery = `select * from notifications_pes where id = ?`;
       db.query(fetchQuery, [insertedId], (err, fetchResult) => {
         if (err) {
           console.error("Error fetching service request:", err);
