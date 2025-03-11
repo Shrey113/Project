@@ -456,7 +456,7 @@ router.post("/owner_drive/get_portfolio", (req, res) => {
   const { email } = req.body;
 
   // SQL query to fetch portfolio files based on user_email
-  const query = "SELECT * FROM Photo_files  WHERE user_email = ?";
+  const query = "SELECT * FROM photo_files  WHERE user_email = ?";
 
   db.query(query, [email], (err, results) => {
     if (err) {
@@ -486,7 +486,7 @@ router.post("/api/upload-photo", (req, res) => {
 
   // SQL query to insert photo into the database
   const query =
-    "INSERT INTO Photo_files (photo_name, photo_type, photo,user_email) VALUES (?, ?, ?,?)";
+    "INSERT INTO photo_files (photo_name, photo_type, photo,user_email) VALUES (?, ?, ?,?)";
 
   // Insert the data into the database
   db.execute(query, [name, type, photoData, user_email], (err, result) => {
