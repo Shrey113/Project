@@ -28,10 +28,7 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  authPlugins: {
-    mysql_native_password: () =>
-      require("mysql2/lib/auth_plugins").mysql_native_password,
-  },
+  authPlugins: {},
 });
 
 
@@ -46,7 +43,7 @@ router.post("/get_all_notifications", (req, res) => {
   if (!email) {
     return res.status(400).json({ error: "user_email is required" })
   }
-  const query = "SELECT * FROM notifications_PES WHERE user_email=? ORDER BY id DESC"
+  const query = "SELECT * FROM notifications_pes WHERE user_email=? ORDER BY id DESC"
   db.query(query, [email], (err, result) => {
     if (err) {
       console.error("Error executing query:", err);
@@ -459,7 +456,7 @@ router.post("/owner_drive/get_portfolio", (req, res) => {
   const { email } = req.body;
 
   // SQL query to fetch portfolio files based on user_email
-  const query = "SELECT * FROM Photo_files  WHERE user_email = ?";
+  const query = "SELECT * FROM photo_files  WHERE user_email = ?";
 
   db.query(query, [email], (err, results) => {
     if (err) {
@@ -489,7 +486,7 @@ router.post("/api/upload-photo", (req, res) => {
 
   // SQL query to insert photo into the database
   const query =
-    "INSERT INTO Photo_files (photo_name, photo_type, photo,user_email) VALUES (?, ?, ?,?)";
+    "INSERT INTO photo_files (photo_name, photo_type, photo,user_email) VALUES (?, ?, ?,?)";
 
   // Insert the data into the database
   db.execute(query, [name, type, photoData, user_email], (err, result) => {

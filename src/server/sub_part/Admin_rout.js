@@ -27,10 +27,7 @@ function create_jwt_token(user_email,user_name){
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    authPlugins: {
-      mysql_native_password: () =>
-        require("mysql2/lib/auth_plugins").mysql_native_password,
-    },
+    authPlugins: {},
   });
   
 
@@ -42,7 +39,7 @@ router.post('/login', (req, res) => {
         return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const query = 'SELECT * FROM Admins WHERE admin_email = ?';
+    const query = 'SELECT * FROM admins WHERE admin_email = ?';
     db.query(query, [admin_email], (err, results) => {
         if (err) {
             console.error('Error executing query:', err);
@@ -106,7 +103,7 @@ router.get('/owners', async (req, res) => {
 
 
 router.get('/get_all_admin', (req, res) => {
-    db.query('SELECT * FROM Admins', (err, results) => {
+    db.query('SELECT * FROM admins', (err, results) => {
         if (err) {
             res.status(500).json({ message: "Error fetching admins", error: err });
         } else {
@@ -124,7 +121,7 @@ router.put('/update_data', (req, res) => {
         return res.status(200).json({ message: "Admin ID is required" });
     }
 
-    let updateQuery = 'UPDATE Admins SET ';
+    let updateQuery = 'UPDATE admins SET ';
     let updateFields = [];
     let values = [];
 
@@ -173,7 +170,7 @@ router.post("/update-last-login", (req, res) => {
         return res.status(400).json({ message: "Admin email is required" });
     }
 
-    const query = 'UPDATE Admins SET last_login = NOW() WHERE admin_email = ?';
+    const query = 'UPDATE admins SET last_login = NOW() WHERE admin_email = ?';
 
     db.query(query, [admin_email], (err, results) => {
         if (err) {
@@ -206,7 +203,7 @@ router.post("/save_admin_data", (req, res) => {
     }
 
     // Check if the admin_email already exists in the database
-    const checkQuery = 'SELECT * FROM Admins WHERE admin_email = ?';
+    const checkQuery = 'SELECT * FROM admins WHERE admin_email = ?';
     db.query(checkQuery, [admin_email], (err, results) => {
         if (err) {
             console.error("Error checking if email exists:", err);
@@ -249,7 +246,7 @@ router.post("/save_admin_data", (req, res) => {
             }
 
             const updateQuery = `
-                UPDATE Admins 
+                UPDATE admins 
                 SET ${fields.join(', ')}
                 WHERE admin_email = ?
             `;
@@ -268,7 +265,7 @@ router.post("/save_admin_data", (req, res) => {
             const insertValues = [admin_email, ...values];
 
             const insertQuery = `
-                INSERT INTO Admins (${insertFields.join(', ')}, last_login) 
+                INSERT INTO admins (${insertFields.join(', ')}, last_login) 
                 VALUES (${insertFields.map(() => '?').join(', ')}, NOW())
             `;
 
@@ -293,7 +290,7 @@ router.delete('/delete_data', (req, res) => {
         return res.status(200).json({ message: "Admin ID is required" });
     }
 
-    const deleteQuery = `DELETE FROM ${process.env.DB_NAME}.Admins WHERE admin_id = ?`;
+    const deleteQuery = `DELETE FROM ${process.env.DB_NAME}.admins WHERE admin_id = ?`;
 
     db.query(deleteQuery, [admin_id], (err, results) => {
         if (err) {
