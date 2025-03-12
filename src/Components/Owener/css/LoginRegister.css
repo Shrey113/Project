@@ -39,13 +39,12 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 25px;
+  gap: 18px;
   padding: 20px 0px;
 }
 
 .register_part {
   /* background: rebeccapurple; */
-  gap: 25px;
   justify-content: flex-start;
   overflow-y: scroll;
 }
@@ -162,6 +161,7 @@
 
 .all_error_for_input {
   color: red;
+  font-size: 0.8rem;
 }
 
 

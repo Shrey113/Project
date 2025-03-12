@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useSelector,useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux';
 import './UserProfilePage.css'
 import { FaCamera } from 'react-icons/fa'
 
@@ -7,24 +7,57 @@ import { Server_url, showWarningToast,showAcceptToast,showRejectToast } from './
 
 
 function UserProfilePage({setIs_Page1,setCurrentStep}) {
+  
   const user = useSelector((state) => state.user);
-  const dispatch = useDispatch();
   const [profileImage, setProfileImage] = useState(null);
-
-  useEffect(()=>{
-    setProfileImage(user.user_profile_image_base64 || null)
-  },[user.user_profile_image_base64]);
-
-
   const [formData, setFormData] = useState({
-    userName: user.user_name || '',
-    firstName: user.first_name || '',
-    lastName: user.last_name || '',
-    email: user.user_email || '',
-    gender: user.gender || 'male',
-    location: user.business_address || '',
-    socialMedia: user.social_media || ''
+    userName: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    gender: 'male',
+    location: '',
+    socialMedia: ''
   });
+
+  useEffect(() => {
+    const get_owners = async () => {
+      try {
+        const response = await fetch(`${Server_url}/owner/get-owners`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json', // Ensure JSON is recognized
+            },
+          body: JSON.stringify({ user_email: user.user_email }),
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        setProfileImage(data.owners.user_profile_image_base64);
+        setFormData({
+          userName: data.owners.user_name,
+          firstName: data.owners.first_name,
+          lastName: data.owners.last_name,
+          email: data.owners.user_email,
+          gender: data.owners.gender,
+          location: data.owners.business_address,
+          socialMedia: data.owners.social_media
+        });
+      } catch (error) {
+        console.error('Error fetching owners:', error);
+      }
+    };
+  
+    if (user?.user_email) { // Ensure user_email exists before making the request
+      get_owners();
+    }
+  }, [user?.user_email]);
+  
+
+
 
   // Add error states for each input
   const [errors, setErrors] = useState({
@@ -62,10 +95,6 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
       reader.onloadend = async () => {
         const base64Image = reader.result;
         setProfileImage(base64Image);
-        dispatch({ type: "SET_USER_Owner", payload: {
-          user_profile_image_base64: base64Image
-        }});
-        
 
         try {
           const response = await fetch(`${Server_url}/owner/update-user-profile-image`, {
@@ -108,7 +137,8 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
 
 
 
-  const handleDeleteImage = async () => {
+  const handleDeleteImage = async (e) => {
+    e.preventDefault();
     // Show confirmation dialog
     const isConfirmed = window.confirm("Are you sure you want to remove the business profile image?");
     
@@ -132,12 +162,7 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
 
       let data = await response.json();
       if(data.message === "user profile image removed successfully."){
-        dispatch({ 
-          type: "SET_USER_Owner", 
-          payload: {
-            user_profile_image_base64: null
-          }
-        });
+        setProfileImage(null);
       }
 
       showAcceptToast({message: "Profile image removed successfully" });
@@ -241,6 +266,7 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
         first_name: formData.firstName,
         last_name: formData.lastName,
         gender: formData.gender,
+        business_address: formData.location,
         social_media: formData.socialMedia
       }
 
@@ -253,6 +279,7 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
       }).then(res => res.json()).then(data => {
 
         if(data.message === 'Owner updated successfully.' ){
+          showAcceptToast({message: "Profile updated successfully" });
           setIs_Page1(true);
           setCurrentStep(2);
         }else{
@@ -299,7 +326,10 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
                 </label>
                 <button 
                     className="delete-btn"
-                    onClick={handleDeleteImage}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDeleteImage(e);
+                    }}
                 >
                     Delete avatar
                 </button>

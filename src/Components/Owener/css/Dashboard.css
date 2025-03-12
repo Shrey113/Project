@@ -254,7 +254,8 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     width: 90%;
     max-width: 600px;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
     position: relative;
 }
 
@@ -292,6 +293,7 @@
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.3s ease;
+    align-self: flex-end;
 }
 
 .Dashboard_main_con .close-popup-button:hover {

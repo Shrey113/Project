@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./portfolioPage.css";
-import { Server_url } from "../../../../redux/AllData";
+import { Server_url,showAcceptToast } from "../../../../redux/AllData";
 import { useSelector } from "react-redux";
+import { MdDeleteOutline } from "react-icons/md";
 
 function PortfolioPage({ setIs_Page3, setCurrentStep }) {
   const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
   const MIN_IMAGES = 2;
   const MAX_IMAGES = 4;
   const [error, setError] = useState("");
@@ -15,9 +17,11 @@ function PortfolioPage({ setIs_Page3, setCurrentStep }) {
     if (images.length === MAX_IMAGES || images.length >= MIN_IMAGES) {
       setIs_Page3(true);
       setCurrentStep(4);
+      showAcceptToast({message: "Portfolio added successfully" });
     }
   };
   const fetchImages = async (user_email) => {
+    setLoading(true);
     try {
       const response = await fetch(`${Server_url}/owner_drive/get_portfolio`, {
         method: "POST",
@@ -43,6 +47,8 @@ function PortfolioPage({ setIs_Page3, setCurrentStep }) {
     } catch (error) {
       console.error("Error fetching portfolio images:", error);
       setError("Failed to load existing images.");
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -149,40 +155,47 @@ function PortfolioPage({ setIs_Page3, setCurrentStep }) {
       {error && <div className="error-message">{error}</div>}
 
       <div className="gallery">
-        {images.map((image) => (
-          <div key={image.id} className="image-card">
-            <img src={image.url} alt={image.name} />
-            <div className="image-overlay">
-              <p>{image.name}</p>
-              <button data-id={image.id} onClick={() => removeImage(image.id)}>
-                Remove
-              </button>
+        {loading ? (
+          Array.from({ length: MAX_IMAGES }).map((_, index) => (
+            <div key={`skeleton-${index}`} className="image-card skeleton">
+              <div className="skeleton-image"></div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <>
+            {images.map((image) => (
+              <div key={image.id} className="image-card">
+                <img src={image.url} alt={image.name} />
+                <div className="image-overlay">
+                  <button data-id={image.id} onClick={() => removeImage(image.id)}>
+                    <MdDeleteOutline/>
+                  </button>
+                </div>
+              </div>
+            ))}
 
-        {/* Add Image Button Card */}
-        {images.length < MAX_IMAGES && (
-          <label htmlFor="file-upload" className="add-image-card">
-            <div className="add-image-content">
-              <span className="plus-icon">+</span>
-              <span className="add-text">Add Image</span>
-              <span className="image-count">
-                {images.length}/{MAX_IMAGES}
-              </span>
-            </div>
-            <input
-              id="file-upload"
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageUpload}
-            />
-          </label>
+            {images.length < MAX_IMAGES && (
+              <label htmlFor="file-upload" className="add-image-card">
+                <div className="add-image-content">
+                  <span className="plus-icon">+</span>
+                  <span className="add-text">Add Image</span>
+                  <span className="image-count">
+                    {images.length}/{MAX_IMAGES}
+                  </span>
+                </div>
+                <input
+                  id="file-upload"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
+              </label>
+            )}
+          </>
         )}
       </div>
 
-      {/* Next Page Button */}
       {images.length > 0 && (
         <div className="next-page-section">
           <button

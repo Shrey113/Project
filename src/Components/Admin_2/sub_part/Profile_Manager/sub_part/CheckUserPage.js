@@ -22,9 +22,14 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
     bus_log: '',
     profile_pic: null,
     location: '',
+    user_profile_image_base64: '',
+    business_profile_base64: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage2, setProfileImage2] = useState(null);
 
   useEffect(() => {
     const fetchOwnerByEmail = async () => {
@@ -42,7 +47,7 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
         }
 
         const data = await response.json();
-    
+        console.log(data);
         set_selected_user(data);
       } catch (error) {
         console.error('Error:', error);
@@ -51,6 +56,43 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
 
     fetchOwnerByEmail();
   }, [email]);
+
+  useEffect(() => {
+    if (selected_user && Object.keys(selected_user).length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        client_id: selected_user.client_id || '',
+        user_name: selected_user.user_name || '',
+        user_password: selected_user.user_password || '',
+        business_name: selected_user.business_name || '',
+        business_email: selected_user.business_email || '',
+        business_address: selected_user.business_address || '',
+        mobile_number: selected_user.mobile_number || '',
+        gst_number: selected_user.gst_number || '',
+        user_status: selected_user.user_status || '',
+        admin_message: selected_user.admin_message || '',
+        set_status_by_admin: selected_user.set_status_by_admin || '',
+        bus_log: selected_user.bus_log || '',
+        location: selected_user.business_address || '',
+
+        first_name: selected_user.first_name || '',
+        last_name: selected_user.last_name || '',
+        gender: selected_user.gender || '',
+        social_media: selected_user.social_media || '',
+        website: selected_user.website || '',
+        services: selected_user.services || '',
+        user_profile_image_base64: selected_user.user_profile_image_base64 || '',
+        business_profile_base64: selected_user.business_profile_base64 || '',
+      }));
+      
+      if (selected_user.user_profile_image_base64) {
+        setProfileImage(selected_user.user_profile_image_base64);
+      }
+      if (selected_user.business_profile_base64) {
+        setProfileImage2(selected_user.business_profile_base64);
+      }
+    }
+  }, [selected_user]);
 
   function updateUserStatus(email, status, message = null, set_status_by_admin = null) {
     setIsLoading(true);
@@ -88,34 +130,6 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
     });
   }
 
-  useEffect(() => {
-    if (selected_user && Object.keys(selected_user).length > 0) {
-      setFormData((prev) => ({
-        ...prev,
-        client_id: selected_user.client_id || '',
-        user_name: selected_user.user_name || '',
-        user_password: selected_user.user_password || '',
-        business_name: selected_user.business_name || '',
-        business_email: selected_user.business_email || '',
-        business_address: selected_user.business_address || '',
-        mobile_number: selected_user.mobile_number || '',
-        gst_number: selected_user.gst_number || '',
-        user_status: selected_user.user_status || '',
-        admin_message: selected_user.admin_message || '',
-        set_status_by_admin: selected_user.set_status_by_admin || '',
-        bus_log: selected_user.bus_log || '',
-        location: selected_user.location || '',
-
-        first_name: selected_user.first_name || '',
-        last_name: selected_user.last_name || '',
-        gender: selected_user.gender || '',
-        social_media: selected_user.social_media || '',
-        website: selected_user.website || '',
-        services: selected_user.services || '',
-      }));
-    }
-  }, [selected_user]);
-
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     setFormData({
@@ -129,29 +143,35 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
     console.log('Form submitted:', formData);
   };
 
-    const [profileImage, setProfileImage] = useState(null);
-    const [profileImage2, setProfileImage2] = useState(null);
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+        setFormData(prev => ({
+          ...prev,
+          user_profile_image_base64: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    const handleImageUpload = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setProfileImage(reader.result);
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-    const handleImageUpload2 = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setProfileImage2(reader.result);
-        };
-        reader.readAsDataURL(file);
-      }
-    };
+  const handleImageUpload2 = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage2(reader.result);
+        setFormData(prev => ({
+          ...prev,
+          business_profile_base64: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="check-user-page">
@@ -168,170 +188,128 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
         <span>
           <img src={back_img} alt="Back" />
         </span>
-        Accept Owner Info
       </div>
-
       <div className="main_con">
+        
         <div className="main_con_wrap">
       <div className="section">
-        {/* <h2>User Details</h2> */}
+        <div className="section-header">Personal Information</div>
         <form onSubmit={handleSubmit}>
-          
-
-        <div className="profile-avatar-container">
-            <div className="profile-avatar">
+          <div className="profile-section">
+            <div className="profile-avatar-container">
+              <div className="profile-avatar">
                 {profileImage ? (
-                    <img src={profileImage} alt="Profile" />
+                  <img src={profileImage} alt="Profile" />
                 ) : (
-                    <span>G</span>
+                  <span>{formData.first_name?.[0] || 'U'}</span>
                 )}
-                    <label htmlFor="profile-image-input" className="profile-avatar-overlay">
-           
- 
-                    <input 
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        style={{ display: 'none' }}
-                        id="profile-image-input"
-                    />
-                        <img 
-                            src={edit_icon} 
-                            alt="Edit"
-                            
-                        />
-          
-                    </label>
+                <label htmlFor="profile-image-input" className="profile-avatar-overlay">
+                  <input 
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                    id="profile-image-input"
+                  />
+                  <img src={edit_icon} alt="Edit" />
+                </label>
+              </div>
             </div>
-         
-        </div>
+          </div>
 
+          <div className="form-row">
+            <div className="form-group">
+              <label>First Name</label>
+              <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} />
+            </div>
+            <div className="form-group">
+              <label>Last Name</label>
+              <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Gender</label>
+              <select name="gender" value={formData.gender} onChange={handleChange}>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Mobile Number</label>
+              <input type="tel" name="mobile_number" value={formData.mobile_number} onChange={handleChange} />
+            </div>
+          </div>
 
           <div className="form-group">
-            <label>Client ID</label>
-            <input type="text" name="client_id" value={formData.client_id} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>User Name</label>
-            <input type="text" name="user_name" value={formData.user_name} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>First Name</label>
-            <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>Last Name</label>
-            <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>Gender</label>
-            <input type="text" name="gender" value={formData.gender} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>Social Media</label>
-            <input type="text" name="social_media" value={formData.social_media} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>User Email</label>
+            <label>Email Address</label>
             <input type="email" name="user_email" value={formData.user_email} onChange={handleChange} readOnly />
           </div>
+
           <div className="form-group">
-            <label>User Password</label>
-            <input type="password" name="user_password" value={formData.user_password} onChange={handleChange}  readOnly/>
-          </div>
-          <div className="form-group">
-            <label>User location</label>
+            <label>Location</label>
             <input type="text" name="location" value={formData.location} onChange={handleChange} />
           </div>
         </form>
       </div>
 
       <div className="section">
-        {/* <h2>Business Info</h2> */}
-
-        
-        <div className="profile-avatar-container">
-            <div className="profile-avatar">
-                {profileImage2 ? (
-                    <img src={profileImage2} alt="Profile" />
-                ) : (
-                    <span>G</span>
-                )}
-                    <label htmlFor="profile-image-input2" className="profile-avatar-overlay">
-           
- 
-                    <input 
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload2}
-                        style={{ display: 'none' }}
-                        id="profile-image-input2"
-                    />
-                        <img 
-                            src={edit_icon} 
-                            alt="Edit"
-                            
-                        />
-          
-                    </label>
-            </div>
-         
-        </div>
-
-
-
+        <div className="section-header">Business Information</div>
         <form onSubmit={handleSubmit}>
+          <div className="profile-section">
+            <div className="profile-avatar-container">
+              <div className="profile-avatar">
+                {profileImage2 ? (
+                  <img src={profileImage2} alt="Business Logo" />
+                ) : (
+                  <span>{formData.business_name?.[0] || 'B'}</span>
+                )}
+                <label htmlFor="profile-image-input2" className="profile-avatar-overlay">
+                  <input 
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload2}
+                    style={{ display: 'none' }}
+                    id="profile-image-input2"
+                  />
+                  <img src={edit_icon} alt="Edit" />
+                </label>
+              </div>
+            </div>
+          </div>
+
           <div className="form-group">
             <label>Business Name</label>
             <input type="text" name="business_name" value={formData.business_name} onChange={handleChange} />
           </div>
-          <div className="form-group">
-            <label>Business Email</label>
-            <input type="email" name="business_email" value={formData.business_email} onChange={handleChange} readOnly />
-          </div>
+
           <div className="form-group">
             <label>Business Address</label>
-            <input type="text" name="business_address" value={formData.business_address} onChange={handleChange}  />
-          </div>
-          <div className="form-group">
-            <label>Mobile Number</label>
-            <input type="tel" name="mobile_number" value={formData.mobile_number} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>GST Number</label>
-            <input type="text" name="gst_number" value={formData.gst_number} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>Website</label>
-            <input type="text" name="website" value={formData.website} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>Selected Services</label>
-            {/* <input type="text" name="services" value={formData.services} onChange={handleChange} /> */}
+            <input type="text" name="business_address" value={formData.business_address} onChange={handleChange} />
           </div>
 
-          <div className="selected-services">
-            {/* <h3>Your Selected Services:</h3> */}
-          {Array.isArray(formData.services) && formData.services.length > 0 ? (
-  formData.services.map((service, index) => (
-    <div className="selected-items" key={`selected-items-${index}`}>
-      <div className="selected-item" key={`selected-${index}`}>
-        <span>{service ? service : "Invalid service"}</span>
-      </div>
-    </div>
-  ))
-) : (
-  <p>No services selected by owner</p>
-)}
-
+          <div className="form-row">
+            <div className="form-group">
+              <label>GST Number</label>
+              <input type="text" name="gst_number" value={formData.gst_number} onChange={handleChange} />
             </div>
+            <div className="form-group">
+              <label>Website</label>
+              <input type="text" name="website" value={formData.website} onChange={handleChange} />
+            </div>
+          </div>
         </form>
       </div>
       </div>
       </div>
 
       <div className="button_con">
-        <button   onClick={() => updateUserStatus(email, "Accept", null, admin_email)}>Confirm Accept</button>
+        <button className="accept-button" onClick={() => updateUserStatus(email, "Accept", null, admin_email)}>
+          Confirm Accept
+        </button>
       </div>
 
       </div>

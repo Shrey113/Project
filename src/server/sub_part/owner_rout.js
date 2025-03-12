@@ -21,7 +21,6 @@ const {
   clear_otp,
 } = require("./../modules/OTP_generate");
 const JWT_SECRET_KEY = "Jwt_key_for_photography_website";
-const { create_users_folders } = require("./../Google_Drive/data");
 const { data } = require("react-router-dom");
 require('dotenv').config();
 function create_jwt_token(user_email, user_name) {
@@ -327,12 +326,7 @@ router.post("/get-owners", (req, res) => {
   // Corrected SQL query without trailing comma
   const query = `
     SELECT 
-      user_name,
-      user_email,
-      business_name, 
-      business_address,
-      mobile_number,
-      gst_number
+      *
     FROM owner 
     WHERE user_email = ?
   `;
@@ -436,11 +430,6 @@ router.post("/update-status", async (req, res) => {
 
       const admin_id = adminResult[0].admin_id;
 
-      if (user_Status == "Accept") {
-        const folder = await create_users_folders(user_email);
-        console.log("folder", folder);
-      }
-
       // Update the user's status in the 'users' table
       const updateStatusQuery = `
         UPDATE owner
@@ -452,6 +441,9 @@ router.post("/update-status", async (req, res) => {
         updateStatusQuery,
         [user_Status, safeMessage, admin_id, user_email],
         (err, result) => {
+          if(user_Status == "Accept"){
+            req.io.emit(`user_status_updated_${user_email}`, { user_email, user_Status });
+          }
           if (err) {
             console.log(err);
             return res
@@ -488,13 +480,13 @@ router.post("/update-status", async (req, res) => {
 });
 
 router.post("/update-owner", (req, res) => {
-  const { user_email, user_name, first_name, last_name, gender, social_media } =
+  const { user_email, user_name, first_name, last_name, gender, social_media, business_address } =
     req.body;
 
-  const query = `UPDATE owner SET user_name = ?, first_name = ?, last_name = ?, gender = ?, social_media = ? WHERE user_email = ?`;
+  const query = `UPDATE owner SET user_name = ?, first_name = ?, last_name = ?, gender = ?, social_media = ?, business_address = ? WHERE user_email = ?`;
   db.query(
     query,
-    [user_name, first_name, last_name, gender, social_media, user_email],
+    [user_name, first_name, last_name, gender, social_media, business_address, user_email],
     (err, result) => {
       if (err) {
         console.error("Error updating owner:", err);

@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react'
-import { useSelector,useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import "./BusinessProfilePage.css"
 
 import { FaCamera } from 'react-icons/fa'
@@ -7,37 +7,55 @@ import { FaCamera } from 'react-icons/fa'
 import { Server_url, showRejectToast, showAcceptToast } from './../../../../redux/AllData';
 
 function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
-  const user = useSelector(state => state.user);
+  const user = useSelector((state) => state.user);
+     // Add these new state declarations at the top with other useState hooks
+     const [formData, setFormData] = useState({
+      businessName: '',
+      businessEmail: '',
+      gstNumber: '',
+      location: '',
+      website: '',
+      services: [],
+      businessProfileImage: null
+    });
 
-  const dispatch = useDispatch();
-
-
-
+  useEffect(() => {
+    const get_owners = async () => {
+      try {
+        const response = await fetch(`${Server_url}/owner/get-owners`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+            },
+          body: JSON.stringify({ user_email: user.user_email }),
+        });
   
-  const [selectedTypes, setSelectedTypes] = useState(user.services || []);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [otherServiceDescription, setOtherServiceDescription] = useState('');
-  const [customServices, setCustomServices] = useState([]);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        setFormData({
+          businessName: data.owners.business_name,
+          businessEmail: data.owners.business_email,
+          gstNumber: data.owners.gst_number,
+          location: data.owners.business_address,
+          website: data.owners.website,
+          services: data.owners.services,
+          businessProfileImage: data.owners.business_profile_base64
+        });
+      } catch (error) {
+        console.error('Error fetching owners:', error);
+      }
+    };
+  
+    if (user?.user_email) {
+      get_owners();
+    }
+  }, [user?.user_email]);
+  
+ 
 
-  const [profileImage, setProfileImage] = useState(null);
-
-  useEffect(()=>{
-    setProfileImage(user.business_profile_base64 || null);
-  },[user.business_profile_base64]);
-
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-
-   // Add these new state declarations at the top with other useState hooks
-   const [formData, setFormData] = useState({
-    businessName: user.business_name || '',
-    businessEmail: user.business_email || '',
-    gstNumber: user.gst_number || '',
-    location: user.business_address || '',
-    website: user.website || '',
-    services: user.services || [],
-    profileImage: user.profileImage || null
-  });
 
   useEffect(() => {
     setFormData(prev => ({
@@ -58,7 +76,8 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
 
 
  
-  const handleDeleteImage = async () => {
+  const handleDeleteImage = async (e) => {
+    e.preventDefault();
     // Show confirmation dialog
     const isConfirmed = window.confirm("Are you sure you want to remove the business profile image?");
     
@@ -81,18 +100,13 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
       }
 
       let data = await response.json();
-      if(data.message === "user profile image removed successfully."){
-        dispatch({ 
-          type: "SET_USER_Owner", 
-          payload: {
-            business_profile_base64: null
-          }
-        });
+      if(data.message.includes("removed successfully.")){ 
+        setFormData(prev => ({
+          ...prev,
+          businessProfileImage: null
+        }));
+        showAcceptToast({message: "Profile image removed successfully" });
       }
-
-      showAcceptToast({message: "Profile image removed successfully" });
-
-
     } catch (error) {
       console.error('Error deleting profile image:', error);
       showRejectToast({message: "Failed to delete profile image" });
@@ -102,17 +116,12 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
  
    
   const handleImageUpload = async (event) => {
+    event.preventDefault();
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = async () => {
-        const base64Image = reader.result;
-        setProfileImage(base64Image);
-        dispatch({ type: "SET_USER_Owner", payload: {
-          business_profile_base64: base64Image
-        }});
-
-        
+        const base64Image = reader.result;  
         try {
           const response = await fetch(`${Server_url}/owner/update-business-profile-image`, {
             method: 'POST',
@@ -125,11 +134,13 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
             })
           });
 
-
-
           if (!response.ok) {
             showRejectToast({message: 'Failed to update profile image' });
           }
+          setFormData(prev => ({
+            ...prev,
+            businessProfileImage: base64Image
+          }))
           showAcceptToast({message: 'Profile image updated' });
         } catch (error) {
           console.error('Error updating profile image:', error);
@@ -141,219 +152,6 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
   };
 
 
-  const handleAddCustomService = () => {
-    if (otherServiceDescription.trim()) {
-      const updatedCustomServices = [...customServices, otherServiceDescription.trim()];
-      setCustomServices(updatedCustomServices);
-      // Update formData with all services
-      setFormData(prev => ({
-        ...prev,
-        services: [...selectedTypes, ...updatedCustomServices]
-      }));
-      setOtherServiceDescription('');
-    }
-  };
-
-
-  const removeCustomService = (index, isSelectedType = false) => {
-    if (isSelectedType) {
-      const updatedSelectedTypes = selectedTypes.filter((_, i) => i !== index);
-      setSelectedTypes(updatedSelectedTypes);
-
-      setFormData(prev => ({
-        ...prev,
-        services: [...updatedSelectedTypes, ...customServices]
-      }));
-    } else {
-      const updatedCustomServices = customServices.filter((_, i) => i !== index);
-      setCustomServices(updatedCustomServices);
-    
-      setFormData(prev => ({
-        ...prev,
-        services: [...selectedTypes, ...updatedCustomServices]
-      }));
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent form submission
-      handleAddCustomService();
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const inputValue = e.target.value;
-    setOtherServiceDescription(inputValue);
-
-    const filtered = photography_services.filter(service =>
-      service.toLowerCase().includes(inputValue.toLowerCase())
-    );
-    setFilteredSuggestions(filtered);
-    setShowSuggestions(inputValue.length > 0);
-  };
-
-  const handleSuggestionClick = (suggestion) => {
-    if (!selectedTypes.includes(suggestion)) {
-      const updatedSelectedTypes = [...selectedTypes, suggestion];
-      setSelectedTypes(updatedSelectedTypes);
-      // Update formData with all services
-      setFormData(prev => ({
-        ...prev,
-        services: [...updatedSelectedTypes, ...customServices]
-      }));
-      setOtherServiceDescription('');
-      setShowSuggestions(false);
-      setSelectedIndex(-1);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (!showSuggestions || filteredSuggestions.length === 0) return;
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < filteredSuggestions.length - 1 ? prev + 1 : 0
-        );
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev > 0 ? prev - 1 : filteredSuggestions.length - 1
-        );
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (selectedIndex >= 0) {
-          handleSuggestionClick(filteredSuggestions[selectedIndex]);
-        }
-        break;
-      case 'Escape':
-        setShowSuggestions(false);
-        setSelectedIndex(-1);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleInputBlur = (e) => {
-    setTimeout(() => {
-      setShowSuggestions(false);
-      setSelectedIndex(-1);
-    }, 200);
-  };
-
-  const photography_services = [
-    'aesthetic photography',
-    'Portrait Photography',
-    'Landscape Photography',
-    'Event Photography',
-    'Architectural Photography',
-    'Fashion Photography',
-    'Wildlife Photography',
-    'Sports Photography',
-    'Aerial Photography',
-    'Wedding Photography',
-    'Product Photography',
-    'Macro Photography',
-    'Food Photography',
-    'Travel Photography',
-    'Documentary Photography',
-    'Black and White Photography',
-    'Street Photography',
-    'Underwater Photography',
-    'Astrophotography',
-    'Fine Art Photography',
-    'Real Estate Photography',
-    'Medical Photography',
-    'Commercial Photography',
-    'Boudoir Photography',
-    'Adventure Photography',
-    'Action Photography',
-    'Time-Lapse Photography',
-    'Still Life Photography',
-    'Photojournalism',
-    'Advertising Photography',
-    'Candid Photography',
-    'Drone Photography',
-    'Equestrian Photography',
-    'Headshot Photography',
-    'Family Photography',
-    'Pet Photography',
-    'Night Photography',
-    'Industrial Photography',
-    'Concert Photography',
-    'Nature Photography',
-    'Fashion Editorial Photography',
-    'Branding Photography',
-    'Lifestyle Photography',
-    'E-commerce Photography',
-    'Underwater Wildlife Photography',
-    'Scientific Photography',
-    'Stock Photography',
-    'Vintage Photography',
-    'Abstract Photography',
-    'Corporate Photography',
-    'Medical Equipment Photography',
-    'Museum and Artifact Photography',
-    'Cultural Heritage Photography',
-    'Car Photography',
-    'Marine Photography',
-    'Infant and Newborn Photography',
-    'Maternity Photography',
-    'Engagement Photography',
-    'Proposal Photography',
-    'Seasonal Photography (e.g., Autumn, Winter)',
-    'Cinematic Photography',
-    '3D Photography',
-    'Thermal Imaging Photography',
-    'Editorial Photography',
-    'Prom Photography',
-    'Graduation Photography',
-    'Fashion Runway Photography',
-    'Gym and Fitness Photography',
-    'Self-Portrait Photography',
-    'Surveillance Photography',
-    'Illustrative Photography',
-    'Glamour Photography',
-    'Scenic Photography',
-    'Minimalist Photography',
-    'Conceptual Photography',
-    'Monochrome Photography',
-    'Film Photography',
-    'Retro Photography',
-    'Bokeh Photography',
-    'Architectural Detail Photography',
-    'Paparazzi Photography',
-    'Street Vendor Photography',
-    'Social Media Content Photography',
-    'Charity Event Photography',
-    'VR and 360° Photography',
-    'Science Fiction Photography',
-    'Park and Garden Photography',
-    'Culinary Art Photography',
-    'Performance Photography',
-    'Photo Restoration Services',
-    'Digital Manipulation Photography',
-    'Exhibition Photography',
-    'Advertising Campaign Photography',
-    'Annual Report Photography',
-    'Aviation Photography',
-    'Art Reproduction Photography',
-    'Tattoo Photography',
-    'Event Highlight Photography',
-    'Experimental Photography',
-    'Environmental Portraits',
-    'Cosplay Photography',
-    'Festival Photography',
-    'Hospitality Photography',
-    'Insurance Claim Photography',
-    'Custom Album Design Services',
-    'Virtual Tour Photography'
-  ];
 
 
   const submitBusinessForm = async () => {
@@ -365,7 +163,7 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
       business_address: formData.location,
       website: formData.website,
       services: formData.services,
-      // profileImage: formData.profileImage
+      business_profile_base64: formData.businessProfileImage
     }
     try {
       const response = await fetch(`${Server_url}/owner/update-business`, {
@@ -442,11 +240,6 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
       hasErrors = true;
     }
 
-    // Services validation
-    if (selectedTypes.length === 0 && customServices.length === 0) {
-      newErrors.services = 'Please add at least one service';
-      hasErrors = true;
-    }
 
     setErrors(newErrors);
 
@@ -463,9 +256,9 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
 
         <div className="profile-avatar-container">
             <div className="profile-avatar">
-                {profileImage ? (
+                {formData.businessProfileImage ? (
                     <>
-                        <img src={profileImage} alt="Profile" />
+                        <img src={formData.businessProfileImage} alt="Profile" />
                         <div className="camera-overlay">
                             <FaCamera className="camera-icon" />
                         </div>
@@ -490,16 +283,21 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
                         id="profile-image-input"
                     />
                 </label>
-                <button 
+                <div 
                     className="delete-btn"
-                    onClick={handleDeleteImage}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDeleteImage(e);
+                    }}
                 >
                     Delete avatar
-                </button>
+                </div>
             </div>
         </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => {
+        e.preventDefault();
+      }}>
 
 
       <div className="form-group_for_2_inputs">
@@ -540,75 +338,14 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
         
         
    
-        <div className="other-input-container">
-          <div className="form-group_with_button">
-            <label>Business Services</label>
-            <div className="input-suggestions-container">
-              <input
-                placeholder="Tell us about your service..."
-                value={otherServiceDescription}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                onKeyPress={handleKeyPress}
-                onBlur={handleInputBlur}
-                className="other-input"
-              />
-              {errors.services && <span className="error">{errors.services}</span>}
-              {showSuggestions && filteredSuggestions.length > 0 && (
-                <div className="suggestions-list">
-                  {filteredSuggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className={`suggestion-item ${index === selectedIndex ? 'selected' : ''}`}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                    >
-                      {suggestion}
-                    </div>
-                  ))}
-                </div>
-              )}
-              <button 
-                className="add-button" 
-                onClick={handleAddCustomService} 
-                disabled={!otherServiceDescription.trim()}
-              >
-                Add Service
-              </button>
-            </div>
-
-
-            {(selectedTypes.length > 0 || customServices.length > 0) && (
-        <div className="selected-services">
-          <h3>Your Selected Services:</h3>
-          <div className="selected-items">
-            {selectedTypes.map((service, index) => (
-              <div key={`selected-${index}`} className="selected-item">
-                <span>{service}</span>
-                <div className="delete-button" onClick={() => removeCustomService(index, true)}>x</div>
-              </div>
-            ))}
-            {customServices.map((service, index) => (
-              <div key={`custom-${index}`} className="selected-item">
-                <span>{service}</span>
-                <div className="delete-button" onClick={() => removeCustomService(index)}>x</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-
-      
-
-
-
-          </div>
-        </div>
 
 
 
         <div className="form-group">
-            <button type="submit" className="ok-button">Save And Next</button>
+            <button onClick={(e) => {
+              e.preventDefault();
+              handleSubmit(e);
+            }} className="ok-button">Save And Next</button>
         </div>
       </form>
 

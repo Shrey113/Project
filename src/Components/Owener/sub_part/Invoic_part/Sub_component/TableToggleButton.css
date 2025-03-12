@@ -43,7 +43,7 @@
   display: none;
 }
 
-.button_con button {
+.button_con_wrap .button_con button {
   position: relative;
   padding: 8px 10px;
   font-size: 16px;
@@ -96,7 +96,7 @@
     --button-width: 160px;
   }
 
-  .button_con button {
+  .button_con_wrap .button_con button {
     font-size: 15px;
     padding: 10px 20px;
   }
@@ -107,7 +107,7 @@
     --button-width: 150px;
   }
 
-  .button_con button {
+  .button_con_wrap .button_con button {
     font-size: 14px;
     padding: 10px 18px;
   }
@@ -126,7 +126,7 @@
     --button-width: 140px;
   }
 
-  .button_con button {
+  .button_con_wrap .button_con button {
     font-size: 13px;
     padding: 8px 15px;
   }
@@ -146,7 +146,7 @@
 
   }
 
-  .button_con button {
+  .button_con_wrap .button_con button {
     font-size: 12px;
     padding: 8px 12px;
   }
@@ -157,7 +157,7 @@
     --button-width: 120px;
   }
 
-  .button_con button {
+  .button_con_wrap .button_con button {
     font-size: 11px;
     padding: 6px 10px;
   }

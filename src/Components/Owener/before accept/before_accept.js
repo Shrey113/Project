@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import "./before_accept.css"
 
@@ -11,7 +11,7 @@ import UserProfilePage from './sub_part/UserProfilePage'
 import Status_Pending from './../../../Assets/Owener/file.gif';
 import Status_rejected from './../../../Assets/Owener/rejected.gif';
 import {Server_url,localstorage_key_for_client,showWarningToast} from './../../../redux/AllData.js';
-
+import socket  from './../../../redux/socket.js';
 
 
 const ComonPopup = ({showPopup,setShowPopup}) => {
@@ -22,8 +22,8 @@ const ComonPopup = ({showPopup,setShowPopup}) => {
     <div className="Dashboard_main_con">
         {/* Pop-up Modal */}
         {showPopup && (
-                <div className="popup-overlay">
-                    <div className="popup-content">
+                <div className="popup-overlay" onClick={() => setShowPopup(false)}>
+                    <div className="popup-content" onClick={(e) => e.stopPropagation()}>
                         <h2>User Details</h2>
 
 
@@ -151,6 +151,17 @@ export const RejectedStatus = () => {
 export const PendingStatus = () => {
   const user = useSelector((state) => state.user);
   const [showPopup, setShowPopup] = useState(false);
+  useEffect(() => {
+    socket.on(`user_status_updated_${user.user_email}`, (data) => {
+      console.log(data);
+      if(data.user_Status === 'Accept'){
+        window.location.reload();
+      }
+    });
+    return () => {
+      socket.off(`user_status_updated_${user.user_email}`);
+    };
+  }, [user.user_email]);
   return (
   
       <div className="Dashboard_main_con">
@@ -176,113 +187,173 @@ export const PendingStatus = () => {
 
 
 export const BeforeAccept = () => {
+  
   const [currentStep, setCurrentStep] = useState(1);
+  const [pageStatus, setPageStatus] = useState({
+    page1: false,
+    page2: false,
+    page3: false,
+    page4: false
+  });
 
+  const user = useSelector((state) => state.user);
 
-
-  const [is_Page1, setIs_Page1] = useState(true);
-  const [is_Page2, setIs_Page2] = useState(true);
-  const [is_Page3, setIs_Page3] = useState(true);
- 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if(currentStep === 1){
+      document.querySelector('.before_accept_container .content_section').style.transition = 'max-width 0.5s ease';
+      document.querySelector('.before_accept_container .content_section').style.maxWidth = '980px';
+    } else if(currentStep === 2){
+      document.querySelector('.before_accept_container .content_section').style.transition = 'max-width 0.5s ease';
+      document.querySelector('.before_accept_container .content_section').style.maxWidth = '980px';
+    }
+    else if(currentStep === 4){
+      document.querySelector('.before_accept_container .content_section').style.transition = 'max-width 0.1s ease';
+      document.querySelector('.before_accept_container .content_section').style.maxWidth = '1400px';
+    }else{
+      document.querySelector('.before_accept_container .content_section').style.transition = 'max-width 0.5s ease';
+      document.querySelector('.before_accept_container .content_section').style.maxWidth = '1200px';
+    }
+    
+  }, [currentStep]);
 
   const handleStepClick = (stepId) => {
-    switch (stepId) {
-      case 1:
-        setCurrentStep(1);
-        break;
-      case 2:
-        if (is_Page1) {
-          setCurrentStep(2);
-        } else {
-          showWarningToast({message: "Please complete the User Profile section first!" });
-        }
-        break;
-      case 3:
-        if (is_Page1 && is_Page2) {
-          setCurrentStep(3);
-        } else {
-          if (!is_Page1) {
-            showWarningToast({message: "Please complete the User Profile section first!" });
-          } else if (!is_Page2) {
-            showWarningToast({message: "Please complete the Business Profile section first!" });
-          }
-        }
-        break;
-      case 4:
-        if (is_Page1 && is_Page2 && is_Page3) {
-          setCurrentStep(4);
-        } else {
-          if (!is_Page1) {
-            showWarningToast({message: "Please complete the User Profile section first!" });
-          } else if (!is_Page2) {
-            showWarningToast({message: "Please complete the Business Profile section first!" });
-          } else if (!is_Page3) {
-            showWarningToast({message: "Please complete the Portfolio section first!" });
-          }
-        }
-        break;
-      default:
-        break;
+    const canProceed = () => {
+      switch (stepId) {
+        case 1:
+          return true;
+        case 2:
+          return pageStatus.page1;
+        case 3:
+          return pageStatus.page1 && pageStatus.page2;
+        case 4:
+          return pageStatus.page1 && pageStatus.page2 && pageStatus.page3;
+        default:
+          return false;
+      }
+    };
+
+    if (canProceed()) {
+      setCurrentStep(stepId);
+    } else {
+      if (!pageStatus.page1) {
+        showWarningToast({message: "Please complete the User Profile section first!"});
+      } else if (!pageStatus.page2) {
+        showWarningToast({message: "Please complete the Business Profile section first!"});
+      } else if (!pageStatus.page3) {
+        showWarningToast({message: "Please complete the Portfolio section first!"});
+      }
+    }
+  };
+
+  const updatePageStatus = (page, status) => {
+    setPageStatus(prev => ({
+      ...prev,
+      [page]: status
+    }));
+  };
+
+  function get_width_of_progress_bar(currentStep){
+    if(currentStep === 1){
+      return 5;
+    }else if(currentStep === 2){
+      return 35;
+    }else if(currentStep === 3){
+      return 65;
+    }else if(currentStep === 4){
+      return 95;
     }
   }
+
   return (
     <div className='before_accept_container'>
-
-
       <div className="content_section">
-        
-      <div className='progress_bar'>
-        <div className='step_item'>
-          <div 
-            className={`step_number ${currentStep >= 1 ? 'active' : ''}`}
-            onClick={() => handleStepClick(1)}
-          >
-            1
-          </div>
-          <div className='step_name'>User Profile</div>
-          <div className={`connector ${currentStep > 1 ? 'active' : ''}`} />
+        <div className="welcome_header">
+          <h1>Hey {user.user_name}! 👋</h1>
+          <p>Let's complete your profile to get started</p>
         </div>
 
-        <div className='step_item'>
-          <div 
-            className={`step_number ${currentStep >= 2 ? 'active' : ''}`}
-            onClick={() => handleStepClick(2)}
-          >
-            2
+        <div className='progress_bar'>
+          <div className='progress_line'>
+            <div 
+              className='progress_completed' 
+              style={{
+                width: `${get_width_of_progress_bar(currentStep)}%`
+              }}
+            />
           </div>
-          <div className='step_name'>Business Profile</div>
-          <div className={`connector ${currentStep > 2 ? 'active' : ''}`} />
+          
+          <div className='steps_container'>
+            <div className='step_item'>
+              <div 
+                className={`step_circle ${currentStep >= 1 ? 'active' : ''}`}
+                onClick={() => handleStepClick(1)}
+              >
+                1
+              </div>
+              <div className='step_label'>User Profile</div>
+            </div>
+
+            <div className='step_item'>
+              <div 
+                className={`step_circle ${currentStep >= 2 ? 'active' : ''}`}
+                onClick={() => handleStepClick(2)}
+              >
+                2
+              </div>
+              <div className='step_label'>Business Profile</div>
+            </div>
+
+            <div className='step_item'>
+              <div 
+                className={`step_circle ${currentStep >= 3 ? 'active' : ''}`}
+                onClick={() => handleStepClick(3)}
+              >
+                3
+              </div>
+              <div className='step_label'>Portfolio</div>
+            </div>
+
+            <div className='step_item'>
+              <div 
+                className={`step_circle ${currentStep >= 4 ? 'active' : ''}`}
+                onClick={() => handleStepClick(4)}
+              >
+                4
+              </div>
+              <div className='step_label'>Equipments</div>
+            </div>
+          </div>
         </div>
 
-        <div className='step_item'>
-          <div 
-            className={`step_number ${currentStep >= 3 ? 'active' : ''}`}
-            onClick={() => handleStepClick(3)}
-          >
-            3
-          </div>
-          <div className='step_name'>Portfolio</div>
-          <div className={`connector ${currentStep > 3 ? 'active' : ''}`} />
-        </div>
-
-        <div className='step_item'>
-          <div 
-            className={`step_number ${currentStep >= 4 ? 'active' : ''}`}
-            onClick={() => handleStepClick(4)}
-          >
-            4
-          </div>
-          <div className='step_name'>Equipments</div>
-        </div>
+        {/* Component rendering based on current step */}
+        {currentStep === 1 && (
+          <UserProfilePage
+            setIs_Page1={(status) => updatePageStatus('page1', status)}
+            setCurrentStep={setCurrentStep}
+          />
+        )}
+        {currentStep === 2 && (
+          <BusinessProfilePage
+            setIs_Page2={(status) => updatePageStatus('page2', status)}
+            setCurrentStep={setCurrentStep}
+          />
+        )}
+        {currentStep === 3 && (
+          <PortfolioPage
+            setIs_Page3={(status) => updatePageStatus('page3', status)}
+            setCurrentStep={setCurrentStep}
+          />
+        )}
+        {currentStep === 4 && (
+          <EquipmentsPage
+            setIs_Page4={(status) => updatePageStatus('page4', status)}
+            setCurrentStep={setCurrentStep}
+          />
+        )}
       </div>
-        {currentStep === 1 && <UserProfilePage  setIs_Page1={setIs_Page1} setCurrentStep={setCurrentStep}/>}
-        {currentStep === 2 && <BusinessProfilePage  setIs_Page2={setIs_Page2} setCurrentStep={setCurrentStep}/>}
-        {currentStep === 3 && <PortfolioPage  setIs_Page3={setIs_Page3} setCurrentStep={setCurrentStep}/>}
-        {currentStep === 4 && <EquipmentsPage  setCurrentStep={setCurrentStep}/>}
-      </div>
-
     </div>
-  )
-}
+  );
+};
 
 export default BeforeAccept;

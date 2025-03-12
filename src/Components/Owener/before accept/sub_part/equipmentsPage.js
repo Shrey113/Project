@@ -8,7 +8,7 @@ import tripod_icon from './test_img_equipment/Tripod.png'
 import lens_icon from './test_img_equipment/lens.png'
 
 import { Server_url, showRejectToast, showAcceptToast } from '../../../../redux/AllData';
-
+import { MdDeleteOutline } from "react-icons/md";
 function EquipmentsPage() {
 
 
@@ -34,9 +34,11 @@ function EquipmentsPage() {
     });
     
       const [equipmentItems, setEquipmentItems] = useState([]);
+      const [loading, setLoading] = useState(true);
 
 
       function getEquipmentItems(get_email){
+        setLoading(true);
         fetch(`${Server_url}/owner/equipment`, {
           method: 'POST',
           headers: {
@@ -53,8 +55,12 @@ function EquipmentsPage() {
             
             setEquipmentItems(data);
           }
+          setLoading(false);
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+          console.error('Error:', error);
+          setLoading(false);
+        });
       }
 
       useEffect(() => {
@@ -231,83 +237,96 @@ function EquipmentsPage() {
       )}
 
       <div className="Equipment_con">
-
-   
-
-        {equipmentItems.map((equipment) => (
-          <div className="equipment-card" key={equipment.id}>
-            <div className="equipment-img">
-              <img src={getImgByType(equipment.equipment_type)} alt={equipment.name} />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <div key={`skeleton-${index}`} className="equipment-card skeleton">
+              <div className="skeleton-img"></div>
+              <div className="skeleton-content">
+                <div className="skeleton-title"></div>
+                <div className="skeleton-text"></div>
+                <div className="skeleton-text"></div>
+                <div className="skeleton-text-long"></div>
+              </div>
             </div>
-            <div className="equipment-info">
-              <h3>{equipment.name}</h3>
-              <p className="company">{equipment.equipment_type} • {equipment.equipment_company}</p>
-              <p className="price">Rs.{equipment.equipment_price_per_day}/day</p>
-              <p className="description">{equipment.equipment_description}</p>
-            </div>
+          ))
+        ) : (
+          <>
+            {equipmentItems.map((equipment) => (
+              <div className="equipment-card" key={equipment.id}>
+                <div className="equipment-img">
+                  <img src={getImgByType(equipment.equipment_type)} alt={equipment.name} />
+                </div>
+                <div className="equipment-info">
+                  <h3>{equipment.name}</h3>
+                  <p className="company">{equipment.equipment_type} • {equipment.equipment_company}</p>
+                  <p className="price">Rs.{equipment.equipment_price_per_day}/day</p>
+                  <p className="description">{equipment.equipment_description}</p>
+                </div>
 
-            <div className="remove-btn">
-              <button onClick={() => handleRemove(equipment.id,equipment.user_equipment_id)}>Remove</button>
-            </div>
-          </div>
-        ))}
+                <div className="remove-btn">
+                  <button onClick={() => handleRemove(equipment.id,equipment.user_equipment_id)}> <MdDeleteOutline/></button>
+                </div>
+              </div>
+            ))}
 
-{equipmentItems.length < 4 && (
-          <div className="equipment-card add-form">
-            <div className="equipment-img">
-              <img src={newEquipment.image} alt="Equipment Type" />
-            </div>
-            <div className="equipment_new_info">
-              <input type="text" name="name" placeholder="Equipment Name" value={newEquipment.name} onChange={handleInputChange} />
+            {equipmentItems.length < 4 && (
+              <div className="equipment-card add-form">
+                <div className="equipment-img">
+                  <img src={newEquipment.image} alt="Equipment Type" />
+                </div>
+                <div className="equipment_new_info">
+                  <input type="text" name="name" placeholder="Equipment Name" value={newEquipment.name} onChange={handleInputChange} />
 
-              <span>
-              <input type="text" name="equipment_company" placeholder="Company" value={newEquipment.equipment_company} onChange={handleInputChange} />
-              <select name="type" value={newEquipment.type} onChange={handleInputChange} >
-                {equipmentTypes.map((type) => (
-                  <option key={type.type} value={type.type}>
-                    {type.type}
-                  </option>
-                ))}
-              </select>
-              </span>
-              <input 
-                type="number" 
-                name="pricePerDay" 
-                placeholder="Price per day Rs." 
-                value={newEquipment.pricePerDay} 
-                onChange={handleInputChange} 
-              />
+                  <span>
+                  <input type="text" name="equipment_company" placeholder="Company" value={newEquipment.equipment_company} onChange={handleInputChange} />
+                  <select name="type" value={newEquipment.type} onChange={handleInputChange} >
+                    {equipmentTypes.map((type) => (
+                      <option key={type.type} value={type.type}>
+                        {type.type}
+                      </option>
+                    ))}
+                  </select>
+                  </span>
+                  <input 
+                    type="number" 
+                    name="pricePerDay" 
+                    placeholder="Price per day Rs." 
+                    value={newEquipment.pricePerDay} 
+                    onChange={handleInputChange} 
+                  />
 
-              <textarea
-                name="description"
-                placeholder="Description"
-                value={newEquipment.description}
-                onChange={handleInputChange}
-              />
-         
-              <button 
-                className="save-btn"
-                onClick={() => {
-                  handleAddEquipment();
-                  setNewEquipment({
-                    name: '',
-                    equipment_company: '',
-                    type: 'Camera',
-                    description: '',
-                    image: camera_icon,
-                    pricePerDay: ''
-                  });
-                }}
-              >
-                Save Equipment
-              </button>
-            </div>
-          </div>
+                  <textarea
+                    name="description"
+                    placeholder="Description"
+                    value={newEquipment.description}
+                    onChange={handleInputChange}
+                  />
+             
+                  <button 
+                    className="save-btn"
+                    onClick={() => {
+                      handleAddEquipment();
+                      setNewEquipment({
+                        name: '',
+                        equipment_company: '',
+                        type: 'Camera',
+                        description: '',
+                        image: camera_icon,
+                        pricePerDay: ''
+                      });
+                    }}
+                  >
+                    Save Equipment
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {showNextButton && (
-          <div style={{ textAlign: 'center', margin: '20px 0' }}>
+          <div style={{ textAlign: 'left', margin: '20px 0' }}>
               <button 
                   className="next-btn"
                   onClick={() => {

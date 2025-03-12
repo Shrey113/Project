@@ -785,7 +785,11 @@ const OwnerDetails = () => {
 
         <div className="swiper_container_for_packages">
           {/* Previous Button */}
-          <div className="custom-swiper-button-prev-packages">❮</div>
+          <div className="custom-swiper-button-prev-packages"
+            style={{
+              display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
+            }}
+          >❮</div>
 
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
@@ -872,7 +876,11 @@ const OwnerDetails = () => {
             )}
           </Swiper>
           {/* Next Button */}
-          <div className="custom-swiper-button-next-packages">❯</div>
+          <div className="custom-swiper-button-next-packages"
+            style={{
+              display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
+            }}
+          >❯</div>
         </div>
       </div>
 
@@ -893,7 +901,11 @@ const OwnerDetails = () => {
 
             <div className="swiper_container_for_equipment">
 
-              <div className="custom-swiper-button-prev-equipment">❮</div>
+              <div className="custom-swiper-button-prev-equipment"
+                style={{
+                  display: `${ownerData.equipment?.length > 3 ? "flex" : "none"}`,
+                }}
+              >❮</div>
               <Swiper
                 modules={[Navigation, Pagination, Autoplay]}
                 slidesPerView="auto"
@@ -942,7 +954,11 @@ const OwnerDetails = () => {
                   </SwiperSlide>
                 ))}
               </Swiper>
-              <div className="custom-swiper-button-next-equipment">❯</div>
+              <div className="custom-swiper-button-next-equipment"
+                style={{
+                  display: `${ownerData.equipment?.length > 3 ? "flex" : "none"}`,
+                }}
+              >❯</div>
             </div>
           </ul>
         ) : (
@@ -970,7 +986,11 @@ const OwnerDetails = () => {
             <hr style={{ width: "98%", margin: "auto" }} />
 
             <div className="swiper_container_for_services">
-              <div className="custom-swiper-button-prev-services">❮</div>
+              <div className="custom-swiper-button-prev-services"
+                style={{
+                  display: `${ownerData.services?.length > 3 ? "flex" : "none"}`,
+                }}
+              >❮</div>
 
               <Swiper
                 modules={[Navigation, Pagination, Autoplay]}
@@ -1016,7 +1036,11 @@ const OwnerDetails = () => {
                 ))}
               </Swiper>
 
-              <div className="custom-swiper-button-next-services">❯</div>
+              <div className="custom-swiper-button-next-services"
+                style={{
+                  display: `${ownerData.services?.length > 3 ? "flex" : "none"}`,
+                }}
+              >❯</div>
             </div>
           </ul>
         ) : (
