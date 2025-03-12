@@ -1,10 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./DraftInvoiceLayout.css";
 import { useSelector } from "react-redux";
-import { Server_url,showAcceptToast,showWarningToast,showRejectToast } from "../../../../../redux/AllData";
+import { Server_url, showAcceptToast, showWarningToast, showRejectToast } from "../../../../../redux/AllData";
 import { FaArrowLeft } from "react-icons/fa";
 import html2pdf from "html2pdf.js";
+import { MdEmail } from "react-icons/md";
+import { FaLocationDot } from "react-icons/fa6";
+import { FaUser } from "react-icons/fa";
 import { useCount } from "../../../../../redux/CountContext";
+
 
 
 function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
@@ -18,6 +22,9 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
 
   const { decrementCount } = useCount();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+
+  const [terms, setTerms] = useState("1. ");
+  const [signature_file, set_signature_file] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -66,6 +73,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
     items: invoiceData.items,
     as_draft: 1,
   });
+  console.log("invoice...............", invoiceData);
 
   const handleConfirmRecipient = () => {
     setToggle_recipient_input(false);
@@ -118,8 +126,43 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => setLogoPreview(reader.result);
+      reader.onloadend = async () => {
+        setLogoPreview(reader.result);
+        uploadBase64ImageDraft(reader.result);
+      };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadBase64ImageDraft = async () => {
+    if (!logoPreview) {
+      showWarningToast({ message: "Please upload an image first." });
+      return;
+    }
+
+    try {
+      const response = await fetch(`${Server_url}/upload-draft-invoice-photo`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          image: logoPreview,
+          user_email: user.user_email,
+          invoice_id: invoice.invoice_id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image.");
+      }
+
+      const data = await response.json();
+      showAcceptToast({ message: "Image uploaded successfully!" });
+      console.log("Server response:", data);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      showRejectToast({ message: "Error uploading image. Please try again." });
     }
   };
 
@@ -177,237 +220,253 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
     });
   };
 
+  const formatAmount = (amount) => parseFloat(amount).toFixed(2);
+
   const removeRow = (index) => {
-    const items = [...invoice.items];
-    items.splice(index, 1);
-    const sub_total = items.reduce(
-      (sum, item) => sum + parseFloat(item.amount || 0),
-      0
-    );
-    setInvoice({
-      ...invoice,
-      items,
-      sub_total,
-      gst: (sub_total * 0.18).toFixed(2),
-      total: (sub_total * 1.18).toFixed(2),
+    setInvoice((prevInvoice) => {
+      const updatedItems = prevInvoice.items.filter((_, i) => i !== index);
+
+      const sub_total = updatedItems.reduce(
+        (sum, item) => sum + parseFloat(item.amount || 0),
+        0
+      );
+      const gst = sub_total * 0.18;
+      const total = sub_total + gst;
+
+      return {
+        ...prevInvoice,
+        items: updatedItems,
+        sub_total,
+        gst,
+        total,
+      };
     });
   };
 
-  // const generateInvoiceContent = (doc) => {
-  //   // Set font styles
-  //   doc.setFont("helvetica", "bold");
-  //   doc.setFontSize(24);
-  //   doc.text("INVOICE", 14, 30);
 
-  //   // Company details section
-  //   doc.setFontSize(12);
-  //   doc.text("From:", 14, 45);
-  //   doc.setFont("helvetica", "normal");
-  //   doc.text(`${user.user_name}`, 14, 55);
-  //   doc.text(`${user.business_address}`, 14, 65);
-  //   doc.text(`${user.user_email}`, 14, 75);
-  //   doc.text(`GST No: ${user.gst_number}`, 14, 85);
-
-  //   // Bill to section
-  //   doc.setFont("helvetica", "bold");
-  //   doc.text("Bill To:", 120, 45);
-  //   doc.setFont("helvetica", "normal");
-  //   doc.text(`${invoice.invoice_to}`, 120, 55);
-  //   doc.text(`${invoice.invoice_to_address || ""}`, 120, 65);
-  //   doc.text(`${invoice.invoice_to_email || ""}`, 120, 75);
-
-  //   // Invoice details
-  //   doc.setFont("helvetica", "bold");
-  //   doc.text(`Invoice No: ${invoice.invoice_id}`, 120, 85);
-  //   doc.text(`Date: ${(new Date(invoice.date), "dd/MM/yyyy")}`, 120, 95);
-
-  //   // Items table
-  //   autoTable(doc, {
-  //     startY: 110,
-  //     head: [["Item", "Quantity", "Price", "Amount"]],
-  //     body: invoice.items.map((item) => [
-  //       item.item,
-  //       item.quantity,
-  //       `₹${item.price.toFixed(2)}`,
-  //       `₹${item.amount.toFixed(2)}`,
-  //     ]),
-  //     theme: "grid",
-  //     headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-  //     styles: { fontSize: 10 },
-  //   });
-
-  //   // Summary section
-  //   const finalY = doc.autoTable.previous.finalY + 10;
-  //   doc.setFontSize(10);
-
-  //   // Right-aligned summary
-  //   const rightColumn = 190;
-  //   doc.text(
-  //     `Subtotal: ₹${invoice.sub_total.toFixed(2)}`,
-  //     rightColumn,
-  //     finalY,
-  //     { align: "right" }
-  //   );
-  //   doc.text(
-  //     `GST (18%): ₹${invoice.gst.toFixed(2)}`,
-  //     rightColumn,
-  //     finalY + 10,
-  //     { align: "right" }
-  //   );
-
-  //   doc.setFont("helvetica", "bold");
-  //   doc.text(`Total: ₹${invoice.total.toFixed(2)}`, rightColumn, finalY + 20, {
-  //     align: "right",
-  //   });
-
-  //   // Footer
-  //   doc.setFont("helvetica", "normal");
-  //   doc.setFontSize(8);
-  //   doc.text("Thank you for your business!", 14, finalY + 40);
-  // };
-
-  // const generatePDF = () => {
-  //   const doc = new jsPDF();
-
-  //   const addLogoIfExists = () => {
-  //     return new Promise((resolve) => {
-  //       if (logoPreview) {
-  //         const img = new Image();
-  //         img.onload = () => {
-  //           // Calculate aspect ratio to maintain logo proportions
-  //           const imgWidth = 40;
-  //           const imgHeight = (img.height * imgWidth) / img.width;
-  //           doc.addImage(img, "JPEG", 14, 10, imgWidth, imgHeight);
-  //           resolve();
-  //         };
-  //         img.src = logoPreview;
-  //       } else {
-  //         resolve();
-  //       }
-  //     });
-  //   };
-
-  //   // Generate PDF with proper async handling
-  //   addLogoIfExists().then(() => {
-  //     generateInvoiceContent(doc);
-  //     doc.save(`Invoice_${invoice.invoice_id}.pdf`);
-  //   });
-  // };
-
+  // new one invoice pdf 
   const generatePDF = () => {
-    // Create a container div for the PDF content
     const element = document.createElement("div");
     element.className = "pdf-container";
 
-    // Generate the HTML content
     element.innerHTML = `
-      <div class="invoice-page" style="
-        padding: 40px;
-        font-family: Arial, sans-serif;
-        position: relative;
-        background: white;
-        width: 210mm;
-        min-height: 297mm;
-        margin: 0 auto;
-      ">
-        <div class="header" style="
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 30px;
-        ">
-          ${
-            logoPreview
-              ? `
-            <div class="logo" style="width: 150px; height: 90px;">
-              <img src="${logoPreview}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-            </div>
-          `
-              : `
-            <div style="width: 150px; height: 80px;"></div>
-          `
+        <style>
+          .invoice-page {
+            padding: 40px;
+            font-family: 'Arial', sans-serif;
+            background: #fff;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
           }
-          <div class="invoice-title" style="text-align: right; font-size: 24px; font-weight: bold;">
-            INVOICE<br/>
-            <span style="font-size: 14px;">Invoice No: ${
-              invoice.invoice_id
-            }</span><br/>
-            <span style="font-size: 14px;">Date: ${invoice.date}</span>
-          </div>
-        </div>
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+          }
+          .from-address{
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+          }
+          .logo img {
+            max-width: 100%;
+            max-height: 90px;
+            object-fit: contain;
+          }
+          
+          .address-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+          }
 
-        <div class="address-section" style="
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 40px;
-        ">
-          <div class="from-address">
-            <h3 style="margin-bottom: 10px;">From:</h3>
-            <p style="margin: 0;">${user.user_name}</p>
-            <p style="margin: 0;">${user.business_address}</p>
-            <p style="margin: 0;">${user.user_email}</p>
-            <p style="margin: 0;">GST No: ${user.gst_number}</p>
-          </div>
-          <div class="to-address" style="text-align: right;">
-            <h3 style="margin-bottom: 10px;">Bill To:</h3>
-            <p style="margin: 0;">${invoice.invoice_to}</p>
-            <p style="margin: 0;">${invoice.invoice_to_address || ""}</p>
-            <p style="margin: 0;">${invoice.invoice_to_email || ""}</p>
-          </div>
-        </div>
+          h3 {
+            font-size: 18px;
+          }
 
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-          <thead>
-            <tr style="background-color: #f8f9fa;">
-              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: left;">Item</th>
-              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Quantity</th>
-              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Price</th>
-              <th style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${invoice.items
-              .map(
-                (item) => `
+          .to-address{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+            justify-content: center;
+          }
+          .invoice-title{
+            display: flex;
+            alin-items: flex-end ;
+            justify-content: flex-start;
+            gap: 10px;
+            flex-direction: column;
+            font-weight: bold;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+          }
+          table thead tr {
+            background-color: #f8f9fa;
+          }
+          table th,
+          table td {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+          }
+          table th {
+            text-align: left;
+          }
+          table td {
+            text-align: right;
+          }
+          table td:first-child {
+            text-align: left;
+          }
+          .summary-section {
+            margin-left: auto;
+            width: 300px;
+          }
+          .summary-section div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+          }
+          .summary-section .total {
+            font-weight: bold;
+            border-top: 2px solid #dee2e6;
+            padding-top: 10px;
+            margin-top: 10px;
+          }
+          .terms {
+            font-size: 12px;
+            white-space: pre-line;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 10px;
+          }
+          .terms p{
+            font-size: 12px;
+          }
+          .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            border:none;
+          }
+          .signature {
+            text-align: center;
+          }
+          .signature img {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 10px;
+          }
+          .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+          }
+        </style>
+    
+        <div class="invoice-page">
+          <div class="header">
+            ${logoPreview
+        ? `<div class="logo"><img src="${logoPreview}" alt="Logo" /></div>`
+        : `<div class="logo" style="width: 150px; height: 80px;"></div>`
+      }
+            <div class="from-address">
+              <h2>${user.business_name}</h2>
+              <p style="margin: 0;">${user.user_name}</p>
+              <p style="margin: 0;">${user.business_address}</p>
+              <p style="margin: 0;">${user.user_email}</p>
+            </div>
+            
+          </div>
+          <h3 style="margin-bottom: 14px;"> INVOICE </h3>
+          <div class="address-section">
+      
+            <div class="to-address">
+              <span style="font-size: 14px;"><strong>Recipient Name : </strong>${invoice.invoice_to}</span>
+              <span style="font-size: 14px;"><strong>Recipient Address : </strong>${invoice.invoice_to_address || ""}</span>
+              <span style="font-size: 14px;"><strong>Recipient Email : </strong> ${invoice.invoice_to_email || ""}</span>
+            </div>
+            
+            <div class="invoice-title">
+              <span style="font-size: 14px;">Invoice No: ${invoice.invoice_id}</span>
+              <span style="font-size: 14px;">Date: ${invoice.date}</span>
+              <span style="font-size: 14px;">GST No: ${user.gst_number}</span>
+            </div>
+
+          </div>
+    
+          <table>
+            <thead>
               <tr>
-                <td style="padding: 12px; border: 1px solid #dee2e6;">${
-                  item.item
-                }</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">${
-                  item.quantity
-                }</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.price.toFixed(
-                  2
-                )}</td>
-                <td style="padding: 12px; border: 1px solid #dee2e6; text-align: right;">₹${item.amount.toFixed(
-                  2
-                )}</td>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Amount</th>
               </tr>
-            `
-              )
-              .join("")}
-          </tbody>
-        </table>
-
-        <div class="summary-section" style="margin-left: auto; width: 300px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span>Subtotal:</span>
-            <span>₹${invoice.sub_total.toFixed(2)}</span>
+            </thead>
+            <tbody>
+              ${invoice.items
+        .map(
+          (item) => `
+                    <tr>
+                      <td>${item.item}</td>
+                      <td>${item.quantity}</td>
+                      <td>₹${formatAmount(item.price)}</td>
+                      <td>₹${formatAmount(item.amount)}</td>
+                    </tr>
+                  `
+        )
+        .join("")}
+            </tbody>
+          </table>
+    
+          <div class="summary-section">
+            <div>
+              <span>Subtotal:</span>
+              <span>₹${formatAmount(invoice.sub_total)}</span>
+            </div>
+            <div>
+              <span>GST (18%):</span>
+              <span>₹${formatAmount(invoice.gst)}</span>
+            </div>
+            <div class="total">
+              <span>Total:</span>
+              <span>₹${formatAmount(invoice.total)}</span>
+            </div>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span>GST (18%):</span>
-            <span>₹${invoice.gst.toFixed(2)}</span>
+    
+          
+    
+          <div class="signature-section">
+            <div class="terms">
+              <h3>Terms & Conditions:</h3>
+              <p> ${terms || "No terms specified"} </p>
+            </div>
+            <div class="signature">
+              ${signature_file ? `<img src="${signature_file}" alt="Signature" />`
+        : '<div style="width: 150px; border-top: 1px solid #000;"></div>'
+      }
+              <div style="font-size: 14px;">Authorized Signature</div>
+            </div>
+            
           </div>
-          <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; border-top: 2px solid #dee2e6; padding-top: 10px;">
-            <span>Total:</span>
-            <span>₹${invoice.total.toFixed(2)}</span>
+    
+          <div class="footer">
+            <p>Thank you for your business!</p>
           </div>
         </div>
-
-        <div class="footer" style="margin-top: 50px; text-align: center; font-size: 12px; color: #6c757d;">
-          <p>Thank you for your business!</p>
-        </div>
-      </div>
-    `;
+      `;
 
     // Configure pdf options
     const opt = {
@@ -433,7 +492,6 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
 
   const fetchInvoicesWithDraft = async (user_email) => {
     try {
-      // setLoading(true);
       const response = await fetch(`${Server_url}/invoices/with-draft`, {
         method: "POST",
         headers: {
@@ -462,7 +520,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
       invoice.invoice_to_address === "" ||
       invoice.invoice_to_email === ""
     ) {
-      showWarningToast({message: "Please fill in all required fields" });
+      showWarningToast({ message: "Please fill in all required fields" });
       return;
     }
 
@@ -473,7 +531,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
         isNaN(item.amount) ||
         item.amount <= 0
       ) {
-        showWarningToast({message: "Please ensure all items have a name and a valid amount." });
+        showWarningToast({ message: "Please ensure all items have a name and a valid amount." });
         return;
       }
     }
@@ -492,6 +550,8 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
         date: date,
         user_email: user.user_email,
         as_draft: 0,
+        signature_file: signature_file,
+        terms: terms,
       };
 
       const response = await fetch(`${Server_url}/add-draft-as-invoice`, {
@@ -509,28 +569,51 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
       const data = await response.json();
       console.log(data);
       decrementCount();
-      fetchInvoicesWithDraft(user.user_email);
-      showAcceptToast({message: "Invoice generated successfully!" });
+      showAcceptToast({ message: "Invoice generated successfully!" });
       setDraftInvoiceChange(false);
+      fetchInvoicesWithDraft(user.user_email);
       generatePDF();
     } catch (error) {
       console.error("Error adding invoice:", error);
       if (error.message.includes("Failed to fetch")) {
-        showRejectToast({message: "Server connection error. Please check if the server is running." });
+        showRejectToast({ message: "Server connection error. Please check if the server is running." });
       } else {
-        showRejectToast({message: "Error generating invoice. Please try again." });
+        showRejectToast({ message: "Error generating invoice. Please try again." });
       }
     } finally {
       button.disabled = false;
       button.innerHTML = "Generate Invoice";
     }
   };
+  //  const fetchInvoicesWithDraft = async (user_email) => {
+  //     try {
+  //       // setLoading(true);
+  //       const response = await fetch(`${Server_url}/invoices/with-draft`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ user_email: user_email }),
+  //       });
+  //       const data = await response.json();
+  //       const with_draft = Array.isArray(data.with_draft)
+  //         ? [...data.with_draft].sort((a, b) => a.invoice_id - b.invoice_id)
+  //         : [];
+  //       setDraftInvoices(with_draft);
+  //       setDraftCount(with_draft.length);
+  //       console.log("Fetched draft invoices:", with_draft);
+  //     } catch (error) {
+  //       console.error("Error fetching invoices with draft:", error);
+  //       // setError("Failed to load invoices. Please try again later.");
+  //       setDraftInvoices([]);
+  //     }
+  //   };
 
   const handleSaveDraft = async () => {
     if (isSavedraft) return;
 
     if (!invoice.invoice_id || !user.user_email || !invoice.invoice_to) {
-      showWarningToast({message: "Cannot save draft without invoice ID or user email." });
+      showWarningToast({ message: "Cannot save draft without invoice ID or user email." });
       return;
     }
 
@@ -543,7 +626,11 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
         date,
         user_email: user.user_email,
         as_draft: 1,
+        terms: terms,
       };
+
+      console.log("draft invoice save", draftInvoice);
+      console.log("draft item save", invoice.items);
 
       const response = await fetch(`${Server_url}/save-draft-invoice`, {
         method: "POST",
@@ -560,50 +647,111 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
 
       const data = await response.json();
       if (data?.message?.includes("successfully")) {
-        showAcceptToast({message: "Draft saved successfully!" });
+        showAcceptToast({ message: "Draft saved successfully!" });
         fetchInvoicesWithDraft(user.user_email);
         setDraftInvoiceChange(false);
       } else {
-        showRejectToast({message: "Unexpected response from server." });
+        showRejectToast({ message: "Unexpected response from server." });
       }
     } catch (error) {
       console.error("Error saving draft:", error);
-      showRejectToast({message: "Error saving draft. Please try again." });
+      showRejectToast({ message: "Error saving draft. Please try again." });
     } finally {
       setIsSavedraft(false);
     }
   };
-  const uploadBase64ImageDraft = async () => {
-    if (!logoPreview) {
-      showWarningToast({message: "Please upload an image first." });
-      return;
-    }
 
-    try {
-      const response = await fetch(`${Server_url}/upload-draft-invoice-photo`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          image: logoPreview,
-          user_email: user.user_email,
-          invoice_id: invoice.invoice_id,
-        }),
-      });
 
-      if (!response.ok) {
-        throw new Error("Failed to upload image.");
-      }
 
-      const data = await response.json();
-      showAcceptToast({message: "Image uploaded successfully!" });
-      console.log("Server response:", data);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      showRejectToast({message: "Error uploading image. Please try again." });
+  const handleBullet = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+
+      const lines = terms.split("\n").filter(line => line.trim() !== "");
+      const lastLine = lines[lines.length - 1];
+      const lastNumber = parseInt(lastLine?.split(".")[0], 10) || 0;
+      const nextNumber = lastNumber + 1;
+
+      setTerms(terms + "\n" + nextNumber + ". ");
     }
   };
+
+  const handleFocus = () => {
+    if (!terms || terms.trim() === "") {
+      setTerms("1. ");
+    }
+  };
+
+  useEffect(() => {
+    const fetchSignatureTerms = async () => {
+      try {
+        const response = await fetch(`${Server_url}/fetch_signature_terms_draft`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_email: user.user_email,
+            invoice_id: invoice.invoice_id,
+          }),
+        })
+        const data = await response.json();
+        if (response.ok) {
+          set_signature_file(data.image);
+          setTerms(data.terms);
+        } else {
+          set_signature_file(null);
+          setTerms(null);
+        }
+      } catch (error) {
+        console.error("Error fetching signature:", error);
+      }
+    }
+    if (user.user_email) {
+      fetchSignatureTerms();
+    }
+  }, [user.user_email, invoice.invoice_id])
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async function () {
+      const base64String = reader.result;
+      set_signature_file(base64String);
+
+      try {
+        const response = await fetch(`${Server_url}/upload-signature-draft`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            signature_file: base64String,
+            user_email: user.user_email,
+            invoice_id: invoice.invoice_id,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to upload image.");
+        }
+
+        const data = await response.json();
+        if (data.message === "Signature uploaded successfully") {
+          console.log("Draft Signature uploaded successfully");
+          showAcceptToast({ message: "Signature uploaded successfully!" });
+        }
+      } catch (error) {
+        console.error("Error uploading signature:", error);
+      }
+    };
+
+    reader.readAsDataURL(file);
+  };
+
 
   return (
     <div className="invoice_and_table_container_draft">
@@ -613,15 +761,7 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
       </div>
       <div className="invoice_form">
         <div className="company_logo_invoice">
-          <div
-            className="logo_for_invoice"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
+          <div className="logo_for_invoice">
             <div className="preview_image">
               <input
                 type="file"
@@ -646,28 +786,34 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
                 {!logoPreview && <span>Click to upload</span>}
               </div>
             </div>
-            <button onClick={uploadBase64ImageDraft}>Upload Image</button>
           </div>
-          <div className="invoice_and_gst_no">
-            <div className="invoice_id">
-              <strong>INVOICE No :</strong> {invoice.invoice_id}
+
+          <div className="bill_from">
+            <div className="business_name">{user.business_name}</div>
+
+            <div className="invoice_top_field">
+              <FaUser style={{ color: "var(--color_main_button_owner)" }} />
+              <div>{user.user_name}</div>
             </div>
-            <div className="invoice_id">
-              {" "}
-              <strong>GST No :</strong> {user.gst_number}
+            <div className="invoice_top_field">
+              <FaLocationDot style={{ color: "var(--color_main_button_owner)" }} />
+              <div className="">{user.business_address}</div>
             </div>
+
+            <div className="invoice_top_field">
+              <MdEmail style={{ color: "var(--color_main_button_owner)" }} />
+              <div>{user.user_email}</div>
+            </div>
+
           </div>
         </div>
 
         <h1>INVOICE</h1>
         <div className="bill_details">
           <div className="bill_to">
-            <div className="date">
-              <strong>Date</strong> : {invoice.date}
-            </div>
             <div className="recipient_name">
               <div className="recipient-input" ref={inputRef}>
-                <strong>Bill to:</strong>
+                {/* <strong>Bill to:</strong> */}
                 {toggle_recipient_input ? (
                   <>
                     <input
@@ -676,13 +822,6 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
                       onChange={handleChange}
                       name="invoice_to"
                       placeholder="Enter Recipient Name"
-                      style={{
-                        padding: "5px",
-                        border: "none",
-                        outline: "1px solid #ddd",
-                        fontSize: "14px",
-                        borderRadius: "4px",
-                      }}
                       autoFocus
                     />
                     <button
@@ -691,22 +830,19 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
                         border: "none",
                         backgroundColor: "transparent",
                         cursor: "pointer",
-                        fontSize: "14px",
                       }}
                     >
-                      {" "}
-                      ✔{" "}
+                      ✔
                     </button>
                   </>
                 ) : (
-                  <p onClick={handle_toggle_input}>
+                  <div onClick={handle_toggle_input}>
                     {invoice.invoice_to || "Enter Recipient Name"}
-                  </p>
+                  </div>
                 )}
               </div>
 
               <div className="recipient-input" ref={addressRef}>
-                <strong> Address:</strong>
                 {toggleAddressInput ? (
                   <>
                     <textarea
@@ -714,17 +850,8 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
                       onChange={handleChange}
                       placeholder="Enter Address"
                       name="invoice_to_address"
-                      style={{
-                        padding: "4px",
-                        border: "none",
-                        outline: "1px solid #ddd",
-                        fontSize: "14px",
-                        borderRadius: "4px",
-                        width: "200px",
-                        height: "60px",
-                        resize: "none",
-                      }}
                       autoFocus
+                      cols={30}
                     />
                     <button
                       onClick={handleToggleAddressInput}
@@ -732,24 +859,23 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
                         border: "none",
                         backgroundColor: "transparent",
                         cursor: "pointer",
-                        fontSize: "14px",
                       }}
                     >
                       ✔
                     </button>
                   </>
                 ) : (
-                  <p
+                  <div
                     onClick={handleToggleAddressInput}
                     style={{ maxWidth: "300px", width: "200px" }}
                   >
                     {invoice.invoice_to_address || "Enter Address"}
-                  </p>
+                  </div>
                 )}
               </div>
 
               <div className="recipient-input" ref={emailRef}>
-                <strong>Email : </strong>
+                {/* <strong>Email : </strong> */}
                 {toggleEmailInput ? (
                   <>
                     <input
@@ -759,13 +885,6 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
                       placeholder="Enter Email ID"
                       name="invoice_to_email"
                       onBlur={handleBlur}
-                      style={{
-                        padding: "5px",
-                        border: "none",
-                        outline: "1px solid #ddd",
-                        fontSize: "14px",
-                        borderRadius: "4px",
-                      }}
                       autoFocus
                     />
                     <button
@@ -774,37 +893,43 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
                         border: "none",
                         backgroundColor: "transparent",
                         cursor: "pointer",
-                        fontSize: "14px",
                       }}
                     >
                       ✔
                     </button>
                     {emailError && (
-                      <p
+                      <div
                         style={{
                           color: "red",
-                          fontSize: "12px",
                           marginTop: "5px",
+                          outline: "none",
+                          border: "none",
+                          fontSize: 13,
                         }}
                       >
                         {emailError}
-                      </p>
+                      </div>
                     )}
                   </>
                 ) : (
-                  <p onClick={handleToggleEmailInput}>
+                  <div onClick={handleToggleEmailInput}>
                     {invoice.invoice_to_email || "Enter Email ID"}
-                  </p>
+                  </div>
                 )}
               </div>
             </div>
           </div>
-          <div className="bill_from">
-            <div className="recipient_name">
-              <strong>From:</strong>
-              <p>{user.user_name}</p>
-              <p>{user.business_address}</p>
-              <p>{user.user_email}</p>
+          <div className="invoice_and_gst_no">
+            <div className="invoice_id">
+              <strong>INVOICE No :</strong> {invoice.invoice_id}
+            </div>
+            <div className="date">
+              <strong>Date</strong> : {invoice.date}
+            </div>
+
+            <div className="invoice_id">
+              {" "}
+              <strong>GST No :</strong> {user.gst_number}
             </div>
           </div>
         </div>
@@ -963,104 +1088,104 @@ function DraftInvoiceLayout({ invoiceData, setDraftInvoiceChange }) {
           </button>
         </div>
 
-        <div className="invoice-summary">
-          <div className="summary-row">
-            <span className="summary-label">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              Invoice To
-            </span>
-            <span className="summary-value">{invoice.invoice_to}</span>
+        {/* terms and summary section */}
+        <div className="terms_and_summary">
+          <div className="invoice_terms">
+            <div className="terms_heading">Terms & Conditions</div>
+            <textarea
+              className="terms_textarea"
+              value={terms ? terms : ""}
+              onFocus={handleFocus}
+              onChange={(e) => setTerms(e.target.value)}
+              onKeyDown={handleBullet}
+              maxLength={150}
+              placeholder="Enter terms and conditions..."
+            ></textarea>
           </div>
+          <div className=" invoice-summary">
+            <div className="summary_calculate">
+              <div className="summary-row">
+                <span className="summary-label">Subtotal</span>
+                <span className="summary-value">₹{invoice.sub_total}</span>
+              </div>
 
-          <div className="summary-row">
-            <span className="summary-label">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-              Date
-            </span>
-            {/* {formatDateTime(invoice.date)} */}
-            <span className="summary-value">{invoice.date}</span>
+              <div className="summary-row">
+                <span className="summary-label">GST (18%)</span>
+                <span className="summary-value">₹{formatAmount(invoice.gst)}</span>
+              </div>
+
+              <div className="summary-row">
+                <span className="summary-label">Total Amount</span>
+                <span className="summary-value total-value">₹{formatAmount(invoice.total)}</span>
+              </div>
+
+            </div>
+
+            <div className="signature_wrapper">
+              <div className="invoice_signature">
+                <input
+                  type="file"
+                  id="signatureInput"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                />
+
+                <div className="signature_file" onClick={() => document.getElementById("signatureInput").click()}
+                  style={{
+                    backgroundImage: signature_file ? `url(${signature_file})` : "none",
+                  }}>
+                  {!signature_file && <span>Click to upload</span>}
+                </div>
+              </div>
+              <div className="signature_text">
+                Signature
+              </div>
+            </div>
           </div>
-
-          <div className="summary-row">
-            <span className="summary-label">Subtotal</span>
-            <span className="summary-value">₹{invoice.sub_total}</span>
-          </div>
-
-          <div className="summary-row">
-            <span className="summary-label">GST (18%)</span>
-            <span className="summary-value">₹{invoice.gst}</span>
-          </div>
-
-          <div className="summary-row">
-            <span className="summary-label">Total Amount</span>
-            <span className="summary-value ">₹{invoice.total}</span>
-          </div>
-
-          <div className="invoice-actions">
-            <button
-              className="btn btn-primary"
-              onClick={handleSubmit}
-              type="submit"
+        </div>
+        <div className="invoice-actions">
+          <button
+            className="btn btn-primary"
+            onClick={handleSubmit}
+            type="submit"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
-                <line x1="16" y1="5" x2="22" y2="5" />
-                <line x1="19" y1="2" x2="19" y2="8" />
-              </svg>
-              <span>Generate Invoice</span>
-            </button>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
+              <line x1="16" y1="5" x2="22" y2="5" />
+              <line x1="19" y1="2" x2="19" y2="8" />
+            </svg>
+            <span>Generate Invoice</span>
+          </button>
 
-            <button
-              type="submit"
-              onClick={handleSaveDraft}
-              className="btn btn-secondary"
+          <button
+            type="submit"
+            onClick={handleSaveDraft}
+            className="btn btn-secondary"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
             >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M4 4h16v16H4z" />
-                <path d="M4 8h16" />
-                <path d="M4 12h16" />
-                <path d="M4 16h16" />
-                <path d="M9 12l2 2l4-4" />
-              </svg>
-              <span>Keep as Draft</span>
-            </button>
-          </div>
+              <path d="M4 4h16v16H4z" />
+              <path d="M4 8h16" />
+              <path d="M4 12h16" />
+              <path d="M4 16h16" />
+              <path d="M9 12l2 2l4-4" />
+            </svg>
+            <span>Keep as Draft</span>
+          </button>
         </div>
       </div>
 

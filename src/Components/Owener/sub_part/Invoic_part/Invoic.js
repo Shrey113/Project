@@ -321,10 +321,10 @@ const InvoiceForm = () => {
 
               <!-- Signature Section -->
               <div class="signature-section">
-                ${invoice.signature_image 
-                  ? `<img src="${invoice.signature_image}" alt="Signature" class="signature-image" />`
-                  : '<div style="width: 150px; border-top: 1px solid #000; margin-left: auto;"></div>'
-                }
+                ${invoice.signature_image
+        ? `<img src="${invoice.signature_image}" alt="Signature" class="signature-image" />`
+        : '<div style="width: 150px; border-top: 1px solid #000; margin-left: auto;"></div>'
+      }
                 <div style="font-size: 14px; margin-top: 10px;">Authorized Signature</div>
               </div>
 

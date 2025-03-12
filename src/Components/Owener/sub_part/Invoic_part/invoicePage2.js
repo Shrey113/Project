@@ -301,6 +301,11 @@ function InvoicePage2() {
   const handleNewInvoice = async () => {
     setInvoice({
       invoice_id: invoice_id,
+      date: new Date().toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
       invoice_to: "",
       invoice_to_address: "",
       invoice_to_email: "",
@@ -467,201 +472,448 @@ function InvoicePage2() {
     setToggleAddressInput(!toggleAddressInput);
   };
 
+  // old pdf 
+  // const generatePDF = () => {
+  //   const element = document.createElement("div");
+  //   element.className = "pdf-container";
+
+  //   element.innerHTML = `
+  //     <style>
+  //       .invoice-page {
+  //         padding: 40px;
+  //         font-family: 'Arial', sans-serif;
+  //         background: #fff;
+  //         width: 210mm;
+  //         min-height: 297mm;
+  //         margin: 20px auto;
+  //         box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  //         border-radius: 8px;
+  //       }
+  //       .header {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         align-items: center;
+  //         margin-bottom: 30px;
+  //       }
+  //       .logo img {
+  //         max-width: 100%;
+  //         max-height: 90px;
+  //         object-fit: contain;
+  //       }
+  //       .invoice-title {
+  //         text-align: right;
+  //         font-size: 24px;
+  //         font-weight: bold;
+  //         line-height: 1.2;
+  //       }
+  //       .address-section {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         margin-bottom: 40px;
+  //       }
+  //       .address-section h3 {
+  //         margin-bottom: 10px;
+  //         font-size: 18px;
+  //       }
+  //       table {
+  //         width: 100%;
+  //         border-collapse: collapse;
+  //         margin-bottom: 30px;
+  //       }
+  //       table thead tr {
+  //         background-color: #f8f9fa;
+  //       }
+  //       table th,
+  //       table td {
+  //         padding: 12px;
+  //         border: 1px solid #dee2e6;
+  //       }
+  //       table th {
+  //         text-align: left;
+  //       }
+  //       table td {
+  //         text-align: right;
+  //       }
+  //       table td:first-child {
+  //         text-align: left;
+  //       }
+  //       .summary-section {
+  //         margin-left: auto;
+  //         width: 300px;
+  //       }
+  //       .summary-section div {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         margin-bottom: 10px;
+  //       }
+  //       .summary-section .total {
+  //         font-weight: bold;
+  //         border-top: 2px solid #dee2e6;
+  //         padding-top: 10px;
+  //         margin-top: 10px;
+  //       }
+  //       .terms {
+  //         margin-top: 30px;
+  //         margin-bottom: 30px;
+  //         font-size: 12px;
+  //         white-space: pre-line;
+  //       }
+  //       .signature-section {
+  //         margin-top: 50px;
+  //         display: flex;
+  //         justify-content: flex-end;
+  //       }
+  //       .signature {
+  //         text-align: center;
+  //       }
+  //       .signature img {
+  //         max-width: 150px;
+  //         height: auto;
+  //         margin-bottom: 10px;
+  //       }
+  //       .footer {
+  //         margin-top: 30px;
+  //         text-align: center;
+  //         font-size: 12px;
+  //         color: #6c757d;
+  //       }
+  //     </style>
+
+  //     <div class="invoice-page">
+  //       <div class="header">
+  //         ${logoPreview
+  //       ? `<div class="logo"><img src="${logoPreview}" alt="Logo" /></div>`
+  //       : `<div class="logo" style="width: 150px; height: 80px;"></div>`
+  //     }
+  //         <div class="invoice-title">
+  //           INVOICE<br/>
+  //           <span style="font-size: 14px;">Invoice No: ${invoice_id}</span><br/>
+  //           <span style="font-size: 14px;">Date: ${invoice.date}</span>
+  //         </div>
+  //       </div>
+
+  //       <div class="address-section">
+  //         <div class="from-address">
+  //           <h3>From:</h3>
+  //           <p style="margin: 0;">${user.user_name}</p>
+  //           <p style="margin: 0;">${user.business_address}</p>
+  //           <p style="margin: 0;">${user.user_email}</p>
+  //           <p style="margin: 0;">GST No: ${user.gst_number}</p>
+  //         </div>
+  //         <div class="to-address" style="text-align: right;">
+  //           <h3>Bill To:</h3>
+  //           <p style="margin: 0;">${invoice.invoice_to}</p>
+  //           <p style="margin: 0;">${invoice.invoice_to_address || ""}</p>
+  //           <p style="margin: 0;">${invoice.invoice_to_email || ""}</p>
+  //         </div>
+  //       </div>
+
+  //       <table>
+  //         <thead>
+  //           <tr>
+  //             <th>Item</th>
+  //             <th>Quantity</th>
+  //             <th>Price</th>
+  //             <th>Amount</th>
+  //           </tr>
+  //         </thead>
+  //         <tbody>
+  //           ${invoice.items
+  //       .map(
+  //         (item) => `
+  //                 <tr>
+  //                   <td>${item.item}</td>
+  //                   <td>${item.quantity}</td>
+  //                   <td>₹${formatAmount(item.price)}</td>
+  //                   <td>₹${formatAmount(item.amount)}</td>
+  //                 </tr>
+  //               `
+  //       )
+  //       .join("")}
+  //         </tbody>
+  //       </table>
+
+  //       <div class="summary-section">
+  //         <div>
+  //           <span>Subtotal:</span>
+  //           <span>₹${formatAmount(invoice.sub_total)}</span>
+  //         </div>
+  //         <div>
+  //           <span>GST (18%):</span>
+  //           <span>₹${formatAmount(invoice.gst)}</span>
+  //         </div>
+  //         <div class="total">
+  //           <span>Total:</span>
+  //           <span>₹${formatAmount(invoice.total)}</span>
+  //         </div>
+  //       </div>
+
+  //       <div class="terms">
+  //         <h3>Terms & Conditions:</h3>
+  //         ${terms || "No terms specified"}
+  //       </div>
+
+  //       <div class="signature-section">
+  //         <div class="signature">
+  //           ${signature_file
+  //       ? `<img src="${signature_file}" alt="Signature" />`
+  //       : '<div style="width: 150px; border-top: 1px solid #000;"></div>'
+  //     }
+  //           <div style="font-size: 14px;">Authorized Signature</div>
+  //         </div>
+  //       </div>
+
+  //       <div class="footer">
+  //         <p>Thank you for your business!</p>
+  //       </div>
+  //     </div>
+  //   `;
+
+  //   // Configure pdf options
+  //   const opt = {
+  //     margin: 0,
+  //     filename: `Invoice_${invoice_id}.pdf`,
+  //     image: { type: "jpeg", quality: 0.98 },
+  //     html2canvas: {
+  //       scale: 2,
+  //       useCORS: true,
+  //       letterRendering: true,
+  //     },
+  //     jsPDF: {
+  //       unit: "mm",
+  //       format: "a4",
+  //       orientation: "portrait",
+  //     },
+  //     pagebreak: { mode: "css", before: ".page-break" },
+  //   };
+
+  //   // Generate PDF
+  //   html2pdf().from(element).set(opt).save();
+  // };
+
+  // new one 
   const generatePDF = () => {
     const element = document.createElement("div");
     element.className = "pdf-container";
 
     element.innerHTML = `
-      <style>
-        .invoice-page {
-          padding: 40px;
-          font-family: 'Arial', sans-serif;
-          background: #fff;
-          width: 210mm;
-          min-height: 297mm;
-          margin: 20px auto;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-          border-radius: 8px;
-        }
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 30px;
-        }
-        .logo img {
-          max-width: 100%;
-          max-height: 90px;
-          object-fit: contain;
-        }
-        .invoice-title {
-          text-align: right;
-          font-size: 24px;
-          font-weight: bold;
-          line-height: 1.2;
-        }
-        .address-section {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 40px;
-        }
-        .address-section h3 {
-          margin-bottom: 10px;
-          font-size: 18px;
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 30px;
-        }
-        table thead tr {
-          background-color: #f8f9fa;
-        }
-        table th,
-        table td {
-          padding: 12px;
-          border: 1px solid #dee2e6;
-        }
-        table th {
-          text-align: left;
-        }
-        table td {
-          text-align: right;
-        }
-        table td:first-child {
-          text-align: left;
-        }
-        .summary-section {
-          margin-left: auto;
-          width: 300px;
-        }
-        .summary-section div {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 10px;
-        }
-        .summary-section .total {
-          font-weight: bold;
-          border-top: 2px solid #dee2e6;
-          padding-top: 10px;
-          margin-top: 10px;
-        }
-        .terms {
-          margin-top: 30px;
-          margin-bottom: 30px;
-          font-size: 12px;
-          white-space: pre-line;
-        }
-        .signature-section {
-          margin-top: 50px;
-          display: flex;
-          justify-content: flex-end;
-        }
-        .signature {
-          text-align: center;
-        }
-        .signature img {
-          max-width: 150px;
-          height: auto;
-          margin-bottom: 10px;
-        }
-        .footer {
-          margin-top: 30px;
-          text-align: center;
-          font-size: 12px;
-          color: #6c757d;
-        }
-      </style>
+          <style>
+            .invoice-page {
+              padding: 40px;
+              font-family: 'Arial', sans-serif;
+              background: #fff;
+              width: 210mm;
+              min-height: 297mm;
+              margin: 20px auto;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+              border-radius: 8px;
+            }
+            .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 50px;
+            }
+            .from-address{
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+              align-items: flex-start;
+            }
+            .logo img {
+              max-width: 100%;
+              max-height: 90px;
+              object-fit: contain;
+            }
+            
+            .address-section {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 40px;
+            }
   
-      <div class="invoice-page">
-        <div class="header">
-          ${logoPreview
+            h3 {
+              font-size: 18px;
+            }
+  
+            .to-address{
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              align-items: flex-start;
+              justify-content: center;
+            }
+            .invoice-title{
+              display: flex;
+              alin-items: flex-end ;
+              justify-content: flex-start;
+              gap: 10px;
+              flex-direction: column;
+              font-weight: bold;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 30px;
+            }
+            table thead tr {
+              background-color: #f8f9fa;
+            }
+            table th,
+            table td {
+              padding: 12px;
+              border: 1px solid #dee2e6;
+            }
+            table th {
+              text-align: left;
+            }
+            table td {
+              text-align: right;
+            }
+            table td:first-child {
+              text-align: left;
+            }
+            .summary-section {
+              margin-left: auto;
+              width: 300px;
+            }
+            .summary-section div {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 10px;
+            }
+            .summary-section .total {
+              font-weight: bold;
+              border-top: 2px solid #dee2e6;
+              padding-top: 10px;
+              margin-top: 10px;
+            }
+            .terms {
+              font-size: 12px;
+              white-space: pre-line;
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              justify-content: center;
+              gap: 10px;
+            }
+            .terms p{
+              font-size: 12px;
+            }
+            .signature-section {
+              margin-top: 50px;
+              display: flex;
+              justify-content: space-between;
+              border:none;
+            }
+            .signature {
+              text-align: center;
+            }
+            .signature img {
+              max-width: 150px;
+              height: auto;
+              margin-bottom: 10px;
+            }
+            .footer {
+              margin-top: 30px;
+              text-align: center;
+              font-size: 12px;
+              color: #6c757d;
+            }
+          </style>
+      
+          <div class="invoice-page">
+            <div class="header">
+              ${logoPreview
         ? `<div class="logo"><img src="${logoPreview}" alt="Logo" /></div>`
         : `<div class="logo" style="width: 150px; height: 80px;"></div>`
       }
-          <div class="invoice-title">
-            INVOICE<br/>
-            <span style="font-size: 14px;">Invoice No: ${invoice_id}</span><br/>
-            <span style="font-size: 14px;">Date: ${invoice.date}</span>
-          </div>
-        </div>
+              <div class="from-address">
+                <h2>${user.business_name}</h2>
+                <p style="margin: 0;">${user.user_name}</p>
+                <p style="margin: 0;">${user.business_address}</p>
+                <p style="margin: 0;">${user.user_email}</p>
+              </div>
+              
+            </div>
+            <h3 style="margin-bottom: 14px;"> INVOICE </h3>
+            <div class="address-section">
+        
+              <div class="to-address">
+                <span style="font-size: 14px;"><strong>Recipient Name : </strong>${invoice.invoice_to}</span>
+                <span style="font-size: 14px;"><strong>Recipient Address : </strong>${invoice.invoice_to_address || ""}</span>
+                <span style="font-size: 14px;"><strong>Recipient Email : </strong> ${invoice.invoice_to_email || ""}</span>
+              </div>
+              
+              <div class="invoice-title">
+                <span style="font-size: 14px;">Invoice No: ${invoice_id}</span>
+                <span style="font-size: 14px;">Date: ${invoice.date}</span>
+                <span style="font-size: 14px;">GST No: ${user.gst_number}</span>
+              </div>
   
-        <div class="address-section">
-          <div class="from-address">
-            <h3>From:</h3>
-            <p style="margin: 0;">${user.user_name}</p>
-            <p style="margin: 0;">${user.business_address}</p>
-            <p style="margin: 0;">${user.user_email}</p>
-            <p style="margin: 0;">GST No: ${user.gst_number}</p>
-          </div>
-          <div class="to-address" style="text-align: right;">
-            <h3>Bill To:</h3>
-            <p style="margin: 0;">${invoice.invoice_to}</p>
-            <p style="margin: 0;">${invoice.invoice_to_address || ""}</p>
-            <p style="margin: 0;">${invoice.invoice_to_email || ""}</p>
-          </div>
-        </div>
-  
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${invoice.items
+            </div>
+      
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${invoice.items
         .map(
           (item) => `
-                  <tr>
-                    <td>${item.item}</td>
-                    <td>${item.quantity}</td>
-                    <td>₹${formatAmount(item.price)}</td>
-                    <td>₹${formatAmount(item.amount)}</td>
-                  </tr>
-                `
+                      <tr>
+                        <td>${item.item}</td>
+                        <td>${item.quantity}</td>
+                        <td>₹${formatAmount(item.price)}</td>
+                        <td>₹${formatAmount(item.amount)}</td>
+                      </tr>
+                    `
         )
         .join("")}
-          </tbody>
-        </table>
-  
-        <div class="summary-section">
-          <div>
-            <span>Subtotal:</span>
-            <span>₹${formatAmount(invoice.sub_total)}</span>
-          </div>
-          <div>
-            <span>GST (18%):</span>
-            <span>₹${formatAmount(invoice.gst)}</span>
-          </div>
-          <div class="total">
-            <span>Total:</span>
-            <span>₹${formatAmount(invoice.total)}</span>
-          </div>
-        </div>
-  
-        <div class="terms">
-          <h3>Terms & Conditions:</h3>
-          ${terms || "No terms specified"}
-        </div>
-  
-        <div class="signature-section">
-          <div class="signature">
-            ${signature_file
-        ? `<img src="${signature_file}" alt="Signature" />`
+              </tbody>
+            </table>
+      
+            <div class="summary-section">
+              <div>
+                <span>Subtotal:</span>
+                <span>₹${formatAmount(invoice.sub_total)}</span>
+              </div>
+              <div>
+                <span>GST (18%):</span>
+                <span>₹${formatAmount(invoice.gst)}</span>
+              </div>
+              <div class="total">
+                <span>Total:</span>
+                <span>₹${formatAmount(invoice.total)}</span>
+              </div>
+            </div>
+      
+            
+      
+            <div class="signature-section">
+              <div class="terms">
+                <h3>Terms & Conditions:</h3>
+                <p> ${terms || "No terms specified"} </p>
+              </div>
+              <div class="signature">
+                ${signature_file ? `<img src="${signature_file}" alt="Signature" />`
         : '<div style="width: 150px; border-top: 1px solid #000;"></div>'
       }
-            <div style="font-size: 14px;">Authorized Signature</div>
+                <div style="font-size: 14px;">Authorized Signature</div>
+              </div>
+              
+            </div>
+      
+            <div class="footer">
+              <p>Thank you for your business!</p>
+            </div>
           </div>
-        </div>
-  
-        <div class="footer">
-          <p>Thank you for your business!</p>
-        </div>
-      </div>
-    `;
+        `;
 
     // Configure pdf options
     const opt = {
@@ -704,8 +956,11 @@ function InvoicePage2() {
         user_email: user.user_email,
         as_draft: 1,
         invoice_logo: logoPreview,
+        signature_file: signature_file,
+        terms: terms,
       };
 
+      console.log("Draft Invoice id :", draftInvoice);
       const response = await fetch(`${Server_url}/save-draft`, {
         method: "POST",
         headers: {
@@ -879,219 +1134,6 @@ function InvoicePage2() {
     }
   }, [user.user_email])
 
-  // const generatePDFPreview = () => {
-  //   const element = document.createElement("div");
-  //   element.className = "pdf-container";
-
-  //   element.innerHTML = `
-  //     <style>
-  //       .invoice-page {
-  //         padding: 40px;
-  //         font-family: 'Arial', sans-serif;
-  //         background: #fff;
-  //         width: 210mm;
-  //         min-height: 297mm;
-  //         margin: 20px auto;
-  //         box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-  //         border-radius: 8px;
-  //       }
-  //       .header {
-  //         display: flex;
-  //         justify-content: space-between;
-  //         align-items: center;
-  //         margin-bottom: 30px;
-  //       }
-  //       .logo img {
-  //         max-width: 100%;
-  //         max-height: 90px;
-  //         object-fit: contain;
-  //       }
-  //       .invoice-title {
-  //         text-align: right;
-  //         font-size: 24px;
-  //         font-weight: bold;
-  //         line-height: 1.2;
-  //       }
-  //       .address-section {
-  //         display: flex;
-  //         justify-content: space-between;
-  //         margin-bottom: 40px;
-  //       }
-  //       .address-section h3 {
-  //         margin-bottom: 10px;
-  //         font-size: 18px;
-  //       }
-  //       table {
-  //         width: 100%;
-  //         border-collapse: collapse;
-  //         margin-bottom: 30px;
-  //       }
-  //       table thead tr {
-  //         background-color: #f8f9fa;
-  //       }
-  //       table th,
-  //       table td {
-  //         padding: 12px;
-  //         border: 1px solid #dee2e6;
-  //       }
-  //       table th {
-  //         text-align: left;
-  //       }
-  //       table td {
-  //         text-align: right;
-  //       }
-  //       table td:first-child {
-  //         text-align: left;
-  //       }
-  //       .summary-section {
-  //         margin-left: auto;
-  //         width: 300px;
-  //       }
-  //       .summary-section div {
-  //         display: flex;
-  //         justify-content: space-between;
-  //         margin-bottom: 10px;
-  //       }
-  //       .summary-section .total {
-  //         font-weight: bold;
-  //         border-top: 2px solid #dee2e6;
-  //         padding-top: 10px;
-  //         margin-top: 10px;
-  //       }
-  //       .terms {
-  //         margin-top: 30px;
-  //         margin-bottom: 30px;
-  //         font-size: 12px;
-  //         white-space: pre-line;
-  //       }
-  //       .signature-section {
-  //         margin-top: 50px;
-  //         display: flex;
-  //         justify-content: flex-end;
-  //       }
-  //       .signature {
-  //         text-align: center;
-  //       }
-  //       .signature img {
-  //         max-width: 150px;
-  //         height: auto;
-  //         margin-bottom: 10px;
-  //       }
-  //       .footer {
-  //         margin-top: 30px;
-  //         text-align: center;
-  //         font-size: 12px;
-  //         color: #6c757d;
-  //       }
-  //     </style>
-
-  //     <div class="invoice-page">
-  //       <div class="header">
-  //         ${
-  //           logoPreview
-  //             ? `<div class="logo"><img src="${logoPreview}" alt="Logo" /></div>`
-  //             : `<div class="logo" style="width: 150px; height: 80px;"></div>`
-  //         }
-  //         <div class="invoice-title">
-  //           INVOICE<br/>
-  //           <span style="font-size: 14px;">Invoice No: ${invoice_id}</span><br/>
-  //           <span style="font-size: 14px;">Date: ${invoice.date}</span>
-  //         </div>
-  //       </div>
-
-  //       <div class="address-section">
-  //         <div class="from-address">
-  //           <h3>From:</h3>
-  //           <p style="margin: 0;">${user.user_name}</p>
-  //           <p style="margin: 0;">${user.business_address}</p>
-  //           <p style="margin: 0;">${user.user_email}</p>
-  //           <p style="margin: 0;">GST No: ${user.gst_number}</p>
-  //         </div>
-  //         <div class="to-address" style="text-align: right;">
-  //           <h3>Bill To:</h3>
-  //           <p style="margin: 0;">${invoice.invoice_to}</p>
-  //           <p style="margin: 0;">${invoice.invoice_to_address || ""}</p>
-  //           <p style="margin: 0;">${invoice.invoice_to_email || ""}</p>
-  //         </div>
-  //       </div>
-
-  //       <table>
-  //         <thead>
-  //           <tr>
-  //             <th>Item</th>
-  //             <th>Quantity</th>
-  //             <th>Price</th>
-  //             <th>Amount</th>
-  //           </tr>
-  //         </thead>
-  //         <tbody>
-  //           ${invoice.items
-  //             .map(
-  //               (item) => `
-  //                 <tr>
-  //                   <td>${item.item}</td>
-  //                   <td>${item.quantity}</td>
-  //                   <td>₹${formatAmount(item.price)}</td>
-  //                   <td>₹${formatAmount(item.amount)}</td>
-  //                 </tr>
-  //               `
-  //             )
-  //             .join("")}
-  //         </tbody>
-  //       </table>
-
-  //       <div class="summary-section">
-  //         <div>
-  //           <span>Subtotal:</span>
-  //           <span>₹${formatAmount(invoice.sub_total)}</span>
-  //         </div>
-  //         <div>
-  //           <span>GST (18%):</span>
-  //           <span>₹${formatAmount(invoice.gst)}</span>
-  //         </div>
-  //         <div class="total">
-  //           <span>Total:</span>
-  //           <span>₹${formatAmount(invoice.total)}</span>
-  //         </div>
-  //       </div>
-
-  //       <div class="terms">
-  //         <h3>Terms & Conditions:</h3>
-  //         ${terms || "No terms specified"}
-  //       </div>
-
-  //       <div class="signature-section">
-  //         <div class="signature">
-  //           ${
-  //             signature_file
-  //               ? `<img src="${signature_file}" alt="Signature" />`
-  //               : '<div style="width: 150px; border-top: 1px solid #000;"></div>'
-  //           }
-  //           <div style="font-size: 14px;">Authorized Signature</div>
-  //         </div>
-  //       </div>
-
-  //       <div class="footer">
-  //         <p>Thank you for your business!</p>
-  //       </div>
-  //     </div>
-  //   `;
-
-  //   // Return the element for preview
-  //   return element;
-  // };
-
-  // const handlePreview = () => {
-  //   const previewElement = generatePDFPreview();
-  //   // Add the preview element to a preview container in your DOM
-  //   const previewContainer = document.getElementById('preview-container');
-  //   if (previewContainer) {
-  //     previewContainer.innerHTML = '';
-  //     previewContainer.appendChild(previewElement);
-  //   }
-  //   setShowPreview(true);
-  // };
-
   return (
     <div className="invoice_and_table_container">
       <div className="invoice_form">
@@ -1119,8 +1161,6 @@ function InvoicePage2() {
             </div>
           </div>
           <div className="bill_from">
-            {/* <div className="recipient_name"> */}
-
             <div className="business_name">{user.business_name}</div>
 
             <div className="invoice_top_field">
@@ -1139,8 +1179,9 @@ function InvoicePage2() {
 
             {/* </div> */}
           </div>
-
         </div>
+
+
         <h1>INVOICE</h1>
         <div className="bill_details">
           <div className="bill_to">
@@ -1157,7 +1198,11 @@ function InvoicePage2() {
                       placeholder="Enter Recipient Name"
                       autoFocus
                     />
-                    <button onClick={handleConfirmRecipient}> ✔ </button>
+                    <button onClick={handleConfirmRecipient} style={{
+                      border: "none",
+                      backgroundColor: "transparent",
+                      cursor: "pointer",
+                    }}> ✔ </button>
                   </>
                 ) : (
                   <div onClick={handle_toggle_input}>
@@ -1242,14 +1287,6 @@ function InvoicePage2() {
               </div>
             </div>
           </div>
-          {/* <div className="bill_from">
-            <div className="recipient_name">
-              <strong>From:</strong>
-              <div>{user.user_name}</div>
-              <div className="business_address">{user.business_address}</div>
-              <div>{user.user_email}</div>
-            </div>
-          </div> */}
           <div className="invoice_and_gst_no">
             <div className="invoice_id">
               <strong>INVOICE No :</strong> {invoice_id}

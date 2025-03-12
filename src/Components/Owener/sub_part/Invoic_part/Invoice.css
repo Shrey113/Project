@@ -123,10 +123,6 @@
   border-radius: 8px;
   overflow: hidden;
   border: 2px dashed var(--border-color);
-  /* display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column; */
 }
 
 .invoice_and_table_container .invoice_form .company_logo_invoice .preview_image .companyLogo {
@@ -456,7 +452,6 @@
 .invoice_and_table_container .bill_from .business_name {
   font-size: 24px;
   font-weight: 600;
-
   margin-bottom: 8px;
 }
 
@@ -493,13 +488,9 @@
   flex: 1;
   display: flex;
   align-items: flex-start;
-
   justify-content: flex-start;
   flex-direction: column;
   gap: 15px;
-  /* margin-top: 5px; */
-  /* background: rebeccapurple; */
-  /* height: 100px; */
 }
 
 .invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name {
@@ -543,13 +534,13 @@
   box-shadow: var(--invoice-border-active-boxshodow);
 }
 
-.invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name .recipient-input p {
+.invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name .recipient-input div {
   position: relative;
   border: 1px solid rgba(0, 0, 0, 0);
   padding: 5px 5px;
 }
 
-.invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name .recipient-input p:hover {
+.invoice_and_table_container .invoice_form .bill_details .bill_to .recipient_name .recipient-input div:hover {
   cursor: pointer;
   border: 1px solid rgba(0, 0, 0, 0.171);
   padding: 5px 5px;

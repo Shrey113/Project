@@ -11,6 +11,7 @@ const EditInvoiceModal = ({
 }) => {
   const [loading, setLoading] = useState(true);
 
+  const formatAmount = (amount) => parseFloat(amount).toFixed(2);
   useEffect(() => {
     setLoading(false);
   }, [invoice]);
@@ -28,225 +29,249 @@ const EditInvoiceModal = ({
     );
   }
 
+  //  new one 
   const generatePDFPreview = () => {
     const element = document.createElement("div");
     element.className = "pdf-container";
-  
+
     element.innerHTML = `
-      <html>
-        <head>
-          <title>Invoice Preview</title>
-          <style>
-            body { 
-              margin: 0; 
-              font-family: Arial, sans-serif;
-              background: #f5f5f5;
-            }
-            .preview-container { 
-              padding: 0;
-              width: 210mm;
-              margin: 0 auto;
-              background: white;
-            }
-            @media print {
-              .no-print { display: none; }
-              body { background: white; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="preview-container">
-            <div class="invoice-page" style="
-              padding: 20px;
-              font-family: Arial, sans-serif;
-              position: relative;
-              background: white;
-              width: calc(210mm - 40px);
-              min-height: calc(297mm - 40px);
-              margin: 0 auto;
-            ">
-              <!-- Header Section -->
-              <div class="header" style="
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 25px;
-                align-items: flex-start;
-              ">
-                ${invoice.invoice_logo 
-                  ? `<div class="logo" style="width: 100px; height: 50px;">
-                      <img src="${invoice.invoice_logo}" style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
-                     </div>`
-                  : '<div style="width: 100px; height: 50px;"></div>'
-                }
-                <div style="
-                  text-align: right;
-                ">
-                  <div style="font-size: 22px; font-weight: bold; margin-bottom: 4px;">INVOICE</div>
-                  <div style="font-size: 12px; color: #666;">Invoice No: ${invoice.invoice_id}</div>
-                  <div style="font-size: 12px; color: #666;">Date: ${formatDateTime(invoice.date).date}</div>
-                </div>
-              </div>
+      <style>
+        .invoice-page {
+          padding: 40px;
+          font-family: 'Arial', sans-serif;
+          background: #fff;
+          width: 210mm;
+          min-height: 297mm;
+          margin: 20px auto;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+          border-radius: 8px;
+        }
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 50px;
+        }
+        .from-address{
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          align-items: flex-start;
+        }
+        .logo img {
+          max-width: 100%;
+          max-height: 90px;
+          object-fit: contain;
+        }
+        
+        .address-section {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 40px;
+        }
+
+        h3 {
+          font-size: 18px;
+        }
+
+        .to-address{
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+          justify-content: center;
+        }
+        .invoice-title{
+          display: flex;
+          alin-items: flex-end ;
+          justify-content: flex-start;
+          gap: 10px;
+          flex-direction: column;
+          font-weight: bold;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 30px;
+        }
+        table thead tr {
+          background-color: #f8f9fa;
+        }
+        table th,
+        table td {
+          padding: 12px;
+          border: 1px solid #dee2e6;
+        }
+        table th {
+          text-align: left;
+        }
+        table td {
+          text-align: right;
+        }
+        table td:first-child {
+          text-align: left;
+        }
+        .summary-section {
+          margin-left: auto;
+          width: 300px;
+        }
+        .summary-section div {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 10px;
+        }
+        .summary-section .total {
+          font-weight: bold;
+          border-top: 2px solid #dee2e6;
+          padding-top: 10px;
+          margin-top: 10px;
+        }
+        .terms {
+          font-size: 12px;
+          white-space: pre-line;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: center;
+          gap: 10px;
+        }
+        .terms p{
+          font-size: 12px;
+        }
+        .signature-section {
+          margin-top: 50px;
+          display: flex;
+          justify-content: space-between;
+          border:none;
+        }
+        .signature {
+          text-align: center;
+        }
+        .signature img {
+          max-width: 150px;
+          height: auto;
+          margin-bottom: 10px;
+        }
+        .footer {
+          margin-top: 30px;
+          text-align: center;
+          font-size: 12px;
+          color: #6c757d;
+        }
+      </style>
   
-              <!-- Address Section -->
-              <div style="
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 25px;
-                gap: 15px;
-              ">
-                <div style="flex: 1;">
-                  <div style="font-weight: bold; margin-bottom: 8px; color: #333;">From:</div>
-                  <div style="font-size: 12px; line-height: 1.4; color: #666;">
-                    <div>${user.user_name}</div>
-                    <div>${user.business_address}</div>
-                    <div>${user.user_email}</div>
-                    <div>GST No: ${user.gst_number}</div>
-                  </div>
-                </div>
-                <div style="flex: 1; text-align: right;">
-                  <div style="font-weight: bold; margin-bottom: 8px; color: #333;">Bill To:</div>
-                  <div style="font-size: 12px; line-height: 1.4; color: #666;">
-                    <div>${invoice.invoice_to}</div>
-                    <div>${invoice.invoice_items?.[0]?.invoice_to_address || "Address not available"}</div>
-                    <div>${invoice.invoice_items?.[0]?.invoice_to_email || "Email not available"}</div>
-                  </div>
-                </div>
-              </div>
-  
-              <!-- Items Table -->
-              <table style="
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 25px;
-                font-size: 12px;
-              ">
-                <thead>
-                  <tr style="background-color: #f8f9fa;">
-                    <th style="padding: 8px; border: 1px solid #dee2e6; text-align: center; width: 50px;">Sr. No.</th>
-                    <th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">Item</th>
-                    <th style="padding: 8px; border: 1px solid #dee2e6; text-align: right; width: 70px;">Quantity</th>
-                    <th style="padding: 8px; border: 1px solid #dee2e6; text-align: right; width: 90px;">Price</th>
-                    <th style="padding: 8px; border: 1px solid #dee2e6; text-align: right; width: 100px;">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${invoice.invoice_items && invoice.invoice_items.length > 0
-                    ? invoice.invoice_items.map((item, index) => `
-                      <tr>
-                        <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center;">${index + 1}</td>
-                        <td style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${item.item}</td>
-                        <td style="padding: 8px; border: 1px solid #dee2e6; text-align: right;">${item.quantity}</td>
-                        <td style="padding: 8px; border: 1px solid #dee2e6; text-align: right;">₹${item.price}</td>
-                        <td style="padding: 8px; border: 1px solid #dee2e6; text-align: right;">₹${item.quantity * item.price}</td>
-                      </tr>
-                    `).join("")
-                    : `<tr><td colspan="5" style="text-align: center; padding: 12px;">No items available</td></tr>`
-                  }
-                </tbody>
-              </table>
-  
-              <!-- Summary Section -->
-              <div style="
-                margin-left: auto;
-                width: 250px;
-                margin-bottom: 25px;
-                font-size: 12px;
-              ">
-                <div style="
-                  display: flex;
-                  justify-content: space-between;
-                  padding: 4px 0;
-                  color: #666;
-                ">
-                  <span>Subtotal:</span>
-                  <span>₹${invoice.sub_total}</span>
-                </div>
-                <div style="
-                  display: flex;
-                  justify-content: space-between;
-                  padding: 4px 0;
-                  color: #666;
-                ">
-                  <span>GST (18%):</span>
-                  <span>₹${invoice.gst}</span>
-                </div>
-                <div style="
-                  display: flex;
-                  justify-content: space-between;
-                  font-weight: bold;
-                  border-top: 2px solid #dee2e6;
-                  margin-top: 4px;
-                  padding-top: 4px;
-                ">
-                  <span>Total:</span>
-                  <span>₹${invoice.total}</span>
-                </div>
-              </div>
-  
-              <!-- Terms and Conditions -->
-              <div style="
-                margin-top: 15px;
-                margin-bottom: 15px;
-                padding: 12px;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-                font-size: 12px;
-              ">
-                <div style="font-weight: bold; margin-bottom: 6px; color: #333;">Terms & Conditions:</div>
-                <div style="line-height: 1.4; color: #666;">
-                  ${invoice.terms_conditions || "No terms specified"}
-                </div>
-              </div>
-  
-              <!-- Signature Section -->
-              <div style="
-                margin-top: 25px;
-                text-align: right;
-                padding-right: 12px;
-              ">
-                ${invoice.signature_image 
-                  ? `<img src="${invoice.signature_image}" alt="Signature" style="
-                      max-width: 100px;
-                      max-height: 50px;
-                      margin-bottom: 4px;
-                    "/>`
-                  : '<div style="width: 100px; border-top: 1px solid #000; margin-left: auto;"></div>'
-                }
-                <div style="font-size: 12px; color: #666; margin-top: 4px;">Authorized Signature</div>
-              </div>
-  
-              <!-- Footer -->
-              <div style="
-                text-align: center;
-                margin-top: 30px;
-                color: #666;
-                font-size: 12px;
-              ">
-                <p style="margin: 0;">Thank you for your business!</p>
-              </div>
-            </div>
+      <div class="invoice-page">
+        <div class="header">
+          ${invoice.invoice_logo
+        ? `<div class="logo"><img src="${invoice.invoice_logo}" alt="Logo" /></div>`
+        : `<div class="logo" style="width: 150px; height: 80px;"></div>`
+      }
+          <div class="from-address">
+            <h2>${user.business_name}</h2>
+            <p style="margin: 0;">${user.user_name}</p>
+            <p style="margin: 0;">${user.business_address}</p>
+            <p style="margin: 0;">${user.user_email}</p>
           </div>
-        </body>
-      </html>
-    `;
+          
+        </div>
+        <h3 style="margin-bottom: 14px;"> INVOICE </h3>
+        <div class="address-section">
+    
+          <div class="to-address">
+            <span style="font-size: 14px;"><strong>Recipient Name : </strong>${invoice.invoice_to}</span>
+            <span style="font-size: 14px;"><strong>Recipient Address : </strong>${invoice.invoice_items?.[0]?.invoice_to_address || "Address not available"}</span>
+            <span style="font-size: 14px;"><strong>Recipient Email : </strong> ${invoice.invoice_items?.[0]?.invoice_to_email || "Email not available"}</span>
+          </div>
+          
+          <div class="invoice-title">
+            <span style="font-size: 14px;">Invoice No: ${invoice.invoice_id}</span>
+            <span style="font-size: 14px;">Date: ${formatDateTime(invoice.date).date}</span>
+            <span style="font-size: 14px;">GST No: ${user.gst_number}</span>
+          </div>
+
+        </div>
   
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${invoice.invoice_items && invoice.invoice_items.length > 0
+        ? invoice.invoice_items.map(
+          (item) => (`
+                  <tr>
+                    <td>${item.item}</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${formatAmount(item.price)}</td>
+                    <td>₹${formatAmount(item.amount)}</td>
+                  </tr>
+                `)
+        ) : (`<tr><td colspan="5" style="text-align: center; padding: 12px;">No items available</td></tr>`)
+          .join("")}
+          </tbody>
+        </table>
+  
+        <div class="summary-section">
+          <div>
+            <span>Subtotal:</span>
+            <span>₹${formatAmount(invoice.sub_total)}</span>
+          </div>
+          <div>
+            <span>GST (18%):</span>
+            <span>₹${formatAmount(invoice.gst)}</span>
+          </div>
+          <div class="total">
+            <span>Total:</span>
+            <span>₹${formatAmount(invoice.total)}</span>
+          </div>
+        </div>
+  
+        
+  
+        <div class="signature-section">
+          <div class="terms">
+            <h3>Terms & Conditions:</h3>
+            <p> ${invoice.terms_conditions || "No terms specified"} </p>
+          </div>
+          <div class="signature">
+            ${invoice.signature_image ? `<img src="${invoice.signature_image}" alt="Signature" />`
+        : '<div style="width: 150px; border-top: 1px solid #000;"></div>'
+      }
+            <div style="font-size: 14px;">Authorized Signature</div>
+          </div>
+          
+        </div>
+  
+        <div class="footer">
+          <p>Thank you for your business!</p>
+        </div>
+      </div>
+    `;
+
+    // Configure pdf options
     const opt = {
       margin: 0,
       filename: `Invoice_${invoice.invoice_id}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { 
+      html2canvas: {
         scale: 2,
         useCORS: true,
         letterRendering: true,
-        scrollY: 0
       },
-      jsPDF: { 
-        unit: "mm", 
-        format: "a4", 
-        orientation: "portrait"
-      }
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+      },
+      pagebreak: { mode: "css", before: ".page-break" },
     };
-  
+
+    // Generate PDF
     html2pdf().from(element).set(opt).save();
   };
 
@@ -256,7 +281,7 @@ const EditInvoiceModal = ({
       alert("Popup blocked! Please allow popups for this site.");
       return;
     }
-  
+
     printWindow.document.write(`
       <html>
         <head>
@@ -296,16 +321,16 @@ const EditInvoiceModal = ({
                 margin-bottom: 25px;
                 align-items: flex-start;
               ">
-                ${invoice.invoice_logo 
-                  ? `<div class="logo" style="width: 100px; height: 50px;">
+                ${invoice.invoice_logo
+        ? `<div class="logo" style="width: 100px; height: 50px;">
                       <img src="${invoice.invoice_logo}" style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
                      </div>`
-                  : '<div style="width: 100px; height: 50px;"></div>'
-                }
+        : '<div style="width: 100px; height: 50px;"></div>'
+      }
                 <div style="text-align: right;">
                   <div style="font-size: 22px; font-weight: bold; margin-bottom: 4px;">INVOICE</div>
                   <div style="font-size: 12px; color: #666;">Invoice No: ${invoice.invoice_id}</div>
-                  <div style="font-size: 12px; color: #666;">Date: ${formatDateTime(invoice.date).date}</div>
+                  <div style="font-size: 12px; color: #666;">Date: ${invoice.date}</div>
                 </div>
               </div>
               <div style="
@@ -349,7 +374,7 @@ const EditInvoiceModal = ({
                 </thead>
                 <tbody>
                   ${invoice.invoice_items && invoice.invoice_items.length > 0
-                    ? invoice.invoice_items.map((item, index) => `
+        ? invoice.invoice_items.map((item, index) => `
                       <tr>
                         <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center;">${index + 1}</td>
                         <td style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${item.item}</td>
@@ -358,8 +383,8 @@ const EditInvoiceModal = ({
                         <td style="padding: 8px; border: 1px solid #dee2e6; text-align: right;">₹${item.quantity * item.price}</td>
                       </tr>
                     `).join("")
-                    : `<tr><td colspan="5" style="text-align: center; padding: 12px;">No items available</td></tr>`
-                  }
+        : `<tr><td colspan="5" style="text-align: center; padding: 12px;">No items available</td></tr>`
+      }
                 </tbody>
               </table>
               <div style="
@@ -388,10 +413,10 @@ const EditInvoiceModal = ({
                 </div>
               </div>
               <div style="margin-top: 25px; text-align: right; padding-right: 12px;">
-                ${invoice.signature_image 
-                  ? `<img src="${invoice.signature_image}" alt="Signature" style="max-width: 100px; max-height: 50px; margin-bottom: 4px;"/>`
-                  : '<div style="width: 100px; border-top: 1px solid #000; margin-left: auto;"></div>'
-                }
+                ${invoice.signature_image
+        ? `<img src="${invoice.signature_image}" alt="Signature" style="max-width: 100px; max-height: 50px; margin-bottom: 4px;"/>`
+        : '<div style="width: 100px; border-top: 1px solid #000; margin-left: auto;"></div>'
+      }
                 <div style="font-size: 12px; color: #666; margin-top: 4px;">Authorized Signature</div>
               </div>
             </div>
@@ -399,13 +424,13 @@ const EditInvoiceModal = ({
         </body>
       </html>
     `);
-  
+
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
     printWindow.close();
   };
-  
+
 
   return (
     <div className="modal-overlay-for-edit-invoice" onClick={(e) => {

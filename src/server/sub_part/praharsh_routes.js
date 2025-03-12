@@ -829,6 +829,187 @@ router.post("/api/packages", (req, res) => {
     }
   );
 });
+
+// router.post("/save-draft-invoice", (req, res) => {
+//   const {
+//     invoice_id,
+//     invoice_to,
+//     invoice_to_address,
+//     invoice_to_email,
+//     date,
+//     sub_total,
+//     gst,
+//     total,
+//     user_email,
+//     items,
+//     as_draft,
+//   } = req.body;
+
+//   // Validate required fields
+// if (!invoice_id || !user_email || !invoice_to || !as_draft) {
+//     return res.status(400).json({ error: "Missing required fields" });
+//   }
+
+//   // Query to update the invoice
+//   const queryInvoice = `
+//       UPDATE invoices 
+//       SET 
+//         date = ?, 
+//         sub_total = ?, 
+//         gst = ?, 
+//         total = ?, 
+//         invoice_to = ?, 
+//         as_draft = ? 
+//       WHERE invoice_id = ? and user_email= ?;
+//     `;
+
+//   // Update invoice details in the database
+//   db.query(
+//     queryInvoice,
+//     [
+//       date || null,
+//       sub_total || null,
+//       gst || null,
+//       total || null,
+//       invoice_to || null,
+//       as_draft,
+//       invoice_id,
+//       user_email,
+//     ],
+//     (err, result) => {
+//       if (err) {
+//         console.error("Database error:", err);
+//         return res.status(500).json({ error: err.message });
+//       }
+
+//       // Handle items if any exist
+//       if (items && items.length > 0) {
+//         let totalItems = items.length;
+//         let completedItems = 0;
+//         let hasError = false;
+
+//         items.forEach((all_items) => {
+//           const { item, quantity, price, amount } = all_items;
+
+//           // Query to check if item already exists in invoice_items
+//           const queryCheckItemExists = `
+//               SELECT id FROM invoice_items 
+//               WHERE item = ? AND invoice_id = ?;
+//             `;
+
+//           // Query to insert a new item into invoice_items
+//           const queryInsertItem = `
+//               INSERT INTO invoice_items (
+//                 invoice_id, user_email, item, quantity, price, amount, invoice_to_address, invoice_to_email
+//               ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+//             `;
+
+//           // Query to update an existing item in invoice_items
+//           const queryUpdateItem = `
+//               UPDATE invoice_items
+//               SET 
+//                 quantity = ?, 
+//                 price = ?, 
+//                 amount = ?, 
+//                 invoice_to_address = ?, 
+//                 invoice_to_email = ? 
+//               WHERE id = ?;
+//             `;
+
+//           // Check if item exists
+//           db.query(queryCheckItemExists, [item, invoice_id], (err, results) => {
+//             if (err) {
+//               console.error("Error checking if item exists:", err);
+//               if (!hasError) {
+//                 hasError = true;
+//                 return res.status(500).json({ error: err.message });
+//               }
+//               return;
+//             }
+
+//             if (results.length > 0) {
+//               const itemId = results[0].id;
+//               // Update existing item
+//               db.query(
+//                 queryUpdateItem,
+//                 [
+//                   quantity,
+//                   price,
+//                   amount,
+//                   invoice_to_address,
+//                   invoice_to_email,
+//                   itemId,
+//                 ],
+//                 (err) => {
+//                   if (err) {
+//                     console.error("Error updating item:", err);
+//                     if (!hasError) {
+//                       hasError = true;
+//                       return res.status(500).json({ error: err.message });
+//                     }
+//                     return;
+//                   }
+//                   completedItems++;
+//                   if (completedItems === totalItems && !hasError) {
+//                     res.json({
+//                       message: "Invoice and items updated successfully",
+//                       invoice_id,
+//                       date,
+//                       invoiceResult: result,
+//                     });
+//                   }
+//                 }
+//               );
+//             } else {
+//               // Insert new item
+//               db.query(
+//                 queryInsertItem,
+//                 [
+//                   invoice_id,
+//                   user_email,
+//                   item,
+//                   quantity,
+//                   price,
+//                   amount,
+//                   invoice_to_address,
+//                   invoice_to_email,
+//                 ],
+//                 (err) => {
+//                   if (err) {
+//                     console.error("Error inserting item:", err);
+//                     if (!hasError) {
+//                       hasError = true;
+//                       return res.status(500).json({ error: err.message });
+//                     }
+//                     return;
+//                   }
+//                   completedItems++;
+//                   if (completedItems === totalItems && !hasError) {
+//                     res.json({
+//                       message: "Invoice and items added/updated successfully",
+//                       invoice_id,
+//                       date,
+//                       invoiceResult: result,
+//                     });
+//                   }
+//                 }
+//               );
+//             }
+//           });
+//         });
+//       } else {
+//         // No items to handle, send response
+//         res.json({
+//           message: "Invoice with draft added successfully",
+//           invoice_id,
+//           date,
+//           result,
+//         });
+//       }
+//     }
+//   );
+// });
+
 router.post("/save-draft-invoice", (req, res) => {
   const {
     invoice_id,
@@ -842,6 +1023,7 @@ router.post("/save-draft-invoice", (req, res) => {
     user_email,
     items,
     as_draft,
+    terms
   } = req.body;
 
   // Validate required fields
@@ -851,18 +1033,19 @@ router.post("/save-draft-invoice", (req, res) => {
 
   // Query to update the invoice
   const queryInvoice = `
-      UPDATE invoices 
-      SET 
-        date = ?, 
-        sub_total = ?, 
-        gst = ?, 
-        total = ?, 
-        invoice_to = ?, 
-        as_draft = ? 
-      WHERE invoice_id = ? and user_email=?;
-    `;
+    UPDATE invoices 
+    SET 
+      date = ?, 
+      sub_total = ?, 
+      gst = ?, 
+      total = ?, 
+      invoice_to = ?, 
+      as_draft = ? ,
+      terms_conditions = ?
+    WHERE invoice_id = ? and user_email = ?;
+  `;
 
-  // Update invoice details in the database
+  // Update invoice details
   db.query(
     queryInvoice,
     [
@@ -872,6 +1055,7 @@ router.post("/save-draft-invoice", (req, res) => {
       total || null,
       invoice_to || null,
       as_draft,
+      terms,
       invoice_id,
       user_email,
     ],
@@ -881,130 +1065,74 @@ router.post("/save-draft-invoice", (req, res) => {
         return res.status(500).json({ error: err.message });
       }
 
-      // Handle items if any exist
-      if (items && items.length > 0) {
-        let totalItems = items.length;
-        let completedItems = 0;
-        let hasError = false;
+      // ✅ Remove all existing items for this invoice before adding new ones
+      const deleteExistingItemsQuery = `DELETE FROM invoice_items WHERE invoice_id = ?`;
 
-        items.forEach((all_items) => {
-          const { item, quantity, price, amount } = all_items;
+      db.query(deleteExistingItemsQuery, [invoice_id], (err) => {
+        if (err) {
+          console.error("Error deleting existing items:", err);
+          return res.status(500).json({ error: err.message });
+        }
 
-          // Query to check if item already exists in invoice_items
-          const queryCheckItemExists = `
-              SELECT id FROM invoice_items 
-              WHERE item = ? AND invoice_id = ?;
-            `;
+        if (items && items.length > 0) {
+          let totalItems = items.length;
+          let completedItems = 0;
+          let hasError = false;
 
-          // Query to insert a new item into invoice_items
-          const queryInsertItem = `
+          items.forEach((all_items) => {
+            const { item, quantity, price, amount } = all_items;
+
+            // ✅ Insert new item directly (since all previous items are deleted)
+            const queryInsertItem = `
               INSERT INTO invoice_items (
                 invoice_id, user_email, item, quantity, price, amount, invoice_to_address, invoice_to_email
               ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             `;
 
-          // Query to update an existing item in invoice_items
-          const queryUpdateItem = `
-              UPDATE invoice_items
-              SET 
-                quantity = ?, 
-                price = ?, 
-                amount = ?, 
-                invoice_to_address = ?, 
-                invoice_to_email = ? 
-              WHERE id = ?;
-            `;
+            db.query(
+              queryInsertItem,
+              [
+                invoice_id,
+                user_email,
+                item,
+                quantity,
+                price,
+                amount,
+                invoice_to_address,
+                invoice_to_email,
+              ],
+              (err) => {
+                if (err) {
+                  console.error("Error inserting item:", err);
+                  if (!hasError) {
+                    hasError = true;
+                    return res.status(500).json({ error: err.message });
+                  }
+                  return;
+                }
 
-          // Check if item exists
-          db.query(queryCheckItemExists, [item, invoice_id], (err, results) => {
-            if (err) {
-              console.error("Error checking if item exists:", err);
-              if (!hasError) {
-                hasError = true;
-                return res.status(500).json({ error: err.message });
+                completedItems++;
+                if (completedItems === totalItems && !hasError) {
+                  return res.json({
+                    message: "Invoice and items saved successfully",
+                    invoice_id,
+                    date,
+                    invoiceResult: result,
+                  });
+                }
               }
-              return;
-            }
-
-            if (results.length > 0) {
-              const itemId = results[0].id;
-              // Update existing item
-              db.query(
-                queryUpdateItem,
-                [
-                  quantity,
-                  price,
-                  amount,
-                  invoice_to_address,
-                  invoice_to_email,
-                  itemId,
-                ],
-                (err) => {
-                  if (err) {
-                    console.error("Error updating item:", err);
-                    if (!hasError) {
-                      hasError = true;
-                      return res.status(500).json({ error: err.message });
-                    }
-                    return;
-                  }
-                  completedItems++;
-                  if (completedItems === totalItems && !hasError) {
-                    res.json({
-                      message: "Invoice and items updated successfully",
-                      invoice_id,
-                      date,
-                      invoiceResult: result,
-                    });
-                  }
-                }
-              );
-            } else {
-              // Insert new item
-              db.query(
-                queryInsertItem,
-                [
-                  invoice_id,
-                  user_email,
-                  item,
-                  quantity,
-                  price,
-                  amount,
-                  invoice_to_address,
-                  invoice_to_email,
-                ],
-                (err) => {
-                  if (err) {
-                    console.error("Error inserting item:", err);
-                    if (!hasError) {
-                      hasError = true;
-                      return res.status(500).json({ error: err.message });
-                    }
-                    return;
-                  }
-                  completedItems++;
-                  if (completedItems === totalItems && !hasError) {
-                    res.json({
-                      message: "Invoice and items added/updated successfully",
-                      invoice_id,
-                      date,
-                      invoiceResult: result,
-                    });
-                  }
-                }
-              );
-            }
+            );
           });
-        });
-      } else {
-        // No items to handle, send response
-        res.json({
-          message: "Invoice with draft added successfully",
-          invoice_id,
-          date,
-          result,
-        });
-      }
+        } else {
+          // ✅ No items to add (after deleting existing items)
+          return res.json({
+            message: "Invoice updated successfully, all previous items removed",
+            invoice_id,
+            date,
+            result,
+          });
+        }
+      });
     }
   );
 });
@@ -1022,6 +1150,8 @@ router.post("/add-draft-as-invoice", (req, res) => {
     user_email,
     items,
     as_draft,
+    signature_file,
+    terms
   } = req.body;
 
   if (!date) {
@@ -1037,13 +1167,15 @@ router.post("/add-draft-as-invoice", (req, res) => {
         gst = ?, 
         total = ?, 
         invoice_to = ?, 
-        as_draft = ?
+        as_draft = ?,
+        terms_conditions = ?,
+        signature_image = ?
       WHERE invoice_id = ? AND user_email = ?
     `;
 
   db.query(
     queryInvoice,
-    [date, sub_total, gst, total, invoice_to, as_draft, invoice_id, user_email],
+    [date, sub_total, gst, total, invoice_to, as_draft, terms, signature_file, invoice_id, user_email],
     (err, result) => {
       if (err) {
         console.error("Database error:", err);
@@ -1244,7 +1376,12 @@ router.post("/save-draft", (req, res) => {
     items,
     as_draft,
     invoice_logo,
+    signature_file,
+    terms
   } = req.body;
+  console.log("server side ", req.body);
+  console.log("server side ", invoice_id);
+
 
   if (!invoice_id || !user_email || !invoice_to || !as_draft) {
     return res.status(200).json({ error: "Missing required fields" });
@@ -1252,8 +1389,8 @@ router.post("/save-draft", (req, res) => {
 
   // Insert the invoice into the invoices table
   const queryInvoice = `INSERT INTO invoices (
-      invoice_id, user_email, date, sub_total, gst, total, invoice_to,as_draft,invoice_logo
-    ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?);`;
+      invoice_id, user_email, date, sub_total, gst, total, invoice_to,as_draft,invoice_logo,signature_image,terms_conditions
+    ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?);`;
 
   db.query(
     queryInvoice,
@@ -1267,6 +1404,8 @@ router.post("/save-draft", (req, res) => {
       invoice_to || null,
       as_draft,
       invoice_logo,
+      signature_file || null,
+      terms || null
     ],
     (err, result) => {
       if (err) {
@@ -1422,14 +1561,40 @@ router.post("/upload-signature", (req, res) => {
 
 })
 
+router.post("/upload-signature-draft", (req, res) => {
+  const { user_email, signature_file, invoice_id } = req.body;
+
+  const query = `UPDATE ${process.env.DB_NAME}.invoices SET signature_image = ? WHERE user_email = ? and invoice_id = ?`;
+
+  db.query(query, [signature_file, user_email, invoice_id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Signature uploaded successfully" });
+  });
+
+})
+
 
 router.post("/fetch_signature_terms", (req, res) => {
   const { user_email } = req.body;
   if (!user_email) {
     return res.status(400).json({ error: "User email is required." });
   }
-  const query = `select signature_image, terms_conditions from owner_main_invoice where user_email = ?`;
+  const query = `select signature_image, terms_conditions from ${process.env.DB_NAME}.owner_main_invoice where user_email = ?`;
   db.query(query, [user_email], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    const image = result.length > 0 ? result[0].signature_image : null;
+    // console.log("result of the owner main", result[0])
+    res.json({ image, terms: result[0].terms_conditions });
+  })
+})
+
+router.post("/fetch_signature_terms_draft", (req, res) => {
+  const { user_email, invoice_id } = req.body;
+  if (!user_email) {
+    return res.status(400).json({ error: "User email is required." });
+  }
+  const query = `select signature_image, terms_conditions from ${process.env.DB_NAME}.invoices where user_email = ? and invoice_id = ?`;
+  db.query(query, [user_email, invoice_id], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
     const image = result.length > 0 ? result[0].signature_image : null;
     // console.log("result of the owner main", result[0])
