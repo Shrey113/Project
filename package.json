@@ -61,6 +61,7 @@
   },
   "scripts": {
     "start": "concurrently -n React,Server -c cyan,white  \"react-scripts start\" \"node src/server/server.js\"",
+    "start_server": "node src/server/server.js",
     "build": "react-scripts build",
     "start:prod": "node src/server/server.js",
     "test": "react-scripts test",
