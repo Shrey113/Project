@@ -7,12 +7,12 @@ export const localstorage_key_for_admin_login =
   "localstorage_key_for_admin_login";
 
 // export const Server_url = "http://192.168.29.193:4000";
-export const Server_url = "http://localhost:4000";
+// export const Server_url = "http://localhost:4000";
 // export const Server_url = "http://192.168.65.233:4000";
 // export const Server_url = 'http://192.168.29.34:4000';
 // export const Server_url = 'http://192.168.29.193:4000';
 // export const Server_url = 'http://127.0.0.1:3306';
-// export const Server_url = 'http://srv749838.hstgr.cloud:4000';
+export const Server_url = 'http://srv749838.hstgr.cloud:4000';
 export const localstorage_key_for_client = "localstorage_key_for_client";
 export const localstorage_key_for_admin_settings =
   "localstorage_key_for_admin_settings";
