@@ -50,6 +50,7 @@
 .Main_Container .Login_Page {
   transition: transform 0.6s ease, z-index 0.6s ease, opacity 0.6s ease;
 }
+
 .Main_Container .Register_Page,
 .Main_Container .Login_Page {
   position: absolute;
@@ -69,11 +70,13 @@
 }
 
 .Main_Container .Register_Page.active,
-.Login_Page.active {
+.Main_Container .Login_Page.active {
   z-index: 2;
   opacity: 1;
   transform: translate(-50%, -50%);
+  height: 90vh;
 }
+
 .Main_Container .Register_Page:not(.active),
 .Main_Container .Login_Page:not(.active) {
   opacity: 0;
@@ -99,15 +102,18 @@
   gap: 30px;
   border-radius: 8px;
 }
+
 .Register_Page .otp-modal img:hover {
   cursor: pointer;
 }
+
 .Register_Page .otp-modal .input_and_submit_button {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 26px;
 }
+
 .Register_Page .otp-modal .input_and_submit_button input {
   font-size: 16px;
   padding: 5px;
@@ -116,11 +122,13 @@
   width: 230px;
   border-bottom: 3px solid rgb(91, 91, 238);
 }
+
 .Register_Page .otp-modal .input_and_submit_button input:focus {
   border: 0;
   outline: 0;
   border-bottom: 3px solid rgb(107, 140, 249);
 }
+
 .Register_Page .otp-modal .input_and_submit_button button {
   border: 0;
   outline: 0;
@@ -130,9 +138,11 @@
   font-weight: 600;
   background-color: rgb(126, 175, 249);
 }
+
 .Register_Page .otp-modal .input_and_submit_button button:hover {
   cursor: pointer;
 }
+
 .Register_Page .otp-modal .error {
   color: red;
   margin-top: -20px;
@@ -145,16 +155,19 @@
   overflow: hidden;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
+
 .Main_Container .Register_Page .all_fields img {
   height: 95%;
   width: 50%;
   object-fit: cover;
   border-radius: 5px;
 }
+
 .Main_Container .Register_Page .all_fields h1,
 .Main_Container .Login_Page .all_fields h1 {
   color: var(--color_2);
 }
+
 .Main_Container .Register_Page .all_fields {
   height: fit-content;
   width: 45%;
@@ -163,7 +176,7 @@
   justify-content: space-evenly;
   flex-direction: column;
   position: relative;
-  gap: 25px;
+  gap: 15px;
 }
 
 .Main_Container .Login_Page .login_form {
@@ -179,13 +192,16 @@
   display: flex;
   justify-content: flex-end;
 }
+
 .Main_Container .Login_Page p.forgot_password {
   color: var(--color_3);
 }
+
 .Main_Container .Login_Page p.forgot_password:hover {
   cursor: pointer;
   color: var(--color_2);
 }
+
 .Main_Container .Login_Page .all_fields {
   height: fit-content;
   width: 45%;
@@ -196,20 +212,24 @@
   position: relative;
   gap: 25px;
 }
+
 .Main_Container .Login_Page .all_fields img {
   height: 95%;
   width: 50%;
   object-fit: cover;
 }
+
 .Main_Container .Login_Page .all_fields p span,
 .Main_Container .Register_Page .all_fields p span {
   color: var(--color_3);
   cursor: pointer;
 }
+
 .Main_Container .Login_Page .all_fields p span:hover,
 .Main_Container .Register_Page .all_fields p span:hover {
   color: var(--color_2);
 }
+
 .all_fields #custom_button {
   outline: none;
   cursor: pointer;
@@ -282,12 +302,12 @@
   transition: 0.2s ease all;
 }
 
-.Login_register_input_group input[type="text"]:focus ~ label,
-.Login_register_input_group input[type="password"]:focus ~ label,
-.Login_register_input_group input[type="email"]:focus ~ label,
-.Login_register_input_group input[type="text"]:valid ~ label,
-.Login_register_input_group input[type="password"]:valid ~ label,
-.Login_register_input_group input[type="email"]:valid ~ label {
+.Login_register_input_group input[type="text"]:focus~label,
+.Login_register_input_group input[type="password"]:focus~label,
+.Login_register_input_group input[type="email"]:focus~label,
+.Login_register_input_group input[type="text"]:valid~label,
+.Login_register_input_group input[type="password"]:valid~label,
+.Login_register_input_group input[type="email"]:valid~label {
   top: -20px;
   font-size: 18px;
   color: #5264ae;
@@ -298,9 +318,11 @@
   display: block;
   width: 100%;
 }
+
 .all_error_for_input {
   color: red;
 }
+
 .Login_register_input_group .bar:before,
 .Login_register_input_group .bar:after {
   content: "";
@@ -320,8 +342,8 @@
   right: 50%;
 }
 
-.Login_register_input_group input:focus ~ .bar:before,
-.Login_register_input_group input:focus ~ .bar:after {
+.Login_register_input_group input:focus~.bar:before,
+.Login_register_input_group input:focus~.bar:after {
   width: 50%;
 }
 
@@ -345,12 +367,14 @@
   width: 60px;
   background-color: transparent;
 }
+
 .Login_register_input_group .show_password_button img {
   width: 100%;
   object-fit: cover;
 }
 
 @media only screen and (max-width: 768px) {
+
   .Main_Container .Register_Page,
   .Main_Container .Login_Page {
     width: 95%;
@@ -380,6 +404,7 @@
     width: 6px;
     height: 6px;
   }
+
   .forgot_password {
     width: 250px;
   }
@@ -391,6 +416,7 @@
 }
 
 @media only screen and (max-width: 480px) {
+
   .Main_Container .Register_Page,
   .Main_Container .Login_Page {
     height: 100%;
@@ -411,6 +437,7 @@
     width: 5px;
     height: 5px;
   }
+
   .forgot_password {
     width: 150px;
   }
@@ -420,6 +447,7 @@
     font-size: 13px;
   }
 }
+
 @media only screen and (max-width: 380px) {
   .forgot_password {
     width: 130px;
