@@ -1,5 +1,3 @@
-
-
 const fs = require('fs');
 // const filePath = './node_modules/react-scripts/config/webpackDevServer.config.js';
 const filePath = 'node_modules/react-scripts/config/webpackDevServer.config.js';
@@ -11,7 +9,7 @@ fs.readFile(filePath, 'utf8', (err, data) => {
         return;
     }
 
-const oldText = `    onBeforeSetupMiddleware(devServer) {
+    const oldText = `    onBeforeSetupMiddleware(devServer) {
       // Keep \`evalSourceMapMiddleware\`
       // middlewares before \`redirectServedPath\` otherwise will not have any effect
       // This lets us fetch source contents from webpack for the error overlay
