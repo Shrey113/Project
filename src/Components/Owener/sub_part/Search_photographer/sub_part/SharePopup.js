@@ -8,6 +8,8 @@ import { CiFacebook } from "react-icons/ci";
 import { SiTelegram } from "react-icons/si";
 import { FaInstagram } from "react-icons/fa";
 import { FaTwitter } from "react-icons/fa6";
+import { GoCopy } from "react-icons/go";
+import { IoCheckmarkOutline } from 'react-icons/io5';
 
 function SharePopup({ onClose }) {
     const [copyToClipboardState, setShowCopyToClipboardState] = useState(false);
@@ -19,7 +21,7 @@ function SharePopup({ onClose }) {
             setShowCopyToClipboardState(true)
             setTimeout(() => {
                 setShowCopyToClipboardState(false);
-            }, 4000);
+            }, 3000);
         });
     };
 
@@ -44,7 +46,7 @@ function SharePopup({ onClose }) {
                     <div className="field">
                         <FaLink />
                         <input ref={inputRef} type="text" readOnly value={window.location.href.replace("search_photographer", "share_profile")} />
-                        <button onClick={copyToClipboard} style={{ cursor: "pointer" }}>Copy</button>
+                        <button onClick={copyToClipboard} style={{ cursor: "pointer" }}>{copyToClipboardState ? <> <IoCheckmarkOutline /> <span>Copied!</span> </> : (<><GoCopy /> <span>Copy</span> </>)}</button>
                     </div>
                 </div>
             </div>
