@@ -303,19 +303,19 @@
   letter-spacing: 0.5px;
 }
 
-.download_button {
+.image_controls .download_button {
   background: linear-gradient(135deg, #2196f3, #1976d2);
   color: white;
   box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
 }
 
-.download_button:hover {
+.image_controls .download_button:hover {
   background: linear-gradient(135deg, #1976d2, #1565c0);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
 }
 
-.button_icon {
+.image_controls .button_icon {
   font-size: 20px;
 }
 

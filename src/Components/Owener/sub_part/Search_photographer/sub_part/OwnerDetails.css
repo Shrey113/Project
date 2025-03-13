@@ -1679,33 +1679,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 8px 12px;
+  gap: 5px;
+  padding: 7px 12px;
   border-radius: 20px;
   border: none;
   font-size: 14px;
   font-weight: 550;
   font-family: var(--Heading);
   box-shadow: rgba(10, 10, 10, 0.66) 1.95px 1.95px 2.6px;
+  overflow-y: clip;
+}
+
+.owner-details-container .full_view_image_container .download_button {
+  background-color: var(--owner_profile_pages_main_color);
+  color: white;
 }
 
 .owner-details-container .full_view_image_container button:hover .download_logo,
 .owner-details-container .full_view_image_container button:hover .close_logo {
-  animation: upDown 0.6s ease-in-out alternate;
-}
-
-@keyframes upDown {
-  0% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-3px);
-  }
-
-  100% {
-    transform: translateY(0px);
-  }
+  animation: upDown 0.350s ease-in-out alternate;
 }
 
 .wrapper_container_for_sharing {
