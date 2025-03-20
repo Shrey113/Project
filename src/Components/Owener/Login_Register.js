@@ -72,15 +72,6 @@ function LoginRegisterOwener() {
   const location = useLocation();
   const [userData] = useState(location.state || null);
 
-  useEffect(() => {
-    console.log(userData);
-    console.log(userData?.selectedOwner?.user_email);
-
-
-  })
-
-
-
 
   //  Login part -- 
   const [login_email, set_login_email] = useState("");
@@ -91,7 +82,7 @@ function LoginRegisterOwener() {
 
 
 
-  const [is_register, toggle_register_login] = useState(false);
+  const [is_register, toggle_register_login] = useState(true);
   const [is_page_1register, toggle_is_page_1register] = useState(true);
   // register part 1 --
   const [register_user_name, set_register_user_name] = useState("");
@@ -154,7 +145,7 @@ function LoginRegisterOwener() {
           set_test(false);
         }
 
-        toggle_register_login(false);
+        toggle_register_login(true);
       }
     };
 

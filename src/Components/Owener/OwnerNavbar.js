@@ -60,6 +60,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         !event.target.closest("#notification_popup") &&
         !event.target.closest(".bell_icon")
       ) {
+        console.log("this is navbar open:", navbar_open);
         set_navbar_open(false);
       }
     }
@@ -474,9 +475,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       get_profile_image();
     }, [notification]);
 
-    useEffect(() => {
-      console.log("this is notification:", notification);
-    }, [notification]);
 
     const updateNotificationIsSeen = async (notification_id) => {
       const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_id}`);

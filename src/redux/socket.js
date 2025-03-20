@@ -11,7 +11,6 @@ const socket = io(Socket_url, {
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
 });
-ws://srv749838.hstgr.cloud:4000
 
 socket.on('connect_error', (error) => {
   console.error('Socket connection error:', error);

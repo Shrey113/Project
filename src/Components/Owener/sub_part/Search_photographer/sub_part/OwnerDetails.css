@@ -564,6 +564,9 @@
   text-overflow: ellipsis;
   font-size: 13px;
   font-family: var(--Heading);
+  max-height: 40px;
+  min-height: 40px;
+  height: 40px;
 }
 
 .owner-details-container .section .no-data {

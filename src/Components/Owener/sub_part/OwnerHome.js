@@ -106,7 +106,6 @@ function OwnerHome() {
           console.log("error fetching packages ");
         }
         set_package_count(data.package_count);
-        console.log("package count", data.package_count);
       } catch (error) {
         console.log(error);
       }
