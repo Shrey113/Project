@@ -10,6 +10,7 @@ const socket = io(Socket_url, {
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
+  transports: ["websocket", "polling"],
 });
 
 socket.on('connect_error', (error) => {
