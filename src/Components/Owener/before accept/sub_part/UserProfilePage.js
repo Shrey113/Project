@@ -38,13 +38,13 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
         const data = await response.json();
         setProfileImage(data.owners.user_profile_image_base64);
         setFormData({
-          userName: data.owners.user_name,
-          firstName: data.owners.first_name,
-          lastName: data.owners.last_name,
-          email: data.owners.user_email,
-          gender: data.owners.gender,
-          location: data.owners.business_address,
-          socialMedia: data.owners.social_media
+          userName: data.owners.user_name || '',
+          firstName: data.owners.first_name || '',
+          lastName: data.owners.last_name || '',
+          email: data.owners.user_email || '',
+          gender: data.owners.gender || 'male',
+          location: data.owners.business_address || '',
+          socialMedia: data.owners.social_media || ''
         });
       } catch (error) {
         console.error('Error fetching owners:', error);
@@ -230,10 +230,9 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
       isValid = false;
     }
 
-    // Gender validation - check for empty string or null
-    if (!formData.gender || formData.gender === '') {
-      newErrors.gender = 'Please select a gender';
-      isValid = false;
+    // Modified gender validation
+    if (!formData.gender || formData.gender === 'null' || formData.gender === null) {
+      setFormData(prev => ({...prev, gender: 'male'})); // Set default if null
     }
 
     // Location validation
@@ -392,7 +391,7 @@ function UserProfilePage({setIs_Page1,setCurrentStep}) {
           <label>Gender</label>
           <select 
             name="gender"
-            value={formData.gender}
+            value={formData.gender || 'male'}
             onChange={handleInputChange}
           >
             <option value="male">Male</option>

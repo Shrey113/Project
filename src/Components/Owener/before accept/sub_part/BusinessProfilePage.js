@@ -14,7 +14,6 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
       businessEmail: '',
       gstNumber: '',
       location: '',
-      website: '',
       services: [],
       businessProfileImage: null
     });
@@ -40,7 +39,6 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
           businessEmail: data.owners.business_email,
           gstNumber: data.owners.gst_number,
           location: data.owners.business_address,
-          website: data.owners.website,
           services: data.owners.services,
           businessProfileImage: data.owners.business_profile_base64
         });
@@ -69,7 +67,6 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
     businessEmail: '',
     gstNumber: '',
     location: '',
-    website: '',
     services: ''
   });
 
@@ -161,7 +158,6 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
       business_email: formData.businessEmail,
       gst_number: formData.gstNumber,
       business_address: formData.location,
-      website: formData.website,
       services: formData.services,
       business_profile_base64: formData.businessProfileImage
     }
@@ -197,7 +193,6 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
       businessEmail: '',
       gstNumber: '',
       location: '',
-      website: '',
       services: ''
     });
 
@@ -207,19 +202,18 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
       businessEmail: '',
       gstNumber: '',
       location: '',
-      website: '',
       services: ''
     };
 
     // Business Name validation
-    if (!formData.businessName.trim()) {
+    if (!formData.businessName || !formData.businessName.trim()) {
       newErrors.businessName = 'Business name is required';
       hasErrors = true;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.businessEmail.trim()) {
+    if (!formData.businessEmail || !formData.businessEmail.trim()) {
       newErrors.businessEmail = 'Email is required';
       hasErrors = true;
     } else if (!emailRegex.test(formData.businessEmail)) {
@@ -227,19 +221,18 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
       hasErrors = true;
     }
 
-    // GST Number validation
+    // Modified GST Number validation - only validate if a value is provided
     const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-    if (formData.gstNumber.trim() && !gstRegex.test(formData.gstNumber)) {
-      newErrors.gstNumber = 'Please enter a valid GST number';
+    if (formData.gstNumber && formData.gstNumber.trim() && !gstRegex.test(formData.gstNumber)) {
+      newErrors.gstNumber = 'If provided, please enter a valid GST number';
       hasErrors = true;
     }
 
     // Location validation
-    if (!formData.location.trim()) {
+    if (!formData.location || !formData.location.trim()) {
       newErrors.location = 'Location is required';
       hasErrors = true;
     }
-
 
     setErrors(newErrors);
 
@@ -318,8 +311,13 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
 
 
         <div className="form-group">
-          <label>Business GST Number</label>
-          <input type="text" placeholder="Add GST Number here" value={formData.gstNumber} onChange={(e) => setFormData({ ...formData, gstNumber: e.target.value })} />
+          <label>Business GST Number (Optional)</label>
+          <input 
+            type="text" 
+            placeholder="Add GST Number here (Optional)" 
+            value={formData.gstNumber} 
+            onChange={(e) => setFormData({ ...formData, gstNumber: e.target.value })} 
+          />
           {errors.gstNumber && <span className="error">{errors.gstNumber}</span>}
         </div>
 
@@ -329,11 +327,6 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
           {errors.location && <span className="error">{errors.location}</span>}
         </div>
 
-        <div className="form-group">
-          <label>Business Website</label>
-          <input type="text" placeholder="(website, social page, blog, etc.)" value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} />
-          {errors.website && <span className="error">{errors.website}</span>}
-        </div>
 
         
         

@@ -22,7 +22,7 @@ import { localstorage_key_for_jwt_user_side_key, Server_url, localstorage_key_fo
 
 
 
-const CustomInputField = ({ id, type, value, onChange, label, error, name }) => {
+const CustomInputField = ({ id, type, value, onChange, label, error, name ,optional}) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
 
@@ -38,7 +38,8 @@ const CustomInputField = ({ id, type, value, onChange, label, error, name }) => 
         name={name}
         value={value}
         onChange={onChange}
-        required
+        required={optional ? false : true}
+        placeholder={optional ? `${label.replace("(Optional)", "")}` : ""}
       />
       <span className="bar"></span>
       {type === 'password' && (
@@ -350,14 +351,6 @@ function LoginRegisterOwener() {
       set_register_business_address_error("");
     }
 
-    // const mobileRegex = /^[0-9]\d{9}$/;
-    if (register_business_mobile_number.length !== 10) {
-      set_register_business_mobile_number_error("Mobile number must be exactly 10 digits.")
-      is_valid = false;
-    } else {
-      set_register_business_mobile_number_error("");
-    }
-
     if (!/^[0-9]{10}$/.test(register_business_mobile_number)) {
       set_register_business_mobile_number_error("Enter a valid 10-digit mobile number.");
       is_valid = false;
@@ -365,17 +358,18 @@ function LoginRegisterOwener() {
       set_register_business_mobile_number_error("");
     }
 
-
-
+    // Modified GST validation to make it optional
     const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}[Z]{1}[A-Z0-9]{1}$/;
-    if (!gstRegex.test(register_business_GST_number)) {
-      set_register_business_GST_number_error("Add a valid GST number");
-      is_valid = false;
+    if (register_business_GST_number !== "") {
+      if (!gstRegex.test(register_business_GST_number)) {
+        set_register_business_GST_number_error("If provided, GST number must be valid");
+        is_valid = false;
+      } else {
+        set_register_business_GST_number_error("");
+      }
     } else {
       set_register_business_GST_number_error("");
     }
-
-
 
     if (is_valid) {
       const Data = {
@@ -497,7 +491,7 @@ function LoginRegisterOwener() {
                 <CustomInputField type="text" value={register_business_name} onChange={(e) => set_register_business_name(e.target.value)} label="Business Name" error={register_business_name_error} id="register_business_name" />
                 <CustomInputField type="text" value={register_business_address} onChange={(e) => set_register_business_address(e.target.value)} label="Business Address" error={register_business_address_error} id="register_business_address" />
                 <CustomInputField type="text" value={register_business_mobile_number} onChange={(e) => set_register_business_mobile_number(e.target.value)} label="Mobile Number" error={register_business_mobile_number_error} id="register_business_mobile_number" />
-                <CustomInputField type="text" value={register_business_GST_number} onChange={(e) => set_register_business_GST_number(e.target.value)} label="GST Number" error={register_business_GST_number_error} id="register_business_GST_number" />
+                <CustomInputField type="text" value={register_business_GST_number} onChange={(e) => set_register_business_GST_number(e.target.value)} label="GST Number (Optional)" error={register_business_GST_number_error} id="register_business_GST_number" optional={true} />
               </>}
 
             {is_page_1register && <span>
