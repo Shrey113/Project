@@ -18,7 +18,7 @@ function Profile() {
     localStorage.setItem('activeSection_for_profile_page', activeSection);
   }, [activeSection]);
 
-  const sections = ['User Profile', 'Business Profile', "Business Services", 'Portfolio', "Equipment's", "Reviews", "Social Media Links"];
+  const sections = ['User Profile', 'Business Profile', "Business Services", 'Portfolio', "Equipment's", "Social Media Links", "Reviews"];
 
   return (
     <div className="profile-container-after-accept">
@@ -48,8 +48,8 @@ function Profile() {
           {activeSection === "Business Services" && <AddBusinessServices />}
           {activeSection === 'Portfolio' && <AddPortfolio />}
           {activeSection === "Equipment's" && <AddEquipment />}
-          {activeSection === "Reviews" && <AddReviews />}
           {activeSection === "Social Media Links" && <OwnerUrlList />}
+          {activeSection === "Reviews" && <AddReviews />}
         </div>
       </div>
     </div>

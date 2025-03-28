@@ -171,7 +171,7 @@ const RequestDetailPopup = ({
               <button
                 onClick={() => setPopupType("reject")}
                 className="reject-btn"
-
+                style={{ marginTop: "20px" }}
               >
                 Reject Request
               </button>
