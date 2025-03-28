@@ -18,7 +18,7 @@ export const localstorage_key_for_admin_login =
 
 
 export const Server_url = 'https://srv749838.hstgr.cloud:4000';
-export const Socket_url = 'ws://srv749838.hstgr.cloud';
+export const Socket_url = 'wss://srv749838.hstgr.cloud:4000';
 
 
 export const localstorage_key_for_client = "localstorage_key_for_client";

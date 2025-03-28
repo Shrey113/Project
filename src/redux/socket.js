@@ -5,12 +5,11 @@ import { Socket_url } from './AllData';
 
 
 const socket = io(Socket_url, {
-  method: ['GET', 'POST', 'PUT', 'DELETE'],
+  transports: ["websocket", "polling"],
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
-  transports: ["websocket", "polling"],
-  timeout: 5000,
+  timeout: 5000
 });
 console.log("socket url", socket);
 
