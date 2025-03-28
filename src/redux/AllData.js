@@ -33,8 +33,8 @@ export const ConfirmMessage = ({
   button_text,
 }) => {
   return (
-    <div className="confirm-popup-overlay">
-      <div className="confirm-popup-content">
+    <div className="confirm-popup-overlay" onClick={onCancel}>
+      <div className="confirm-popup-content" onClick={(e) => e.stopPropagation()}>
         <h3>{message_title}</h3>
         <p>{message}</p>
         <div className="confirm-popup-buttons">
