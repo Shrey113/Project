@@ -3,10 +3,10 @@ import React from 'react';
 import './BeforeLogin2.css';
 import first_section_image from './image_folder/first_section_image.png';
 import third_section_image from './image_folder/third_section_image.png';
+import fifth_section_image from './image_folder/fifth_section_image.png';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
-import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -16,8 +16,9 @@ gsap.registerPlugin(ScrollTrigger);
 function BeforeLogin2() {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 650);
-    const featuresContainerRef = useRef(null); // Reference to key-features-container
-    const featuresGridRef = useRef(null); // Reference to features-grid
+    // const sectionRef = useRef(null);
+    // const containerRef = useRef(null);
+
 
     // Handle screen resize
     useEffect(() => {
@@ -26,52 +27,55 @@ function BeforeLogin2() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // GSAP auto-scroll horizontal effect using useGSAP
-    // Inside the BeforeLogin2 component, update the useGSAP hook:
-    useGSAP(() => {
-        const container = featuresContainerRef.current;
-        const grid = featuresGridRef.current;
+    // useEffect(() => {
+    //     const section = sectionRef.current;
+    //     const container = containerRef.current;
 
-        if (!container || !grid) return; // Prevent errors if refs are not set
+    //     // Set up the horizontal scroll effect
+    //     const totalWidth = container.scrollWidth - section.clientWidth;
 
-        // const cards = grid.querySelectorAll('.feature-card');
-        // console.log("cards", cards.length);
-        // if (cards.length === 0) return;
+    //     gsap.to(container, {
+    //         x: -totalWidth,
+    //         ease: "none",
+    //         scrollTrigger: {
+    //             trigger: section,
+    //             start: "top top",
+    //             end: () => "+=" + totalWidth,
+    //             scrub: 1,
+    //             pin: true,
+    //             anticipatePin: 1,
+    //             markers: true,
+    //         },
+    //     });
 
-        // Only apply animation if content exceeds viewport width
+    //     // Cleanup function
+    //     return () => {
+    //         ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    //     };
+    // }, []);
 
-        gsap.to(grid, {
-            x: '-60%',
-            duration: 6,
-            ease: 'power2.out',
-            scrollTrigger: {
-                trigger: container,
-                // start: 'top 100px',
-                // end: 'bottom 100px',
-                scrub: true,
-                markers: true,
-            },
+    const navLinksRef = useRef([]);
+    const imageRef = useRef(null);
+    // navLinksRef.current = [];
+    useEffect(() => {
+        gsap.to(imageRef.current, {
+            x: "0px",
+            opacity: "1",
+            duration: 1,
+            ease: "power2.out"
         });
 
-    }, { scope: featuresContainerRef });
+        gsap.to(navLinksRef.current, {
+            y: "0px",
+            opacity: "1",
+            stagger: 0.2,
+            duration: 0.8,
+            ease: "power2.out"
+        });
 
-    // useGSAP(() => {
-    //     gsap.fromTo(
-    //         featuresContainerRef.current,
-    //         { opacity: 0, y: 50 },  // Initial state
-    //         {
-    //             opacity: 1,
-    //             y: 0,
-    //             duration: 2,
-    //             ease: "power2.out",
-    //             scrollTrigger: {
-    //                 trigger: featuresContainerRef.current,
-    //                 start: "top 80%", // When section reaches 80% of viewport
-    //                 toggleActions: "play none none none",
-    //             },
-    //         }
-    //     );
-    // }, []);
+    }, []);
+
+
     const smoothScroll = (e, targetId) => {
         e.preventDefault();
         document.getElementById(targetId)?.scrollIntoView({
@@ -84,19 +88,36 @@ function BeforeLogin2() {
         window.location.href = '/owner';
     };
 
+
+    const cardData = [
+        { icon: "📸", title: "📷 Get Hired Instantly", description: "Showcase your portfolio & attract top clients." },
+        { icon: "💼", title: "💰 Rent & Earn", description: "List your camera gear & make passive income." },
+        { icon: "🔗", title: "🌍 Connect & Collaborate", description: "Expand your network & work with professionals." },
+        { icon: "📅", title: "⚡ Seamless Bookings", description: "Manage appointments, clients & payments hassle-free." },
+        { icon: "📊", title: "📈 Business Insights", description: "Track your growth with real-time analytics." },
+        { icon: "📝", title: "📑 Smart Invoicing", description: "Generate professional invoices in one click." }
+    ];
+    const Links = [
+        { id: "first_container", label: "Home" },
+        { id: "second_container", label: "About" },
+        { id: "third_container", label: "Services" },
+        { id: "fourth_container", label: "Steps" },
+        { id: "fifth_container", label: "Join" }
+    ];
+
     return (
         <main>
             <nav className="nav">
-                <img src={first_section_image} alt="Logo" className="logo" />
+                <img src={first_section_image} alt="Logo" className="logo" ref={imageRef} />
                 {isMobile ? (
                     <button className="menu-toggle" onClick={() => setSidebarOpen(true)}>☰</button>
                 ) : (
                     <ul className="nav-links">
-                        <li><button onClick={(e) => smoothScroll(e, 'first_container')}>Home</button></li>
-                        <li><button onClick={(e) => smoothScroll(e, 'second_container')}>About</button></li>
-                        <li><button onClick={(e) => smoothScroll(e, 'third_container')}>Services</button></li>
-                        <li><button onClick={(e) => smoothScroll(e, 'fourth_container')}>Steps</button></li>
-                        <li><button onClick={(e) => smoothScroll(e, 'fifth_container')}>Join</button></li>
+                        {Links.map((label, index) => (
+                            <li key={index} ref={el => (navLinksRef.current[index] = el)}>
+                                <button onClick={(e) => { smoothScroll(e, label.id) }}>{label.label}</button>
+                            </li>
+                        ))}
                     </ul>
                 )}
                 {isMobile && (
@@ -169,12 +190,13 @@ function BeforeLogin2() {
             </section>
 
             {/* Third Section with Auto-Scroll Horizontal Effect */}
-            <div className="key-features-container" id="third_container" ref={featuresContainerRef}>
+            {/* <div className="key-features-container" id="third_container" ref={featuresContainerRef}>
                 <div className="key-feature-image-container">
                     <img src={third_section_image} alt="Photographer Network" />
                 </div>
                 <h2 style={{ zIndex: '10' }}>Unlock endless opportunities to grow your photography career!</h2>
                 <div className="features-grid" ref={featuresGridRef}>
+
                     <div className="feature-card">
                         <div className="icon-placeholder">📸</div>
                         <div className="key_words">
@@ -218,7 +240,25 @@ function BeforeLogin2() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
+
+            <section className="horizontal-scroll-section" id='third_container'>
+
+                <div className="key-feature-image-container">
+                    <img src={third_section_image} alt="Photographer Network" />
+                </div>
+                <div className="cards-container">
+                    {cardData.map((card, index) => (
+                        <div key={index} className="card">
+                            <div className="icon-placeholder">{card.icon}</div>
+                            <div className="key_words">
+                                <h3 className="feature-title">{card.title}</h3>
+                                <p className="feature-description">{card.description}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
 
             {/* Fourth Section */}
             <div className="working_steps" id="fourth_container">
@@ -227,11 +267,52 @@ function BeforeLogin2() {
 
             {/* Fifth Section */}
             <div className="hero-container" id="fifth_container">
+                <div className="hero_image_container"> <img src={fifth_section_image} alt="Logo" /></div>
+
                 <div className="hero-content">
                     <h1>Join Today & Start Growing!</h1>
                     <button className="hero-button" onClick={handleOwnerLogin}>Sign Up Now</button>
                 </div>
             </div>
+
+            <footer className="footer-container">
+                <div className="footer-content">
+                    <div className="footer-section about">
+                        <h2>Photography Hub</h2>
+                        <p>Connecting photographers with opportunities. Join us to showcase your talent, rent equipment, and grow your career.</p>
+                    </div>
+
+                    <div className="footer-section links">
+                        <h3>Quick Links</h3>
+                        <ul>
+                            <li><button onClick={(e) => smoothScroll(e, 'first_container')}>Home</button></li>
+                            <li><button onClick={(e) => smoothScroll(e, 'second_container')}>About</button></li>
+                            <li><button onClick={(e) => smoothScroll(e, 'third_container')}>Services</button></li>
+                            <li><button onClick={(e) => smoothScroll(e, 'fourth_container')}>Steps</button></li>
+                            <li><button onClick={(e) => smoothScroll(e, 'fifth_container')}>Join</button></li>
+                        </ul>
+                    </div>
+
+                    <div className="footer-section contact">
+                        <h3>Contact Us</h3>
+                        <p>Email: support@photographyhub.com</p>
+                        <p>Phone: +1 234 567 890</p>
+                        <p>Address: 123 Photography St, New York, NY</p>
+                    </div>
+
+                    <div className="footer-section social">
+                        <h3>Follow Us</h3>
+                        <div className="social-icons">
+                            <button className="facebook">📘</button>
+                            <button className="twitter">🐦</button>
+                            <button className="instagram">📸</button>
+                        </div>
+                    </div>
+                </div>
+                <div className="footer-bottom">
+                    <p>&copy; 2025 Photography Hub. All rights reserved.</p>
+                </div>
+            </footer>
         </main>
     );
 }
