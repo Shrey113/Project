@@ -624,13 +624,58 @@ main .footer-section ul li button {
     text-decoration: none;
     border: none;
     background: none;
-    transition: color 0.3s;
+    transition: color 0.2s;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 
-main .footer-section ul li button:hover {
-    color: #ffcc00;
+main .footer-section ul li button::after {
+    position: absolute;
+    content: '';
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #ffcc00;
+    transition: all 0.2s;
 }
+
+.footer-section ul li button:hover::after {
+    width: 100%;
+    animation: hoverAnime 0.5s ease-in-out forwards;
+}
+
+.footer-section ul li button:not(:hover)::after {
+    width: 100%;
+    animation: hoverAnimeOut 0.5s ease-in-out forwards;
+}
+
+@keyframes hoverAnime {
+    0% {
+        width: 0;
+        left: 0;
+    }
+
+    100% {
+        width: 100%;
+        left: 0;
+    }
+
+}
+
+@keyframes hoverAnimeOut {
+    100% {
+        width: 0;
+        left: 100%;
+    }
+
+
+}
+
+/* main .footer-section ul li button:hover {
+    color: #ffcc00;
+} */
 
 main .social-icons {
     display: flex;
@@ -657,4 +702,56 @@ main .footer-bottom {
     border-top: 1px solid #555;
     padding-top: 10px;
     font-size: 14px;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-section {
+        min-width: 100%;
+        margin: 10px 0;
+    }
+
+    .social-icons {
+        justify-content: center;
+    }
+}
+
+/* Mobile Screens - 320px */
+@media (max-width: 320px) {
+    .footer-container {
+        padding: 15px;
+    }
+
+    .footer-section h2,
+    .footer-section h3 {
+        font-size: 18px;
+    }
+
+    .footer-section p,
+    .footer-section ul li {
+        font-size: 14px;
+    }
+
+    .footer-section ul {
+        padding-left: 0;
+    }
+
+    .footer-section ul li button {
+        font-size: 14px;
+    }
+
+    .social-icons button {
+        font-size: 18px;
+    }
+
+    .footer-bottom {
+        font-size: 12px;
+    }
 }
