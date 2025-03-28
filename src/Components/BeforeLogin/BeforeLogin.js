@@ -71,7 +71,7 @@ function BeforeLogin() {
     setSelectedOption(e.target.value);
   };
 
- 
+
   const handleSelectClick = () => {
     // Redirect based on selected option
     if (selectedOption === "Hire a Photographer") {
@@ -79,7 +79,7 @@ function BeforeLogin() {
     } else if (selectedOption === "Offer Photography Services") {
       window.location.href = "/owner";
     } else {
-      showWarningToast({message: "Please select an option before proceeding."})
+      showWarningToast({ message: "Please select an option before proceeding." })
     }
   };
 

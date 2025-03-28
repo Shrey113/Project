@@ -1,0 +1,469 @@
+@font-face {
+    font-family: circular;
+    src: url("/src/fonts/CircularStd-Medium.woff");
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+.nav-link {
+    cursor: pointer;
+}
+
+
+
+main {
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: scroll;
+    max-width: 1600px;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: #333;
+}
+
+.logo {
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Regular Navbar Links */
+.nav-links {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+}
+
+.nav-links button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    position: relative;
+}
+
+.nav-links button::after {
+    position: absolute;
+    content: "";
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #ffd700;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.nav-links button:hover::after {
+    width: 100%;
+
+}
+
+/* Hide Sidebar Toggle on Desktop */
+.menu-toggle {
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: none;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -250px;
+    width: 250px;
+    height: 100vh;
+    background: #222;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: right 0.3s ease-in-out;
+    z-index: 1000;
+}
+
+.sidebar.open {
+    right: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    align-self: flex-end;
+    cursor: pointer;
+}
+
+.sidebar .nav-links {
+    flex-direction: column;
+}
+
+.sidebar .nav-links button {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+/* Responsive Behavior */
+@media (max-width: 650px) {
+
+
+    .menu-toggle {
+        display: block;
+    }
+}
+
+
+main .before-login-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-color: #1a1a1a;
+    display: flex;
+    align-items: end;
+    max-height: 1000px;
+}
+
+main .before-login-container .swiper-container {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
+main .before-login-container .swiper-container::before {
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+    background-color: #00000081;
+}
+
+main .before-login-container .swiper-container .swiper-slide {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+}
+
+
+main .content {
+    position: relative;
+    text-align: start;
+    color: white;
+    max-width: fit-content;
+    padding: 0 0 0 10rem;
+    margin-bottom: 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 30px;
+    z-index: 10;
+    line-height: 3rem;
+}
+
+main .content h1 {
+    font-weight: bold;
+    font-size: 50px;
+    font-family: circular;
+    letter-spacing: 2px;
+    line-height: 4rem;
+}
+
+main .content p {
+    font-size: 22px;
+    letter-spacing: 1.4px;
+    margin-bottom: 1.5rem;
+    font-weight: 250;
+}
+
+main .join-button {
+    background-color: #ffd700;
+    color: black;
+    padding: 10px 28px;
+    font-size: 1.4rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+main .join-button:hover {
+    background-color: #e0a800;
+}
+
+
+/* second section  */
+
+.who-we-are-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 60px;
+    background-color: #f8f9fa;
+    text-align: left;
+}
+
+.content-wrapper {
+    display: flex;
+    align-items: center;
+    /* max-width: 1200px; */
+    width: 100%;
+    gap: 25px;
+}
+
+.image-placeholder {
+    flex: 1;
+    height: 400px;
+    background: url('/src/Components/BeforeLogin/new_design/image_folder/first_section_image.png') no-repeat center center/cover;
+    border-radius: 12px;
+}
+
+.text-content {
+    flex: 1;
+    padding: 20px;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.section-description {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.features-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: #444;
+}
+
+.feature-item .icon {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 10px 25px;
+    margin-top: 20px;
+    background-color: #ffd700;
+
+    font-size: 18px;
+    text-transform: uppercase;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.cta-button:hover {
+    background-color: #e6c200;
+}
+
+
+/* third container  */
+
+main .key-features-container {
+    position: relative;
+    height: 100vh;
+    max-height: 1000px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 50px;
+    overflow: hidden;
+
+}
+
+main .key-features-container h2 {
+    color: white;
+}
+
+main .key-feature-image-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+main .key-features-container img {
+    width: 100%;
+    height: 100%;
+}
+
+main .key-features-container .key-feature-image-container::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "";
+    width: 100%;
+    height: 100%;
+    background-color: #00000081;
+}
+
+main .key-features-title {
+    font-size: 40px;
+    font-weight: bold;
+    color: white;
+    font-family: circular;
+    letter-spacing: 2px;
+    z-index: 10;
+}
+
+main .features-grid {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 30px;
+    /* width: max-content; */
+    padding: 0 20px;
+    position: relative;
+    /* overflow-y: scroll; */
+}
+
+main .features-grid::-webkit-scrollbar {
+    display: none;
+}
+
+main .feature-card {
+    flex: 0 0 320px;
+    background: rgba(0, 0, 0, 0.354);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    min-height: fit-content;
+    height: 450px;
+    backdrop-filter: blur(10px);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    position: relative;
+}
+
+main .icon-placeholder {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background-color: gray;
+    margin: 0 auto 10px;
+}
+
+main .key_words {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}
+
+main .feature-title {
+    font-size: 22px;
+    font-weight: bold;
+    text-align: start;
+}
+
+main .feature-description {
+    font-size: 14px;
+    text-align: start;
+}
+
+/* fourth container  */
+
+.working_steps {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+}
+
+
+/* fifth container  */
+
+.hero-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-image: url("/src/Components/BeforeLogin/new_design/image_folder/fifth_section_image.png");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-content {
+    position: relative;
+    text-align: center;
+    color: white;
+    z-index: 2;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.hero-button {
+    background-color: #ffd700;
+    /* Yellow button */
+    color: black;
+    font-size: 20px;
+    padding: 10px 25px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-weight: 350;
+    transition: background 0.3s;
+    font-family: circular;
+}
+
+.hero-button:hover {
+    background-color: #e6c200;
+}

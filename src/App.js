@@ -32,7 +32,8 @@ import {
   localstorage_key_for_admin_login,
 } from "./redux/AllData.js";
 // import Admin from "./Components/Admin/Admin.js";
-import BeforeLogin from "./Components/BeforeLogin/BeforeLogin.js";
+// import BeforeLogin from "./Components/BeforeLogin/BeforeLogin.js";
+import BeforeLogin2 from "./Components/BeforeLogin/new_design/BeforeLogin2.js"
 import Admin2 from "./Components/Admin_2/Admin.js";
 
 // import Admin from "./Components/Admin/Admin.js";
@@ -77,21 +78,21 @@ import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_pa
 function App() {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
-  const location = useLocation(); 
+  const location = useLocation();
   const isMobile = useSelector((state) => state.user.isMobile);
-  
+
   // Socket connection management with useEffect
   useEffect(() => {
     // Only emit if we have a valid email
     if (user.user_email) {
       socket.emit('user_connected', { email: user.user_email });
-      
+
       return () => {
         socket.emit('user_disconnected', { email: user.user_email });
-        socket.off('disconnect'); 
+        socket.off('disconnect');
       };
     }
-  }, [user.user_email]); 
+  }, [user.user_email]);
 
   const [authStatus, setAuthStatus] = useState({
     Admin: null,
@@ -343,7 +344,7 @@ function App() {
         {/* testing part */}
         <Route path="/Admin2" element={<Admin2 socket={socket} />} />
         {/* <Route path="/Admin1" element={<Admin/> } /> */}
-        <Route path="/BeforeLogin" element={<BeforeLogin />} />
+        <Route path="/BeforeLogin" element={<BeforeLogin2 />} />
 
         {/* Default route */}
         <Route
@@ -356,7 +357,7 @@ function App() {
             ) : authStatus.admin ? (
               <Admin2 />
             ) : (
-              <BeforeLogin />
+              <BeforeLogin2 />
             )
           }
         />
@@ -601,7 +602,7 @@ function App() {
       )}
 
       <Toaster position="top-right" />
-   </>
+    </>
   );
 }
 
