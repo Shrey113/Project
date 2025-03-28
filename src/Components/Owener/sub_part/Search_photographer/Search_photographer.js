@@ -153,16 +153,22 @@ function Search_photographer({searchTerm,setSearchTerm}) {
         );
         const data = await response.json();
         
+        // Prioritize state_district for Indian locations
         const cityName =
+          data.address?.state_district || // Prioritize state_district (e.g., "Vadodara")
           data.address?.city ||
           data.address?.town ||
           data.address?.village ||
-          "Vadodara";
+          data.address?.county ||
+          data.address?.state ||
+          (data.display_name ? data.display_name.split(',')[0] : null) ||
+          "Unknown location";
+
         console.log("City Name from location:", cityName);
         setLocationData(cityName);
       } catch (error) {
         console.error("Error fetching city:", error);
-        setLocationData("Vadodara");
+        setLocationData(null);
       } finally {
         setIsLocationLoading(false);
       }
@@ -177,14 +183,35 @@ function Search_photographer({searchTerm,setSearchTerm}) {
         },
         (error) => {
           console.error("Error getting location:", error);
-          // Fallback if location permission is denied or an error occurs
-          setLocationData("Vadodara");
+          // Handle specific geolocation errors
+          switch(error.code) {
+            case 1: // PERMISSION_DENIED
+              showWarningToast({ message: "Location permission denied by user" });
+              break;
+            case 2: // POSITION_UNAVAILABLE
+              showWarningToast({ message: "Location information is unavailable" });
+              break;
+            case 3: // TIMEOUT
+              showWarningToast({ message: "Location request timed out" });
+              break;
+            default:
+              showWarningToast({ message: "Unknown location error occurred" });
+          }
+          
+          setIsLocationPermissionGranted(false);
+          setLocationData(null);
           setIsLocationLoading(false);
         },
-        { enableHighAccuracy: true }
+        { 
+          enableHighAccuracy: true,
+          timeout: 10000, // 10 seconds timeout
+          maximumAge: 0 // Don't use cached position
+        }
       );
     } else {
       showWarningToast({ message: "Your browser doesn't support geolocation" });
+      setIsLocationPermissionGranted(false);
+      setLocationData(null);
       setIsLocationLoading(false);
     }
   }, []);
@@ -305,7 +332,6 @@ function Search_photographer({searchTerm,setSearchTerm}) {
                   <BiLoaderAlt className="loading-spinner" />
                 ) : (
                   <TbLocationCancel />
-                  // <>ssss</>
                 )}
               </div>
               <div className="location-details">
@@ -319,20 +345,16 @@ function Search_photographer({searchTerm,setSearchTerm}) {
           ) : (
             <div
               className={`location-circle current-location ${
-                selectedLocation === (locationData.address?.city || locationData.address?.state_district || locationData.address?.state) 
-                ? 'selected' 
-                : ''
+                selectedLocation === locationData ? 'selected' : ''
               }`}
-              onClick={() => handleLocationSelect(locationData.address?.city || locationData.address?.state_district || locationData.address?.state || 'Vadodara')}
+              onClick={() => handleLocationSelect(locationData)}
             >
               <div className="location-image-wrapper current-location-wrapper">
                 <TfiLocationPin />
               </div>
               <div className="location-details">
                 <span className="location-name">
-                  {isLocationLoading ? 'Loading...' : 
-                    `${locationData || 'Vadodara'}`
-                  }
+                  {isLocationLoading ? 'Loading...' : locationData}
                 </span>
               </div>
             </div>

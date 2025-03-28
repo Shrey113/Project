@@ -552,6 +552,26 @@ const OwnerDetails = () => {
     setIsOpen(!isOpen);
   };
 
+  function cleanUrl(url) {
+    if (!url) return "";
+    
+    try {
+        let hostname = new URL(url).hostname; // Extract hostname from URL
+        return hostname.replace(/^www\./, ''); // Remove "www." if present
+    } catch (error) {
+        // Handle cases where the input isn't a valid URL
+        return url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+    }
+}
+
+
+function redirectToUrl(url) {
+  if (url && url !== "Not Available") {
+      const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+      window.open(fullUrl, "_blank");
+  }
+}
+
 
 
   return (
@@ -656,7 +676,9 @@ const OwnerDetails = () => {
                     </div>
                     <div>
                       <label>Website</label>
-                      <p>{selectedOwner?.website || "Not Available"}</p>
+                      <p onClick={() => redirectToUrl(selectedOwner?.social_media)} style={{ color: "blue", cursor: "pointer" }}>
+                          {cleanUrl(selectedOwner?.social_media || "Not Available")}
+                      </p>
                     </div>
                   </div>
                 </div>

@@ -50,7 +50,7 @@ function AdminProfile({admin_email}) {
   const [basic_info, set_basic_info] = useState(initial_data);
   const [original_data, set_original_data] = useState(initial_data);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
-  const [selectedImage, setSelectedImage] = useState("https://via.placeholder.com/150");
+  const [selectedImage, setSelectedImage] = useState(user_img_1);
   const [isLoading, setIsLoading] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -205,6 +205,7 @@ function AdminProfile({admin_email}) {
     setIsLoading(true);
     try {
       const updateData = prepareUpdateData(fields);
+      const roleIsChanging = fields.includes('role') && has_changes('role');
       
       const response = await fetch(`${Server_url}/Admin/save_admin_data`, {
         method: 'POST',
@@ -220,6 +221,7 @@ function AdminProfile({admin_email}) {
         showRejectToast({message: 'Error saving data: ' + data.error });
         return false;
       }
+      
       set_data_error({
         full_name_error: '',
         email_error: '',
@@ -230,6 +232,17 @@ function AdminProfile({admin_email}) {
         join_date_error: '',
         last_login_error: ''
       });
+      
+      // If role was changed, show message and log out
+      if (roleIsChanging) {
+        showAcceptToast({message: 'Role updated successfully. Please log in again with your new permissions.' });
+        setTimeout(() => {
+          localStorage.removeItem(localstorage_key_for_admin_login);
+          window.location.reload();
+        }, 2000); // Give time for the toast message to be seen
+        return true;
+      }
+      
       return true;
     } catch (error) {
       console.error('Error making request:', error);
@@ -313,15 +326,46 @@ function is_valid_account_details(fields) {
 
 const handleRoleChange = (e) => {
   if (basic_info.role === 'Full' && e.target.value === 'Read Write') {
-    setShowDeleteConfirm({
-      isVisible: true,
-      message_title: "Confirm Role Change",
-      message: "Are you sure you want to change the role to Read Write?\nAfter save This action cannot be reverted.",
-      onConfirm: () => {
-        handle_input_change('role', e.target.value);
+    // First check if this is the last Full admin in the system
+    setIsLoading(true);
+    fetch(`${Server_url}/Admin/count-full-admins`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
       }
+    })
+    .then(response => response.json())
+    .then(data => {
+      setIsLoading(false);
+      if (data.fullAdmins <= 1) {
+        // This is the last Full admin, cannot change role
+        setShowDeleteConfirm({
+          isVisible: true,
+          message_title: "Cannot Change Role",
+          message: "As the last Full Access admin, your role cannot be changed to Read Write. A minimum of one Full Access admin must exist in the system for security reasons.",
+          onConfirm: () => setShowDeleteConfirm({isVisible: false}),
+          buttonText: "Ok"
+        });
+      } else {
+        // Not the last Full admin, confirm before changing
+        setShowDeleteConfirm({
+          isVisible: true,
+          message_title: "Confirm Role Change",
+          message: "Are you sure you want to change the role to Read Write? After save, this action cannot be reverted.",
+          onConfirm: () => {
+            handle_input_change('role', e.target.value);
+          },
+          buttonText: "Confirm"
+        });
+      }
+    })
+    .catch(error => {
+      setIsLoading(false);
+      console.error('Error checking admin count:', error);
+      showRejectToast({message: "Error checking admin status. Please try again."});
     });
   } else {
+    // Changing to Full or already a Read Write admin, no restrictions
     handle_input_change('role', e.target.value);
   }
 };
@@ -411,6 +455,45 @@ const togglePasswordVisibility = (field) => {
     [field]: !prev[field]
   }));
 };
+
+const handleDeleteAccountClick = () => {
+  // If user is a Full admin, we need to check if they're the last one
+  if (basic_info.role === 'Full') {
+    setIsLoading(true);
+    fetch(`${Server_url}/Admin/count-full-admins`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      setIsLoading(false);
+      if (data.fullAdmins <= 1) {
+        // This is the last Full admin, show warning message
+        setShowDeleteConfirm({
+          isVisible: true,
+          message_title: "Cannot Delete Account",
+          message: "As the last Full Access admin, your account cannot be deleted. A minimum of one Full Access admin must exist in the system for security reasons.",
+          onConfirm: () => setShowDeleteConfirm({isVisible: false}),
+          buttonText: "Ok"
+        });
+      } else {
+        // Not the last Full admin, show delete form
+        setShowDeleteAccount(true);
+      }
+    })
+    .catch(error => {
+      setIsLoading(false);
+      console.error('Error checking admin count:', error);
+      showRejectToast({message: "Error checking admin status. Please try again."});
+    });
+  } else {
+    // Read Write admin can delete their account without checking
+    setShowDeleteAccount(true);
+  }
+};
+
 const handleDeleteAccount = () => {
   const handleDeleteSubmit = () => {
     let isValid = true;
@@ -430,34 +513,66 @@ const handleDeleteAccount = () => {
     }
 
     if (isValid) {
-
-      console.log("Account deletion confirmed");
-      
-   
-
-      fetch(`${Server_url}/Admin/delete_admin`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ admin_email, admin_password: deletePassword })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if(data.message === 'No admin account found with this email'){
-          showRejectToast({message: "Your account not found with this email" });
-        }else if(data.message === 'Incorrect password'){
-          setDeletePasswordError("Your password is incorrect");
-          showRejectToast({message: "Your password is incorrect" });
-        }
-
-        if(data.status === 'success'){
-          setShowDeleteAccount(false);
-          showAcceptToast({message: 'Account deleted successfully' });
-        }
-
-      });
+      // Check if the user is a Full admin and if they're the last one
+      if (basic_info.role === 'Full') {
+        // First check if this is the last Full admin in the system
+        fetch(`${Server_url}/Admin/count-full-admins`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log("data from count-full-admins", data);
+          if (data.fullAdmins <= 1) {
+            // This is the last Full admin, cannot delete
+            setDeleteError("Cannot delete the last Full admin account. Please assign Full access to another admin first.");
+            return;
+          } else {
+            // Not the last Full admin, proceed with deletion
+            proceedWithDeletion();
+          }
+        })
+        .catch(error => {
+          console.error('Error checking admin count:', error);
+          setDeleteError("Error verifying admin status. Please try again.");
+        });
+      } else {
+        // This is a Read Write admin, can delete without checking
+        proceedWithDeletion();
+      }
     }
+  };
+
+  const proceedWithDeletion = () => {
+    fetch(`${Server_url}/Admin/delete_admin`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ admin_email, admin_password: deletePassword })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if(data.message === 'No admin account found with this email'){
+        showRejectToast({message: "Your account not found with this email" });
+      }else if(data.message === 'Incorrect password'){
+        setDeletePasswordError("Your password is incorrect");
+        showRejectToast({message: "Your password is incorrect" });
+      }
+
+      if(data.status === 'success'){
+        setShowDeleteAccount(false);
+        showAcceptToast({message: 'Account deleted successfully. You will be logged out now.' });
+        
+        // Log out user after successful deletion
+        setTimeout(() => {
+          localStorage.removeItem(localstorage_key_for_admin_login);
+          window.location.reload();
+        }, 2000); // Give time for the toast message to be seen
+      }
+    });
   };
 
   return (
@@ -473,6 +588,9 @@ const handleDeleteAccount = () => {
       <div className="delete_warning">
         <p>⚠️ Warning: This action cannot be undone!</p>
         <p>All your data will be permanently deleted.</p>
+        {basic_info.role === 'Full' && (
+          <p className="full_admin_warning">Note: If you are the last Full admin, deletion will not be allowed.</p>
+        )}
       </div>
       
       <div className="delete_confirm_input">
@@ -668,7 +786,8 @@ const logout_as_admin = () => {
     onConfirm: () => {
       localStorage.removeItem(localstorage_key_for_admin_login); // Remove admin token from localStorage
       window.location.reload(); // Reload the page to reset the app state
-    }
+    },
+    buttonText: "Logout"
   });
 };
 
@@ -861,7 +980,12 @@ const logout_as_admin = () => {
           >
             Change Password
           </button>
-          <button className="delete_account" onClick={() => setShowDeleteAccount(true)}>Delete Account</button>
+          <button 
+            className="delete_account" 
+            onClick={handleDeleteAccountClick}
+          >
+            Delete Account
+          </button>
           <button className="Logout_button" onClick={() => logout_as_admin()}>Logout</button>
         </div>
       </section>
@@ -1019,8 +1143,13 @@ const logout_as_admin = () => {
 
    
       {showDeleteConfirm.isVisible && (
-        <ConfirmMessage message_title={showDeleteConfirm.message_title} message={showDeleteConfirm.message} 
-          onCancel={() => setShowDeleteConfirm({...showDeleteConfirm, isVisible:false})} onConfirm={showDeleteConfirm.onConfirm} button_text="Logout"/>
+        <ConfirmMessage 
+          message_title={showDeleteConfirm.message_title} 
+          message={showDeleteConfirm.message} 
+          onCancel={() => setShowDeleteConfirm({...showDeleteConfirm, isVisible:false})} 
+          onConfirm={showDeleteConfirm.onConfirm} 
+          button_text={showDeleteConfirm.buttonText || "Ok"}
+        />
       )}
     </div>
   );

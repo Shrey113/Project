@@ -11,7 +11,6 @@ const socket = io(Socket_url, {
   reconnectionDelay: 1000,
   timeout: 5000
 });
-console.log("socket url", socket);
 
 socket.on("connect", () => {
   console.log("Conne  cted to WebSocket server");

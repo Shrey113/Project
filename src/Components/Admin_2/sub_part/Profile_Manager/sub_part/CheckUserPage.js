@@ -298,7 +298,7 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
             </div>
             <div className="form-group">
               <label>Website</label>
-              <input type="text" name="website" value={formData.website} onChange={handleChange} />
+              <input type="text" name="website" value={formData.social_media} onChange={handleChange} />
             </div>
           </div>
         </form>

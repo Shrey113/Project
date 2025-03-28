@@ -43,7 +43,7 @@ function Admin2({socket}) {
     }else{
       setAdminSettings({
         show_animation: true,
-        show_navbar: true,
+        show_navbar: false,
         dark_mode: false,
       })
     }

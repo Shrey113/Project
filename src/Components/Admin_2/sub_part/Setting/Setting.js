@@ -32,7 +32,7 @@ const Setting = ({ onClose, get_admin_settings }) => {
       ? JSON.parse(savedSettings)
       : {
           show_animation: true,
-          show_navbar: true,
+          show_navbar: false,
           show_notification: true,
           email_alerts: true,
           push_notifications: true,
@@ -76,32 +76,6 @@ const Setting = ({ onClose, get_admin_settings }) => {
           </div>
         </div>
 
-        {/* Notification Settings Section */}
-        <div className="settings-section">
-          <div className="settings-header">
-            <h1>Notification Settings</h1>
-          </div>
-          <div className="settings-content">
-            <SettingItem
-              title="Show Notifications"
-              description="All Admin & Owner Notifications"
-              isChecked={settings.show_notification}
-              onToggle={() => handleToggle('show_notification')}
-            />
-            <SettingItem
-              title="Email Alerts"
-              description="Receive notifications via email"
-              isChecked={settings.email_alerts}
-              onToggle={() => handleToggle('email_alerts')}
-            />
-            <SettingItem
-              title="Push Notifications"
-              description="Browser push notifications"
-              isChecked={settings.push_notifications}
-              onToggle={() => handleToggle('push_notifications')}
-            />
-          </div>
-        </div>
       </div>
     </div>
   );
