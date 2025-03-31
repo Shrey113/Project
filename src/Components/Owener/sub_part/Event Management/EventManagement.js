@@ -20,6 +20,7 @@ function EventManagement({ category }) {
   const user = useSelector((state) => state.user);
   const [events, setEvents] = useState([]);
 
+
   // chage a type
   const [packageFilter] = useState("all");
   const [equipmentFilter] = useState("all");
@@ -295,6 +296,10 @@ function EventManagement({ category }) {
     };
   }, []);
 
+  const handleClose = () => {
+    set_selected_sent_item(false)
+  }
+
   return (
     <div id="owner-main-container-EventManagement">
 
@@ -335,8 +340,9 @@ function EventManagement({ category }) {
       {sent_request && (
         <div className="sent_request">
           {selected_sent_item && (
-            <div className="details-modal-overlay">
-              <div className="details-modal">
+            <div className="details-modal-overlay" onClick={handleClose}>
+              <div className="details-modal" onClick={(e) => e.stopPropagation()}>
+
                 <h3 className="modal-header">Request Details</h3>
 
                 <div className="modal-content-container">

@@ -8,7 +8,9 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import { gsap } from 'gsap';
+import { motion } from "framer-motion";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { CheckCircle, Users, Camera, DollarSign } from "lucide-react";
 
 // Register ScrollTrigger with GSAP
 gsap.registerPlugin(ScrollTrigger);
@@ -16,48 +18,49 @@ gsap.registerPlugin(ScrollTrigger);
 function BeforeLogin2() {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 650);
-    // const sectionRef = useRef(null);
-    // const containerRef = useRef(null);
 
 
     // Handle screen resize
     useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 650);
+        const handleResize = () => {
+            // if (window.innerWidth > 651) {
+            //     window.location.reload();
+            // }
+            setIsMobile(window.innerWidth < 650)
+        };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // useEffect(() => {
-    //     const section = sectionRef.current;
-    //     const container = containerRef.current;
 
-    //     // Set up the horizontal scroll effect
-    //     const totalWidth = container.scrollWidth - section.clientWidth;
-
-    //     gsap.to(container, {
-    //         x: -totalWidth,
-    //         ease: "none",
-    //         scrollTrigger: {
-    //             trigger: section,
-    //             start: "top top",
-    //             end: () => "+=" + totalWidth,
-    //             scrub: 1,
-    //             pin: true,
-    //             anticipatePin: 1,
-    //             markers: true,
-    //         },
-    //     });
-
-    //     // Cleanup function
-    //     return () => {
-    //         ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    //     };
-    // }, []);
+    const steps = [
+        {
+            icon: <CheckCircle size={40} className="icon-purple" />,
+            title: "Sign Up",
+            description: "Create a profile in minutes."
+        },
+        {
+            icon: <Camera size={40} className="icon-blue" />,
+            title: "List Your Services or Gear",
+            description: "Showcase your work or rent out equipment."
+        },
+        {
+            icon: <Users size={40} className="icon-green" />,
+            title: "Get Hired & Collaborate",
+            description: "Connect with photographers and clients."
+        },
+        {
+            icon: <DollarSign size={40} className="icon-yellow" />,
+            title: "Earn & Grow",
+            description: "Expand your network and income."
+        }
+    ];
 
     const navLinksRef = useRef([]);
     const imageRef = useRef(null);
     // navLinksRef.current = [];
     useEffect(() => {
+
         gsap.to(imageRef.current, {
             x: "0px",
             opacity: "1",
@@ -171,7 +174,7 @@ function BeforeLogin2() {
             {/* Second Section */}
             <section className="who-we-are-container" id="second_container">
                 <div className="content-wrapper">
-                    <div className="image-placeholder"></div>
+                    <div className="image-placeholder"><img src={first_section_image} alt="" /></div>
                     <div className="text-content">
                         <h2 className="section-title">A Creative Haven for Photographers</h2>
                         <p className="section-description">
@@ -190,63 +193,15 @@ function BeforeLogin2() {
             </section>
 
             {/* Third Section with Auto-Scroll Horizontal Effect */}
-            {/* <div className="key-features-container" id="third_container" ref={featuresContainerRef}>
-                <div className="key-feature-image-container">
-                    <img src={third_section_image} alt="Photographer Network" />
-                </div>
-                <h2 style={{ zIndex: '10' }}>Unlock endless opportunities to grow your photography career!</h2>
-                <div className="features-grid" ref={featuresGridRef}>
-
-                    <div className="feature-card">
-                        <div className="icon-placeholder">📸</div>
-                        <div className="key_words">
-                            <h3 className="feature-title">📷 Get Hired Instantly</h3>
-                            <p className="feature-description">Showcase your portfolio & attract top clients.</p>
-                        </div>
-                    </div>
-                    <div className="feature-card">
-                        <div className="icon-placeholder">💼</div>
-                        <div className="key_words">
-                            <h3 className="feature-title">💰 Rent & Earn</h3>
-                            <p className="feature-description">List your camera gear & make passive income.</p>
-                        </div>
-                    </div>
-                    <div className="feature-card">
-                        <div className="icon-placeholder">🔗</div>
-                        <div className="key_words">
-                            <h3 className="feature-title">🌍 Connect & Collaborate</h3>
-                            <p className="feature-description">Expand your network & work with professionals.</p>
-                        </div>
-                    </div>
-                    <div className="feature-card">
-                        <div className="icon-placeholder">📅</div>
-                        <div className="key_words">
-                            <h3 className="feature-title">⚡ Seamless Bookings</h3>
-                            <p className="feature-description">Manage appointments, clients & payments hassle-free.</p>
-                        </div>
-                    </div>
-                    <div className="feature-card">
-                        <div className="icon-placeholder">📊</div>
-                        <div className="key_words">
-                            <h3 className="feature-title">📈 Business Insights</h3>
-                            <p className="feature-description">Track your growth with real-time analytics.</p>
-                        </div>
-                    </div>
-                    <div className="feature-card">
-                        <div className="icon-placeholder">📝</div>
-                        <div className="key_words">
-                            <h3 className="feature-title">📑 Smart Invoicing</h3>
-                            <p className="feature-description">Generate professional invoices in one click.</p>
-                        </div>
-                    </div>
-                </div>
-            </div> */}
 
             <section className="horizontal-scroll-section" id='third_container'>
 
                 <div className="key-feature-image-container">
                     <img src={third_section_image} alt="Photographer Network" />
                 </div>
+
+                <div className="key_feature_title">Key Features !</div>
+
                 <div className="cards-container">
                     {cardData.map((card, index) => (
                         <div key={index} className="card">
@@ -261,9 +216,23 @@ function BeforeLogin2() {
             </section>
 
             {/* Fourth Section */}
-            <div className="working_steps" id="fourth_container">
-                <h1>How it Works</h1>
-            </div>
+            <section className="thriving-section">
+                <h2 className="section-title">Your Path to Success Starts Here</h2>
+                <p className="section-description">
+                    Whether you're a photographer looking for gigs or renting out your gear, our platform connects you with opportunities to grow and thrive.
+                </p>
+                <div className="steps-container">
+                    {steps.map((step, index) => (
+                        <motion.div key={index} whileHover={{ scale: 1.05 }} className="step-card">
+                            <div className="card-content">
+                                <div className="icon-container">{step.icon}</div>
+                                <h3 className="step-title">{step.title}</h3>
+                                <p className="step-description">{step.description}</p>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </section>
 
             {/* Fifth Section */}
             <div className="hero-container" id="fifth_container">

@@ -13,6 +13,7 @@ import { IoClose, IoAdd } from "react-icons/io5";
 // import { MdDeleteOutline } from "react-icons/md";
 import { MdDeleteOutline } from "react-icons/md";
 import { RiEditLine } from "react-icons/ri";
+import { ConfirmMessage } from "./../../../../redux/AllData";
 
 
 const Packages = () => {
@@ -653,27 +654,28 @@ const Packages = () => {
 
 
               {showConfirm && (
-                <div className="modal">
-                  <div className="modal_content">
-                    <h2>Confirm Delete</h2>
-                    <p>Are you sure you want to delete <span style={{ backgroundColor: "lightgrey", padding: "2px 6px" }}>{selectedPackageName}</span> ?</p>
+                // <div className="modal">
+                //   <div className="modal_content">
+                //     <h2>Confirm Delete</h2>
+                //     <p>Are you sure you want to delete <span style={{ backgroundColor: "lightgrey", padding: "2px 6px" }}>{selectedPackageName}</span> ?</p>
 
-                    <div className="delete_confirmation">
-                      <button
-                        onClick={confirmDelete}
-                        style={{ backgroundColor: "red", color: "white" }}
-                      >
-                        Yes
-                      </button>
-                      <button
-                        onClick={() => setShowConfirm(false)}
-                        style={{ backgroundColor: "gray", color: "white" }}
-                      >
-                        No
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                //     <div className="delete_confirmation">
+                //       <button
+                //         onClick={confirmDelete}
+                //         style={{ backgroundColor: "red", color: "white" }}
+                //       >
+                //         Yes
+                //       </button>
+                //       <button
+                //         onClick={() => setShowConfirm(false)}
+                //         style={{ backgroundColor: "gray", color: "white" }}
+                //       >
+                //         No
+                //       </button>
+                //     </div>
+                //   </div>
+                // </div>
+                <ConfirmMessage message_title="Confirm Delete" message={`Are you sure you want to delete ${selectedPackageName} package?`} onConfirm={confirmDelete} onCancel={() => setShowConfirm(false)} />
               )}
             </div>
           )}
