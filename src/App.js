@@ -72,6 +72,7 @@ import OwnerNavbar from "./Components/Owener/OwnerNavbar.js";
 
 import AllPhotoFiles from "./Components/Owener/sub_part/Search_photographer/sub_part/AllPhotoFiles.js";
 import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_part/AllServices .js";
+import StackingCards from "./Components/BeforeLogin/new_design/sssss/test.js";
 
 
 
@@ -332,6 +333,7 @@ function App() {
   // 3. Show Loader
   if (
     authStatus.owner === null ||
+
     authStatus.client === null ||
     authStatus.admin === null
   ) {
@@ -593,6 +595,11 @@ function App() {
             )
           }
         />
+
+<Route
+path="/test"
+element={<StackingCards />}
+/>
 
         {/* 404 Page */}
         <Route path="*" element={<PageNotFound />} />
