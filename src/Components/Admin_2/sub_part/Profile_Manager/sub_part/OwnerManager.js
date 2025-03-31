@@ -583,8 +583,8 @@ function getAllOwners() {
       </div>
 
       {showPopup && (
-                <div className="popup-overlay">
-                    <div className="popup-content">
+                <div className="popup-overlay" onClick={() => setShowPopup(false)}>
+                    <div className="popup-content"  onClick={(e) => e.stopPropagation()}>
                         <h2>User Details</h2>
                         {
                           selected_user.user_Status !== "Pending" &&

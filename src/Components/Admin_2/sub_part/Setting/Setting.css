@@ -156,36 +156,82 @@
 
 
   @media (max-width: 768px) {
-  .settings-wrapper  .settings-container {
+  .settings-wrapper .settings-container {
     width: 95%;
     margin: 10px;
   }
 
-  .settings-wrapper  .settings-section {
+  .settings-wrapper .settings-section {
     border-radius: 15px;
   }
 
-  .settings-wrapper  .settings-header {
+  .settings-wrapper .settings-header {
     padding: 15px 20px;
   }
 
-  .settings-wrapper  .settings-header h1 {
+  .settings-wrapper .settings-header h1 {
     font-size: 20px;
   }
 
-  .settings-wrapper  .settings-content {
+  .settings-wrapper .settings-content {
     padding: 15px 20px;
   }
 
-  .settings-wrapper  .setting-info h2 {
+  .settings-wrapper .setting-info h2 {
     font-size: 15px;
   }
 
-  .settings-wrapper  .setting-info p {
+  .settings-wrapper .setting-info p {
     font-size: 13px;
   }
 }
 
+/* Add new media queries for smaller screens */
+@media (max-width: 480px) {
+  .settings-wrapper .settings-header h1 {
+    font-size: 18px;
+  }
+  
+  .settings-wrapper .setting-info h2 {
+    font-size: 14px;
+  }
+  
+  .settings-wrapper .setting-info p {
+    font-size: 12px;
+  }
+  
+  .settings-wrapper .toggle-switch {
+    width: 46px;
+    height: 23px;
+  }
+  
+  .settings-wrapper .slider:before {
+    height: 19px;
+    width: 19px;
+  }
+  
+  .settings-wrapper input:checked + .slider:before {
+    transform: translateX(23px);
+  }
+}
+
+@media (max-width: 320px) {
+  .settings-wrapper .settings-header h1 {
+    font-size: 16px;
+  }
+  
+  .settings-wrapper .setting-info h2 {
+    font-size: 13px;
+  }
+  
+  .settings-wrapper .setting-info p {
+    font-size: 11px;
+  }
+  
+  .settings-wrapper .settings-content {
+    padding: 10px 15px;
+  }
+}
 
 .settings-section {
   margin-bottom: 2rem;

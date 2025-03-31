@@ -3,7 +3,7 @@ import { gsap } from "gsap";
 
 
 import UserDataList from './UserDataList.js'
-import Calendar from "./Calendar";
+// import Calendar from "./Calendar";
 import ChartWithData from "../Chart/sub_part/ChartWithData.js";
 import ProfitExpensesChart from "./ProfitExpensesChart";
 import WelcomeUser from "./welcome_user";
@@ -148,7 +148,7 @@ function Dashboard({adminSettings,activeRow,setActiveRow,socket}) {
         </div>
         <div className="section_3_admin">
         <ProfitExpensesChart />
-        <Calendar />
+        {/* <Calendar /> */}
         </div>
     </>
   )

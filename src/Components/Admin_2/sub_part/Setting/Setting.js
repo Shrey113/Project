@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Setting.css';
 import { localstorage_key_for_admin_settings } from '../../../../redux/AllData';
-
 
 const SettingItem = ({ title, description, isChecked, onToggle }) => {
   return (
@@ -22,9 +21,6 @@ const SettingItem = ({ title, description, isChecked, onToggle }) => {
   );
 };
 
-
-
-
 const Setting = ({ onClose, get_admin_settings }) => {
   const [settings, setSettings] = useState(() => {
     const savedSettings = localStorage.getItem(localstorage_key_for_admin_settings);
@@ -38,6 +34,20 @@ const Setting = ({ onClose, get_admin_settings }) => {
           push_notifications: true,
         };
   });
+  
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Track window resize for responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleToggle = (key) => {
     setSettings((prev) => {
@@ -51,8 +61,15 @@ const Setting = ({ onClose, get_admin_settings }) => {
     });
   };
 
+  // Add a responsive class depending on screen size
+  const getResponsiveClass = () => {
+    if (windowWidth <= 320) return "settings-wrapper size-xs";
+    if (windowWidth <= 480) return "settings-wrapper size-sm";
+    return "settings-wrapper";
+  };
+
   return (
-    <div className="settings-wrapper">
+    <div className={getResponsiveClass()}>
       <div className="settings-overlay" onClick={onClose}></div>
       <div className="settings-container">
         {/* UI Settings Section */}
@@ -75,7 +92,6 @@ const Setting = ({ onClose, get_admin_settings }) => {
             />
           </div>
         </div>
-
       </div>
     </div>
   );

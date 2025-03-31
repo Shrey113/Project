@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {  useEffect } from "react";
 import "./ProfitExpensesChart.css";
 import {
   BarChart,
@@ -26,7 +26,7 @@ const data = [
 ];
 
 const ProfitExpensesChart = () => {
-  const [status_counts, set_status_counts] = useState({});
+  // const [status_counts, set_status_counts] = useState({});
 
 
 
@@ -52,8 +52,8 @@ const ProfitExpensesChart = () => {
                 status_accept_request: data.Accept || 0,
             };
 
-            set_status_counts(transformedData);
-            console.log(status_counts);
+            // set_status_counts(transformedData);
+            console.log(transformedData);
             
         } catch (err) {
             console.error('Error fetching status counts:', err);
@@ -62,7 +62,7 @@ const ProfitExpensesChart = () => {
     };
 
     fetchStatusCounts();
-}, [status_counts]);
+}, []);
 
 
 

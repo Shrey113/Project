@@ -23,10 +23,11 @@ const PopupMenu = ({ email, handleClose, onSuccess, admin_email }) => {
   };
 
   return (
-    <div className="main-container_Owner_question">
-      <div className="popup">
+    <div className="main-container_Owner_question" onClick={handleClose}>
+      <div className="popup"  onClick={(e) => e.stopPropagation()}>
         <h2>Are you sure you want to reject?</h2>
         <p className="email-display">Email: {email}</p>
+        <br />
         <textarea
           placeholder="Add a message for the Owner (optional)"
           value={message}

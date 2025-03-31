@@ -42,27 +42,19 @@
     flex-direction: column;
     padding: 0px 50px;
     gap: 30px;
-    padding-left: 50px;
-    padding-bottom: 80px;
+    padding-left: 100px;
 }
 .admin_body .admin_side_bar_con{
     position: fixed;
-    z-index: 100;
-}
-
-/* Desktop sidebar styling */
-.admin_body .desktop_sidebar{
-    top: 0;
-    left: 0;
     height: 100%;
-    width: fit-content;
+ width: fit-content;
     display: flex;
-    flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: center;z-index: 100;
+  
 }
 
-.admin_body .desktop_sidebar .admin_side_bar{
+.admin_body .admin_side_bar_con .admin_side_bar{
     height: 400px;
     width: 60px;
     min-width: 60px;
@@ -74,35 +66,64 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     transition: all 0.2s;
-    box-shadow: 5px 0px 15px rgba(0, 0, 0, 0.1);
+    /* &:hover {
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
+    }
+    &:hover:after{
+        height: 120px;
+        width: 130%;
+        top: -114px;
+        left: -30px;
+        box-shadow:  -25px 50px var(--ui_color);
+        box-shadow:  -55px 50px var(--ui_color);
+
+    }
+    &:hover:before{
+        height: 120px;
+        width: 130%;
+        bottom: -114px;
+        left: -30px;
+    
+        box-shadow:  -55px -50px var(--ui_color);
+
+    } */
 }
 
-.admin_body .desktop_sidebar .admin_side_bar::after{
+
+.admin_body .admin_side_bar_con .admin_side_bar::after{
     content: '';
     position: absolute;
     top: -55px;
     left: 0px;
     height: 65px;
     width: 100%;
-    border-radius: 100% 0% 0% 100% / 0% 0% 100% 100%;
-    box-shadow: -25px 10px var(--ui_color);
+    /* background: rgba(255, 0, 0, 0.21); */
+    
+    border-radius: 100% 0% 0% 100% / 0% 0% 100% 100% ;
+    box-shadow: -25px 10px #000000;
+    box-shadow:  -25px 10px var(--ui_color);
     transition: all 0.2s;
 }
-
-.admin_body .desktop_sidebar .admin_side_bar::before{
+.admin_body .admin_side_bar_con .admin_side_bar::before{
     content: '';
     position: absolute;
     bottom: -55px;
     left: 0px;
     height: 65px;
     width: 100%;
-    border-radius: 100% 0% 100% 0% / 100% 100% 0% 0%;
-    box-shadow: -25px -10px var(--ui_color);
-    transition: all 0.2s;
+    /* background: rgba(255, 0, 0, 0.21); */
+    
+    border-radius: 100% 0% 100% 0% / 100% 100% 0% 0%  ;
+    /* box-shadow: -25px -10px #000000; */
+    box-shadow:  -25px -10px var(--ui_color);    transition: all 0.2s;
 }
 
-.admin_body .desktop_sidebar .admin_side_bar .wrap{
+
+.admin_body .admin_side_bar_con .admin_side_bar .wrap{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -111,65 +132,15 @@
     position: relative;
 }
 
-.admin_body .desktop_sidebar .admin_side_bar .active_bar{
+.admin_body .admin_side_bar_con .admin_side_bar .active_bar{
     height: 45px;
     width: 100%;
     background: rgb(255, 255, 255);
     border-radius: 10px;
     position: absolute;
+    /* top: 65px; */
     transition: all 0.2s;
 }
-
-/* Mobile bottom navbar styling */
-.admin_body .mobile_navbar{
-    bottom: 0;
-    
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.admin_body .mobile_navbar .admin_side_bar{
-    height: 60px;
-    width: 400px;
-    min-width: 300px;
-    max-width: 100%;
-    background: var(--ui_color);
-    position: relative;
-    border-radius: 40px 40px 0 0;
-    padding: 0px 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.2s;
-    margin-bottom: 0;
-    box-shadow: 0px -5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.admin_body .mobile_navbar .admin_side_bar .wrap{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    gap: 20px;
-    position: relative;
-}
-
-.admin_body .mobile_navbar .admin_side_bar .active_bar{
-    height: 45px;
-    width: 45px;
-    background: rgb(255, 255, 255);
-    border-radius: 10px;
-    position: absolute;
-    left: 0;
-    transition: all 0.2s;
-}
-
-/* Shared icon styling */
 .admin_body .admin_side_bar_con .admin_side_bar .icon{
     height: 45px;
     width: fit-content;
@@ -187,33 +158,9 @@
     height: 100%;
     width: 100%;
 }
-
-/* Adjust main content based on sidebar position */
-.admin_body .with_left_sidebar{
-    padding-left: 100px !important;
-}
-
-.admin_body .with_bottom_navbar{
-    padding-bottom: 80px !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 650px) {
-    .admin_body .mobile_navbar .admin_side_bar{
-        width: 100%;
-        min-width: 250px;
-    }
-    .admin_body .mobile_navbar .admin_side_bar .wrap{
-        gap: 15px;
-    }
-    .admin_body .mobile_navbar .admin_side_bar .active_bar{
-        height: 38px;
-        width: 38px;
-    }
-    .admin_body .mobile_navbar .admin_side_bar .icon{
-        height: 38px;
-    }
-}
+/*  */
+/*  */
+/*  */
 
 .admin_body .admin_body_main .title_bar{
     height: 65px;
@@ -483,19 +430,15 @@
  @media (max-width: 650px) {
     .admin_body .admin_body_main{
         padding: 0px 20px;
-        padding-left: 20px;
-        padding-bottom: 70px;
+        padding-left: 80px;
     }
     .admin_body .admin_side_bar_con .admin_side_bar{
-        width: 100%;
-        min-width: 250px;
-    }
-    .admin_body .admin_side_bar_con .admin_side_bar .wrap{
-        gap: 15px;
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
     }
     .admin_body .admin_side_bar_con .admin_side_bar .active_bar{
         height: 38px;
-        width: 38px;
     }
     .admin_body .admin_side_bar_con .admin_side_bar .icon{
         height: 38px;
@@ -505,10 +448,7 @@
  @media (max-width: 490px) {
     .admin_body .admin_body_main{
         padding: 0px 10px;
-        /* padding-left: 70px; */
-    }
-    .admin_profile_container {
-        padding-bottom: 70px;
+        padding-left: 70px;
     }
 
 }

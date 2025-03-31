@@ -3,6 +3,9 @@
   /* padding: 20px  80px; */
   border-radius: 8px;
   margin-top: 20px;
+  /* max-width: 1200px; */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .admin_profile_container h2, .admin_profile_container h3 {
@@ -21,21 +24,23 @@
 
 .admin_profile_container .security_settings .button_con{
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .admin_profile_container .profile_item {
   display: flex;
   align-items: center;
   margin-bottom: 15px;
-  justify-content: space-evenly;
+  justify-content: space-between;
   position: relative;
-  gap: 10px;
+  gap: 15px;
 }
 
 .admin_profile_container .profile_item .all_error_input {
   color: red;
   font-size: 13px;
+  margin-top: 5px;
 }
 
 .admin_profile_container label {
@@ -46,7 +51,7 @@
 }
 
 .admin_profile_container .editable_field {
-  flex: 1;
+  flex: 2;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -59,8 +64,8 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
-  background-color: #f0f0f0;
-  transition: border 0.3s ease;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
 }
 
 .admin_profile_container input {
@@ -124,32 +129,22 @@
   height: 20px;
 }
 
-.admin_profile_container .change_password 
-,.admin_profile_container .delete_account{
-  padding: 8px 12px;
-  background-color: #dc3545;
+.admin_profile_container .change_password,
+.admin_profile_container .delete_account,
+.admin_profile_container .Logout_button {
+  padding: 10px 16px;
   color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
-
-}
-.admin_profile_container .Logout_button{
-  padding: 8px 12px;
-  background-color: #3c9be3;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  &:hover{
-    background-color: #66a3d1;
-  }
+  transition: all 0.2s ease;
+  min-width: 130px;
+  font-weight: 500;
 }
 
-.admin_profile_container .change_password:hover ,
-.admin_profile_container .delete_account:hover{
+.admin_profile_container .change_password:hover,
+.admin_profile_container .delete_account:hover {
   background-color: #f55d6c;
 }
 
@@ -299,17 +294,18 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 15px;
 }
 
 
 .profile_popup_overlay .profile_popup {
   background-color: white;
-  padding: 20px;
+  padding: 25px;
   border-radius: 10px;
   width: 90%;
   max-width: 500px;
   position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .profile_popup_overlay .profile_popup h4 {
@@ -425,13 +421,15 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 20px;
 }
 
 .loading-spinner {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 20px 30px;
+  border-radius: 10px;
   text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .loading-spinner::after {
@@ -488,12 +486,12 @@
 
 .change_password_container {
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   max-width: 500px;
   margin: 0 auto;
   padding: 30px;
-  width: 450px;
+  width: 100%;
 }
 
 .change_password_container h3 {
@@ -705,29 +703,34 @@
 .delete_account_popup {
   position: relative;
   background: white;
-  padding: 2rem;
-  border-radius: 8px;
+  padding: 25px;
+  border-radius: 10px;
   max-width: 500px;
   width: 90%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .delete_account_popup .close_popup {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 15px;
+  right: 15px;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 20px;
   cursor: pointer;
   color: #666;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  padding: 5px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
 }
 
 .delete_account_popup .close_popup:hover {
-  background: #f5f5f5;
-  color: #333;
+  background-color: #f2f2f2;
 }
 
 .delete_account_popup h3 {
@@ -841,4 +844,239 @@
 .delete_account_popup  .delete_error_input {
   color: red;
   font-size: 14px;
+}
+
+/* Responsive Media Queries */
+@media screen and (max-width: 1200px) {
+  .admin_profile_container section {
+    padding: 15px 20px;
+  }
+  
+  .admin_profile_container h2, .admin_profile_container h3 {
+    font-size: 22px;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .admin_profile_container {
+    margin-top: 15px;
+  }
+  
+  .admin_profile_container .profile_img {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .admin_profile_container label {
+    font-size: 15px;
+  }
+  
+  .admin_profile_container input, 
+  .admin_profile_container .select_input {
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  .admin_profile_container .change_password, 
+  .admin_profile_container .delete_account,
+  .admin_profile_container .Logout_button,
+  .admin_profile_container .view_login_history {
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .admin_profile_container h2, .admin_profile_container h3 {
+    font-size: 20px;
+  }
+  
+  .admin_profile_container .profile_item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .admin_profile_container label {
+    margin-bottom: 5px;
+  }
+  
+  .admin_profile_container .editable_field {
+    width: 100%;
+  }
+  
+  .admin_profile_container input[type="text"], 
+  .admin_profile_container input[type="email"] {
+    width: 100%;
+  }
+  
+  .admin_profile_container .security_settings .button_con {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .admin_profile_container .security_settings .button_con button {
+    width: 100%;
+  }
+  
+  .change_password_container {
+    width: 90%;
+    max-width: 400px;
+    padding: 20px;
+  }
+  
+  .profile_popup_overlay .profile_popup {
+    width: 95%;
+    max-width: 400px;
+    padding: 15px;
+  }
+  
+  .profile_popup_overlay .default_images {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .admin_profile_container section {
+    padding: 12px 15px;
+    margin-bottom: 15px;
+  }
+  
+  .admin_profile_container h2, .admin_profile_container h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .admin_profile_container .profile_img {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .admin_profile_container label {
+    font-size: 14px;
+  }
+  
+  .admin_profile_container input, 
+  .admin_profile_container .select_input {
+    padding: 7px;
+    font-size: 12px;
+  }
+  
+  .admin_profile_container .save_button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .admin_profile_container .save_icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .change_password_container h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  
+  .change_password_container .password_field label {
+    font-size: 13px;
+  }
+  
+  .change_password_container .password_field input {
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  .delete_account_popup h3 {
+    font-size: 18px;
+  }
+  
+  .delete_account_popup .delete_warning p {
+    font-size: 0.85rem;
+  }
+  
+  .delete_account_popup .delete_confirm_btn,
+  .delete_account_popup .delete_cancel_btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .admin_profile_container section {
+    padding: 10px;
+  }
+  
+  .admin_profile_container h2, .admin_profile_container h3 {
+    font-size: 16px;
+  }
+  
+  .admin_profile_container label {
+    font-size: 13px;
+  }
+  
+  .admin_profile_container input, 
+  .admin_profile_container .select_input {
+    padding: 6px;
+    font-size: 11px;
+  }
+  
+  .change_password_container {
+    padding: 15px;
+  }
+  
+  .change_password_container .password_buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .delete_account_popup .delete_actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .profile_popup_overlay .default_images {
+    gap: 8px;
+  }
+}
+
+.admin_profile_container .change_password {
+  background-color: #dc3545;
+}
+
+.admin_profile_container .delete_account {
+  background-color: #dc3545;
+}
+
+.admin_profile_container .Logout_button {
+  background-color: #3c9be3;
+}
+
+.admin_profile_container .Logout_button:hover {
+  background-color: #66a3d1;
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .admin_profile_container input,
+  .admin_profile_container .select_input,
+  .admin_profile_container button {
+    min-height: 44px; /* Minimum touch target size */
+  }
+  
+  .admin_profile_container .save_button,
+  .admin_profile_container .change_password,
+  .admin_profile_container .delete_account,
+  .admin_profile_container .Logout_button {
+    padding: 12px 16px;
+  }
+  
+  .delete_account_popup .close_popup {
+    padding: 8px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .change_password_container .password_toggle_btn {
+    padding: 10px;
+  }
 }

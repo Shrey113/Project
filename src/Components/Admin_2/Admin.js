@@ -35,6 +35,15 @@ function Admin2({socket}) {
   const [activeRow, setActiveRow] = useState(0);
   const [adminSettings, setAdminSettings] = useState(null);
   const [admin_email, set_admin_email] = useState('gfapk63@gmail.com');
+  const [is_mobile,set_is_mobile] = useState(window.innerWidth <= 650);
+
+  useEffect(() => {
+    const handleResize = () => {
+      set_is_mobile(window.innerWidth <= 650);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   function get_admin_settings(){
     const savedSettings = localStorage.getItem(localstorage_key_for_admin_settings);
@@ -124,60 +133,78 @@ function Admin2({socket}) {
 
   return (
     <div className="admin_body">
-  <div className="admin_side_bar_con">
-    <div className="admin_side_bar">
-      <div className="wrap">
-        <div className="active_bar" style={{ top: `${55 * activeRow}px` }}></div>
-        {/* <div className="active_bar"></div> */}
+      {/* Desktop Sidebar (visible on non-mobile) */}
+      {!is_mobile && (
+        <div className="admin_side_bar_con desktop_sidebar">
+          <div className="admin_side_bar">
+            <div className="wrap">
+              <div className="active_bar" style={{ top: `${55 * activeRow}px` }}></div>
 
-        <div className="icon" onClick={()=> {setActiveRow(0);}} title="Dashboard" >
-          <img src={ activeRow===0 ? more_options_active_icon : more_options_no_active_icon } alt="" />
-          {/* {is_hover && <span>Dashboard</span>} */}
+              <div className="icon" onClick={() => { setActiveRow(0); }} title="Dashboard">
+                <img src={activeRow === 0 ? more_options_active_icon : more_options_no_active_icon} alt="" />
+              </div>
+
+              <div className="icon" onClick={() => { setActiveRow(1); }} title="Database Manager">
+                <img src={activeRow === 1 ? database_management_icon : database_management_no_active_icon} alt="" />
+              </div>
+
+              <div className="icon" onClick={() => { setActiveRow(2); }} title="Analytics">
+                <img src={activeRow === 2 ? analytics_icon : analytics_no_active_icon} alt="" />
+              </div>
+
+              <div className="icon" onClick={() => { setActiveRow(3); }} title="Notification">
+                <img src={activeRow === 3 ? user_icon : user_no_active_icon} alt="" />
+              </div>
+
+              <div className="icon" onClick={() => { setActiveRow(4); }} title="Calender">
+                <img src={activeRow === 4 ? setting_icon : Setting_no_active_icon} alt="" />
+              </div>
+            </div>
+          </div>
         </div>
+      )}
 
-        <div className="icon" onClick={()=> { setActiveRow(1); }} title="Database Manager" >
-          <img src={activeRow===1 ? database_management_icon : database_management_no_active_icon} alt="" />
-          
+      {/* Mobile Bottom Navbar (visible only on mobile) */}
+      {is_mobile && (
+        <div className="admin_side_bar_con mobile_navbar">
+          <div className="admin_side_bar">
+            <div className="wrap">
+              <div className="active_bar" style={{ left: `${53 * activeRow}px` }}></div>
+
+              <div className="icon" onClick={() => { setActiveRow(0); }} title="Dashboard">
+                <img src={activeRow === 0 ? more_options_active_icon : more_options_no_active_icon} alt="" />
+              </div>
+
+              <div className="icon" onClick={() => { setActiveRow(1); }} title="Database Manager">
+                <img src={activeRow === 1 ? database_management_icon : database_management_no_active_icon} alt="" />
+              </div>
+
+              <div className="icon" onClick={() => { setActiveRow(2); }} title="Analytics">
+                <img src={activeRow === 2 ? analytics_icon : analytics_no_active_icon} alt="" />
+              </div>
+
+              <div className="icon" onClick={() => { setActiveRow(3); }} title="Notification">
+                <img src={activeRow === 3 ? user_icon : user_no_active_icon} alt="" />
+              </div>
+
+              <div className="icon" onClick={() => { setActiveRow(4); }} title="Calender">
+                <img src={activeRow === 4 ? setting_icon : Setting_no_active_icon} alt="" />
+              </div>
+            </div>
+          </div>
         </div>
+      )}
 
-        <div className="icon" onClick={()=> { setActiveRow(2); }} title="Analytics" >
-          <img src={ activeRow===2 ? analytics_icon : analytics_no_active_icon } alt="" />
-        </div>
+      <div className={`admin_body_main ${is_mobile ? 'with_bottom_navbar' : 'with_left_sidebar'}`}>
+        <TitleBar adminSettings={adminSettings} setActiveRow={setActiveRow} activeRow={activeRow} admin_email={admin_email} />
 
-        <div className="icon" onClick={()=> { setActiveRow(3); }} title="Notification" >
-          <img src={activeRow===3 ? user_icon : user_no_active_icon} alt="" />
-        </div>
-
-        <div className="icon" onClick={()=> { setActiveRow(4); }} title="Calender" >
-          <img src={activeRow===4 ? setting_icon : Setting_no_active_icon} alt="" />
-        </div>
-
+        {activeRow === 0 && <Dashboard socket={socket} adminSettings={adminSettings} activeRow={activeRow} setActiveRow={setActiveRow} />}
+        {activeRow === 1 && <ProfileManager activeRow={activeRow} admin_email={admin_email} />}
+        {activeRow === 2 && <Charts activeRow={activeRow} setActiveRow={setActiveRow} />}
+        {activeRow === 3 && <AdminProfile activeRow={activeRow} setActiveRow={setActiveRow} admin_email={admin_email} />}
+        {activeRow === 4 && <Setting get_admin_settings={get_admin_settings} />}
       </div>
     </div>
-  </div>
-  <div className="admin_body_main">
-
-    <TitleBar adminSettings={adminSettings}  setActiveRow={setActiveRow}/>
-
-    {
-      activeRow === 0 &&  <Dashboard socket={socket}  adminSettings={adminSettings} activeRow={activeRow} setActiveRow={setActiveRow}/>
-    }
-    {
-      activeRow === 1 &&  <ProfileManager activeRow={activeRow} admin_email={admin_email}/>
-    }
-    {
-      activeRow === 2 && <Charts activeRow={activeRow} setActiveRow={setActiveRow}/>
-    }
-    {
-      activeRow === 3 && <AdminProfile activeRow={activeRow} setActiveRow={setActiveRow} admin_email={admin_email}/>
-    }
-    {
-      activeRow === 4 && <Setting get_admin_settings={get_admin_settings}/>
-    }
-
-  </div>
-
-</div>
   );
 }
 

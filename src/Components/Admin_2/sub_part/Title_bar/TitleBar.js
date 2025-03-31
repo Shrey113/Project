@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import search_icon from "./../../img/search.png";
 import setting_icon from "./../../img/setting.png";
 // import bell_b_icon from "./../../img/bell_b.png";
 
-
+import "./res_css.css";
 
 
 // import test_0 from "./bg/test_1.webp";
@@ -85,32 +85,49 @@ import user_profile from "./../Dashboard/profile_pic/user2.jpg";
 //     )
 //   }
 
-function TitleBar({adminSettings, setActiveRow}) {
+function TitleBar({adminSettings, setActiveRow, activeRow, admin_email}) {
   
   // const [show_user_profile, set_show_user_profile] = useState(false);
 
-
-  // const outside_click_profile_pop = (event) => {
-  //   const target = event.target;
-  //   if (!target.closest(".profile_con_full") && !target.closest(".profile_con")) {
-  //     set_show_user_profile(null);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   document.addEventListener("mousedown", outside_click_profile_pop);
-  //   return () => {
-  //     document.removeEventListener("mousedown", outside_click_profile_pop);
-  //   };
-  // }, []);
+  // State for profile image
+  const [profileImage, setProfileImage] = useState(user_profile);
+  
+  // Load profile image from localStorage when component mounts
+  useEffect(() => {
+    if (admin_email) {
+      const savedImage = localStorage.getItem(`profile_picture_${admin_email}`);
+      if (savedImage) {
+        setProfileImage(savedImage);
+      }
+    }
+  }, [admin_email]);
 
 
+
+  const getTitleInfo = () => {
+    switch(activeRow) {
+      case 0:
+        return { title: "Dashboard", info: "Payment Updates" };
+      case 1:
+        return { title: "Database Manager", info: "Profile Management" };
+      case 2:
+        return { title: "Analytics", info: "Data Visualization" };
+      case 3:
+        return { title: "Admin Profile", info: "Account Information" };
+      case 4:
+        return { title: "Settings", info: "Application Configuration" };
+      default:
+        return { title: "Dashboard", info: "Payment Updates" };
+    }
+  };
+
+  const titleInfo = getTitleInfo();
 
   return (
     <div className={`title_bar ${adminSettings?.show_navbar ? 'fixed_navbar' : ''}`}>
     <div className="left_title_con">
-      <div className="title">Dashboard</div>
-      <div className="title_info">Payment Updates</div>
+      <div className="title">{titleInfo.title}</div>
+      <div className="title_info">{titleInfo.info}</div>
     </div>
 
     <div className="custom_input">
@@ -130,7 +147,7 @@ function TitleBar({adminSettings, setActiveRow}) {
       </div>
       <div className="profile_con" onClick={()=>{setActiveRow(3)}}>
         <div className="profile">
-          <img src={user_profile} alt="" />
+          <img src={profileImage} alt="" />
         </div>
         <div className="data">
           <div className="name">Shrey Patel</div>

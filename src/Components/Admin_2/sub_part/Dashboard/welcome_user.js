@@ -8,7 +8,6 @@ import user_icon_1 from './profile_pic/user1.jpg';
 // import user_icon_4 from './profile_pic/user4.jpg';
 
 import socket from './../../../../redux/socket.js'
-// import { io } from 'socket.io-client';
 
 import { Server_url } from '../../../../redux/AllData.js';
 
@@ -33,41 +32,19 @@ function WelcomeUser({ setActiveRow }) {
 
   useEffect(() => {
     // Socket event listener
-    // socket.on('new_notification', (message) => {
-    //   console.log('Notification received:', message);
-    //   fetchNotifications(); 
-    // });
+    socket.on('new_notification', (message) => {
+      console.log('Notification received:', message);
+      fetchNotifications(); 
+    });
 
-    // // Cleanup function
-    // return () => {
-    //   socket.off('new_notification');
-    //   socket.disconnect(); 
-    // };
-
-    // setTimeout(() => {
-    //   console.log("test");
-      
-    //   fetchNotifications(); 
-    // }, 5000);
+    
+    // Cleanup function
+    return () => {
+      socket.off('new_notification');
+      socket.disconnect(); 
+    };
 
   }, []);
-
-  useEffect(()=>{
-    if(socket){
-      console.log("Ok socket connected");
-      
-      socket.on('new_notification',(data)=>{
-        console.log(data,"ssssssssssss");
-        fetchNotifications(); 
-      })
-      return(()=>{
-          socket.off('new_notification')
-      })
-    }else{
-      console.log("no socket");
-    }
-
-},[]);
 
   useEffect(() => {
     fetchNotifications();

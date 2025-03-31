@@ -50,7 +50,7 @@ function AdminProfile({admin_email}) {
   const [basic_info, set_basic_info] = useState(initial_data);
   const [original_data, set_original_data] = useState(initial_data);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(user_img_1);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -89,6 +89,7 @@ function AdminProfile({admin_email}) {
 
   const handleImageSelect = (imageSrc) => {
     setSelectedImage(imageSrc);
+    localStorage.setItem(`profile_picture_${admin_email}`, imageSrc);
     setShowProfilePopup(false);
   };
 
@@ -97,7 +98,9 @@ function AdminProfile({admin_email}) {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelectedImage(reader.result);
+        const imageData = reader.result;
+        setSelectedImage(imageData);
+        localStorage.setItem(`profile_picture_${admin_email}`, imageData);
         setShowProfilePopup(false);
       };
       reader.readAsDataURL(file);
@@ -152,6 +155,14 @@ function AdminProfile({admin_email}) {
       .catch(error => {
         console.error('Error:', error);
       });
+    }
+
+    // Load profile picture from localStorage when component mounts
+    const savedImage = localStorage.getItem(`profile_picture_${admin_email}`);
+    if (savedImage) {
+      setSelectedImage(savedImage);
+    } else {
+      setSelectedImage(user_img_1); // Default image if nothing is saved
     }
   }, [admin_email]);
 

@@ -1,0 +1,56 @@
+
+
+@media (max-width: 1025px) {
+    .admin_body .admin_body_main .title_bar{
+        height: 65px;
+        width: 100%;
+    }
+    .admin_body .admin_body_main .title_bar .custom_input{
+       display: none;
+    }
+}
+
+@media (max-width: 650px) {
+    .admin_body .admin_body_main .title_bar .left_title_con .title{
+        font-size: 1rem;
+    }
+    .admin_body .admin_body_main .title_bar .left_title_con .title_info{
+        font-size: 0.7rem;
+    }
+
+    .admin_body .admin_body_main .title_bar .other_option .icon{
+        display: none;
+        
+    }
+    .admin_body .admin_body_main .title_bar .other_option .profile_con img{
+        height: 40px;
+        width: 40px;
+    }
+    .admin_body .admin_body_main .title_bar .other_option .profile_con .data .name{
+        font-size: 1rem;
+    }
+    .admin_body .admin_body_main .title_bar .other_option .profile_con .data .type{
+        font-size: 0.8rem;
+
+    }
+}
+
+@media (max-width: 490px) {
+    .admin_body .admin_body_main .title_bar .other_option .profile_con .data{
+        display: none;
+    }
+    .admin_body .admin_body_main .title_bar{
+        padding:10px 20px;
+    }
+
+}
+
+@media (max-width: 350px) {
+    .admin_body .admin_body_main .title_bar .other_option .profile_con .data{
+        display: none;
+    }
+    .admin_body .admin_body_main .title_bar{
+        padding:10px;
+    }
+
+}

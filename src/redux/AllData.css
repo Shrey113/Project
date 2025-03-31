@@ -113,7 +113,7 @@
   max-height: 60vh;
   overflow: hidden;
 }
-
+/* 
 .notification {
   padding: 16px;
   border-radius: 8px;
@@ -123,15 +123,15 @@
   gap: 12px;
   transform: translateX(150%);
   transition: transform 0.4s ease-in-out;
-}
+} */
 
 .notification.show {
   transform: translateX(0);
 }
 
-.notification.hide {
+/* .notification.hide {
   transform: translateX(150%);
-}
+} */
 
 .notification img {
   width: 24px;
