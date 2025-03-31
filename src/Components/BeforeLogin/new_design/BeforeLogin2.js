@@ -7,14 +7,12 @@ import fifth_section_image from './image_folder/fifth_section_image.png';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
-import { gsap } from 'gsap';
-import { motion } from "framer-motion";
+import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CheckCircle, Users, Camera, DollarSign } from "lucide-react";
 
 // Register ScrollTrigger with GSAP
 gsap.registerPlugin(ScrollTrigger);
-
 function BeforeLogin2() {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 650);
@@ -23,9 +21,6 @@ function BeforeLogin2() {
     // Handle screen resize
     useEffect(() => {
         const handleResize = () => {
-            // if (window.innerWidth > 651) {
-            //     window.location.reload();
-            // }
             setIsMobile(window.innerWidth < 650)
         };
         window.addEventListener('resize', handleResize);
@@ -37,28 +32,33 @@ function BeforeLogin2() {
         {
             icon: <CheckCircle size={40} className="icon-purple" />,
             title: "Sign Up",
+            className: "first-step",
             description: "Create a profile in minutes."
         },
         {
             icon: <Camera size={40} className="icon-blue" />,
             title: "List Your Services or Gear",
+            className: "second-step",
             description: "Showcase your work or rent out equipment."
         },
         {
             icon: <Users size={40} className="icon-green" />,
             title: "Get Hired & Collaborate",
+            className: "third-step",
             description: "Connect with photographers and clients."
         },
         {
             icon: <DollarSign size={40} className="icon-yellow" />,
             title: "Earn & Grow",
+            className: "four-step",
             description: "Expand your network and income."
         }
     ];
 
     const navLinksRef = useRef([]);
     const imageRef = useRef(null);
-    // navLinksRef.current = [];
+
+
     useEffect(() => {
 
         gsap.to(imageRef.current, {
@@ -76,6 +76,15 @@ function BeforeLogin2() {
             ease: "power2.out"
         });
 
+        // ScrollTrigger.create({
+        //     animations: t1,
+        //     trigger: ".thriving-section",
+        //     pin: true,
+        //     start: "top top",
+        //     end: "+=4000",
+        //     scrub: 1,
+        //     anticipatePin: 1,
+        // })
     }, []);
 
 
@@ -221,18 +230,54 @@ function BeforeLogin2() {
                 <p className="section-description">
                     Whether you're a photographer looking for gigs or renting out your gear, our platform connects you with opportunities to grow and thrive.
                 </p>
-                <div className="steps-container">
-                    {steps.map((step, index) => (
-                        <motion.div key={index} whileHover={{ scale: 1.05 }} className="step-card">
-                            <div className="card-content">
-                                <div className="icon-container">{step.icon}</div>
-                                <h3 className="step-title">{step.title}</h3>
-                                <p className="step-description">{step.description}</p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
             </section>
+            <div className="steps-container">
+                <div className="step-card" id='first-step'>
+                    <div className="card-content">
+                        <div className="icon-container">
+                            <CheckCircle size={40} className="icon-purple" />
+                        </div>
+                        <h3 className="step-title">Sign Up</h3>
+                        <p className="step-description">Create a profile in minutes.</p>
+                    </div>
+                </div>
+
+                <div className="step-card" id='second-step'>
+                    <div className="card-content">
+                        <div className="icon-container">
+                            <Camera size={40} className="icon-blue" />
+                        </div>
+                        <h3 className="step-title">List Your Services or Gear</h3>
+                        <p className="step-description">
+                            Showcase your work or rent out equipment.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="step-card" id='third-step'>
+                    <div className="card-content">
+                        <div className="icon-container">
+                            <Users size={40} className="icon-green" />
+                        </div>
+                        <h3 className="step-title">Get Hired & Collaborate</h3>
+                        <p className="step-description">
+                            Connect with photographers and clients.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="step-card" id='four-step'>
+                    <div className="card-content">
+                        <div className="icon-container">
+                            <DollarSign size={40} className="icon-yellow" />
+                        </div>
+                        <h3 className="step-title">Earn & Grow</h3>
+                        <p className="step-description">
+                            Expand your network and income.
+                        </p>
+                    </div>
+                </div>
+            </div>
 
             {/* Fifth Section */}
             <div className="hero-container" id="fifth_container">

@@ -454,32 +454,33 @@ main .card {
     font-family: circular;
 }
 
-.thriving-section .steps-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+main .steps-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.thriving-section .step-card {
+main .step-card {
+    width: 90%;
     background-color: #2a2a2a;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     padding: 1.5rem;
-    border-radius: 1rem;
-    border: 1px solid #444;
+    color: white;
+    position: relative;
 }
 
-.thriving-section .card-content {
+main .card-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
 }
 
-.thriving-section .icon-container {
+main .icon-container {
     margin-bottom: 1rem;
 }
 
-.thriving-section .step-title {
+main .step-title {
     font-size: 1.25rem;
     font-weight: bold;
     margin-bottom: 0.5rem;
@@ -487,7 +488,7 @@ main .card {
     color: #fff;
 }
 
-.thriving-section .step-description {
+main .step-description {
     color: #ccc;
     font-family: circular;
 }
