@@ -3,12 +3,12 @@
     src: url("/src/fonts/CircularStd-Medium.woff");
 }
 
-* {
+/* * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
-}
+} */
 
 html {
     scroll-behavior: smooth;
@@ -19,14 +19,12 @@ html {
 }
 
 
-
 main {
-    height: 100vh;
-    width: 100%;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    max-width: 1600px;
+    box-sizing: border-box;
+    /* max-width: 1600px; */
+    user-select: none;
 }
 
 .nav {
@@ -110,6 +108,18 @@ main {
     z-index: 1000;
 }
 
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent background */
+    z-index: 999;
+    /* Just below the sidebar */
+}
+
 .sidebar.open {
     right: 0;
 }
@@ -130,6 +140,10 @@ main {
 .sidebar .nav-links button {
     font-size: 18px;
     margin: 10px 0;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Responsive Behavior */
@@ -432,11 +446,11 @@ main .card {
 .thriving-section {
     background-color: #fff;
     color: rgb(23, 23, 23);
-    padding: 4rem 1.5rem;
+    /* padding: 4rem 1.5rem; */
+    padding: 40px 5px 5px 5px;
     text-align: center;
     min-height: fit-content;
     width: 100%;
-
 }
 
 .thriving-section .section-title {
@@ -450,7 +464,6 @@ main .card {
 .thriving-section .section-description {
     font-size: 1.125rem;
     color: #1a1a1a;
-    margin-bottom: 3rem;
     font-family: circular;
 }
 
@@ -459,56 +472,16 @@ main .steps-container {
     align-items: center;
     flex-direction: column;
     gap: 20px;
-}
-
-main .step-card {
-    width: 90%;
-    background-color: #2a2a2a;
-    padding: 1.5rem;
-    color: white;
-    position: relative;
-}
-
-main .card-content {
+    /* font-family: "Signika Negative", sans-serif;
+    font-weight: 300;
+    margin: 0;
+    padding: 40px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
+    justify-content: center;
+    background-color: #F4F4F4; */
 }
 
-main .icon-container {
-    margin-bottom: 1rem;
-}
-
-main .step-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    font-family: circular;
-    color: #fff;
-}
-
-main .step-description {
-    color: #ccc;
-    font-family: circular;
-}
-
-/* Icon Colors */
-.icon-purple {
-    color: #a855f7;
-}
-
-.icon-blue {
-    color: #3b82f6;
-}
-
-.icon-green {
-    color: #10b981;
-}
-
-.icon-yellow {
-    color: #facc15;
-}
 
 
 /* fifth container  */
@@ -519,6 +492,7 @@ main .step-description {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 6rem;
 }
 
 .hero-container .hero_image_container {
@@ -583,6 +557,7 @@ main .footer-container {
     color: #fff;
     padding: 20px 0;
     text-align: center;
+    z-index: 1;
 }
 
 main .footer-content {
@@ -592,6 +567,7 @@ main .footer-content {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    z-index: 10;
 }
 
 main .footer-section {
@@ -840,6 +816,30 @@ main .footer-bottom {
         font-size: 13px;
         text-align: start;
     }
+
+    /* fourth container  */
+    .thriving-section {
+        background-color: #fff;
+        color: rgb(23, 23, 23);
+        /* padding: 4rem 1.5rem; */
+        padding: 40px 10px 5px 10px;
+        text-align: center;
+        min-height: fit-content;
+        width: 100%;
+    }
+
+    .thriving-section .section-title {
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .thriving-section .section-description {
+        font-size: 0.9rem;
+        color: #1a1a1a;
+        font-family: circular;
+    }
+
 
     /* fifth container  */
     .hero-container .hero-content h1 {

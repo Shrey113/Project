@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import React from 'react';
 import './BeforeLogin2.css';
+
+import { FaHome, FaInfoCircle, FaConciergeBell, FaRegHandshake, FaUserPlus } from 'react-icons/fa';
 import first_section_image from './image_folder/first_section_image.png';
 import third_section_image from './image_folder/third_section_image.png';
 import fifth_section_image from './image_folder/fifth_section_image.png';
@@ -9,8 +11,8 @@ import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { CheckCircle, Users, Camera, DollarSign } from "lucide-react";
 
+import StackingCards from './../new_design/StackingCards/StackingCards'
 // Register ScrollTrigger with GSAP
 gsap.registerPlugin(ScrollTrigger);
 function BeforeLogin2() {
@@ -27,33 +29,6 @@ function BeforeLogin2() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-
-    const steps = [
-        {
-            icon: <CheckCircle size={40} className="icon-purple" />,
-            title: "Sign Up",
-            className: "first-step",
-            description: "Create a profile in minutes."
-        },
-        {
-            icon: <Camera size={40} className="icon-blue" />,
-            title: "List Your Services or Gear",
-            className: "second-step",
-            description: "Showcase your work or rent out equipment."
-        },
-        {
-            icon: <Users size={40} className="icon-green" />,
-            title: "Get Hired & Collaborate",
-            className: "third-step",
-            description: "Connect with photographers and clients."
-        },
-        {
-            icon: <DollarSign size={40} className="icon-yellow" />,
-            title: "Earn & Grow",
-            className: "four-step",
-            description: "Expand your network and income."
-        }
-    ];
 
     const navLinksRef = useRef([]);
     const imageRef = useRef(null);
@@ -75,16 +50,6 @@ function BeforeLogin2() {
             duration: 0.8,
             ease: "power2.out"
         });
-
-        // ScrollTrigger.create({
-        //     animations: t1,
-        //     trigger: ".thriving-section",
-        //     pin: true,
-        //     start: "top top",
-        //     end: "+=4000",
-        //     scrub: 1,
-        //     anticipatePin: 1,
-        // })
     }, []);
 
 
@@ -136,14 +101,36 @@ function BeforeLogin2() {
                     <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
                         <button className="close-btn" onClick={() => setSidebarOpen(false)}>✖</button>
                         <ul className="nav-links">
-                            <li><button onClick={(e) => smoothScroll(e, 'first_container')}>Home</button></li>
-                            <li><button onClick={(e) => smoothScroll(e, 'second_container')}>About</button></li>
-                            <li><button onClick={(e) => smoothScroll(e, 'third_container')}>Services</button></li>
-                            <li><button onClick={(e) => smoothScroll(e, 'fourth_container')}>Steps</button></li>
-                            <li><button onClick={(e) => smoothScroll(e, 'fifth_container')}>Join</button></li>
+                            <li>
+                                <button onClick={(e) => smoothScroll(e, 'first_container')}>
+                                    <FaHome size={20} /> Home
+                                </button>
+                            </li>
+                            <li>
+                                <button onClick={(e) => smoothScroll(e, 'second_container')}>
+                                    <FaInfoCircle size={20} /> About
+                                </button>
+                            </li>
+                            <li>
+                                <button onClick={(e) => smoothScroll(e, 'third_container')}>
+                                    <FaConciergeBell size={20} /> Services
+                                </button>
+                            </li>
+                            <li>
+                                <button onClick={(e) => smoothScroll(e, 'fourth_container')}>
+                                    <FaRegHandshake size={20} /> Steps
+                                </button>
+                            </li>
+                            <li>
+                                <button onClick={(e) => smoothScroll(e, 'fifth_container')}>
+                                    <FaUserPlus size={20} /> Join
+                                </button>
+                            </li>
                         </ul>
                     </div>
                 )}
+
+                {isSidebarOpen && <div className="overlay" onClick={() => setSidebarOpen(false)}></div>}
             </nav>
 
             {/* First Section */}
@@ -231,53 +218,13 @@ function BeforeLogin2() {
                     Whether you're a photographer looking for gigs or renting out your gear, our platform connects you with opportunities to grow and thrive.
                 </p>
             </section>
-            <div className="steps-container">
-                <div className="step-card" id='first-step'>
-                    <div className="card-content">
-                        <div className="icon-container">
-                            <CheckCircle size={40} className="icon-purple" />
-                        </div>
-                        <h3 className="step-title">Sign Up</h3>
-                        <p className="step-description">Create a profile in minutes.</p>
-                    </div>
-                </div>
 
-                <div className="step-card" id='second-step'>
-                    <div className="card-content">
-                        <div className="icon-container">
-                            <Camera size={40} className="icon-blue" />
-                        </div>
-                        <h3 className="step-title">List Your Services or Gear</h3>
-                        <p className="step-description">
-                            Showcase your work or rent out equipment.
-                        </p>
-                    </div>
-                </div>
 
-                <div className="step-card" id='third-step'>
-                    <div className="card-content">
-                        <div className="icon-container">
-                            <Users size={40} className="icon-green" />
-                        </div>
-                        <h3 className="step-title">Get Hired & Collaborate</h3>
-                        <p className="step-description">
-                            Connect with photographers and clients.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="step-card" id='four-step'>
-                    <div className="card-content">
-                        <div className="icon-container">
-                            <DollarSign size={40} className="icon-yellow" />
-                        </div>
-                        <h3 className="step-title">Earn & Grow</h3>
-                        <p className="step-description">
-                            Expand your network and income.
-                        </p>
-                    </div>
-                </div>
+            <div className="steps-container" id="fourth_container">
+                <StackingCards />
             </div>
+
+
 
             {/* Fifth Section */}
             <div className="hero-container" id="fifth_container">
