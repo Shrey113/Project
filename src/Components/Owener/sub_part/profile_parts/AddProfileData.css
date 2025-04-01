@@ -10,9 +10,9 @@
     align-items: center;
     z-index: 1000;
 
-  }
-  
-  #AddProfileDataPopup  .popup-content {
+}
+
+#AddProfileDataPopup .popup-content {
     background: white;
 
     border-radius: 8px;
@@ -22,22 +22,25 @@
     overflow-y: auto;
     padding: 30px;
 
-  }
-  #AddProfileDataPopup  .popup-content::-webkit-scrollbar{
+}
+
+#AddProfileDataPopup .popup-content::-webkit-scrollbar {
     width: 5px;
     background: transparent;
-  }
-  #AddProfileDataPopup  .popup-content::-webkit-scrollbar-thumb{
+}
+
+#AddProfileDataPopup .popup-content::-webkit-scrollbar-thumb {
     width: 5px;
-    background:transparent;
+    background: transparent;
     border-radius: 10px;
-  }
-  #AddProfileDataPopup  .popup-content:hover::-webkit-scrollbar-thumb{
-    background:rgba(0, 0, 0, 0.604);
+}
+
+#AddProfileDataPopup .popup-content:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.604);
     border-radius: 10px;
-  }
-  
-  #AddProfileDataPopup  .close-btn {
+}
+
+#AddProfileDataPopup .close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -52,13 +55,13 @@
     align-items: center;
     justify-content: center;
     color: #666;
-  }
-  
-  #AddProfileDataPopup   .close-btn:hover {
-    background-color: #f0f0f0;
-  }
+}
 
-  
+#AddProfileDataPopup .close-btn:hover {
+    background-color: #f0f0f0;
+}
+
+
 #AddProfileDataPopup .profile-container {
     width: 100%;
     display: flex;
@@ -143,12 +146,13 @@
     filter: brightness(0) invert(1);
 }
 
-#AddProfileDataPopup form{
+#AddProfileDataPopup form {
     display: flex;
     flex-direction: column;
     gap: 20px;
     margin-top: 24px;
 }
+
 #AddProfileDataPopup .form-group {
     display: flex;
     align-items: flex-start;
@@ -161,7 +165,7 @@
     margin-bottom: 8px;
 }
 
-.form-group input, 
+.form-group input,
 #AddProfileDataPopup .form-group textarea {
     width: 100%;
     padding: 12px;
@@ -175,7 +179,15 @@
     resize: vertical;
 }
 
-#AddProfileDataPopup .form-group .ok-button{
+#AddProfileDataPopup .button-group {
+    display: flex;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#AddProfileDataPopup .form-group .ok-button {
     /* width: 80px; */
     padding: 12px;
     border: 1px solid #ddd;
@@ -185,7 +197,24 @@
     color: white;
     font-weight: 600;
     cursor: pointer;
-    &:hover{
+
+    &:hover {
+        background-color: #010101;
+    }
+}
+
+#AddProfileDataPopup .form-group .delete-button {
+    /* width: 80px; */
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #3a3a3a;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
         background-color: #010101;
     }
 }

@@ -396,12 +396,12 @@
   font-size: 14px;
   font-family: var(--Heading);
   max-width: 200px;
-  text-wrap: wrap;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
   overflow: hidden;
-  word-wrap: break-word;
+  /* word-wrap: break-word; */
   white-space: normal;
-  overflow: hidden;
-  /* padding: 5px; */
+  /* background-color: red; */
 }
 
 /* base for all sections  */

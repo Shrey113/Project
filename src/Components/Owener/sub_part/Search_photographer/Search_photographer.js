@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import "./Search_photographer.css";
 import OwnerList from "./sub_part/Owners_List";
-import { Server_url , showWarningToast} from "../../../../redux/AllData";
+import { Server_url, showWarningToast } from "../../../../redux/AllData";
 import { TfiLocationPin } from "react-icons/tfi";
 import { BiLoaderAlt } from "react-icons/bi";
 import { TbLocationCancel } from "react-icons/tb";
@@ -86,7 +86,7 @@ const locations = [
 
 
 
-function Search_photographer({searchTerm,setSearchTerm}) {
+function Search_photographer({ searchTerm, setSearchTerm }) {
   const user = useSelector((state) => state.user);
   const user_email = user.user_email;
   const [all_owner_data, set_all_owner_Data] = useState();
@@ -114,18 +114,18 @@ function Search_photographer({searchTerm,setSearchTerm}) {
 
 
   const [visibleLocations, setVisibleLocations] = useState([]);
-  
+
   useEffect(() => {
     const calculateVisibleLocations = () => {
       const container = document.querySelector('.locations-list');
       if (!container) return;
-      
+
       const container_width = container.offsetWidth;
-      const location_item_width = 90; 
-      const max_items = Math.floor((container_width - location_item_width) / location_item_width); 
-      
+      const location_item_width = 90;
+      const max_items = Math.floor((container_width - location_item_width) / location_item_width);
+
       let visibleLocs = [...locations];
-      
+
       // If there's a selected location, move it to the front
       if (selectedLocation && selectedLocation !== 'all') {
         const selectedIndex = visibleLocs.findIndex(loc => loc.value === selectedLocation);
@@ -134,13 +134,13 @@ function Search_photographer({searchTerm,setSearchTerm}) {
           visibleLocs.unshift(selectedLoc);
         }
       }
-      
+
       setVisibleLocations(visibleLocs.slice(0, max_items - 1));
     };
 
     calculateVisibleLocations();
     window.addEventListener('resize', calculateVisibleLocations);
-    
+
     return () => window.removeEventListener('resize', calculateVisibleLocations);
   }, [selectedLocation]);
 
@@ -152,7 +152,7 @@ function Search_photographer({searchTerm,setSearchTerm}) {
           `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lon}`
         );
         const data = await response.json();
-        
+
         // Prioritize state_district for Indian locations
         const cityName =
           data.address?.state_district || // Prioritize state_district (e.g., "Vadodara")
@@ -173,7 +173,7 @@ function Search_photographer({searchTerm,setSearchTerm}) {
         setIsLocationLoading(false);
       }
     };
-  
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -184,25 +184,25 @@ function Search_photographer({searchTerm,setSearchTerm}) {
         (error) => {
           console.error("Error getting location:", error);
           // Handle specific geolocation errors
-          switch(error.code) {
-            case 1: // PERMISSION_DENIED
-              showWarningToast({ message: "Location permission denied by user" });
-              break;
-            case 2: // POSITION_UNAVAILABLE
-              showWarningToast({ message: "Location information is unavailable" });
-              break;
-            case 3: // TIMEOUT
-              showWarningToast({ message: "Location request timed out" });
-              break;
-            default:
-              showWarningToast({ message: "Unknown location error occurred" });
-          }
-          
+          // switch(error.code) {
+          //   case 1: // PERMISSION_DENIED
+          //     showWarningToast({ message: "Location permission denied by user" });
+          //     break;
+          //   case 2: // POSITION_UNAVAILABLE
+          //     showWarningToast({ message: "Location information is unavailable" });
+          //     break;
+          //   case 3: // TIMEOUT
+          //     showWarningToast({ message: "Location request timed out" });
+          //     break;
+          //   default:
+          //     showWarningToast({ message: "Unknown location error occurred" });
+          // }
+
           setIsLocationPermissionGranted(false);
           setLocationData(null);
           setIsLocationLoading(false);
         },
-        { 
+        {
           enableHighAccuracy: true,
           timeout: 10000, // 10 seconds timeout
           maximumAge: 0 // Don't use cached position
@@ -215,13 +215,13 @@ function Search_photographer({searchTerm,setSearchTerm}) {
       setIsLocationLoading(false);
     }
   }, []);
-  
+
 
 
 
   useEffect(() => {
     setIsLoading(true);
-    
+
     const timer = setTimeout(() => {
       if (searchTerm.trim() === "") {
         setFilteredUsers({ owners: [], packages: [], equipment: [] });
@@ -238,7 +238,7 @@ function Search_photographer({searchTerm,setSearchTerm}) {
           console.log("Search response:", data);
 
           setFilteredUsers({
-            owners: Array.isArray(data.owners) 
+            owners: Array.isArray(data.owners)
               ? data.owners.filter((owner) => owner.user_email !== user_email)
               : [],
             packages: Array.isArray(data.packages) ? data.packages : [],
@@ -277,7 +277,7 @@ function Search_photographer({searchTerm,setSearchTerm}) {
         }
 
         const data = await response.json();
-        set_all_owner_Data(data.result); 
+        set_all_owner_Data(data.result);
       } catch (error) {
         console.error("Error fetching owner data:", error);
       }
@@ -344,9 +344,8 @@ function Search_photographer({searchTerm,setSearchTerm}) {
             </div>
           ) : (
             <div
-              className={`location-circle current-location ${
-                selectedLocation === locationData ? 'selected' : ''
-              }`}
+              className={`location-circle current-location ${selectedLocation === locationData ? 'selected' : ''
+                }`}
               onClick={() => handleLocationSelect(locationData)}
             >
               <div className="location-image-wrapper current-location-wrapper">
@@ -361,7 +360,7 @@ function Search_photographer({searchTerm,setSearchTerm}) {
           )}
 
           {/* Show only visible locations */}
-          {visibleLocations.map((location,index) => (
+          {visibleLocations.map((location, index) => (
             <div
               key={index}
               className={`location-circle ${selectedLocation === location.value ? 'selected' : ''}`}
@@ -411,7 +410,7 @@ function Search_photographer({searchTerm,setSearchTerm}) {
           <div className="location-popup-content">
             <div className="popup-header">
               <h3>All Locations</h3>
-              <button 
+              <button
                 className="close-popup"
                 onClick={() => setShowLocationPopup(false)}
               >
@@ -428,9 +427,8 @@ function Search_photographer({searchTerm,setSearchTerm}) {
                 .map((location) => (
                   <div
                     key={location.value}
-                    className={`location-circle popup-location ${
-                      selectedLocation === location.value ? 'selected' : ''
-                    }`}
+                    className={`location-circle popup-location ${selectedLocation === location.value ? 'selected' : ''
+                      }`}
                     onClick={() => {
                       handleLocationSelect(location.value);
                       setShowLocationPopup(false);

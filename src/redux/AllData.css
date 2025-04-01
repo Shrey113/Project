@@ -3,7 +3,9 @@
   width: 50px;
 }
 
-.success_message,.warning_message,.reject_message {
+.success_message,
+.warning_message,
+.reject_message {
   /* position: fixed; */
   top: 20px;
   right: -300px;
@@ -21,14 +23,17 @@
   gap: 10px;
   background: #dcf2d4;
 }
+
 .reject_message {
   background: #eecdc8;
   color: #b52f29;
 }
+
 .warning_message {
   background-color: #f8f4c4;
   color: #f0e34b;
 }
+
 .success_message img {
   height: 50px;
   width: 50px;
@@ -41,11 +46,15 @@
   width: 50px;
 }
 
-.warning_message.show ,.success_message.show,.reject_message.show {
- right: 30px;
+.warning_message.show,
+.success_message.show,
+.reject_message.show {
+  right: 30px;
 }
 
-.warning_message.hide,.success_message.hide ,.reject_message.hide {
+.warning_message.hide,
+.success_message.hide,
+.reject_message.hide {
   right: -300px;
 }
 
@@ -113,6 +122,7 @@
   max-height: 60vh;
   overflow: hidden;
 }
+
 /* 
 .notification {
   padding: 16px;

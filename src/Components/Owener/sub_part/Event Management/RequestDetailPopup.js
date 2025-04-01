@@ -87,11 +87,11 @@ const RequestDetailPopup = ({
   const renderPackageDetails = () => (
     <table className="details-table">
       <tbody>
-        <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr>
+        {/* <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr> */}
         <tr><td><strong>Package Name:</strong></td><td>{requestData.package_name}</td></tr>
         <tr><td><strong>Service:</strong></td><td>{requestData.service}</td></tr>
         <tr><td><strong>Description:</strong></td><td>{requestData.description}</td></tr>
-        <tr><td><strong>Price:</strong></td><td>{requestData.price || "N/A"}</td></tr>
+        <tr><td><strong>Total:</strong></td><td>{requestData.total_amount || "N/A"}</td></tr>
         <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
         <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>
         <tr>
@@ -118,7 +118,7 @@ const RequestDetailPopup = ({
   const renderEquipmentDetails = () => (
     <table className="details-table">
       <tbody>
-        <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr>
+        {/* <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr> */}
         <tr><td><strong>Equipment Name:</strong></td><td>{requestData.equipment_name}</td></tr>
         <tr><td><strong>Company:</strong></td><td>{requestData.equipment_company}</td></tr>
         <tr><td><strong>Type:</strong></td><td>{requestData.equipment_type}</td></tr>
@@ -137,7 +137,7 @@ const RequestDetailPopup = ({
   const renderServiceDetails = () => (
     <table className="details-table">
       <tbody>
-        <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr>
+        {/* <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr> */}
         <tr><td><strong>Service Name:</strong></td><td>{requestData.service_name}</td></tr>
         <tr><td><strong>Description:</strong></td><td>{requestData.service_description}</td></tr>
         <tr><td><strong>Price:</strong></td><td>{requestData.service_price_per_day || "N/A"}</td></tr>
@@ -151,12 +151,19 @@ const RequestDetailPopup = ({
     </table>
   )
 
+  const handleClose = () => {
+    if (popupType === "reject" && reason) {
+      showWarningToast({ message: "It will not be rejected." });
+    }
+    onClose();
+  };
+
 
   return (
-    <div className="popup-overlay">
+    <div className="popup-overlay" onClick={handleClose}>
       {/* Info Popup */}
       {popupType === "info" && (
-        <div className="popup-container">
+        <div className="popup-container" onClick={(e) => e.stopPropagation()}>
           <div className="popup-header">
             <h2>Request Details</h2>
             <button onClick={onClose} className="close-btn">
@@ -182,7 +189,7 @@ const RequestDetailPopup = ({
 
       {/* Reject Popup */}
       {popupType === "reject" && (
-        <div className="popup-container">
+        <div className="popup-container" onClick={(e) => e.stopPropagation()}>
           <div className="popup-header">
             <h2>Reject Request</h2>
             <button onClick={onClose} className="close-btn">
@@ -190,7 +197,7 @@ const RequestDetailPopup = ({
             </button>
           </div>
           <div className="popup-body">
-            <h3>ID: {requestData.id}</h3>
+            {/* <h3>ID: {requestData.id}</h3> */}
             <p>
               <strong>
                 {requestData.package_name ? "Package Name" : "Equipment Name"}:

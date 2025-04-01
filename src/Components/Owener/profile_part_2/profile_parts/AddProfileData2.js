@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { useSelector,useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import './AddBusinessData.css'
 import { FaCamera } from 'react-icons/fa'
-import { Server_url,showAcceptToast,showRejectToast,showWarningToast } from '../../../../redux/AllData';
+import { Server_url, showAcceptToast, showRejectToast, showWarningToast, ConfirmMessage, localstorage_key_for_jwt_user_side_key } from '../../../../redux/AllData';
+
 
 
 // import edit_icon from './../../img/pencil.png'
 
-function AddProfileData({onInputChange }) {
+function AddProfileData({ onInputChange }) {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [profileImage, setProfileImage] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [formData, setFormData] = useState({
     userName: user.user_name,
@@ -28,7 +30,7 @@ function AddProfileData({onInputChange }) {
     setProfileImage(user.user_profile_image_base64);
   }, [user.user_profile_image_base64]);
 
-  
+
 
   // Add error states for each input
   const [errors, setErrors] = useState({
@@ -43,10 +45,10 @@ function AddProfileData({onInputChange }) {
 
 
 
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       const data = {
         user_email: user.user_email,
@@ -90,35 +92,64 @@ function AddProfileData({onInputChange }) {
       }
     }
   };
-  
+
+  const handleDeleteAccount = async () => {
+    const data = {
+      user_email: user.user_email
+    }
+    try {
+      const response = await fetch(`${Server_url}/owner/delete-owner`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      if (response.ok) {
+        showAcceptToast({ message: "Account deleted successfully" });
+        console.log('Account deleted successfully', localstorage_key_for_jwt_user_side_key);
+        localStorage.removeItem(localstorage_key_for_jwt_user_side_key);
+        window.location.reload();
+        window.location.href = '/';
+      } else {
+        showRejectToast({ message: "Failed to delete account. Please try again." });
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      showRejectToast({ message: "Failed to delete account. Please try again." });
+    }
+  }
+
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
-    
+
     // Validate file type
     const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
     if (!file || !validImageTypes.includes(file.type)) {
-      showWarningToast({message: "Please select a valid image file (JPEG, PNG, or GIF)" });
+      showWarningToast({ message: "Please select a valid image file (JPEG, PNG, or GIF)" });
       return;
     }
 
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (file.size > maxSize) {
-      showWarningToast({message: "Image size should be less than 5MB" });
+      showWarningToast({ message: "Image size should be less than 5MB" });
       return;
     }
 
     try {
       const reader = new FileReader();
-      
+
       reader.onloadend = async () => {
         const base64Image = reader.result;
         setProfileImage(base64Image);
-        dispatch({ type: "SET_USER_Owner", payload: {
-          user_profile_image_base64: base64Image
-        }});
-        
+        dispatch({
+          type: "SET_USER_Owner", payload: {
+            user_profile_image_base64: base64Image
+          }
+        });
+
 
         try {
           const response = await fetch(`${Server_url}/owner/update-user-profile-image`, {
@@ -137,24 +168,24 @@ function AddProfileData({onInputChange }) {
           }
 
           const data = await response.json();
-          if(data.message === "User profile image updated successfully."){
-            showAcceptToast({message: "Profile image updated successfully" });
+          if (data.message === "User profile image updated successfully.") {
+            showAcceptToast({ message: "Profile image updated successfully" });
           }
         } catch (error) {
           console.error('Error updating profile image:', error);
-          showRejectToast({message: "Failed to update profile image. Please try again." });
+          showRejectToast({ message: "Failed to update profile image. Please try again." });
         }
       };
 
       reader.onerror = () => {
-        showRejectToast({message: "Error reading file. Please try again." });
+        showRejectToast({ message: "Error reading file. Please try again." });
       };
 
       reader.readAsDataURL(file);
-      
+
     } catch (error) {
       console.error('Error handling image upload:', error);
-      showRejectToast({message: "An unexpected error occurred. Please try again." });
+      showRejectToast({ message: "An unexpected error occurred. Please try again." });
     }
   };
 
@@ -164,7 +195,7 @@ function AddProfileData({onInputChange }) {
   const handleDeleteImage = async () => {
     // Show confirmation dialog
     const isConfirmed = window.confirm("Are you sure you want to remove the business profile image?");
-    
+
     if (!isConfirmed) return;
 
     try {
@@ -184,21 +215,21 @@ function AddProfileData({onInputChange }) {
       }
 
       let data = await response.json();
-      if(data.message === "user profile image removed successfully."){
-        dispatch({ 
-          type: "SET_USER_Owner", 
+      if (data.message === "user profile image removed successfully.") {
+        dispatch({
+          type: "SET_USER_Owner",
           payload: {
             user_profile_image_base64: null
           }
         });
       }
 
-      showAcceptToast({message: "Profile image removed successfully" });
+      showAcceptToast({ message: "Profile image removed successfully" });
 
 
     } catch (error) {
       console.error('Error deleting profile image:', error);
-      showRejectToast({message: "Failed to delete profile image" });
+      showRejectToast({ message: "Failed to delete profile image" });
     }
   };
 
@@ -313,53 +344,53 @@ function AddProfileData({onInputChange }) {
         <h2>Personal Information</h2>
       </div>
 
-        <div className="profile-avatar-container">
-            <div className="profile-avatar">
-                {profileImage ? (
-                    <>
-                        <img src={profileImage} alt="Profile" />
-                        <label htmlFor="profile-image-input" className="camera-overlay">
-                            <FaCamera className="camera-icon" />
-                        </label>
-                    </>
-                ) : (
-                    <>
-                        <span>P</span>
-                        <label htmlFor="profile-image-input" className="camera-overlay" >
-                            <FaCamera className="camera-icon" />
-                        </label>
-                    </>
-                )}
-            </div>
-            <div className="profile-actions">
-                <label htmlFor="profile-image-input" className="upload-btn">
-                    Upload Profile
-                    <input 
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        style={{ display: 'none' }}
-                        id="profile-image-input"
-                    />
-                </label>
-                <button 
-                    className="delete-btn"
-                    onClick={handleDeleteImage}
-                >
-                    Delete avatar
-                </button>
-            </div>
+      <div className="profile-avatar-container">
+        <div className="profile-avatar">
+          {profileImage ? (
+            <>
+              <img src={profileImage} alt="Profile" />
+              <label htmlFor="profile-image-input" className="camera-overlay">
+                <FaCamera className="camera-icon" />
+              </label>
+            </>
+          ) : (
+            <>
+              <span>P</span>
+              <label htmlFor="profile-image-input" className="camera-overlay" >
+                <FaCamera className="camera-icon" />
+              </label>
+            </>
+          )}
         </div>
+        <div className="profile-actions">
+          <label htmlFor="profile-image-input" className="upload-btn">
+            Upload Profile
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: 'none' }}
+              id="profile-image-input"
+            />
+          </label>
+          <button
+            className="delete-btn"
+            onClick={handleDeleteImage}
+          >
+            Delete avatar
+          </button>
+        </div>
+      </div>
 
       <form>
         <div className="form-group">
           <label>User Name</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             name="userName"
             value={formData.userName}
             onChange={handleInputChange}
-            placeholder="User Name" 
+            placeholder="User Name"
           />
           {errors.userName && <span className="error">{errors.userName}</span>}
         </div>
@@ -367,23 +398,23 @@ function AddProfileData({onInputChange }) {
         <div className="form-group_for_2_inputs">
           <div className="inputs-group">
             <label>First Name</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               name="firstName"
               value={formData.firstName}
               onChange={handleInputChange}
-              placeholder="First Name" 
+              placeholder="First Name"
             />
             {errors.firstName && <span className="error">{errors.firstName}</span>}
           </div>
           <div className="inputs-group">
             <label>Last Name</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               name="lastName"
               value={formData.lastName}
               onChange={handleInputChange}
-              placeholder="Last Name" 
+              placeholder="Last Name"
             />
             {errors.lastName && <span className="error">{errors.lastName}</span>}
           </div>
@@ -391,21 +422,21 @@ function AddProfileData({onInputChange }) {
 
         <div className="form-group">
           <label>Confirm Email Address</label>
-          <input 
-            type="email" 
+          <input
+            type="email"
             name="email"
             value={formData.email}
             onChange={handleInputChange}
-            placeholder="Add Email here" 
+            placeholder="Add Email here"
             readOnly={true}
           />
-          
+
           {errors.email && <span className="error">{errors.email}</span>}
         </div>
 
         <div className="form-group">
           <label>Gender</label>
-          <select 
+          <select
             name="gender"
             value={formData.gender}
             onChange={handleInputChange}
@@ -419,32 +450,36 @@ function AddProfileData({onInputChange }) {
 
         <div className="form-group">
           <label>User Location</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             name="location"
             value={formData.location}
             onChange={handleInputChange}
-            placeholder="Add Location here" 
+            placeholder="Add Location here"
           />
           {errors.location && <span className="error">{errors.location}</span>}
         </div>
 
         <div className="form-group">
           <label>Add your personal social media links</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             name="socialMedia"
             value={formData.socialMedia}
             onChange={handleInputChange}
-            placeholder="(website, social page, blog, etc.)" 
+            placeholder="(website, social page, blog, etc.)"
           />
           {errors.socialMedia && <span className="error">{errors.socialMedia}</span>}
         </div>
 
-        <div className="form-group">
-            <button className="ok-button" onClick={handleSubmit}>Save Changes</button>
+        <div className="form-group button-group" >
+          <button className="ok-button" onClick={handleSubmit}>Save Changes</button>
+          <button className="delete-buttons" onClick={(e) => { e.preventDefault(); setShowDeleteConfirm(true) }}>Delete Account</button>
         </div>
       </form>
+      {showDeleteConfirm && (
+        <ConfirmMessage message_title={"Confirm Delete Account"} message={"Are you sure you want to delete your account?"} onConfirm={handleDeleteAccount} onCancel={() => setShowDeleteConfirm(false)} />
+      )}
     </div>
   )
 }

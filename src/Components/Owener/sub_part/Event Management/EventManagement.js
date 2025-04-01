@@ -65,14 +65,97 @@ function EventManagement({ category }) {
 
   const [isMenuOpen, setIsMenuOpen] = useState(null);
   const menuRef = useRef(null);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [textToCopy, setTextToCopy] = useState('');
+  // const menuRef = useRef(null);
+
+  const handleRightClick = (e, value) => {
+    e.preventDefault();
+    setTextToCopy(value);
+    setMenuPosition({ x: e.clientX, y: e.clientY });
+    setMenuVisible(true);
+  };
+
+  // Function to copy text to clipboard
+  const handleCopy = () => {
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      setMenuVisible(false);
+    });
+  };
+
+  const handleClickOutside = () => {
+    setMenuVisible(false);
+  };
+
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
+
 
   const TRow = ({ label, value }) => {
+    const isDescription = label.toLowerCase() === 'description';
     return (
       <tr>
         <td>
           <strong>{label}</strong>
         </td>
-        <td>{value}</td>
+        <td
+          onContextMenu={(e) => handleRightClick(e, value)} // Right-click on the field to show custom menu
+          style={{
+            maxWidth: '200px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          <span
+            style={{
+              display: 'block',
+              width: '100%',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              userSelect: 'text',
+            }}
+          >
+            {value}
+          </span>
+        </td>
+
+        {/* Custom context menu, only visible for description */}
+        {menuVisible && isDescription && (
+          <div
+            ref={menuRef} // Reference for the custom menu
+            style={{
+              position: 'absolute',
+              top: `${menuPosition.y}px`,
+              left: `${menuPosition.x}px`,
+              backgroundColor: 'white',
+              border: '1px solid #ccc',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+              zIndex: 1000,
+              padding: '5px 10px',
+            }}
+          >
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              <li
+                style={{
+                  padding: '8px 10px',
+                  cursor: 'pointer',
+                  borderBottom: '1px solid #ddd',
+                }}
+                onClick={handleCopy}
+              >
+                Copy
+              </li>
+            </ul>
+          </div>
+        )}
       </tr>
     );
   };
@@ -350,7 +433,7 @@ function EventManagement({ category }) {
                   <div className="modal-left">
                     <table className="details-table">
                       <tbody>
-                        <TRow label="ID" value={selected_sent_item.id} />
+                        {/* <TRow label="ID" value={selected_sent_item.id} /> */}
                         <TRow
                           label="Sender Email"
                           value={selected_sent_item.sender_email}

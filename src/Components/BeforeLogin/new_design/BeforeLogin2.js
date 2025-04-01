@@ -59,6 +59,10 @@ function BeforeLogin2() {
             behavior: 'smooth',
             block: 'start',
         });
+
+        if (isMobile) {
+            setSidebarOpen(false);
+        }
     };
 
     const handleOwnerLogin = () => {
