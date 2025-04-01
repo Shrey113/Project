@@ -27,9 +27,21 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   const [profileImage, setProfileImage] = useState(null);
   const [profileImage2, setProfileImage2] = useState(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchOwnerByEmail = async () => {
@@ -188,6 +200,7 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
         <span>
           <img src={back_img} alt="Back" />
         </span>
+        {windowWidth > 480 && "Back"}
       </div>
       <div className="main_con">
         
