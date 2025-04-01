@@ -355,3 +355,128 @@
   color: #666;
 }
 
+/* Responsive table design */
+@media (max-width: 1366px) {
+  /* Hide Business Address on medium screens */
+  .Owner_manager .user_table th:nth-child(5),
+  .Owner_manager .user_table td:nth-child(5) {
+    display: none;
+  }
+
+  /* Hide GST Number on medium screens */
+  .Owner_manager .user_table th:nth-child(7),
+  .Owner_manager .user_table td:nth-child(7) {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  /* Hide Business Name on smaller screens */
+  .Owner_manager .user_table th:nth-child(4),
+  .Owner_manager .user_table td:nth-child(4) {
+    display: none;
+  }
+
+  /* Reduce padding for remaining cells */
+  .Owner_manager .user_table th,
+  .Owner_manager .user_table td {
+    padding: 10px 12px;
+  }
+
+  .Owner_manager {
+    min-width: 600px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Hide Mobile column on very small screens */
+  .Owner_manager .user_table th:nth-child(6),
+  .Owner_manager .user_table td:nth-child(6) {
+    display: none;
+  }
+
+  /* Reduce table text size */
+  .Owner_manager .user_table {
+    font-size: 0.9em;
+  }
+
+  /* Further reduce padding */
+  .Owner_manager .user_table th,
+  .Owner_manager .user_table td {
+    padding: 8px 10px;
+  }
+
+  .Owner_manager {
+    min-width: 450px;
+    padding: 15px;
+    padding-top: var(--admin_title_padding_top_for_2);
+  }
+
+  /* Make icons smaller */
+  .Owner_manager tbody tr td .more_option_pop .icon_img {
+    height: 30px;
+    width: 30px;
+  }
+
+  .Owner_manager tbody tr td .more_option_pop .icon_img img {
+    height: 20px;
+    width: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Keep only essential columns for mobile view */
+  .Owner_manager .user_table th:nth-child(3),
+  .Owner_manager .user_table td:nth-child(3) {
+    display: none;
+  }
+  .Owner_manager .user_table th:nth-child(8),
+  .Owner_manager .user_table td:nth-child(8) {
+    background: rebeccapurple;
+    display: none;
+  }
+
+  .Owner_manager {
+    min-width: 320px;
+  }
+
+  /* Adjust pagination for mobile */
+  .Owner_manager .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .Owner_manager .pagination-button {
+    padding: 6px 10px;
+    margin: 2px;
+  }
+}
+
+/* Adjust popup for better responsiveness */
+@media (max-width: 768px) {
+  .Owner_manager .popup-content {
+    width: 95%;
+    padding: 1.5em;
+  }
+  
+  .Owner_manager .user-data-table th, 
+  .Owner_manager .user-data-table td {
+    padding: 8px;
+    font-size: 0.9em;
+  }
+}
+
+/* Make category tabs responsive */
+@media (max-width: 768px) {
+  .Owner_manager .categories-container {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .Owner_manager .category-item {
+    padding: 8px 15px;
+    font-size: 12px;
+  }
+}
+

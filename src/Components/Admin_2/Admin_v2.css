@@ -26,13 +26,24 @@
     overflow-y: scroll;
 }
 .admin_body::-webkit-scrollbar{
-    width: 10px;
+    width: 7px;
 }
 .admin_body::-webkit-scrollbar-thumb{
-    width: 10px;
+    width: 7px;
     background: rgb(128, 127, 127);
     cursor: pointer;
     border-radius: 10px;
+}
+@media (max-width: 500px) {
+    .admin_body::-webkit-scrollbar{
+        width: 3px;
+    }
+    .admin_body::-webkit-scrollbar-thumb{
+        width: 3px;
+        background: rgb(128, 127, 127);
+        cursor: pointer;
+        border-radius: 10px;
+    }
 }
 .admin_body .admin_body_main{
     height: 100%;

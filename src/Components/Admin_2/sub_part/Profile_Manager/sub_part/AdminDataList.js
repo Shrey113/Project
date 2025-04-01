@@ -149,7 +149,7 @@ function AdminDataList({admin_email,accessType}) {
     <div className="Admin_table_date">
       {/* Title Bar */}
       <div className="title_bar_sub">
-        Admin Manager Table
+        <p>Admin Manager Table</p>
 
         {accessType === 'Full' &&
         <span>

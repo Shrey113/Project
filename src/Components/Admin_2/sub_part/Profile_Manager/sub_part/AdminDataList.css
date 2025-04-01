@@ -466,8 +466,8 @@
  }
  .Admin_table_date  table thead th:nth-child(1),
  .Admin_table_date tbody tr td:nth-child(1){
-  width:50px ;
-  max-width: 50px;
+  width:62px ;
+  max-width: 62px;
 }
 
 .Admin_table_date  table thead th:nth-child(4),
@@ -488,6 +488,9 @@
   .Admin_table_date  table thead th:nth-child(2),
   .Admin_table_date tbody tr td:nth-child(2){
    display: none;
+ }
+ .Admin_table_date .title_bar_sub p{
+  font-size: 1.1rem;
  }
 }
 @media screen and (max-width: 480px) {
