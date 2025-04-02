@@ -5,12 +5,15 @@ import './BeforeLogin2.css';
 import { FaHome, FaInfoCircle, FaConciergeBell, FaRegHandshake, FaUserPlus } from 'react-icons/fa';
 import first_section_image from './image_folder/first_section_image.png';
 import third_section_image from './image_folder/third_section_image.png';
+import gsapBackground from './image_folder/gsapBackground.jpg';
 import fifth_section_image from './image_folder/fifth_section_image.png';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+import { logoBlack, logoBlue, logoWithNameBlack, logoWithNameBlue } from '../../../redux/AllData';
 
 import StackingCards from './../new_design/StackingCards/StackingCards'
 // Register ScrollTrigger with GSAP
@@ -89,7 +92,7 @@ function BeforeLogin2() {
     return (
         <main>
             <nav className="nav">
-                <img src={first_section_image} alt="Logo" className="logo" ref={imageRef} />
+                <img src={logoWithNameBlue} alt="Logo" className="logo" ref={imageRef} />
                 {isMobile ? (
                     <button className="menu-toggle" onClick={() => setSidebarOpen(true)}>☰</button>
                 ) : (
@@ -225,6 +228,7 @@ function BeforeLogin2() {
 
 
             <div className="steps-container" id="fourth_container">
+                <img src={gsapBackground} style={{ height: "100%", width: "100%", position: "absolute", objectFit: "cover", objectPosition: "center", opacity: 0.7 }} alt="" />
                 <StackingCards />
             </div>
 

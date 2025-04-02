@@ -1,6 +1,12 @@
 import "./AllData.css";
 import toast from "react-hot-toast";
 
+import logoWithNameBlack from './../Assets/WebsitLogo/logoWithNameBlack.png'
+import logoWithNameBlue from './../Assets/WebsitLogo/logoWithNameBlue.png'
+import logoBlack from './../Assets/WebsitLogo/logoBlack.png'
+import logoBlue from './../Assets/WebsitLogo/logoBlue.png'
+
+
 export const localstorage_key_for_jwt_user_side_key =
   "Jwt_user_localstorage_key_on_photography_website";
 export const localstorage_key_for_admin_login =
@@ -94,3 +100,5 @@ export const showWarningToast = ({ message }) => {
     },
   });
 };
+
+export { logoBlack, logoBlue, logoWithNameBlack, logoWithNameBlue }
