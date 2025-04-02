@@ -71,12 +71,12 @@ function BeforeLogin2() {
 
 
     const cardData = [
-        { icon: "📸", title: "📷 Get Hired Instantly", description: "Showcase your portfolio & attract top clients." },
-        { icon: "💼", title: "💰 Rent & Earn", description: "List your camera gear & make passive income." },
-        { icon: "🔗", title: "🌍 Connect & Collaborate", description: "Expand your network & work with professionals." },
-        { icon: "📅", title: "⚡ Seamless Bookings", description: "Manage appointments, clients & payments hassle-free." },
-        { icon: "📊", title: "📈 Business Insights", description: "Track your growth with real-time analytics." },
-        { icon: "📝", title: "📑 Smart Invoicing", description: "Generate professional invoices in one click." }
+        { icon: "📸", title: "Get Hired Instantly", description: "Showcase your portfolio & attract top clients." },
+        { icon: "💼", title: "Rent & Earn", description: "List your camera gear & make passive income." },
+        { icon: "🔗", title: "Connect & Collaborate", description: "Expand your network & work with professionals." },
+        { icon: "📅", title: "Seamless Bookings", description: "Manage appointments, clients & payments hassle-free." },
+        { icon: "📊", title: "Business Insights", description: "Track your growth with real-time analytics." },
+        { icon: "📝", title: " Smart Invoicing", description: "Generate professional invoices in one click." }
     ];
     const Links = [
         { id: "first_container", label: "Home" },
