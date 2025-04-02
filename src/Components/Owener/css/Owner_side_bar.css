@@ -321,13 +321,11 @@
   border-radius: 5px;
   height: fit-content;
   display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 10px;
 }
 
 #OwnerSideBar .logout_button .logout_text {
-  font-size: 18px;
+  font-size: 0.9rem;
   font-weight: 550;
   color: #f08080;
 }
@@ -451,6 +449,10 @@
 
 @media (max-width: 480px) {
   #OwnerSideBar .category_con .item .text {
+    font-size: 12px;
+  }
+
+  #OwnerSideBar .logout_button .logout_text {
     font-size: 12px;
   }
 }

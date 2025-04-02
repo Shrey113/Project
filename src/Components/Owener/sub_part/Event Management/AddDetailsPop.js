@@ -9,7 +9,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { CiCirclePlus, CiCircleMinus } from "react-icons/ci";
 import dayjs from "dayjs";
 
-import { Server_url,showAcceptToast,showRejectToast,showWarningToast } from "../../../../redux/AllData";
+import { Server_url, showAcceptToast, showRejectToast, showWarningToast } from "../../../../redux/AllData";
 import "./../Calendar/part/AddDetailsPop.css";
 
 // import socket from "../../../../redux/socket";
@@ -166,18 +166,18 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         })
       });
       const data = await response.json();
-      
+
       if (data.message !== "Equipment event confirmed successfully") {
-        showRejectToast({message: "Failed to confirm equipment event"});
+        showRejectToast({ message: "Failed to confirm equipment event" });
         throw new Error("Failed to confirm equipment event");
       }
-      
+
       // Then create the calendar event
       const calendarResponse = await fetch(`${Server_url}/calendar/add-event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_email: user.user_email, 
+          user_email: user.user_email,
           title: newEvent.title + " from " + newEvent.sender_email,
           start: newEvent.start,
           end: newEvent.end,
@@ -187,11 +187,11 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           event_location: newEvent.event_location
         })
       });
-      
+
       const calendarData = await calendarResponse.json();
-      
+
       if (calendarData.message === 'Event created successfully') {
-        showAcceptToast({message: "Equipment event confirmed successfully"});
+        showAcceptToast({ message: "Equipment event confirmed successfully" });
         setShowEventModal(false);
         setNewEvent({
           title: '',
@@ -206,22 +206,22 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       }
     } catch (error) {
       console.error('Error:', error);
-      showRejectToast({message: error.message || "An error occurred while processing the equipment event"});
+      showRejectToast({ message: error.message || "An error occurred while processing the equipment event" });
     }
   };
-      
-      
-  
+
+
+
 
 
   const handleAddEvent = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     // Add check for assigned team members
     if (assignedMembers.length === 0 && newEvent.event_request_type === "package") {
-      showWarningToast({message:"Please assign at least one team member before confirming the event."});
+      showWarningToast({ message: "Please assign at least one team member before confirming the event." });
       return;
     }
 
@@ -232,7 +232,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_email: user.user_email,
-          title:newEvent.title + " from " + newEvent.sender_email,
+          title: newEvent.title + " from " + newEvent.sender_email,
           start: newEvent.start,
           end: newEvent.end,
           description: newEvent.description,
@@ -245,24 +245,24 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
 
 
       const data = await response.json();
-      
+
       if (data.message === "Event created successfully") {
         // Update request status
         updateRequestStatus(data);
-        
+
         // Assign team members
         if (newEvent.event_request_type === "package") {
           await assignTeamMembers(newEvent.id);
-        }else if (newEvent.event_request_type === "equipment") {
+        } else if (newEvent.event_request_type === "equipment") {
           await confirmEquipmentEvent(newEvent.id);
-        }else if (newEvent.event_request_type === "service") {
-
+        } else if (newEvent.event_request_type === "service") {
+          await assignTeamMembers(newEvent.id);
         }
-        
+
 
 
         // Reset form and close modal
-        showAcceptToast({message:"Event and team members assigned successfully!"});
+        showAcceptToast({ message: "Event and team members assigned successfully!" });
 
         setShowEventModal(false);
         setNewEvent({
@@ -276,7 +276,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       }
     } catch (error) {
       console.error("Error in handleAddEvent:", error);
-      showRejectToast({message:error.message || "Failed to create event or assign team members."});
+      showRejectToast({ message: error.message || "Failed to create event or assign team members." });
     }
   };
 
@@ -315,7 +315,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         );
         const filteredData = await filteredResponse.json();
         setDisabledTeamMembers(filteredData.assignedTeamMembers);
-        
+
       } catch (error) {
         console.error("Error f etching team members:", error);
       }
@@ -435,9 +435,8 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           {COLOR_OPTIONS.map((color) => (
             <div
               key={color.id}
-              className={`color-option ${
-                newEvent.backgroundColor === color.value ? "selected" : ""
-              }`}
+              className={`color-option ${newEvent.backgroundColor === color.value ? "selected" : ""
+                }`}
               style={{ backgroundColor: color.value }}
               onClick={() => setNewEvent({ ...newEvent, backgroundColor: color.value })}
               title={color.label}
@@ -499,18 +498,18 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
 
   return (
     <div className="modal-overlay_add_event"
-    onClick={() => setShowEventModal(false)}
+      onClick={() => setShowEventModal(false)}
     >
       <div className={`modal-content add_event_modal ${newEvent.event_request_type === "equipment" ? "set_equipment_event" : ""}`}
-      onClick={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <button className="modal-close" onClick={() => setShowEventModal(false)} >
           ×
         </button>
         <div className="modal-content-container">
-        {renderEventForm()}
-        
-        {newEvent.event_request_type === "equipment" ? null  :  renderTeamMemberSection()}
+          {renderEventForm()}
+
+          {newEvent.event_request_type === "equipment" ? null : renderTeamMemberSection()}
         </div>
         <div className="modal-actions">
           <button type="submit" onClick={handleAddEvent}>Confirm Event</button>

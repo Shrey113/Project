@@ -67,46 +67,47 @@ function OwnerSideBar() {
 
   const handleItemClick = (index) => {
     if (menuItems[index].name === 'Event') {
-        // Toggle the sub-menu visibility without setting active index
-        setActiveIndex(activeIndex === index ? 1 : 1.1);
-        navigate(menuItems[index].path);
+      // Toggle the sub-menu visibility without setting active index
+      setActiveIndex(activeIndex === index ? 1 : 1.1);
+      navigate(menuItems[index].path);
     } else if (menuItems[index].subMenu) {
-        setActiveIndex(index);
+      setActiveIndex(index);
     } else {
-        const targetPath = menuItems[index].path;
-        if (location.pathname !== targetPath) {
-            setActiveIndex(index);
-            navigate(targetPath);
-        }
+      const targetPath = menuItems[index].path;
+      if (location.pathname !== targetPath) {
+        setActiveIndex(index);
+        navigate(targetPath);
+      }
     }
 
     if (isMobile) {
-        set_is_sidebar_open(false);
+      set_is_sidebar_open(false);
     }
   };
 
   const menuItems = [
     {
       name: "Dashboard",
-      icon: ( <DashboardIcon className={`menu-icon ${activeIndex === 0 ? "active" : ""}`} />
+      icon: (<DashboardIcon className={`menu-icon ${activeIndex === 0 ? "active" : ""}`} />
       ),
       path: "/Owner",
     },
     {
       name: "Event",
-      icon: ( <EventIcon className={`menu-icon ${activeIndex === 1 ? "active" : ""}`} />
+      icon: (<EventIcon className={`menu-icon ${activeIndex === 1 ? "active" : ""}`} />
       ),
       path: "/Owner/Event/packages",
       subMenu: [
         {
           name: "Packages",
           path: "/Owner/Event/packages",
-          icon: ( <LocalOfferIcon className={`menu-icon ${activeIndex === 1.1 ? "active" : ""}`} />
+          icon: (<LocalOfferIcon className={`menu-icon ${activeIndex === 1.1 ? "active" : ""}`} />
           ),
         },
-        { name: "Equipment", path: "/Owner/Event/equipment", icon: ( <CameraAltIcon className={`menu-icon ${activeIndex === 1.2 ? "active" : ""}`}/>), },
-        
-        { name: "Services", path: "/Owner/Event/services", icon: (
+        { name: "Equipment", path: "/Owner/Event/equipment", icon: (<CameraAltIcon className={`menu-icon ${activeIndex === 1.2 ? "active" : ""}`} />), },
+
+        {
+          name: "Services", path: "/Owner/Event/services", icon: (
             <LocalOfferIcon
               className={`menu-icon ${activeIndex === 1.3 ? "active" : ""}`}
             />
@@ -116,22 +117,22 @@ function OwnerSideBar() {
     },
     {
       name: "Team",
-      icon: ( <GroupsIcon className={`menu-icon ${activeIndex === 2 ? "active" : ""}`} /> ),
+      icon: (<GroupsIcon className={`menu-icon ${activeIndex === 2 ? "active" : ""}`} />),
       path: "/Owner/Team",
     },
     {
       name: "Invoice",
-      icon: ( <ReceiptIcon className={`menu-icon ${activeIndex === 3 ? "active" : ""}`} /> ),
+      icon: (<ReceiptIcon className={`menu-icon ${activeIndex === 3 ? "active" : ""}`} />),
       path: "/Owner/Invoice",
     },
     {
       name: "Packages",
-      icon: ( <LocalOfferIcon className={`menu-icon ${activeIndex === 4 ? "active" : ""}`} /> ),
+      icon: (<LocalOfferIcon className={`menu-icon ${activeIndex === 4 ? "active" : ""}`} />),
       path: "/Owner/Packages",
     },
     {
       name: "Search",
-      icon: ( <SearchIcon className={`menu-icon ${activeIndex === 5 ? "active" : ""}`} /> ),
+      icon: (<SearchIcon className={`menu-icon ${activeIndex === 5 ? "active" : ""}`} />),
       path: "/Owner/search_photographer",
     },
   ];
@@ -155,7 +156,7 @@ function OwnerSideBar() {
       message_title: "Confirm Logout",
       message: "Are you sure you want to log out?",
       onConfirm: () => {
-        window.location.href = "/"; 
+        window.location.href = "/";
         localStorage.removeItem(localstorage_key_for_jwt_user_side_key); // Remove admin token from localStorage
         // window.location.reload();
       },
@@ -235,7 +236,7 @@ function OwnerSideBar() {
             <div>
               {" "}
               <LogoutIcon
-                style={{ height: "30px", width: "30px", color: "#f08080" }}
+                style={{ color: "#f08080" }}
               />
             </div>
 
