@@ -67,11 +67,20 @@ function AdminDataList({admin_email,accessType}) {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const getCurrentItems = () => {
-    return all_admin_data ? all_admin_data.slice(indexOfFirstItem, indexOfLastItem) : [];
+    // Filter out the current admin's own profile
+    const filteredAdminData = all_admin_data 
+      ? all_admin_data.filter(admin => admin.admin_email !== admin_email) 
+      : [];
+    
+    // Apply pagination to filtered data
+    return filteredAdminData.slice(indexOfFirstItem, indexOfLastItem);
   };
 
   const getTotalPages = () => {
-    return Math.ceil((all_admin_data ? all_admin_data.length : 0) / itemsPerPage);
+    const filteredLength = all_admin_data 
+      ? all_admin_data.filter(admin => admin.admin_email !== admin_email).length 
+      : 0;
+    return Math.ceil(filteredLength / itemsPerPage);
   };
 
   const handlePageChange = (pageNumber) => {

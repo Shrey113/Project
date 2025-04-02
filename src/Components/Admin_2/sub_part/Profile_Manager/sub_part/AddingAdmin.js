@@ -118,8 +118,8 @@ function AddingAdmin({ handleClosePopup,is_update,
   };
 
   return (
-    <div className="popup_overlay_admin_con">
-      <div className="popup_admin">
+    <div className="popup_overlay_admin_con" onClick={handleClosePopup}>
+      <div className="popup_admin" onClick={e => e.stopPropagation()}>
         <h2>{new_Admin_email ? 'Update Admin' : 'Add New Admin'}</h2>
         <div className="error_message">{form_error}</div>
         <div className="popup_admin_form">

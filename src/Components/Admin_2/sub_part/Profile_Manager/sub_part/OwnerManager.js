@@ -277,20 +277,29 @@ function getAllOwners() {
       <div className="categories-container">
       <div 
           className={`category-item ${activeList === 'all' ? 'active' : ''}`}
-          onClick={() => setActiveList('all')}
+          onClick={() => {
+            setActiveList('all');
+            setCurrentPage(1);
+          }}
         >
           All Owners
         </div>
 
         <div 
           className={`category-item ${activeList === 'pending' ? 'active' : ''}`}
-          onClick={() => setActiveList('pending')}
+          onClick={() => {
+            setActiveList('pending');
+            setCurrentPage(1);
+          }}
         >
           Pending Requests
         </div>
         <div 
           className={`category-item ${activeList === 'rejected' ? 'active' : ''}`}
-          onClick={() => setActiveList('rejected')}
+          onClick={() => {
+            setActiveList('rejected');
+            setCurrentPage(1);
+          }}
         >
           Rejected Requests
         </div>

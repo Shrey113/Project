@@ -1,8 +1,10 @@
-
 .Chart_id{
     display: flex;
     flex-direction: column;
     gap: 45px;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
 }
 .Chart_id .section_1{
     display: flex;
@@ -10,6 +12,7 @@
     padding: 20px 0px;
     border-radius: 20px;
     margin-top: -110px;
+    width: 100%;
 }
 
 .Chart_id .section_2{
@@ -17,4 +20,77 @@
     justify-content: space-between;
     padding: 20px 0px;
     border-radius: 20px;
+    width: 100%;
+    gap: 20px;
+}
+
+/* Media queries for responsive design */
+@media screen and (max-width: 1200px) {
+    .Chart_id .section_2 {
+        gap: 15px;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .Chart_id {
+        gap: 40px;
+    }
+    
+    .Chart_id .section_1 {
+        margin-top: 0;
+    }
+    
+    .Chart_id .section_2 {
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .Chart_id {
+        gap: 30px;
+        padding: 8px;
+    }
+    
+    .Chart_id .section_1,
+    .Chart_id .section_2 {
+        padding: 10px 0;
+    }
+    
+    .Chart_id .section_2 {
+        gap: 30px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .Chart_id {
+        padding: 5px;
+        gap: 25px;
+    }
+    
+    .Chart_id .section_1,
+    .Chart_id .section_2 {
+        padding: 5px 0;
+    }
+    
+    .Chart_id .section_2 {
+        gap: 25px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .Chart_id {
+        padding: 3px;
+        gap: 20px;
+    }
+    
+    .Chart_id .section_1,
+    .Chart_id .section_2 {
+        padding: 3px 0;
+    }
+    
+    .Chart_id .section_2 {
+        gap: 20px;
+    }
 }

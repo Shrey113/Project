@@ -1,4 +1,4 @@
-import React, {  useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./ProfitExpensesChart.css";
 import {
   BarChart,
@@ -27,8 +27,19 @@ const data = [
 
 const ProfitExpensesChart = () => {
   // const [status_counts, set_status_counts] = useState({});
-
-
+  const [chartWidth, setChartWidth] = useState(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setChartWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchStatusCounts = async () => {
@@ -41,9 +52,6 @@ const ProfitExpensesChart = () => {
             }
 
             const data = await response.json();
-
-    
-            
 
             // Transform the data to match the desired structure
             const transformedData = {
@@ -64,7 +72,53 @@ const ProfitExpensesChart = () => {
     fetchStatusCounts();
 }, []);
 
-
+  // Function to determine if we should switch to column layout based on viewport width
+  const isColumnLayout = () => {
+    return chartWidth <= 992;
+  };
+  
+  // Get bar category gap based on screen width
+  const getBarCategoryGap = () => {
+    if (chartWidth <= 480) return "8%";
+    if (chartWidth <= 576) return "10%";
+    if (chartWidth <= 768) return "15%";
+    return "12%";
+  };
+  
+  // Get chart height based on screen width
+  const getChartHeight = () => {
+    if (chartWidth <= 480) return 180;
+    if (chartWidth <= 576) return 200;
+    if (chartWidth <= 768) return 250;
+    return 300;
+  };
+  
+  // Get font size based on screen width
+  const getFontSize = () => {
+    if (chartWidth <= 480) return 9;
+    if (chartWidth <= 576) return 10;
+    if (chartWidth <= 768) return 11;
+    return 12;
+  };
+  
+  // Get Y-axis width based on screen size
+  const getYAxisWidth = () => {
+    if (chartWidth <= 480) return 25;
+    if (chartWidth <= 576) return 30;
+    if (chartWidth <= 768) return 35;
+    return 40;
+  };
+  
+  // Get chart margins based on screen size
+  const getChartMargin = () => {
+    if (chartWidth <= 480) {
+      return { top: 5, right: 0, left: 0, bottom: 5 };
+    }
+    if (chartWidth <= 576) {
+      return { top: 5, right: 5, left: 0, bottom: 5 };
+    }
+    return { top: 5, right: 5, left: 10, bottom: 5 };
+  };
 
   return (
     <div className="chart-container">
@@ -73,14 +127,21 @@ const ProfitExpensesChart = () => {
         </div>
       
 
-      <div className="chart_con">
+      <div className="chart_con" style={{ flexDirection: isColumnLayout() ? 'column' : 'row' }}>
         <div className="chart">
-          <ResponsiveContainer>
-            <BarChart data={data} barCategoryGap={12}>
+          <ResponsiveContainer width="100%" height={getChartHeight()}>
+            <BarChart 
+              data={data} 
+              barCategoryGap={getBarCategoryGap()}
+              margin={getChartMargin()}
+            >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip cursor={{ fill: "rgba(200, 200, 200, 0.2)" }} />
+              <XAxis dataKey="month" tick={{ fontSize: getFontSize() }} />
+              <YAxis tick={{ fontSize: getFontSize() }} width={getYAxisWidth()} />
+              <Tooltip 
+                cursor={{ fill: "rgba(200, 200, 200, 0.2)" }} 
+                contentStyle={{ fontSize: getFontSize() }}
+              />
               <Bar dataKey="profit" fill="#2f80ed" radius={[10, 10, 0, 0]} />
               <Bar dataKey="expense" fill="#ff7e67" radius={[10, 10, 0, 0]} />
             </BarChart>

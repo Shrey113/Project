@@ -43,6 +43,29 @@
   border-radius: 10px;
 }
 
+.step-card.odd {
+  transform: rotate(-15deg) !important;
+  /* background: rebeccapurple; */
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.step-card.even {
+  transform: rotate(15deg) !important;
+  /* background: red; */
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.step-card.fixed {
+  transform: rotate(0deg) !important;
+  /* background: #3b82f6; */
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.step-card.no-degree {
+  transform: rotate(0deg) !important;
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
 .card-content {
   display: flex;
   flex-direction: column;

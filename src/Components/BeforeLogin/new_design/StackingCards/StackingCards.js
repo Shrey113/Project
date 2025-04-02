@@ -83,7 +83,26 @@ const StackingCards = () => {
           invalidateOnRefresh: true
         },
         ease: "power1.out",
-        scale: () => 1 - (cards.length - index) * 0.025
+      });
+
+      // Add ScrollTrigger for rotation control
+      ScrollTrigger.create({
+        trigger: card,
+        start: "top 40%", // When the top of the card reaches 40% from the top of viewport
+        end: "bottom 40%", // When the bottom of the card passes 40% mark
+        onEnter: () => {
+          // Don't apply to the first card
+          if (index !== 0) {
+            card.classList.add('no-degree');
+          }
+        },
+        onLeaveBack: () => {
+          // Don't apply to the first card
+          if (index !== 0) {
+            card.classList.remove('no-degree');
+          }
+        },
+        invalidateOnRefresh: true
       });
 
       // Pin the card initially
@@ -113,7 +132,7 @@ const StackingCards = () => {
         <div className="stacking-cards-wrapper">
           {stepCards.map((card, idx) => (
             <div
-              className="step-card"
+              className={`step-card ${idx === 0 ? 'fixed' : idx % 2 === 0 ? 'odd' : 'even'}`}
               id={card.id}
               key={idx}
               style={{ top: 40 + idx * 5 }}

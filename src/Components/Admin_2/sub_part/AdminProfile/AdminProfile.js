@@ -1040,8 +1040,8 @@ const logout_as_admin = () => {
       )}
 
       {showChangePassword && (
-        <div className="profile_popup_overlay">
-          <div className="change_password_container">
+        <div className="profile_popup_overlay" onClick={() => setShowChangePassword(false)}>
+          <div className="change_password_container" onClick={e => e.stopPropagation()}>
             <h3>Change Password</h3>
             <form className="password_form" onSubmit={handleSubmitPassword}>
               <div className="password_field">
