@@ -187,12 +187,14 @@
 
 .invoice_and_table_container .invoice_terms {
   width: 56%;
+  /* background-color: #000; */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
   gap: 20px;
   padding: 5px 20px;
+  /* overflow: hidden; */
 }
 
 .invoice_and_table_container .invoice_terms .terms_heading {
@@ -1454,10 +1456,31 @@
 
 @media screen and (max-width: 450px) {
   .invoice_and_table_container .invoice_form .company_logo_invoice .preview_image {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
   }
 
+  .invoice_and_table_container .invoice_form .company_logo_invoice .preview_image .companyLogo span {
+    font-size: 10px;
+  }
+
+  .invoice_and_table_container .invoice_terms textarea {
+    width: 100%;
+  }
+
+  .invoice_and_table_container .invoice-summary .invoice_signature {
+    width: 90px;
+    height: 90px;
+  }
+
+  .invoice_and_table_container .invoice-summary .invoice_signature .signature_file {
+    font-size: 10px;
+  }
+
+  .invoice_and_table_container .invoice-summary .signature_text {
+    width: 22%;
+    font-size: 14px;
+  }
 
 
   .invoice_and_table_container .invoice_form .company_logo_invoice .invoice_id {
@@ -1469,7 +1492,6 @@
     flex-direction: column-reverse;
     height: fit-content;
     gap: 10px;
-    /* padding: 10px; */
   }
 
   .invoice_and_table_container .invoice_form .bill_details .bill_from {
@@ -1511,7 +1533,18 @@
   }
 }
 
+@media screen and (max-width: 380px) {
+  .invoice_and_table_container .invoice-summary .signature_text {
+    width: 28%;
+  }
+}
+
 @media screen and (max-width: 320px) {
+  .invoice_and_table_container .invoice-summary .signature_text {
+    width: 32%;
+    font-size: 13px;
+  }
+
   .invoice_and_table_container h2 {
     position: absolute;
     top: -45%;
