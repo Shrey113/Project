@@ -71,6 +71,7 @@
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   padding: 40px;
+  /* width: 90%; */
   margin-left: var(--main-side-bar-space);
 }
 .main_con_wrap{

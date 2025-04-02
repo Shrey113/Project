@@ -42,7 +42,7 @@
 @media (max-width: 785px) {
     #owner-main-container-EventManagement .received_package_table th:nth-child(2),
     #owner-main-container-EventManagement .received_package_table td:nth-child(2) {
-        max-width: 120px;
+        max-width: 50px;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
@@ -65,11 +65,22 @@
     
     #owner-main-container-EventManagement .received_package_table th:nth-child(7),
     #owner-main-container-EventManagement .received_package_table td:nth-child(7) {
-        width: 5px;
-        max-width: 5px;
-        min-width: 5px;
+        width: 60px;
+        max-width: 60px;
+        min-width: 60px;
+    }
+    #owner-main-container-EventManagement .received_package_table th:nth-child(1),
+    #owner-main-container-EventManagement .received_package_table td:nth-child(1) {
+        /* background: rebeccapurple; */
+        max-width: 15px;
+    }
+    #owner-main-container-EventManagement .received_package_table th:nth-child(6),
+    #owner-main-container-EventManagement .received_package_table td:nth-child(6) {
+        /* background: rebeccapurple; */
+        max-width: 50px;
     }
 }
+
 
 /* ================= Sent Package Table Responsive    ================= */
 /* ================= Sent Package Table Responsive    ================= */
@@ -207,6 +218,7 @@
         justify-content: center;
         flex-direction: column;
         width: 100vw;
+        overflow: visible;
     }
 }
 
@@ -300,7 +312,7 @@
 @media (max-width: 785px) {
     #owner-main-container-EventManagement .received_equipment_table th:nth-child(2),
     #owner-main-container-EventManagement .received_equipment_table td:nth-child(2) {
-        max-width: 120px;
+        max-width: 30px;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
@@ -320,12 +332,25 @@
         font-size: 12px;
         padding: 10px 5px;
     }
+    #owner-main-container-EventManagement .received_equipment_table th:nth-child(1),
+    #owner-main-container-EventManagement .received_equipment_table td:nth-child(1) {
+        width: 30px;
+        max-width: 30px;
+        min-width: 30px;
+    }
     
     #owner-main-container-EventManagement .received_equipment_table th:nth-child(7),
     #owner-main-container-EventManagement .received_equipment_table td:nth-child(7) {
-        width: 5px;
-        max-width: 5px;
-        min-width: 5px;
+        width: 100px;
+        max-width: 100px;
+        min-width: 100px;
+    }
+    #owner-main-container-EventManagement .received_equipment_table th:nth-child(8),
+    #owner-main-container-EventManagement .received_equipment_table td:nth-child(8) {
+        width: 50px;
+        max-width: 50px;
+        min-width: 50px;
+        /* background: #000; */
     }
 }
 
@@ -350,7 +375,7 @@
 @media (max-width: 785px) {
     #owner-main-container-EventManagement .received_service_table th:nth-child(2),
     #owner-main-container-EventManagement .received_service_table td:nth-child(2) {
-        max-width: 120px;
+        max-width: 80px;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
@@ -373,9 +398,9 @@
     
     #owner-main-container-EventManagement .received_service_table th:nth-child(7),
     #owner-main-container-EventManagement .received_service_table td:nth-child(7) {
-        width: 5px;
-        max-width: 5px;
-        min-width: 5px;
+        width: 50px;
+        max-width: 50px;
+        min-width: 50px;
     }
 }
 
