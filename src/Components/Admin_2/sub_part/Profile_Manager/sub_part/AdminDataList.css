@@ -362,9 +362,13 @@
   color: #fff;
 }
 
-.popup-actions button:last-child {
+ .popup-actions button:last-child {
   background-color: #f44336;
   color: #fff;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Media queries for different screen sizes */

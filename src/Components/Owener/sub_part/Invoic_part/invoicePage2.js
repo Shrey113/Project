@@ -48,6 +48,14 @@ function InvoicePage2() {
     const file = event.target.files[0];
     if (!file) return;
 
+    const fileSize = file.size;
+    const maxSize = 4 * 1024 * 1024; 
+    
+    if (fileSize > maxSize) {
+      showWarningToast({ message: "Signature image size should be less than 4MB" });
+      return;
+    }
+
     const reader = new FileReader();
 
     reader.onload = async function () {
@@ -1038,6 +1046,15 @@ function InvoicePage2() {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+  
+      const fileSize = file.size;
+      const maxSize = 4 * 1024 * 1024; 
+      
+      if (fileSize > maxSize) {
+        showWarningToast({ message: "Company logo image size should be less than 4MB" });
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onloadend = async () => {
         setLogoPreview(reader.result);

@@ -286,7 +286,7 @@ function Search_photographer({ searchTerm, setSearchTerm }) {
   }, [user.user_email]);
 
   const handleLocationSelect = (value) => {
-    setSelectedLocation(prev => prev === value ? null : value);
+    setSelectedLocation(prev => prev === value ? 'all' : value);
   };
 
   // Modify the Others button click handler
