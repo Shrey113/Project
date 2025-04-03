@@ -31,18 +31,19 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 5px 20px;
     background: #fff;
     height: 10vh;
 }
 
 .logo {
-    height: 100%;
     width: 150px;
-    border-radius: 50%;
     object-fit: cover;
-    opacity: 0;
-    transform: translateX(-10px);
+}
+
+.logo_for_mobile {
+    width: 40px;
+    object-fit: cover;
 }
 
 /* Regular Navbar Links */
@@ -88,7 +89,7 @@ main {
     font-size: 24px;
     background: none;
     border: none;
-    color: white;
+    color: black;
     cursor: pointer;
     display: none;
 }
@@ -117,7 +118,7 @@ main {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     /* Semi-transparent background */
-    z-index: 999;
+    z-index: 990;
     /* Just below the sidebar */
 }
 
@@ -145,6 +146,7 @@ main {
     gap: 20px;
     align-items: center;
     justify-content: center;
+    color: white;
 }
 
 /* Responsive Behavior */

@@ -15,7 +15,9 @@ import userProfileIcon from "./../../Assets/AfterLogin/userProfileIcon.png";
 import booking from "./../../Assets/AfterLogin/booking.png";
 import heart from "./../../Assets/AfterLogin/heart.png";
 import logout from "./../../Assets/AfterLogin/logout.png";
-import companyLogo from "./../../Assets/AfterLogin/companyLogo.png";
+// import companyLogo from "./../../Assets/AfterLogin/companyLogo.png";
+
+import { logoWithNameBlack } from "./../../redux/AllData";
 import profile from "./../../Assets/BeforeLogin/mainLogo.jpeg";
 import Photo1 from "./../../Assets/Photograhy Section/1st_photo.jpeg";
 
@@ -96,7 +98,7 @@ function HomePage() {
   const [photos] = useState([
     {
       imgUrl: AfterLoginsliderImage3,
-      PhotographerUrl: companyLogo,
+      PhotographerUrl: profile,
       PhotographerName: "Praharsh Patni",
       Speciality: "Natural Photographer",
     },
@@ -164,7 +166,7 @@ function HomePage() {
         if (response.ok) {
           if (result.message === "Token is valid") {
             if (result.data.user_name && result.data.user_email) {
-              
+
             }
           }
         } else {
@@ -241,13 +243,13 @@ function HomePage() {
       {navigation === "HomePage" && (
         <div className="Client_home_page">
           <nav>
-            <img src={companyLogo} className="logo" alt="" />
+            <img src={logoWithNameBlack} className="logo" alt="" />
 
             <ul>
               <li className="dropdown" onClick={toggleDropdown}>
                 <p style={{ cursor: "pointer" }}>Find Artist</p>{" "}
                 {showDropdown && (
-                  <div className="dropdown-menu" ref={dropdownRef}>
+                  <div className="dropdown-menu" ref={dropdownRef} onClick={(e) => e.stopPropagation()}>
                     <div className="categories">
                       <h1>Categories</h1>
                       {categories.map((title, index) => (

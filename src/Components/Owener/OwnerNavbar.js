@@ -11,6 +11,7 @@ import { PiUserCheckFill } from "react-icons/pi";
 import { GrServices } from "react-icons/gr";
 import { BiSearch } from "react-icons/bi";
 import no_notification from "./img/no_notification.png"
+import { logoBlue } from './../../redux/AllData';
 // import { Bell } from "lucide-react";
 
 import { IoArrowBack } from "react-icons/io5"; // Import back icon
@@ -75,10 +76,10 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   useEffect(() => {
     function handleClickOutside(event) {
       const searchBar = document.querySelector('.search_bar');
-      if (window.innerWidth <= 650 && 
-          searchBar && 
-          !searchBar.contains(event.target) && 
-          isSearchVisible) {
+      if (window.innerWidth <= 650 &&
+        searchBar &&
+        !searchBar.contains(event.target) &&
+        isSearchVisible) {
         setIsSearchVisible(false);
       }
     }
@@ -158,13 +159,13 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     const { pathname } = location;
     const isMobile = window.innerWidth < 800; // Check if it's mobile view
 
-    if (pathname === "/" || pathname === "/Owner") {
-      return "Dashboard";
+    if (pathname === "/" || pathname === "/owner") {
+      return "";
     }
 
     const pathSegments = pathname.split("/").filter(Boolean);
     const pathMap = {
-      Owner: "Dashboard",
+      // Owner: "Dashboard",
       Event: "Event Management",
       Team: "Team Management",
       Invoice: "Invoice Management",
@@ -188,7 +189,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     }
 
     if (pathSegments.length === 1 && pathSegments[0] === "Owner") {
-      return "Dashboard";
+      return "";
     }
 
     if (pathSegments[0] === "Owner") {
@@ -549,22 +550,27 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       <div id="constant_navbar" className="constant_navbar">
         <div className="navbar_section_name" style={{ cursor: "pointer" }}>
           {isMobile && (
-            <div className="toggle_button_con"
-              id="toggle_button_con_home_page"
-              onClick={() => {
-                set_is_sidebar_open(!isSidebarOpen);
-              }}
-            >
-              <img src={burger_menu} alt="Menu" />
-            </div>
+            <>
+
+              <div className="toggle_button_con"
+                id="toggle_button_con_home_page"
+                onClick={() => {
+                  set_is_sidebar_open(!isSidebarOpen);
+                }}
+              >
+                <img src={burger_menu} alt="Menu" />
+              </div><div className="title_bar_img">
+                <img src={logoBlue} alt="" style={{ width: "40px", height: "40px" }} />
+              </div>
+            </>
           )}
           {getNavbarName()}
         </div>
         <div className="navbar_profile">
           {setSearchTerm && (
             <div className={`search_bar ${isSearchVisible ? 'expanded' : ''}`}>
-              <BiSearch 
-                className="search_icon" 
+              <BiSearch
+                className="search_icon"
                 onClick={handleSearchIconClick}
               />
               <input

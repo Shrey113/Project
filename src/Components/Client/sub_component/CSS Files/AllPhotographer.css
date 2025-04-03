@@ -7,6 +7,7 @@
   justify-content: space-evenly;
   flex-direction: column;
 }
+
 .all_photographer_main .heading_and_show_all {
   padding-left: 20px;
   padding-right: 50px;
@@ -16,10 +17,12 @@
   justify-content: center;
   position: relative;
 }
+
 .all_photographer_main .heading_and_show_all h1 {
   text-align: center;
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }
+
 .all_photographer_main .heading_and_show_all button {
   position: absolute;
   right: 0;
@@ -28,23 +31,21 @@
 .all_photographer_main .photographer_wrapper {
   height: 320px;
   width: 100%;
-  /* background-color: rgb(237, 146, 146); */
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 20px;
   padding: 10px 20px;
 }
+
 .all_photographer_main .photographer_wrapper .photographer_image_with_details {
   height: 100%;
   flex: 0.6;
   /* background-color: antiquewhite; */
   position: relative;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_image_with_details
-  .ratings {
+
+.all_photographer_main .photographer_wrapper .photographer_image_with_details .ratings {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -55,11 +56,8 @@
   align-items: center;
   justify-content: center;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_image_with_details
-  .ratings
-  .star {
+
+.all_photographer_main .photographer_wrapper .photographer_image_with_details .ratings .star {
   color: gold;
   font-size: 18px;
   width: 22px;
@@ -67,20 +65,14 @@
   line-height: 20px;
   text-align: center;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_image_with_details
-  .ratings
-  .rating_value {
+
+.all_photographer_main .photographer_wrapper .photographer_image_with_details .ratings .rating_value {
   font-size: 12px;
   font-weight: 600;
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }
 
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_image_with_details
-  .specialization_of_photographer {
+.all_photographer_main .photographer_wrapper .photographer_image_with_details .specialization_of_photographer {
   position: absolute;
   top: 10%;
   left: 50%;
@@ -92,10 +84,8 @@
   font-family: "Courier New", Courier, monospace;
   text-wrap: nowrap;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_image_with_details
-  .main_image_of_Photographer {
+
+.all_photographer_main .photographer_wrapper .photographer_image_with_details .main_image_of_Photographer {
   position: absolute;
   bottom: 0%;
   left: 50%;
@@ -106,18 +96,13 @@
   align-items: center;
   justify-content: center;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_image_with_details
-  .main_image_of_Photographer
-  img {
+
+.all_photographer_main .photographer_wrapper .photographer_image_with_details .main_image_of_Photographer img {
   height: 100%;
   object-fit: cover;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_image_with_details
-  .name_and_location {
+
+.all_photographer_main .photographer_wrapper .photographer_image_with_details .name_and_location {
   position: absolute;
   bottom: 3px;
   right: 15px;
@@ -132,22 +117,17 @@
   justify-content: center;
   line-height: 1.3;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_image_with_details
-  .name_and_location
-  h1 {
+
+.all_photographer_main .photographer_wrapper .photographer_image_with_details .name_and_location h1 {
   font-size: 18px;
   font-family: "Courier New", Courier, monospace;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_image_with_details
-  .name_and_location
-  p {
+
+.all_photographer_main .photographer_wrapper .photographer_image_with_details .name_and_location p {
   font-size: 13px;
   font-family: "Courier New", Courier, monospace;
 }
+
 .all_photographer_main .photographer_wrapper .photographer_about_details {
   height: 100%;
   flex: 1;
@@ -159,39 +139,30 @@
   padding: 0px 20px;
   gap: 20px;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_about_details
-  .price_info {
+
+.all_photographer_main .photographer_wrapper .photographer_about_details .price_info {
   height: fit-content;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_about_details
-  .about_info {
+
+.all_photographer_main .photographer_wrapper .photographer_about_details .about_info {
   height: fit-content;
   width: 540px;
 }
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_about_details
-  .price_info
-  h3,
-.all_photographer_main
-  .photographer_wrapper
-  .photographer_about_details
-  .about_info
-  h3 {
+
+.all_photographer_main .photographer_wrapper .photographer_about_details .price_info h3,
+.all_photographer_main .photographer_wrapper .photographer_about_details .about_info h3 {
   margin-bottom: 8px;
   font-size: 16px;
   color: #333;
 }
+
 .price_info p,
 .about_info p {
   font-size: 10px;
   color: #555;
   margin-bottom: 5px;
 }
+
 .call_to_action_photographer {
   padding: 8px 20px;
   background-color: #ff5a5f;
@@ -201,6 +172,7 @@
   border-radius: 5px;
   cursor: pointer;
 }
+
 .call_to_action_photographer:hover {
   background-color: #e0494f;
 }

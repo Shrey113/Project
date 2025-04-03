@@ -90,7 +90,7 @@ const RequestDetailPopup = ({
         {/* <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr> */}
         <tr><td><strong>Package Name:</strong></td><td>{requestData.package_name}</td></tr>
         <tr><td><strong>Service:</strong></td><td>{requestData.service}</td></tr>
-        <tr><td><strong>Description:</strong></td><td>{requestData.description}</td></tr>
+        <tr><td><strong>Requirement:</strong></td><td>{requestData.requirements}</td></tr>
         <tr><td><strong>Total:</strong></td><td>{requestData.total_amount || "N/A"}</td></tr>
         <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
         <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>
@@ -123,7 +123,7 @@ const RequestDetailPopup = ({
         <tr><td><strong>Company:</strong></td><td>{requestData.equipment_company}</td></tr>
         <tr><td><strong>Type:</strong></td><td>{requestData.equipment_type}</td></tr>
         <tr><td><strong>Days Required:</strong></td><td>{requestData.days_required}</td></tr>
-        <tr><td><strong>Description:</strong></td><td>{requestData.equipment_description}</td></tr>
+        <tr><td><strong>Requirement:</strong></td><td>{requestData.requirements}</td></tr>
         <tr><td><strong>Price:</strong></td><td>{requestData.equipment_price_per_day || "N/A"}</td></tr>
         <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
         <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>
@@ -139,7 +139,7 @@ const RequestDetailPopup = ({
       <tbody>
         {/* <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr> */}
         <tr><td><strong>Service Name:</strong></td><td>{requestData.service_name}</td></tr>
-        <tr><td><strong>Description:</strong></td><td>{requestData.service_description}</td></tr>
+        <tr><td><strong>Requirement:</strong></td><td>{requestData.requirements}</td></tr>
         <tr><td><strong>Price:</strong></td><td>{requestData.service_price_per_day || "N/A"}</td></tr>
         <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
         <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>

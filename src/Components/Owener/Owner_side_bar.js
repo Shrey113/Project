@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
+import { logoBlue, logoWithNameBlack, logoWithNameBlue } from "./../../redux/AllData.js";
 
 import "./css/Owner_side_bar.css";
 
-import app_icon from "./img/app-store.png";
+// import app_icon from "./img/app-store.png";
 
 import {
   ConfirmMessage,
@@ -35,7 +36,7 @@ function OwnerSideBar() {
     onConfirm: () => { },
   });
 
-  const user = useSelector((state) => state.user);
+  // const user = useSelector((state) => state.user);
   const isMobile = useSelector((state) => state.user.isMobile);
   const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
   const activeIndex = useSelector((state) => state.user.activeIndex);
@@ -181,20 +182,26 @@ function OwnerSideBar() {
 
         <div className="side_bar_title">
           {isMobile ? (
-            <div
-              className={`close_side_bar_button ${isSidebarOpen ? "active" : ""
-                }`}
-              onClick={() => set_is_sidebar_open(!isSidebarOpen)}
-            >
-              <MenuOpenIcon />
+            <div className="navbar_open">
+              <div className="title_bar_img mobile_view">
+                <img src={logoWithNameBlue} alt="" />
+              </div>
+              <div
+                className={`close_side_bar_button ${isSidebarOpen ? "active" : ""
+                  }`}
+                onClick={() => set_is_sidebar_open(!isSidebarOpen)}
+              >
+                <MenuOpenIcon />
+              </div>
+
             </div>
           ) : (
             <div className="title_bar_img">
-              <img src={app_icon} alt="" />
+              <img src={logoWithNameBlue} alt="" />
             </div>
           )}
 
-          <div className="title_bar_text">Owner {user.user_Status}</div>
+          {/* <div className="title_bar_text">Owner {user.user_Status}</div> */}
         </div>
 
         <div className={`category_con ${isMobile ? "for_mobile" : ""}`}>

@@ -13,7 +13,7 @@ import 'swiper/css';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import { logoBlack, logoBlue, logoWithNameBlack, logoWithNameBlue } from '../../../redux/AllData';
+import { logoBlack, logoWithNameBlack } from '../../../redux/AllData';
 
 import StackingCards from './../new_design/StackingCards/StackingCards'
 // Register ScrollTrigger with GSAP
@@ -21,6 +21,8 @@ gsap.registerPlugin(ScrollTrigger);
 function BeforeLogin2() {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 650);
+
+    const [mobileScreen] = useState(window.innerWidth <= 425);
 
 
     // Handle screen resize
@@ -34,17 +36,9 @@ function BeforeLogin2() {
 
 
     const navLinksRef = useRef([]);
-    const imageRef = useRef(null);
 
 
     useEffect(() => {
-
-        gsap.to(imageRef.current, {
-            x: "0px",
-            opacity: "1",
-            duration: 1,
-            ease: "power2.out"
-        });
 
         gsap.to(navLinksRef.current, {
             y: "0px",
@@ -92,7 +86,7 @@ function BeforeLogin2() {
     return (
         <main>
             <nav className="nav">
-                <img src={logoWithNameBlue} alt="Logo" className="logo" ref={imageRef} />
+                {mobileScreen ? (<img src={logoBlack} className='logo_for_mobile' alt='' />) : (<img src={logoWithNameBlack} alt="Logo" className="logo" />)}
                 {isMobile ? (
                     <button className="menu-toggle" onClick={() => setSidebarOpen(true)}>☰</button>
                 ) : (

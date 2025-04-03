@@ -65,47 +65,14 @@ function EventManagement({ category }) {
 
   const [isMenuOpen, setIsMenuOpen] = useState(null);
   const menuRef = useRef(null);
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-  const [textToCopy, setTextToCopy] = useState('');
-  // const menuRef = useRef(null);
-
-  const handleRightClick = (e, value) => {
-    e.preventDefault();
-    setTextToCopy(value);
-    setMenuPosition({ x: e.clientX, y: e.clientY });
-    setMenuVisible(true);
-  };
-
-  // Function to copy text to clipboard
-  const handleCopy = () => {
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      setMenuVisible(false);
-    });
-  };
-
-  const handleClickOutside = () => {
-    setMenuVisible(false);
-  };
-
-  useEffect(() => {
-    document.addEventListener('click', handleClickOutside);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, []);
-
-
 
   const TRow = ({ label, value }) => {
-    const isDescription = label.toLowerCase() === 'description';
     return (
       <tr>
         <td>
           <strong>{label}</strong>
         </td>
         <td
-          onContextMenu={(e) => handleRightClick(e, value)} // Right-click on the field to show custom menu
           style={{
             maxWidth: '200px',
             whiteSpace: 'nowrap',
@@ -126,36 +93,6 @@ function EventManagement({ category }) {
             {value}
           </span>
         </td>
-
-        {/* Custom context menu, only visible for description */}
-        {menuVisible && isDescription && (
-          <div
-            ref={menuRef} // Reference for the custom menu
-            style={{
-              position: 'absolute',
-              top: `${menuPosition.y}px`,
-              left: `${menuPosition.x}px`,
-              backgroundColor: 'white',
-              border: '1px solid #ccc',
-              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-              zIndex: 1000,
-              padding: '5px 10px',
-            }}
-          >
-            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-              <li
-                style={{
-                  padding: '8px 10px',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid #ddd',
-                }}
-                onClick={handleCopy}
-              >
-                Copy
-              </li>
-            </ul>
-          </div>
-        )}
       </tr>
     );
   };
@@ -426,8 +363,12 @@ function EventManagement({ category }) {
             <div className="details-modal-overlay" onClick={handleClose}>
               <div className="details-modal" onClick={(e) => e.stopPropagation()}>
 
-                <h3 className="modal-header">Request Details</h3>
-
+                <div className="modal-header-container">
+                  <h3 className="modal-header">Request Details</h3>
+                  <span className={`status ${selected_sent_item?.event_status?.toLowerCase()}`}>
+                    {selected_sent_item?.event_status || "Pending"}
+                  </span>
+                </div>
                 <div className="modal-content-container">
                   {/* Left Side: Main Request Details */}
                   <div className="modal-left">
@@ -450,8 +391,8 @@ function EventManagement({ category }) {
                               value={selected_sent_item.service}
                             />
                             <TRow
-                              label="Description"
-                              value={selected_sent_item.description}
+                              label="Requirement"
+                              value={selected_sent_item.requirements}
                             />
                             <TRow
                               label="Price"
@@ -474,9 +415,13 @@ function EventManagement({ category }) {
                               value={selected_sent_item.equipment_type}
                             />
                             <TRow
-                              label="Description"
-                              value={selected_sent_item.equipment_description}
+                              label="Requirement"
+                              value={selected_sent_item.requirements}
                             />
+                            {/* <TRow
+                              label="Description"
+                              value={selected_sent_item.description}
+                            /> */}
                             <TRow
                               label="Price"
                               value={`₹${selected_sent_item.equipment_price_per_day}`}
@@ -499,6 +444,10 @@ function EventManagement({ category }) {
                             <TRow
                               label="Price"
                               value={`₹${selected_sent_item.total_amount}`}
+                            />
+                            <TRow
+                              label="Requirement"
+                              value={selected_sent_item.requirements}
                             />
                           </>
                         ) : null}
@@ -526,7 +475,7 @@ function EventManagement({ category }) {
                               label="Location"
                               value={selected_sent_item.location}
                             />
-                            <TRow
+                            {/* <TRow
                               label="Status"
                               value={
                                 <span
@@ -535,7 +484,7 @@ function EventManagement({ category }) {
                                   {selected_sent_item.event_status}
                                 </span>
                               }
-                            />
+                            /> */}
 
                             {selected_sent_item.event_status === "Accepted" &&
                               selected_sent_item.assigned_team_member?.length >
@@ -546,7 +495,7 @@ function EventManagement({ category }) {
                                     <ul>
                                       {selected_sent_item.assigned_team_member.map(
                                         (member, index) => (
-                                          <div key={index}>✅ {member}</div>
+                                          <div key={index}>{member}</div>
                                         )
                                       )}
                                     </ul>
@@ -562,14 +511,14 @@ function EventManagement({ category }) {
                                 />
                               )}
 
-                            {selected_sent_item.event_status === "Pending" && (
+                            {/* {selected_sent_item.event_status === "Pending" && (
                               <tr>
                                 <td colSpan="2">
                                   Your request is in pending mode. Please wait
                                   for approval.
                                 </td>
                               </tr>
-                            )}
+                            )} */}
                           </tbody>
                         </table>
                       </div>
@@ -598,7 +547,7 @@ function EventManagement({ category }) {
                           <th style={{ width: "10px" }}>NO.</th>
                           <th>Package Name</th>
                           <th>Service</th>
-                          <th>Description</th>
+                          <th>Requirements</th>
                           <th>Price</th>
                           <th>Receiver</th>
                           <th>Status</th>
@@ -610,7 +559,7 @@ function EventManagement({ category }) {
                             <td>{index + 1}</td>
                             <td className="package_name">{item.package_name}</td>
                             <td>{item.service}</td>
-                            <td className="description">{item.description}</td>
+                            <td className="description">{item.requirements}</td>
                             <td>₹{item.price}</td>
                             <td>{item.receiver_email}</td>
                             <td className={`status ${item.event_status?.toLowerCase()}`}>
