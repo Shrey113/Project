@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { logoBlue, logoWithNameBlack, logoWithNameBlue } from "./../../redux/AllData.js";
+import {logoWithNameBlue } from "./../../redux/AllData.js";
 
 import "./css/Owner_side_bar.css";
 
