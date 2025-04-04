@@ -590,6 +590,8 @@ const TeamOverview = () => {
     
         // Extract assigned members and their event details
         let assignedMembersMap = new Map();
+
+        // console.log("Assigned Members Map:", assignedMembersMap);
         
         // Check if statusData has the expected structure
         if (statusData && Array.isArray(statusData.assigned_team_member) && Array.isArray(statusData.event_details)) {

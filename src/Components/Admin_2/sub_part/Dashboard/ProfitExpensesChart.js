@@ -53,7 +53,7 @@ const ProfitExpensesChart = () => {
             <img src={icon_1} alt="Biology Icon" />
             </div>
             <div className="data">
-              <div className="amount">$63,489.50</div>
+              <div className="amount">Rs. 63,489.50</div>
               <div className="info">Earning this year</div>
             </div>
           </div>
@@ -63,7 +63,7 @@ const ProfitExpensesChart = () => {
               <img src={icon_2} alt="" />
             </div>
             <div className="data">
-              <div className="amount">$63,489.50</div>
+              <div className="amount">Rs. 63,489.50</div>
               <div className="info">Earning this year</div>
             </div>
           </div>
@@ -73,7 +73,7 @@ const ProfitExpensesChart = () => {
               <img src={icon_3} alt="" />
             </div>
             <div className="data">
-              <div className="amount">$63,489.50</div>
+              <div className="amount">Rs. 63,489.50</div>
               <div className="info">Earning this year</div>
             </div>
           </div>

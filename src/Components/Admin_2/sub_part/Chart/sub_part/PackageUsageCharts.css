@@ -13,7 +13,7 @@
     background: white;
     transition: box-shadow 0.3s ease;
     margin-bottom: 80px;
-    padding-top: var(--admin_title_padding_top);
+    /* padding-top: var(--admin_title_padding_top); */
     box-shadow: var(--admin_box_shadow);
   }
 
@@ -125,7 +125,7 @@
 @media screen and (max-width: 992px) {
   .charts-container_PackageUsage {
     padding: 15px;
-    padding-top: var(--admin_title_padding_top);
+    /* padding-top: var(--admin_title_padding_top); */
     margin-bottom: 60px;
   }
   

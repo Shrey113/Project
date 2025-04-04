@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import './AddBusinessServices.css';
-import { Server_url ,ConfirmMessage} from '../../../../redux/AllData';
+import { Server_url, ConfirmMessage } from '../../../../redux/AllData';
 import { useSelector } from 'react-redux';
-import { MdDeleteOutline } from 'react-icons/md';
+import { MdDeleteOutline, MdAdd, MdSave, MdClose, MdPhotoCamera, MdEdit } from 'react-icons/md';
+import { FaRupeeSign, FaCameraRetro, FaRegClock } from 'react-icons/fa';
+import { BiCameraMovie } from 'react-icons/bi';
+import { BsPersonSquare } from 'react-icons/bs';
 
 function AddBusinessServices() {
-    const user = useSelector(state => state.user);
+  const user = useSelector(state => state.user);
   const [services, setServices] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingService, setEditingService] = useState(null);
   const [formData, setFormData] = useState({
     serviceName: '',
     pricePerDay: '',
@@ -22,23 +26,40 @@ function AddBusinessServices() {
 
   useEffect(() => {
     const fetchServices = async () => {
-        try {
-          const response = await fetch(`${Server_url}/owner/services/${user.user_email}`);
-          if (response.ok) {
-            const data = await response.json();
-            setServices(data);
-          }
-        } catch (error) {
-          console.error('Error fetching services:', error);
+      try {
+        const response = await fetch(`${Server_url}/owner/services/${user.user_email}`);
+        if (response.ok) {
+          const data = await response.json();
+          setServices(data);
         }
-      };
+      } catch (error) {
+        console.error('Error fetching services:', error);
+      }
+    };
     fetchServices();
   }, [user.user_email]);
 
-
-
   const handleAddService = () => {
+    setEditingService(null);
+    setFormData({
+      serviceName: '',
+      pricePerDay: '',
+      description: '',
+      user_email: user.user_email
+    });
     setShowForm(true);
+  };
+
+  const handleEditService = (service) => {
+    setEditingService(service.id);
+    setFormData({
+      serviceName: service.service_name,
+      pricePerDay: service.price_per_day,
+      description: service.description || '',
+      user_email: user.user_email
+    });
+    setShowForm(true);
+    setErrors({});
   };
 
   const photography_services = [
@@ -175,35 +196,77 @@ function AddBusinessServices() {
       return;
     }
 
-    try {
-      const response = await fetch(`${Server_url}/owner/add-service`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          service_name: formData.serviceName,
-          price_per_day: formData.pricePerDay,
-          description: formData.description,
-          user_email: formData.user_email
-        })
-      });
+    if (editingService) {
+      // Update existing service
+      try {
+        const response = await fetch(`${Server_url}/owner/update-service/${editingService}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            service_name: formData.serviceName,
+            price_per_day: formData.pricePerDay,
+            description: formData.description,
+            user_email: formData.user_email
+          })
+        });
 
-      if (response.ok) {
-        const newService = {
-          id: Date.now(), //just for testing add 
-          service_name: formData.serviceName,
-          price_per_day: formData.pricePerDay,
-          description: formData.description,
-          user_email: formData.user_email
-        };
-        setServices(prevServices => [...prevServices, newService]);
-        setFormData({ ...formData, serviceName: '', pricePerDay: '', description: '' });
-        setShowForm(false);
-        setErrors({});
+        if (response.ok) {
+          // Update the service in the state
+          setServices(prevServices => 
+            prevServices.map(service => 
+              service.id === editingService 
+                ? {
+                    ...service,
+                    service_name: formData.serviceName,
+                    price_per_day: formData.pricePerDay,
+                    description: formData.description
+                  } 
+                : service
+            )
+          );
+          setFormData({ ...formData, serviceName: '', pricePerDay: '', description: '' });
+          setShowForm(false);
+          setEditingService(null);
+          setErrors({});
+        }
+      } catch (error) {
+        console.error('Error updating service:', error);
       }
-    } catch (error) {
-      console.error('Error adding service:', error);
+    } else {
+      // Add new service
+      try {
+        const response = await fetch(`${Server_url}/owner/add-service`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            service_name: formData.serviceName,
+            price_per_day: formData.pricePerDay,
+            description: formData.description,
+            user_email: formData.user_email
+          })
+        });
+
+        if (response.ok) {
+          const responseData = await response.json();
+          const newService = {
+            id: responseData.service_id || Date.now(),
+            service_name: formData.serviceName,
+            price_per_day: formData.pricePerDay,
+            description: formData.description,
+            user_email: formData.user_email
+          };
+          setServices(prevServices => [...prevServices, newService]);
+          setFormData({ ...formData, serviceName: '', pricePerDay: '', description: '' });
+          setShowForm(false);
+          setErrors({});
+        }
+      } catch (error) {
+        console.error('Error adding service:', error);
+      }
     }
   };
 
@@ -257,30 +320,59 @@ function AddBusinessServices() {
     setShowConfirm(false);
   };
 
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setFormData({
+      serviceName: '',
+      pricePerDay: '',
+      description: '',
+      user_email: user.user_email
+    });
+    setEditingService(null);
+    setErrors({});
+  };
+
+  // Function to get the appropriate icon based on service name
+  const getServiceIcon = (serviceName) => {
+    const name = serviceName.toLowerCase();
+    if (name.includes('wedding')) {
+      return <BiCameraMovie className="service-icon wedding" />;
+    } else if (name.includes('event') || name.includes('concert') || name.includes('festival')) {
+      return <FaCameraRetro className="service-icon event" />;
+    } else if (name.includes('portrait') || name.includes('headshot')) {
+      return <BsPersonSquare className="service-icon portrait" />;
+    } else {
+      return <MdPhotoCamera className="service-icon" />;
+    }
+  };
+
   return (
     <div className='add-business-services-container'>
       <div className='services-header'>
         <h2>Business Services</h2>
         <button className='add-service-btn' onClick={handleAddService}>
-          Add Service
+          <MdAdd className="btn-icon" /> Add Service
         </button>
       </div>
 
       {showForm && (
         <div className='service-form-container'>
           <form onSubmit={handleSubmit} className='service-form'>
+            <h3 className="form-title">{editingService ? 'Edit Service' : 'Add New Service'}</h3>
             <div className='form-group'>
+              <label htmlFor="serviceName">Service Name</label>
               <div className="suggestion-container">
                 <input
+                  id="serviceName"
                   type='text'
                   name='serviceName'
-                  placeholder='Service Name'
+                  placeholder='e.g. Wedding Photography'
                   value={formData.serviceName}
                   onChange={handleChange}
                   autoComplete='off'
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 />
-                {showSuggestions && (
+                {showSuggestions && !editingService && (
                   <ul className="suggestions-list">
                     {filteredSuggestions.map((suggestion, index) => (
                       <li 
@@ -296,27 +388,38 @@ function AddBusinessServices() {
               {errors.serviceName && <p className='error'>{errors.serviceName}</p>}
             </div>
             <div className='form-group'>
-              <input
-                type='number'
-                name='pricePerDay'
-                placeholder='Price per day Rs.'
-                value={formData.pricePerDay}
-                onChange={handleChange}
-              />
+              <label htmlFor="pricePerDay">Price per day</label>
+              <div className="price-input-container">
+                <span className="price-currency"><FaRupeeSign /></span>
+                <input
+                  id="pricePerDay"
+                  type='number'
+                  name='pricePerDay'
+                  placeholder='Enter price'
+                  value={formData.pricePerDay}
+                  onChange={handleChange}
+                />
+              </div>
               {errors.pricePerDay && <p className='error'>{errors.pricePerDay}</p>}
             </div>
             <div className='form-group'>
+              <label htmlFor="description">Description</label>
               <textarea
+                id="description"
                 name='description'
-                placeholder='Description'
+                placeholder='Brief description of your service'
                 value={formData.description}
                 onChange={handleChange}
               />
               {errors.description && <p className='error'>{errors.description}</p>}
             </div>
             <div className='form-buttons'>
-              <button type='submit' className='save-btn'>Save Service</button>
-              <button type='button' className='cancel-btn' onClick={() => setShowForm(false)}>Cancel</button>
+              <button type='submit' className='save-btn'>
+                <MdSave className="btn-icon" /> {editingService ? 'Update Service' : 'Save Service'}
+              </button>
+              <button type='button' className='cancel-btn' onClick={handleCancelForm}>
+                <MdClose className="btn-icon" /> Cancel
+              </button>
             </div>
           </form>
         </div>
@@ -336,33 +439,55 @@ function AddBusinessServices() {
         {!showForm && services.length === 0 ? (
           <div className='no-services'>
             <div className='no-services-content'>
-              <i className="fas fa-clipboard-list"></i>
+              <div className="empty-state-icon">
+                <MdPhotoCamera />
+              </div>
               <h2>No Services Added Yet</h2>
               <p>Click the "Add Service" button to get started</p>
               <button className='add-service-btn-empty' onClick={handleAddService}>
-                + Add Your First Service
+                <MdAdd className="btn-icon" /> Add Your First Service
               </button>
             </div>
           </div>
         ) : (
           services.map((service, index) => (
             <div key={index} className='service-item'>
-              <div className="service-content">
-                <h3>{service.service_name}</h3>
-                <p>
-                <div class="rupee_symbol"> ₹</div>
-                <div className="service_price">{service.price_per_day || "Not Available"}</div>
-                <span class="per_day">/Day</span>
-                </p>
-                <hr style={{width:"90%"}} />
-                <p>{service.description}</p>
+              <div className="service-actions">
+                <button 
+                  className='edit-service-btn'
+                  onClick={() => handleEditService(service)}
+                  aria-label="Edit service"
+                >
+                  <MdEdit/>
+                </button>
+                <button 
+                  className='remove-service-btn'
+                  onClick={() => handleRemoveService(service.id)}
+                  aria-label="Delete service"
+                >
+                  <MdDeleteOutline/>
+                </button>
               </div>
-              <button 
-                className='remove-service-btn'
-                onClick={() => handleRemoveService(service.id)}
-              >
-                <MdDeleteOutline/>
-              </button>
+              
+              <div className="service-header">
+                {getServiceIcon(service.service_name)}
+                <h3>{service.service_name}</h3>
+              </div>
+              
+              <div className="service-content">
+                <div className="price-container">
+                  <FaRupeeSign className="rupee-icon" />
+                  <span className="service-price">{service.price_per_day || "Not Available"}</span>
+                  <div className="per-day-container">
+                    <FaRegClock className="clock-icon" />
+                    <span className="per-day">/Day</span>
+                  </div>
+                </div>
+                
+                <hr />
+                
+                <p className="service-description">{service.description}</p>
+              </div>
             </div>
           ))
         )}

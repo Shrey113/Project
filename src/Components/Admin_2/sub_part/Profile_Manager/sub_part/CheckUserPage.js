@@ -4,8 +4,16 @@ import back_img from './sub_img/back.png';
 import { Server_url, showRejectToast, showAcceptToast } from '../../../../../redux/AllData';
 import edit_icon from './../../../../Owener/img/pencil.png'
 
+import camera_img from './test_img_equipment/camera.png';
+import drone_img from './test_img_equipment/drone.png';
+import lens_img from './test_img_equipment/lens.png';
+import tripod_img from './test_img_equipment/Tripod.png';
+
+
 function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
   const [selected_user, set_selected_user] = useState({});
+  const [equipment, setEquipment] = useState([]);
+  const [galleryData, setGalleryData] = useState([]);
   const [formData, setFormData] = useState({
     client_id: '',
     user_name: '',
@@ -67,7 +75,56 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
     };
 
     fetchOwnerByEmail();
+    fetchEquipment();
+    fetchGalleryData(email);
   }, [email]);
+
+  const fetchEquipment = async () => {
+    try {
+      const response = await fetch(`${Server_url}/owner/equipment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_email: email }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setEquipment(data);
+      } else if (response.status === 404) {
+        // No equipment found
+        setEquipment([]);
+      } else {
+        throw new Error('Error fetching equipment');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const fetchGalleryData = async (user_email) => {
+    try {
+      const response = await fetch(`${Server_url}/owner_drive/get_portfolio`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: user_email }), // Send email in the body
+      });
+
+      const result = await response.json();
+      console.log(result);
+
+      if (result.success) {
+        setGalleryData(result.files || []);
+      } else {
+        console.error("Failed to fetch gallery data:", result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching gallery data:", error);
+    }
+  };
 
   useEffect(() => {
     if (selected_user && Object.keys(selected_user).length > 0) {
@@ -183,6 +240,16 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const getEquipmentImage = (type) => {
+    if (!type) return null;
+    const lowerType = type.toLowerCase();
+    if (lowerType.includes('camera')) return camera_img;
+    if (lowerType.includes('drone')) return drone_img;
+    if (lowerType.includes('lens')) return lens_img;
+    if (lowerType.includes('tripod')) return tripod_img;
+    return null;
   };
 
   return (
@@ -316,6 +383,66 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
           </div>
         </form>
       </div>
+      </div>
+
+      {/* Equipment Section */}
+      <div className="section equipment-section">
+        <div className="section-header">Equipment</div>
+        <div className="equipment-container">
+          {equipment.length > 0 ? (
+            equipment.map((item) => (
+              <div key={item.equipment_id} className="equipment-card">
+                <div className="equipment-image">
+                  <img 
+                    src={getEquipmentImage(item.equipment_type) || (item.name ? `https://via.placeholder.com/150?text=${item.name[0]}` : 'https://via.placeholder.com/150?text=E')} 
+                    alt={item.name} 
+                  />
+                </div>
+                <div className="equipment-details">
+                  <h3>{item.name}</h3>
+                  <div className="equipment-type-company">
+                    {item.equipment_type} • {item.equipment_company}
+                  </div>
+                  <div className="equipment-price">
+                    Rs.{item.equipment_price_per_day}/day
+                  </div>
+                  <div className="equipment-description">
+                    {item.equipment_description && item.equipment_description.length > 100 
+                      ? `${item.equipment_description.substring(0, 100)}...` 
+                      : item.equipment_description}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="no-equipment">
+              <p>No equipment found for this user.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Portfolio Gallery Section */}
+      <div className="section portfolio-section">
+        <div className="section-header">Portfolio Images</div>
+        <div className="portfolio-container">
+          {galleryData.length > 0 ? (
+            galleryData.map((item) => (
+              <div key={item.photo_id} className="portfolio-item">
+                <div className="portfolio-image">
+                  <img 
+                    src={item.photo} 
+                    alt={item.photo_name || 'Portfolio image'} 
+                  />
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="no-portfolio">
+              <p>No portfolio images found for this user.</p>
+            </div>
+          )}
+        </div>
       </div>
       </div>
 

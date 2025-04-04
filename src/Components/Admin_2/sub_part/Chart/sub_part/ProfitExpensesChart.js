@@ -45,10 +45,10 @@ const ProfitExpensesChart = () => {
     const fetchStatusCounts = async () => {
         try {
 
-            const response = await fetch(`${Server_url}/chart/status-count`); // Replace with your endpoint URL
+            const response = await fetch(`Rs. {Server_url}/chart/status-count`); // Replace with your endpoint URL
 
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                throw new Error(`HTTP error! Status: Rs. {response.status}`);
             }
 
             const data = await response.json();
@@ -155,7 +155,7 @@ const ProfitExpensesChart = () => {
             <img src={icon_1} alt="Biology Icon" />
             </div>
             <div className="data">
-              <div className="amount">$63,489.50</div>
+              <div className="amount">Rs. 63,489.50</div>
               <div className="info">Earning this year</div>
             </div>
           </div>
@@ -165,7 +165,7 @@ const ProfitExpensesChart = () => {
               <img src={icon_2} alt="" />
             </div>
             <div className="data">
-              <div className="amount">$63,489.50</div>
+              <div className="amount">Rs. 63,489.50</div>
               <div className="info">Earning this year</div>
             </div>
           </div>
@@ -175,7 +175,7 @@ const ProfitExpensesChart = () => {
               <img src={icon_3} alt="" />
             </div>
             <div className="data">
-              <div className="amount">$63,489.50</div>
+              <div className="amount">Rs. 63,489.50</div>
               <div className="info">Earning this year</div>
             </div>
           </div>
