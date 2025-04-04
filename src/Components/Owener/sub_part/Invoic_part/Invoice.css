@@ -774,7 +774,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   max-width: 150px;
-  /* Adjust as needed */
+  overflow: hidden;
 }
 
 

@@ -135,7 +135,7 @@ const StackingCards = () => {
               className={`step-card ${idx === 0 ? 'fixed' : idx % 2 === 0 ? 'odd' : 'even'}`}
               id={card.id}
               key={idx}
-              style={{ top: 40 + idx * 5 }}
+              style={{ top: 40 + idx * 5, maxWidth: "400px", maxHeight: "300px" }}
               ref={(el) => {
                 if (el) cardsRef.current[idx] = el;
               }}

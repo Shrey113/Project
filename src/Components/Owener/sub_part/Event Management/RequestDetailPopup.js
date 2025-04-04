@@ -90,24 +90,27 @@ const RequestDetailPopup = ({
         {/* <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr> */}
         <tr><td><strong>Package Name:</strong></td><td>{requestData.package_name}</td></tr>
         <tr><td><strong>Service:</strong></td><td>{requestData.service}</td></tr>
-        <tr><td><strong>Requirement:</strong></td><td>{requestData.requirements}</td></tr>
+        {requestData.event_status !== "Rejected" && (
+          <tr><td><strong>Requirement:</strong></td><td>{requestData.requirements}</td></tr>
+        )}
         <tr><td><strong>Total:</strong></td><td>{requestData.total_amount || "N/A"}</td></tr>
         <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
         <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>
-        <tr>
-          <td><strong>Assigned Team Member:</strong></td>
-          <td>
-            {Array.isArray(requestData.assigned_team_member) ? (
-              requestData.assigned_team_member.map((team_member, index) => (
-                <span key={index}>{team_member}{index !== requestData.assigned_team_member.length - 1 ? ', ' : ''}</span>
-              ))
-            ) : (
-              "Not Assigned"
-            )}
-          </td>
-        </tr>
 
-
+        {requestData.event_status !== "Rejected" && (
+          <tr>
+            <td><strong>Assigned Team Member:</strong></td>
+            <td>
+              {Array.isArray(requestData.assigned_team_member) ? (
+                requestData.assigned_team_member.map((team_member, index) => (
+                  <span key={index}>{team_member}{index !== requestData.assigned_team_member.length - 1 ? ', ' : ''}</span>
+                ))
+              ) : (
+                "Not Assigned"
+              )}
+            </td>
+          </tr>
+        )}
         <tr><td><strong>Start Date:</strong></td><td>{formatDate(requestData.start_date)}</td></tr>
         <tr><td><strong>End Date:</strong></td><td>{formatDate(requestData.end_date)}</td></tr>
         {requestData.reason && <tr><td><strong>Rejection Reason:</strong></td><td>{requestData.reason}</td></tr>}

@@ -222,7 +222,7 @@ function BeforeLogin2() {
 
 
             <div className="steps-container" id="fourth_container">
-                <img src={gsapBackground} style={{ height: "100%", width: "100%", position: "absolute", objectFit: "cover", objectPosition: "center", opacity: 0.7 }} alt="" />
+                {/* <img src={gsapBackground} style={{ height: "100%", width: "100%", position: "absolute", objectFit: "cover", objectPosition: "center", opacity: 0.7 }} alt="" /> */}
                 <StackingCards />
             </div>
 
