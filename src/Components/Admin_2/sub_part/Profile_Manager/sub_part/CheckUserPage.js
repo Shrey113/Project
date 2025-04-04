@@ -75,11 +75,11 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
     };
 
     fetchOwnerByEmail();
-    fetchEquipment();
+    fetchEquipment(email);
     fetchGalleryData(email);
   }, [email]);
 
-  const fetchEquipment = async () => {
+  const fetchEquipment = async (email) => {
     try {
       const response = await fetch(`${Server_url}/owner/equipment`, {
         method: 'POST',

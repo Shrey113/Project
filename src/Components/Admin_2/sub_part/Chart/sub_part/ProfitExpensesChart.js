@@ -15,7 +15,7 @@ import icon_1 from './../sub_img/icon-biology.png'
 import icon_2 from './../sub_img/icon-erase.png'
 import icon_3 from './../sub_img/icon-globe.png'
  
-import { Server_url } from "../../../../../redux/AllData";
+// import { Server_url } from "../../../../../redux/AllData";
 const data = [
   { month: "Aug", profit: 60, expense: 70 },
   { month: "Sep", profit: 40, expense: 70 },

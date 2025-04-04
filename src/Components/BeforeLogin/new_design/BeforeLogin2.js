@@ -5,7 +5,7 @@ import './BeforeLogin2.css';
 import { FaHome, FaInfoCircle, FaConciergeBell, FaRegHandshake, FaUserPlus } from 'react-icons/fa';
 import first_section_image from './image_folder/first_section_image.png';
 import third_section_image from './image_folder/third_section_image.png';
-import gsapBackground from './image_folder/gsapBackground.jpg';
+// import gsapBackground from './image_folder/gsapBackground.jpg';
 import fifth_section_image from './image_folder/fifth_section_image.png';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
