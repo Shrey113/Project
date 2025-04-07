@@ -781,6 +781,7 @@
 
 .invoice_and_table_container .invoice_list {
   width: 100%;
+  min-height: 80vh;
   padding: 17px 20px;
   overflow: hidden;
   border-radius: 10px;

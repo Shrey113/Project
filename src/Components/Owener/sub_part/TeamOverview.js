@@ -39,7 +39,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
     const errors = {};
     if (!formData.member_name) errors.member_name = "Name is required";
     if (!formData.member_role) errors.member_role = "Role is required";
- 
+
 
     setFormErrors(errors);
 
@@ -380,7 +380,7 @@ const DetailPopup = ({ member, onClose }) => {
           </div>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
-        
+
         <div className="detail-body">
           <div className="detail-section">
             <h3>Professional Information</h3>
@@ -431,7 +431,7 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
       <div className="status-indicator">
         <span className={member.member_status === "Active" ? "available" : "assigned"}></span>
         <div className="more-options-container">
-          <button 
+          <button
             className="more-options"
             onClick={() => {
               setActiveDropdown(isDropdownActive ? null : member.member_id);
@@ -443,7 +443,7 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
           </button>
           {isDropdownActive && (
             <div className="dropdown-menu">
-              <button 
+              <button
                 className="dropdown-item edit-btn"
                 onClick={() => {
                   onEdit(member);
@@ -454,11 +454,11 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
                 <span>Edit</span>
               </button>
               <div className="dropdown-divider"></div>
-              <button 
+              <button
                 className="dropdown-item delete-btn"
                 onClick={() => {
                   let is_confrom = window.confirm("You wont to remove member")
-                  if (is_confrom){
+                  if (is_confrom) {
                     onRemove(member.member_id, member.owner_email);
                   }
                   setActiveDropdown(null);
@@ -479,21 +479,21 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
         <p className="role">{member.member_role}</p>
       </div>
       <div className="divider"></div>
-      <button 
+      <button
         className={`details-btn ${member.member_status === "Available" ? "available" : "assigned"}`}
         onClick={() => {
-          if(member.member_status === "Available"){
+          if (member.member_status === "Available") {
             setShowDetailPopup(true);
           }
-          
+
         }}
       >
         Details
       </button>
-      
+
       {showDetailPopup && (
-        <DetailPopup 
-          member={member} 
+        <DetailPopup
+          member={member}
           onClose={() => setShowDetailPopup(false)}
         />
       )}
@@ -504,7 +504,74 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
 const TeamOverview = () => {
   const user = useSelector((state) => state.user);
   const [teamData, setTeamData] = useState([]);
-  
+
+  // const fetchTeamMembers = async () => {
+  //   try {
+  //     // Fetch assigned members
+  //     const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         user_email: user.user_email,
+  //       }),
+  //     });
+
+  //     const statusData = await statusResponse.json();
+  //     console.log("Fetched Status Data:", statusData);
+
+  //     // Extract assigned members and their event details
+  //     let assignedMembersMap = new Map();
+
+  //     // Check if statusData has the expected structure
+  //     if (statusData && Array.isArray(statusData.assigned_team_member) && Array.isArray(statusData.event_details)) {
+  //       statusData.assigned_team_member.forEach((member, index) => {
+  //         if (member) {
+  //           assignedMembersMap.set(member, {
+  //             event_request_type: statusData.event_details[index]?.event_request_type || 'Unknown',
+  //             event_detail: statusData.event_details[index]?.event_detail || 'Unknown'
+  //           });
+  //         }
+  //       });
+  //     }
+
+  //     // Rest of the fetch logic remains the same
+  //     const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         user_email: user.user_email,
+  //       }),
+  //     });
+
+  //     const membersData = await membersResponse.json();
+  //     console.log("Fetched Members Data:", membersData);
+
+  //     // Update team members' status based on assignment
+  //     const updatedTeamData = membersData.map(member => {
+
+  //       const assignment = assignedMembersMap.get(member.member_name);
+
+  //       return {
+  //         ...member,
+  //         member_status: assignment ? "Available" : "Active",
+  //         member_event_assignment: assignment
+  //           ? `${assignment.event_request_type} - ${assignment.event_detail}`
+  //           : "Not Assigned",
+  //       };
+  //     });
+
+  //     console.log("Updated Team Data:", updatedTeamData);
+  //     setTeamData(updatedTeamData);
+
+  //   } catch (error) {
+  //     console.error("Error fetching team members:", error);
+  //   }
+  // };
+
   const fetchTeamMembers = async () => {
     try {
       // Fetch assigned members
@@ -517,25 +584,41 @@ const TeamOverview = () => {
           user_email: user.user_email,
         }),
       });
-      
+
       const statusData = await statusResponse.json();
       console.log("Fetched Status Data:", statusData);
-  
+
       // Extract assigned members and their event details
       let assignedMembersMap = new Map();
-      
+      if (statusData && Array.isArray(statusData[0].assigned_team_member) && typeof statusData[0].event_detail === "string") {
+        console.log("statusData available");
+      } else {
+        console.log("statusData not available");
+      }
+
+      // console.log("Assigned Members Map:", assignedMembersMap);
+
       // Check if statusData has the expected structure
-      if (statusData && Array.isArray(statusData.assigned_team_member) && Array.isArray(statusData.event_details)) {
-        statusData.assigned_team_member.forEach((member, index) => {
-          if (member) {
-            assignedMembersMap.set(member, {
-              event_request_type: statusData.event_details[index]?.event_request_type || 'Unknown',
-              event_detail: statusData.event_details[index]?.event_detail || 'Unknown'
+      console.log("beofer setting Assigned Members Map:", assignedMembersMap);
+      if (statusData && Array.isArray(statusData[0].assigned_team_member) && statusData[0].event_detail) {
+        console.log("Assigned Members Map started:");
+        statusData.forEach((item) => {
+          if (Array.isArray(item.assigned_team_member)) {
+            item.assigned_team_member.forEach((member) => {
+              if (member) {
+                assignedMembersMap.set(member, {
+                  event_request_type: item.event_request_type || 'Unknown',
+                  event_detail: item.event_detail || 'Unknown'
+                });
+              }
             });
+          } else {
+            console.warn("Skipping item with invalid assigned_team_member:", item);
           }
         });
       }
-  
+      // console.log("after setting Assigned Members Map:", assignedMembersMap);
+
       // Rest of the fetch logic remains the same
       const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
         method: "POST",
@@ -546,31 +629,32 @@ const TeamOverview = () => {
           user_email: user.user_email,
         }),
       });
-      
+
       const membersData = await membersResponse.json();
-      console.log("Fetched Members Data:", membersData);
-  
+      // console.log("Fetched Members Data:", membersData);
+
       // Update team members' status based on assignment
       const updatedTeamData = membersData.map(member => {
+        // console.log("Member:", assignedMembersMap);
         const assignment = assignedMembersMap.get(member.member_name);
-        
+
         return {
           ...member,
           member_status: assignment ? "Available" : "Active",
-          member_event_assignment: assignment 
+          member_event_assignment: assignment
             ? `${assignment.event_request_type} - ${assignment.event_detail}`
             : "Not Assigned",
         };
       });
-  
-      console.log("Updated Team Data:", updatedTeamData);
+
+      // console.log("Updated Team Data:", updatedTeamData);
       setTeamData(updatedTeamData);
-  
+
     } catch (error) {
       console.error("Error fetching team members:", error);
     }
   };
-  
+
   useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
@@ -584,27 +668,42 @@ const TeamOverview = () => {
             user_email: user.user_email,
           }),
         });
-        
+
         const statusData = await statusResponse.json();
         console.log("Fetched Status Data:", statusData);
-    
+
         // Extract assigned members and their event details
         let assignedMembersMap = new Map();
+        if (statusData && Array.isArray(statusData[0].assigned_team_member) && typeof statusData[0].event_detail === "string") {
+          console.log("statusData available");
+        } else {
+          console.log("statusData not available");
+        }
 
         // console.log("Assigned Members Map:", assignedMembersMap);
-        
+
         // Check if statusData has the expected structure
-        if (statusData && Array.isArray(statusData.assigned_team_member) && Array.isArray(statusData.event_details)) {
-          statusData.assigned_team_member.forEach((member, index) => {
-            if (member) {
-              assignedMembersMap.set(member, {
-                event_request_type: statusData.event_details[index]?.event_request_type || 'Unknown',
-                event_detail: statusData.event_details[index]?.event_detail || 'Unknown'
+        console.log("beofer setting Assigned Members Map:", assignedMembersMap);
+        if (statusData && Array.isArray(statusData[0].assigned_team_member) && statusData[0].event_detail) {
+          console.log("Assigned Members Map started:");
+          statusData.forEach((item) => {
+            if (Array.isArray(item.assigned_team_member)) {
+              item.assigned_team_member.forEach((member) => {
+                if (member) {
+                  assignedMembersMap.set(member, {
+                    event_request_type: item.event_request_type || 'Unknown',
+                    event_detail: item.event_detail || 'Unknown'
+                  });
+                }
+                console.log("Member:", assignedMembersMap);
               });
+            } else {
+              console.warn("Skipping item with invalid assigned_team_member:", item);
             }
           });
         }
-    
+        // console.log("after setting Assigned Members Map:", assignedMembersMap);
+
         // Rest of the fetch logic remains the same
         const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
           method: "POST",
@@ -615,26 +714,27 @@ const TeamOverview = () => {
             user_email: user.user_email,
           }),
         });
-        
+
         const membersData = await membersResponse.json();
-        console.log("Fetched Members Data:", membersData);
-    
+        // console.log("Fetched Members Data:", membersData);
+
         // Update team members' status based on assignment
         const updatedTeamData = membersData.map(member => {
+          // console.log("Member:", assignedMembersMap);
           const assignment = assignedMembersMap.get(member.member_name);
-          
+
           return {
             ...member,
             member_status: assignment ? "Available" : "Active",
-            member_event_assignment: assignment 
+            member_event_assignment: assignment
               ? `${assignment.event_request_type} - ${assignment.event_detail}`
               : "Not Assigned",
           };
         });
-    
-        console.log("Updated Team Data:", updatedTeamData);
+
+        // console.log("Updated Team Data:", updatedTeamData);
         setTeamData(updatedTeamData);
-    
+
       } catch (error) {
         console.error("Error fetching team members:", error);
       }
@@ -725,7 +825,7 @@ const TeamOverview = () => {
             <div className="count">{teamData.length}</div>
           </div>
           <img src={ilasstion_2} alt="ilasstion_2" />
-          
+
         </div>
         <div className="stat-card active-members">
           <div className="data-container">
@@ -758,10 +858,10 @@ const TeamOverview = () => {
 
         <div className="members-grid">
           {teamData.map((member, index) => (
-            <MemberCard 
-              key={index} 
-              member={member} 
-              onEdit={handleEditUser} 
+            <MemberCard
+              key={index}
+              member={member}
+              onEdit={handleEditUser}
               onRemove={handleRemoveUser}
               activeDropdown={activeDropdown}
               setActiveDropdown={setActiveDropdown}

@@ -26,6 +26,7 @@
   width: 100%;
   /* background: rebeccapurple; */
   background: var(--owner_home_page_bg);
+  /* background-color: white; */
   display: flex;
   flex-direction: column;
   /* background: rebeccapurple; */
@@ -327,14 +328,16 @@
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
+
   .card_icon {
     padding: 0.5rem;
     font-size: 1rem;
   }
-  
+
   .card_content h3 {
     font-size: 0.8rem;
   }
+
   .card_content .number {
     font-size: 1rem;
   }

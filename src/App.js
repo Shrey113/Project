@@ -4,6 +4,7 @@ import {
   // useParams,
   useLocation,
 } from "react-router-dom";
+import "./App.css"
 import React, { useState, useEffect } from "react";
 import LoginRegisterOwener from "./Components/Owener/Login_Register.js";
 import LoginRegisterClient from "./Components/Client/login_register.js";
@@ -189,6 +190,10 @@ function App() {
             searchTerm={searchTerm}
 
             setSearchTerm={setSearchTerm} />
+
+          <div className="footer-bottom">
+            <p>&copy; 2025 Photography Hub. All rights reserved.</p>
+          </div>
         </div>
       </div>
     ) : (

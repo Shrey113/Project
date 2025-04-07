@@ -3,6 +3,7 @@ import React from 'react';
 import './BeforeLogin2.css';
 
 import { FaHome, FaInfoCircle, FaConciergeBell, FaRegHandshake, FaUserPlus } from 'react-icons/fa';
+import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa';
 import first_section_image from './image_folder/first_section_image.png';
 import third_section_image from './image_folder/third_section_image.png';
 // import gsapBackground from './image_folder/gsapBackground.jpg';
@@ -266,9 +267,21 @@ function BeforeLogin2() {
                     <div className="footer-section social">
                         <h3>Follow Us</h3>
                         <div className="social-icons">
-                            <button className="facebook">📘</button>
-                            <button className="twitter">🐦</button>
-                            <button className="instagram">📸</button>
+                            <a href="https://www.facebook.com/YourPage" target="_blank" rel="noopener noreferrer" className="facebook">
+                                <FaFacebookF color="#1877F2" size={24} />
+                            </a>
+
+                            <a href="https://www.instagram.com/YourPage" target="_blank" rel="noopener noreferrer" className="instagram">
+                                <FaInstagram color="#E4405F" size={24} />
+                            </a>
+
+                            <a href="https://twitter.com/YourPage" target="_blank" rel="noopener noreferrer" className="twitter">
+                                <FaTwitter color="#1DA1F2" size={24} />
+                            </a>
+
+                            <a href="https://www.youtube.com/YourChannel" target="_blank" rel="noopener noreferrer" className="youtube">
+                                <FaYoutube color="#FF0000" size={24} />
+                            </a>
                         </div>
                     </div>
                 </div>

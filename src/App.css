@@ -2,9 +2,9 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: sans-serif;
-  user-select: none;  
+  user-select: none;
 }
+
 .App {
   text-align: center;
 }
@@ -12,6 +12,18 @@
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+
+.footer-bottom {
+  /* border-top: 1px solid #555; */
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 18px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 550;
+  color: gray;
+  /* background-color: white; */
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -39,6 +51,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

@@ -653,16 +653,18 @@ main .social-icons {
     margin-top: 10px;
 }
 
-main .social-icons button {
+main .social-icons a {
     font-size: 24px;
     text-decoration: none;
     transition: transform 0.3s;
     background-color: transparent;
     border: none;
     cursor: pointer;
+    transition: all 500ms;
+    transition-delay: 50ms;
 }
 
-main .social-icons button:hover {
+main .social-icons a:hover {
     transform: scale(1.2);
 }
 
