@@ -326,3 +326,32 @@
 }
 
 
+@media screen and (max-width: 1048px) {  
+  .user_table_date  .user_table th:nth-child(2),
+  .user_table_date  .user_table td:nth-child(2) {
+    display: none;
+  }
+}
+
+@media (max-width: 869px) {
+  .user_table_date  .user_table th:nth-child(2),
+  .user_table_date  .user_table td:nth-child(2) {
+    display:table-cell;
+  }
+}
+@media screen and (max-width: 580px) {  
+  .user_table_date  .user_table th:nth-child(1),
+  .user_table_date  .user_table td:nth-child(1) {
+    width: 120px;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .user_table_date  .user_table th:nth-child(2),
+  .user_table_date  .user_table td:nth-child(2) {
+    display: none;
+  }
+  .user_table_date{
+    width: 100%;
+  }
+}

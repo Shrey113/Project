@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./ProfitExpensesChart.css";
 import {
   BarChart,
@@ -9,7 +9,6 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-
 
 import icon_1 from './sub_img/icon-biology.png'
 import icon_2 from './sub_img/icon-erase.png'
@@ -25,20 +24,36 @@ const data = [
 ];
 
 const ProfitExpensesChart = () => {
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Adjust chart height based on screen size
+  const getChartHeight = () => {
+    if (windowWidth <= 480) {
+      return 200;
+    }
+    return 300;
+  };
+
   return (
     <div className="chart_container_Dashboard">
-        <div className="chart-title">
+      <div className="chart-title">
         User Growth Chart
-        </div>
+      </div>
       
-
       <div className="chart_con">
         <div className="chart">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data} barCategoryGap={12}>
+          <ResponsiveContainer width="100%" height={getChartHeight()}>
+            <BarChart data={data} barCategoryGap={windowWidth <= 480 ? 8 : 12}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
+              <XAxis dataKey="month" fontSize={windowWidth <= 480 ? 10 : 12} />
+              <YAxis fontSize={windowWidth <= 480 ? 10 : 12} />
               <Tooltip cursor={{ fill: "rgba(200, 200, 200, 0.2)" }} />
               <Bar dataKey="profit" fill="#2f80ed" radius={[10, 10, 0, 0]} />
               <Bar dataKey="expense" fill="#ff7e67" radius={[10, 10, 0, 0]} />
@@ -47,10 +62,9 @@ const ProfitExpensesChart = () => {
         </div>
 
         <div className="chart_data">
-
           <div className="chart_info">
             <div className="icon" style={{background:"#feece9"}}>
-            <img src={icon_1} alt="Biology Icon" />
+              <img src={icon_1} alt="Biology Icon" />
             </div>
             <div className="data">
               <div className="amount">Rs. 63,489.50</div>
@@ -79,13 +93,10 @@ const ProfitExpensesChart = () => {
           </div>
 
           <div className="chart-button-container">
-        <button >View Full Report</button>
-      </div>
-
+            <button>View Full Report</button>
+          </div>
         </div>
       </div>
-
-
     </div>
   );
 };

@@ -1,7 +1,5 @@
-
-
 .chart_container_Dashboard {
-    width: 940px;  
+    width: 100%;  
     max-width: 940px;
     background: red;    
     border-radius:var(--admin_box_radius);
@@ -89,4 +87,66 @@
     background: #0b8bdc;
     color: white;
     font-size: 1.1rem;
+}
+
+@media (max-width: 800px) {
+  .chart_container_Dashboard .chart_con{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .chart_container_Dashboard {
+    padding: 15px 15px;
+    padding-top: var(--admin_title_padding_top_for_2);
+    margin-bottom: 30px;
+  }
+
+  .chart_container_Dashboard .chart-title {
+    font-size: 1.2rem;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart_container_Dashboard {
+    padding: 10px 10px;
+    padding-top: 45px;
+    margin-bottom: 20px;
+  }
+
+  .chart_container_Dashboard .chart-title {
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  .chart_container_Dashboard .chart_con .chart_data .chart_info {
+    gap: 10px;
+  }
+
+  .chart_container_Dashboard .chart_con .chart_data .chart_info .icon {
+    height: 40px;
+    width: 40px;
+    padding: 6px;
+  }
+
+  .chart_container_Dashboard .chart_con .chart_data .chart_info .data .amount {
+    font-size: 0.9rem;
+  }
+
+  .chart_container_Dashboard .chart_con .chart_data .chart_info .data .info {
+    font-size: 0.8rem;
+  }
+
+  .chart_container_Dashboard .chart_con .chart-button-container button {
+    margin-top: 20px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 650px) {
+  .chart_container_Dashboard{
+    margin-bottom: 100px;
+  }
 }

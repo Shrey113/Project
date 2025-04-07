@@ -41,115 +41,134 @@ const MainBox = ({fix_img,main_img,amount,other_amount,title})=>{
 
 function Dashboard({adminSettings,activeRow,setActiveRow,socket}) {
   const [data, setData] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-    useEffect(() => {
-      if(adminSettings?.show_animation){
-
-       if (activeRow === 0) {gsap.fromTo(
-          ".section_1_admin > *",
-          { opacity: 0, y: 50 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.4,
-            stagger: 0.2,
-          }
-        );
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
     
-        gsap.fromTo(
-          ".section_2_admin > *",
-          { opacity: 0, y: 180 },
-          {
-            opacity: 1,
-            y: 0,
-            delay:0.1,
-            duration: 0.8,
-            stagger: 0.4,
-          });
-    
-        gsap.fromTo(
-          ".section_3_admin > *",
-          { opacity: 0, y: 180 },
-          {
-            opacity: 1,
-            y: 0,
-            delay:0.6,
-            duration: 1,
-            stagger: 0.5,
-          }
-        );}
-      }
-    
-      }, [activeRow,adminSettings?.show_animation]);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if(adminSettings?.show_animation){
+
+      if (activeRow === 0) {gsap.fromTo(
+        ".section_1_admin > *",
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          stagger: 0.2,
+        }
+      );
+  
+      gsap.fromTo(
+        ".section_2_admin > *",
+        { opacity: 0, y: 180 },
+        {
+          opacity: 1,
+          y: 0,
+          delay:0.1,
+          duration: 0.8,
+          stagger: 0.4,
+        });
+  
+      gsap.fromTo(
+        ".section_3_admin > *",
+        { opacity: 0, y: 180 },
+        {
+          opacity: 1,
+          y: 0,
+          delay:0.6,
+          duration: 1,
+          stagger: 0.5,
+        }
+      );}
+    }
+  
+    }, [activeRow,adminSettings?.show_animation]);
 
 
-      useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(`${Server_url}/owner_v2/all-data`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const result = await response.json();
-                setData(result);
-            } catch (error) {
-                console.log
-                (error.message);
-            } 
-        };
+  useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${Server_url}/owner_v2/all-data`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const result = await response.json();
+            setData(result);
+        } catch (error) {
+            console.log(error.message);
+        } 
+    };
 
-        fetchData();
-    }, []);
+    fetchData();
+  }, []);
+
+  // Responsive grid layout based on screen size
+  const getGridLayout = () => {
+    if (windowWidth <= 480) {
+      return "dashboard-grid-small";
+    } else if (windowWidth <= 768) {
+      return "dashboard-grid-medium";
+    }
+    return "";
+  };
 
   return (
     <>
-        <div className="section_1_admin">
-        <MainBox 
-                    fix_img={shape_1} 
-                    main_img={p_set} 
-                    amount={data?.totalAdmins || "0"} 
-                    other_amount={"+0%"} 
-                    title={"Admins"} 
-                />
-                <MainBox 
-                    fix_img={shape_2} 
-                    main_img={dollar_set} 
-                    amount={data?.totalOwners || "0"} 
-                    other_amount={"+0%"} 
-                    title={"Owners"} 
-                />
-                <MainBox 
-                    fix_img={shape_3} 
-                    main_img={dollar_set} 
-                    amount={data?.totalClients || "0"} 
-                    other_amount={"-0%"} 
-                    title={"Clients"} 
-                />
-                <MainBox 
-                    fix_img={shape_1} 
-                    main_img={p_set} 
-                    amount={data?.totalPackages || "0"} 
-                    other_amount={"+0%"} 
-                    title={"Packages"} 
-                />
-                <MainBox 
-                    fix_img={shape_3} 
-                    main_img={dollar_set} 
-                    amount={data?.totalExpenses || "0"} 
-                    other_amount={"-0%"} 
-                    title={"Expenses"} 
-                />
-          <WelcomeUser setActiveRow={setActiveRow} socket={socket} />
+      <div className={`section_1_admin ${getGridLayout()}`}>
+        <div className="dashboard-stats-wrapper">
+          <MainBox 
+            fix_img={shape_1} 
+            main_img={p_set} 
+            amount={data?.totalAdmins || "0"} 
+            other_amount={"+0%"} 
+            title={"Admins"} 
+          />
+          <MainBox 
+            fix_img={shape_2} 
+            main_img={dollar_set} 
+            amount={data?.totalOwners || "0"} 
+            other_amount={"+0%"} 
+            title={"Owners"} 
+          />
+          <MainBox 
+            fix_img={shape_3} 
+            main_img={dollar_set} 
+            amount={data?.totalClients || "0"} 
+            other_amount={"-0%"} 
+            title={"Clients"} 
+          />
+          <MainBox 
+            fix_img={shape_1} 
+            main_img={p_set} 
+            amount={data?.totalPackages || "0"} 
+            other_amount={"+0%"} 
+            title={"Packages"} 
+          />
+          <MainBox 
+            fix_img={shape_3} 
+            main_img={dollar_set} 
+            amount={data?.totalExpenses || "0"} 
+            other_amount={"-0%"} 
+            title={"Expenses"} 
+          />
         </div>
-    
-        <div className="section_2_admin">
+        <WelcomeUser setActiveRow={setActiveRow} socket={socket} />
+      </div>
+  
+      <div className="section_2_admin">
         <UserDataList setActiveRow={setActiveRow} />
         <ChartWithData/>
-        </div>
-        <div className="section_3_admin">
+      </div>
+      <div className="section_3_admin">
         <ProfitExpensesChart />
         {/* <Calendar /> */}
-        </div>
+      </div>
     </>
   )
 }

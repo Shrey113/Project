@@ -402,9 +402,27 @@
 
  .section_1_admin{
     display: flex;
+    gap: 20px;
     justify-content: space-between;
-
+    flex-wrap: wrap;
  }
+
+.dashboard-stats-wrapper {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.dashboard-grid-medium .dashboard-stats-wrapper {
+    justify-content: center;
+    gap: 15px;
+}
+
+.dashboard-grid-small .dashboard-stats-wrapper {
+    justify-content: center;
+    gap: 10px;
+}
 
 .admin_first_page_box{
     background: #0084da;
@@ -467,13 +485,33 @@
     width: calc(98% - 400px);
     
  }
+ @media (max-width: 1360px) {
+    .section_2_admin{
+        margin-top: 0;
+        width: 100%;
+    }
+    
+.section_1_admin > *:last-child {
+    flex: 1 1 100%;
+}
+ }
+
+ @media (max-width: 869px) {
+    .section_2_admin{
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+ }
+
 .section_3_admin{
-    /* background: rebeccapurple; */
+ 
     display: flex;
     gap: 30px;
     /* justify-content: space-between; */
     height: fit-content;
     width: fit-content;
+    width: 100%;
     /* background: rebeccapurple; */
     /* margin-top: -150px; */
     /* margin-top: 30px; */
@@ -510,7 +548,128 @@
     .admin_profile_container {
         padding-bottom: 70px;
     }
+    .admin_first_page_box{
+        width: 120px;
+        height: 120px;
+    }
+    .admin_first_page_box .main_img{
+        height: 30px;
+    }
+    .admin_first_page_box .data .amount{
+        font-size: 1.1rem;
+    }
+}
 
+/* Additional responsive styles for better mobile UI */
+@media (max-width: 768px) {
+    :root {
+        --admin_title_font_size: 1.2rem;
+        --admin_title_padding: 15px;
+        --admin_box_radius: 15px;
+    }
+    
+    .admin_body .admin_body_main {
+        padding: 0 15px 80px 15px;
+        gap: 20px;
+    }
+    
+    .section_1_admin {
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    .admin_first_page_box {
+        height: 120px;
+        width: 120px;
+    }
+    
+    .admin_first_page_box .data .amount {
+        font-size: 1.1rem;
+    }
+    
+    .admin_first_page_box .data .other_amount {
+        font-size: 0.8rem;
+    }
+    
+    .admin_first_page_box .title {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --admin_title_font_size: 1rem;
+        --admin_title_padding: 10px;
+    }
+    
+    .admin_body .admin_body_main {
+        padding: 0 10px 70px 10px;
+        gap: 15px;
+    }
+    
+    .section_1_admin {
+        gap: 10px;
+    }
+    
+    .admin_first_page_box {
+        height: 100px;
+        width: 100px;
+    }
+    
+    .admin_first_page_box .main_img {
+        height: 25px;
+    }
+    
+    .admin_first_page_box .data .amount {
+        font-size: 1rem;
+    }
+    
+    .admin_first_page_box .data .other_amount {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+    
+    .admin_first_page_box .title {
+        font-size: 0.8rem;
+    }
+    
+    .admin_body .admin_body_main .title_bar {
+        padding: 8px 15px;
+        height: 55px;
+        margin-top: 10px;
+    }
+    
+    .admin_body .admin_body_main .title_bar .left_title_con .title {
+        font-size: 1rem;
+    }
+    
+    .admin_body .admin_body_main .title_bar .left_title_con .title_info {
+        font-size: 0.7rem;
+    }
+    
+    .admin_body .admin_body_main .title_bar .other_option .icon {
+        height: 40px;
+        width: 40px;
+        padding: 8px;
+    }
+    
+    .admin_body .admin_body_main .title_bar .other_option .profile_con {
+        height: 45px;
+        padding: 10px;
+    }
+    
+    .admin_body .admin_body_main .title_bar .other_option .profile_con img {
+        height: 40px;
+        width: 40px;
+    }
+    
+    .admin_body .admin_body_main .title_bar .other_option .profile_con .data .name {
+        font-size: 0.9rem;
+    }
+    
+    .admin_body .admin_body_main .title_bar .other_option .profile_con .data .type {
+        font-size: 0.8rem;
+    }
 }
  
  
