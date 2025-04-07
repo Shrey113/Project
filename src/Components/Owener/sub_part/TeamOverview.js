@@ -590,34 +590,33 @@ const TeamOverview = () => {
 
       // Extract assigned members and their event details
       let assignedMembersMap = new Map();
-      if (statusData && Array.isArray(statusData[0].assigned_team_member) && typeof statusData[0].event_detail === "string") {
-        console.log("statusData available");
+      
+      // Safely check if statusData exists and has items
+      if (statusData && Array.isArray(statusData) && statusData.length > 0 && statusData[0]) {
+        // Now safely check for assigned_team_member
+        if (Array.isArray(statusData[0].assigned_team_member)) {
+          console.log("statusData available");
+          
+          statusData.forEach((item) => {
+            if (item && Array.isArray(item.assigned_team_member)) {
+              item.assigned_team_member.forEach((member) => {
+                if (member) {
+                  assignedMembersMap.set(member, {
+                    event_request_type: item.event_request_type || 'Unknown',
+                    event_detail: item.event_detail || 'Unknown'
+                  });
+                }
+              });
+            } else {
+              console.warn("Skipping item with invalid assigned_team_member:", item);
+            }
+          });
+        } else {
+          console.log("statusData has no valid assigned_team_member array");
+        }
       } else {
-        console.log("statusData not available");
+        console.log("No valid status data available");
       }
-
-      // console.log("Assigned Members Map:", assignedMembersMap);
-
-      // Check if statusData has the expected structure
-      console.log("beofer setting Assigned Members Map:", assignedMembersMap);
-      if (statusData && Array.isArray(statusData[0].assigned_team_member) && statusData[0].event_detail) {
-        console.log("Assigned Members Map started:");
-        statusData.forEach((item) => {
-          if (Array.isArray(item.assigned_team_member)) {
-            item.assigned_team_member.forEach((member) => {
-              if (member) {
-                assignedMembersMap.set(member, {
-                  event_request_type: item.event_request_type || 'Unknown',
-                  event_detail: item.event_detail || 'Unknown'
-                });
-              }
-            });
-          } else {
-            console.warn("Skipping item with invalid assigned_team_member:", item);
-          }
-        });
-      }
-      // console.log("after setting Assigned Members Map:", assignedMembersMap);
 
       // Rest of the fetch logic remains the same
       const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
@@ -631,11 +630,9 @@ const TeamOverview = () => {
       });
 
       const membersData = await membersResponse.json();
-      // console.log("Fetched Members Data:", membersData);
 
       // Update team members' status based on assignment
       const updatedTeamData = membersData.map(member => {
-        // console.log("Member:", assignedMembersMap);
         const assignment = assignedMembersMap.get(member.member_name);
 
         return {
@@ -647,11 +644,12 @@ const TeamOverview = () => {
         };
       });
 
-      // console.log("Updated Team Data:", updatedTeamData);
       setTeamData(updatedTeamData);
 
     } catch (error) {
       console.error("Error fetching team members:", error);
+      // Set empty array as fallback to prevent further errors
+      setTeamData([]);
     }
   };
 
@@ -674,35 +672,33 @@ const TeamOverview = () => {
 
         // Extract assigned members and their event details
         let assignedMembersMap = new Map();
-        if (statusData && Array.isArray(statusData[0].assigned_team_member) && typeof statusData[0].event_detail === "string") {
-          console.log("statusData available");
+        
+        // Safely check if statusData exists and has items
+        if (statusData && Array.isArray(statusData) && statusData.length > 0 && statusData[0]) {
+          // Now safely check for assigned_team_member
+          if (Array.isArray(statusData[0].assigned_team_member)) {
+            console.log("statusData available");
+            
+            statusData.forEach((item) => {
+              if (item && Array.isArray(item.assigned_team_member)) {
+                item.assigned_team_member.forEach((member) => {
+                  if (member) {
+                    assignedMembersMap.set(member, {
+                      event_request_type: item.event_request_type || 'Unknown',
+                      event_detail: item.event_detail || 'Unknown'
+                    });
+                  }
+                });
+              } else {
+                console.warn("Skipping item with invalid assigned_team_member:", item);
+              }
+            });
+          } else {
+            console.log("statusData has no valid assigned_team_member array");
+          }
         } else {
-          console.log("statusData not available");
+          console.log("No valid status data available");
         }
-
-        // console.log("Assigned Members Map:", assignedMembersMap);
-
-        // Check if statusData has the expected structure
-        console.log("beofer setting Assigned Members Map:", assignedMembersMap);
-        if (statusData && Array.isArray(statusData[0].assigned_team_member) && statusData[0].event_detail) {
-          console.log("Assigned Members Map started:");
-          statusData.forEach((item) => {
-            if (Array.isArray(item.assigned_team_member)) {
-              item.assigned_team_member.forEach((member) => {
-                if (member) {
-                  assignedMembersMap.set(member, {
-                    event_request_type: item.event_request_type || 'Unknown',
-                    event_detail: item.event_detail || 'Unknown'
-                  });
-                }
-                console.log("Member:", assignedMembersMap);
-              });
-            } else {
-              console.warn("Skipping item with invalid assigned_team_member:", item);
-            }
-          });
-        }
-        // console.log("after setting Assigned Members Map:", assignedMembersMap);
 
         // Rest of the fetch logic remains the same
         const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
@@ -716,11 +712,9 @@ const TeamOverview = () => {
         });
 
         const membersData = await membersResponse.json();
-        // console.log("Fetched Members Data:", membersData);
 
         // Update team members' status based on assignment
         const updatedTeamData = membersData.map(member => {
-          // console.log("Member:", assignedMembersMap);
           const assignment = assignedMembersMap.get(member.member_name);
 
           return {
@@ -732,11 +726,12 @@ const TeamOverview = () => {
           };
         });
 
-        // console.log("Updated Team Data:", updatedTeamData);
         setTeamData(updatedTeamData);
 
       } catch (error) {
         console.error("Error fetching team members:", error);
+        // Set empty array as fallback to prevent further errors
+        setTeamData([]);
       }
     };
     fetchTeamMembers();
