@@ -850,24 +850,43 @@ const TeamOverview = () => {
               </span>
             </div>
           </div>
-          <button className={`add-member-btn ${teamData.length === 0 ? 'assigned' : 'available'}`} onClick={handleAddUser}>
+          <button className={`add-member-btn_top ${teamData.length === 0 ? 'assigned' : 'available'}`} onClick={handleAddUser}>
             <span>Add Member</span>
             <span className="plus-icon">+</span>
           </button>
         </div>
 
-        <div className="members-grid">
-          {teamData.map((member, index) => (
-            <MemberCard
-              key={index}
-              member={member}
-              onEdit={handleEditUser}
-              onRemove={handleRemoveUser}
-              activeDropdown={activeDropdown}
-              setActiveDropdown={setActiveDropdown}
-            />
-          ))}
-        </div>
+        {teamData.length === 0 ? (
+          <div className="empty-team-state">
+            <div className="empty-profile-stack">
+              <div className="profile-overlay">
+                <img src={profile_pic_user1} alt="Team member" className="empty-profile-img" />
+                <img src={profile_pic_user2} alt="Team member" className="empty-profile-img" />
+                <img src={profile_pic_user3} alt="Team member" className="empty-profile-img" />
+                <img src={profile_pic_user4} alt="Team member" className="empty-profile-img" />
+              </div>
+            </div>
+            <h3>Build Your Dream Team</h3>
+            <p>Start by adding your first team member. Expand your photography business with a talented crew!</p>
+            <button className="add-member-btn empty-state-btn" onClick={handleAddUser}>
+              <span>Add Your First Team Member</span>
+              <span className="plus-icon">+</span>
+            </button>
+          </div>
+        ) : (
+          <div className="members-grid">
+            {teamData.map((member, index) => (
+              <MemberCard
+                key={index}
+                member={member}
+                onEdit={handleEditUser}
+                onRemove={handleRemoveUser}
+                activeDropdown={activeDropdown}
+                setActiveDropdown={setActiveDropdown}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Keep existing popup component */}

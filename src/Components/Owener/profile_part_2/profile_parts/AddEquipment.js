@@ -8,7 +8,7 @@ import tripod_icon from './test_img_equipment/Tripod.png'
 import lens_icon from './test_img_equipment/lens.png'
 
 import { Server_url, showRejectToast, ConfirmMessage } from '../../../../redux/AllData';
-import { MdDeleteOutline } from 'react-icons/md';
+import { MdDeleteOutline, MdEdit } from 'react-icons/md';
 
 function AddEquipment() {
 
@@ -34,6 +34,8 @@ function AddEquipment() {
     });
     
       const [equipmentItems, setEquipmentItems] = useState([]);
+      const [isEditing, setIsEditing] = useState(false);
+      const [currentEquipmentId, setCurrentEquipmentId] = useState(null);
 
 
       function getEquipmentItems(get_email){
@@ -113,8 +115,86 @@ function AddEquipment() {
     .catch(error => console.error('Error:', error));
   };
 
+  const handleEdit = (equipment) => {
+    setIsEditing(true);
+    setCurrentEquipmentId(equipment.user_equipment_id);
+    setNewEquipment({
+      name: equipment.name,
+      equipment_company: equipment.equipment_company,
+      type: equipment.equipment_type,
+      description: equipment.equipment_description,
+      image: getImgByType(equipment.equipment_type),
+      pricePerDay: equipment.equipment_price_per_day
+    });
+    setShowAddForm(true);
+  };
 
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setCurrentEquipmentId(null);
+    setShowAddForm(false);
+    setNewEquipment({
+      name: '',
+      equipment_company: '',
+      type: 'Camera',
+      description: '',
+      image: camera_icon,
+      pricePerDay: ''
+    });
+  };
 
+  async function editEquipment() {
+    const equipmentItem = {
+      user_equipment_id: currentEquipmentId,
+      name: newEquipment.name,
+      equipment_company: newEquipment.equipment_company,
+      equipment_type: newEquipment.type,
+      equipment_description: newEquipment.description,
+      equipment_price_per_day: newEquipment.pricePerDay
+    }
+  
+    try {
+      const response = await fetch(`${Server_url}/owner/edit-equipment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_email: user.user_email,
+          ...equipmentItem
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to edit equipment');
+      }
+
+      const result = await response.json();
+
+      if(result.message === 'Equipment updated successfully'){
+        setNewEquipment({
+          name: '',
+          equipment_company: '',
+          type: 'Camera',
+          description: '',
+          image: camera_icon,
+          pricePerDay: ''
+        });
+        getEquipmentItems(user.user_email);
+        setShowAddForm(false);
+        setIsEditing(false);
+        setCurrentEquipmentId(null);
+      }else{
+        showRejectToast({message: 'Failed to edit equipment'});
+      }
+    
+      return result;
+    } catch (error) {
+      console.error('Error editing equipment:', error.message);
+      throw error;
+    }
+  }
 
   async function addOneEquipment() {
 
@@ -182,7 +262,19 @@ function AddEquipment() {
         <h2>Add Equipment</h2>
         <button 
           className="add-equipment-btn" 
-          onClick={() => setShowAddForm(true)}
+          onClick={() => {
+            setIsEditing(false);
+            setCurrentEquipmentId(null);
+            setNewEquipment({
+              name: '',
+              equipment_company: '',
+              type: 'Camera',
+              description: '',
+              image: camera_icon,
+              pricePerDay: ''
+            });
+            setShowAddForm(true);
+          }}
         >
           Add New Equipment
         </button>
@@ -191,7 +283,7 @@ function AddEquipment() {
 
 
       <div className="Equipment_con">
-        {showAddForm && (
+        {showAddForm && !isEditing && (
           <div className="equipment-card add-form">
             <div className="equipment-img">
               <img src={newEquipment.image} alt="Equipment Type" />
@@ -230,7 +322,6 @@ function AddEquipment() {
                 className="save-btn"
                 onClick={() => {
                   addOneEquipment();
-
                 }}
               >
                 Save Equipment
@@ -239,35 +330,88 @@ function AddEquipment() {
 
               <button 
                 className="close-btn"
-                onClick={() => setShowAddForm(false)}
+                onClick={() => {
+                  setShowAddForm(false);
+                }}
               >
                 ×
               </button>
               </div>
-         
-           
-            </div>
+           </div>
           </div>
         )}
 
         { equipmentItems.length > 0 ? equipmentItems.map((equipment,index) => (
-          <div className="equipment-card" key={index}>
-            <div className="equipment-img">
-              <img src={getImgByType(equipment.equipment_type)} alt={equipment.name} />
+          isEditing && currentEquipmentId === equipment.user_equipment_id ? (
+            <div className="equipment-card add-form" key={index}>
+              <div className="equipment-img">
+                <img src={newEquipment.image} alt="Equipment Type" />
+              </div>
+              <div className="equipment_new_info">
+                <input type="text" name="name" placeholder="Equipment Name" value={newEquipment.name} onChange={handleInputChange} />
+                <span>
+                  <input type="text" name="equipment_company" placeholder="Company" value={newEquipment.equipment_company} onChange={handleInputChange} />
+                  <select name="type" value={newEquipment.type} onChange={handleInputChange} >
+                    {equipmentTypes.map((type,index) => (
+                      <option key={index} value={type.type}>
+                        {type.type}
+                      </option>
+                    ))}
+                  </select>
+                </span>
+                <input 
+                  type="number" 
+                  name="pricePerDay" 
+                  placeholder="Price per day Rs." 
+                  value={newEquipment.pricePerDay} 
+                  onChange={handleInputChange} 
+                />
+                <textarea
+                  name="description"
+                  placeholder="Description"
+                  value={newEquipment.description}
+                  onChange={handleInputChange}
+                />
+                <div className="button_con">
+                  <button 
+                    className="save-btn"
+                    onClick={() => editEquipment()}
+                  >
+                    Update Equipment
+                  </button>
+                  <button 
+                    className="close-btn"
+                    onClick={() => {
+                      cancelEdit();
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="equipment-info">
-              <h3>{equipment.name}</h3>
-              <p className="company">{equipment.equipment_type} • {equipment.equipment_company}</p>
-              <p className="price">Rs.{equipment.equipment_price_per_day}/day</p>
-              <p className="description">{equipment.equipment_description}</p>
-            </div>
+          ) : (
+            <div className="equipment-card" key={index}>
+              <div className="equipment-img">
+                <img src={getImgByType(equipment.equipment_type)} alt={equipment.name} />
+              </div>
+              <div className="equipment-info">
+                <h3>{equipment.name}</h3>
+                <p className="company">{equipment.equipment_type} • {equipment.equipment_company}</p>
+                <p className="price">Rs.{equipment.equipment_price_per_day}/day</p>
+                <p className="description">{equipment.equipment_description}</p>
+              </div>
 
-            <div className="remove-btn">
-              <button onClick={() => handleRemove(equipment.id,equipment.user_equipment_id)}>
-              <MdDeleteOutline/>
-              </button>
+              <div className="action-buttons">
+                <button className="edit-btn" onClick={() => handleEdit(equipment)}>
+                  <MdEdit/>
+                </button>
+                <button className="delete-btn" onClick={() => handleRemove(equipment.id, equipment.user_equipment_id)}>
+                  <MdDeleteOutline/>
+                </button>
+              </div>
             </div>
-          </div>
+          )
         )) : <p className='not-found-data'>No equipment found</p>}
       </div>
 
