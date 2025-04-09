@@ -10,9 +10,7 @@
     font-family: 'Poppins', sans-serif;
 } */
 
-html {
-    scroll-behavior: smooth;
-}
+
 
 .nav-link {
     cursor: pointer;
@@ -126,7 +124,7 @@ main {
     right: 0;
 }
 
-.close-btn {
+main .close-btn {
     background: none;
     border: none;
     color: white;

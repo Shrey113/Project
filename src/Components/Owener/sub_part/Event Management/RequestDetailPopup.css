@@ -32,7 +32,7 @@
   align-items: center;
 }
 
-.close-btn {
+#owner-main-container-EventManagement .close-btn {
   background: none;
   border: none;
   font-size: 20px;

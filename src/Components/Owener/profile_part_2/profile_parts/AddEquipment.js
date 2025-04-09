@@ -7,8 +7,8 @@ import drone_icon from './test_img_equipment/drone.png'
 import tripod_icon from './test_img_equipment/Tripod.png'
 import lens_icon from './test_img_equipment/lens.png'
 
-import { Server_url, showRejectToast, ConfirmMessage } from '../../../../redux/AllData';
-import { MdDeleteOutline, MdEdit } from 'react-icons/md';
+import { Server_url,showWarningToast, showRejectToast, ConfirmMessage } from '../../../../redux/AllData';
+import { MdDeleteOutline, MdEdit, MdWarning } from 'react-icons/md';
 
 function AddEquipment() {
 
@@ -36,6 +36,7 @@ function AddEquipment() {
       const [equipmentItems, setEquipmentItems] = useState([]);
       const [isEditing, setIsEditing] = useState(false);
       const [currentEquipmentId, setCurrentEquipmentId] = useState(null);
+      const [showMinWarning, setShowMinWarning] = useState(false);
 
 
       function getEquipmentItems(get_email){
@@ -50,10 +51,11 @@ function AddEquipment() {
         .then(data => {
           if(data.message === 'No equipment found'){
             setEquipmentItems([]);
+            setShowMinWarning(true);
           }else{
             const reversedData = data.reverse();
-
             setEquipmentItems(reversedData);
+            setShowMinWarning(reversedData.length < 2);
           }
         })
         .catch(error => console.error('Error:', error));
@@ -98,6 +100,12 @@ function AddEquipment() {
   };
 
   const confirmDelete = () => {
+    if (equipmentItems.length <= 2) {
+      showWarningToast({message: "Minimum 2 equipment items required. Cannot delete."});
+      setShowDeleteConfirm(false);
+      return;
+    }
+
     fetch(`${Server_url}/owner/remove-equipment`, {
       method: 'POST',
       headers: {
@@ -143,7 +151,37 @@ function AddEquipment() {
     });
   };
 
+  async function validateForm() {
+    if (!newEquipment.name.trim()) {
+      showWarningToast({message: "Equipment name is required"});
+      return false;
+    }
+    
+    if (!newEquipment.equipment_company.trim()) {
+      showWarningToast({message: "Company name is required"});
+      return false;
+    }
+    
+    if (!newEquipment.description.trim()) {
+      showWarningToast({message: "Description is required"});
+      return false;
+    }
+    
+    if (!newEquipment.pricePerDay) {
+      showWarningToast({message: "Price per day is required"});
+      return false;
+    } else if (isNaN(newEquipment.pricePerDay) || Number(newEquipment.pricePerDay) <= 0) {
+      showWarningToast({message: "Price must be a positive number"});
+      return false;
+    }
+    
+    return true;
+  }
+
   async function editEquipment() {
+    const isValid = await validateForm();
+    if (!isValid) return;
+
     const equipmentItem = {
       user_equipment_id: currentEquipmentId,
       name: newEquipment.name,
@@ -197,6 +235,8 @@ function AddEquipment() {
   }
 
   async function addOneEquipment() {
+    const isValid = await validateForm();
+    if (!isValid) return;
 
     const equipmentItem = {
       user_equipment_id: equipmentItems.length + 1,
@@ -280,7 +320,12 @@ function AddEquipment() {
         </button>
       </div>
 
-
+      {showMinWarning && (
+        <div className="min-equipment-warning">
+          <MdWarning className="warning-icon" />
+          <span>Minimum 2 equipment items required. Please add more equipment.</span>
+        </div>
+      )}
 
       <div className="Equipment_con">
         {showAddForm && !isEditing && (
@@ -290,52 +335,64 @@ function AddEquipment() {
          
             </div>
             <div className="equipment_new_info">
-              <input type="text" name="name" placeholder="Equipment Name" value={newEquipment.name} onChange={handleInputChange} />
+              <input 
+                type="text" 
+                name="name" 
+                placeholder="Equipment Name *" 
+                value={newEquipment.name} 
+                onChange={handleInputChange}
+              />
 
               <span>
-              <input type="text" name="equipment_company" placeholder="Company" value={newEquipment.equipment_company} onChange={handleInputChange} />
-              <select name="type" value={newEquipment.type} onChange={handleInputChange} >
-                {equipmentTypes.map((type,index) => (
-                  <option key={index} value={type.type}>
-                    {type.type}
-                  </option>
-                ))}
-              </select>
+                <input 
+                  type="text" 
+                  name="equipment_company" 
+                  placeholder="Company *" 
+                  value={newEquipment.equipment_company} 
+                  onChange={handleInputChange}
+                />
+                <select name="type" value={newEquipment.type} onChange={handleInputChange} >
+                  {equipmentTypes.map((type,index) => (
+                    <option key={index} value={type.type}>
+                      {type.type}
+                    </option>
+                  ))}
+                </select>
               </span>
               <input 
                 type="number" 
                 name="pricePerDay" 
-                placeholder="Price per day Rs." 
+                placeholder="Price per day Rs. *" 
                 value={newEquipment.pricePerDay} 
                 onChange={handleInputChange} 
               />
 
               <textarea
                 name="description"
-                placeholder="Description"
+                placeholder="Description *"
                 value={newEquipment.description}
                 onChange={handleInputChange}
               />
 
               <div className="button_con">
-              <button 
-                className="save-btn"
-                onClick={() => {
-                  addOneEquipment();
-                }}
-              >
-                Save Equipment
-              </button>
+                <button 
+                  className="save-btn"
+                  onClick={() => {
+                    addOneEquipment();
+                  }}
+                >
+                  Save Equipment
+                </button>
 
 
-              <button 
-                className="close-btn"
-                onClick={() => {
-                  setShowAddForm(false);
-                }}
-              >
-                ×
-              </button>
+                <button 
+                  className="close-btn"
+                  onClick={() => {
+                    setShowAddForm(false);
+                  }}
+                >
+                  ×
+                </button>
               </div>
            </div>
           </div>
@@ -348,9 +405,21 @@ function AddEquipment() {
                 <img src={newEquipment.image} alt="Equipment Type" />
               </div>
               <div className="equipment_new_info">
-                <input type="text" name="name" placeholder="Equipment Name" value={newEquipment.name} onChange={handleInputChange} />
+                <input 
+                  type="text" 
+                  name="name" 
+                  placeholder="Equipment Name *" 
+                  value={newEquipment.name} 
+                  onChange={handleInputChange}
+                />
                 <span>
-                  <input type="text" name="equipment_company" placeholder="Company" value={newEquipment.equipment_company} onChange={handleInputChange} />
+                  <input 
+                    type="text" 
+                    name="equipment_company" 
+                    placeholder="Company *" 
+                    value={newEquipment.equipment_company} 
+                    onChange={handleInputChange}
+                  />
                   <select name="type" value={newEquipment.type} onChange={handleInputChange} >
                     {equipmentTypes.map((type,index) => (
                       <option key={index} value={type.type}>
@@ -362,16 +431,18 @@ function AddEquipment() {
                 <input 
                   type="number" 
                   name="pricePerDay" 
-                  placeholder="Price per day Rs." 
+                  placeholder="Price per day Rs. *" 
                   value={newEquipment.pricePerDay} 
-                  onChange={handleInputChange} 
+                  onChange={handleInputChange}
                 />
+                
                 <textarea
                   name="description"
-                  placeholder="Description"
+                  placeholder="Description *"
                   value={newEquipment.description}
                   onChange={handleInputChange}
                 />
+                
                 <div className="button_con">
                   <button 
                     className="save-btn"

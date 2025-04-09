@@ -396,3 +396,93 @@
 #AddReviews .clear-filter-btn:hover {
     background-color: #e0e0e0;
 }
+
+/* No Reviews UI Styling */
+#AddReviews .no-reviews-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 30px 15px;
+    text-align: center;
+    border-radius: 12px;
+    margin: 20px 0;
+    animation: fadeIn 0.6s ease-out;
+}
+
+#AddReviews .no-reviews-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ef 100%);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+#AddReviews .no-reviews-container h3 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    font-family: var(--Heading);
+    font-weight: var(--Heading_weight);
+}
+
+#AddReviews .no-reviews-container p {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin: 6px 0;
+    max-width: 400px;
+    line-height: 1.6;
+    font-family: var(--body_data);
+    font-weight: var(--body_data_weight);
+}
+
+/* Media queries for the no reviews container */
+@media (max-width: 768px) {
+    #AddReviews .no-reviews-container {
+        min-height: 60vh;
+        padding: 30px 15px;
+    }
+    
+    #AddReviews .no-reviews-icon {
+        font-size: 3rem;
+        width: 80px;
+        height: 80px;
+    }
+    
+    #AddReviews .no-reviews-container h3 {
+        font-size: 1.5rem;
+    }
+    
+    #AddReviews .no-reviews-container p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #AddReviews .no-reviews-container {
+        min-height: 50vh;
+        padding: 20px 10px;
+    }
+    
+    #AddReviews .no-reviews-icon {
+        font-size: 2.5rem;
+        width: 70px;
+        height: 70px;
+        margin-bottom: 15px;
+    }
+    
+    #AddReviews .no-reviews-container h3 {
+        font-size: 1.3rem;
+    }
+    
+    #AddReviews .no-reviews-container p {
+        font-size: 0.9rem;
+        max-width: 300px;
+    }
+}

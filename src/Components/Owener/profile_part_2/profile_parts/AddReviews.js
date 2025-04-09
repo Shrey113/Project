@@ -113,10 +113,24 @@ function AddReviews() {
 
   const reviewsToShow = filteredReviews.slice(0, visibleReviews);
 
+  // Render no reviews UI when there are no reviews at all
+  const renderNoReviewsUI = () => {
+    return (
+      <div className="no-reviews-container">
+        <div className="no-reviews-icon">📋</div>
+        <h3>No Reviews Yet</h3>
+        <p>Looks like you haven't received any reviews yet.</p>
+        <p>Once customers leave reviews, they will appear here.</p>
+      </div>
+    );
+  };
+
   return (
     <div id='AddReviews'>
       {isLoading ? (
         <div className="loading-spinner">Loading your reviews...</div>
+      ) : reviewsList.length === 0 ? (
+        renderNoReviewsUI()
       ) : (
         <>
           <div className="reviews-header">
