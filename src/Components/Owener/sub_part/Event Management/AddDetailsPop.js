@@ -55,26 +55,38 @@ const formatDate = (isoString) => {
   ).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
 };
 
-const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, actionButtonClass }) => (
-  <li className={`team-member ${isDisabled ? "down_opacity" : ""}`}>
-    <img src={member.member_profile_img} alt={member.member_name} className="member-img" />
-    <div className="member-info">
-      <strong>{member.member_name}</strong>
-    </div>
-    <button
-      className={actionButtonClass}
-      onClick={() => onAction(member)}
-      disabled={isDisabled}
-      title={isDisabled ? "This team member cannot be assigned." : ""}
-      style={{
-        cursor: isDisabled ? "not-allowed" : "pointer",
-        opacity: isDisabled ? 0.5 : 1,
-      }}
-    >
-      <ActionIcon style={{ height: "20px", width: "20px" }} />
-    </button>
-  </li>
-);
+const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, actionButtonClass }) => {
+  // Determine status class based on member status
+  const getStatusClass = () => {
+    if (member.status === 'assigned') return 'assigned-member';
+    if (member.status === 'busy') return 'busy-member';
+    return 'available-member';
+  };
+
+
+  return (
+    <li className={`team-member ${isDisabled ? "down_opacity" : ""}`}>
+      <div className="member-avatar-container">
+        <img src={member.member_profile_img} alt={member.member_name} className="member-img" />
+        <span className={`status-badge ${getStatusClass()}`}></span>
+      </div>
+      <div className="member-info">
+        <strong title={member.member_name}>{member.member_name}</strong>
+      </div>
+      <button
+        className={actionButtonClass}
+        onClick={() => onAction(member)}
+        disabled={isDisabled}
+        title={isDisabled ? "This team member is not available" : actionButtonClass === "assign-btn" ? "Assign Member" : "Remove Member"}
+        style={{
+          cursor: isDisabled ? "not-allowed" : "pointer",
+        }}
+      >
+        <ActionIcon style={{ width: "20px", height: "20px", display: "block" }} />
+      </button>
+    </li>
+  );
+};
 
 const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_package_data, set_receiver_equipment_data, set_receiver_service_data }) => {
   const user = useSelector((state) => state.user);
@@ -451,46 +463,48 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
 
   const renderTeamMemberSection = () => (
     <div className="assign_team_member_section">
-      <h3>Assigned Members</h3>
-      {assignedMembers.length > 0 && (
-        <div className="assigned-members-section">
-          <ul className="team-list">
-            {assignedMembers.map((member) => (
+      <h3>Team Members</h3>
+      <div className="team-members-section">
+        <ul className="team-list">
+          {/* Render assigned members first */}
+          {assignedMembers.map((member) => (
+            <TeamMember
+              key={member.member_id}
+              member={{...member, status: 'assigned'}}
+              onAction={removeAssignedMember}
+              actionIcon={CiCircleMinus}
+              actionButtonClass="remove-btn"
+            />
+          ))}
+          
+          {/* Render available members */}
+          {teamMembers.map((member) => {
+            const isDisabled = DisabledTeamMembers.includes(
+              member.member_name
+            );
+            
+            // Skip if this member is already assigned
+            if (assignedMembers.some(m => m.member_id === member.member_id)) {
+              return null;
+            }
+
+            return (
               <TeamMember
                 key={member.member_id}
-                member={member}
-                onAction={removeAssignedMember}
-                actionIcon={CiCircleMinus}
-                actionButtonClass="remove-btn"
+                member={{...member, status: isDisabled ? 'busy' : 'available'}}
+                onAction={assignMember}
+                actionIcon={CiCirclePlus}
+                isDisabled={isDisabled}
+                actionButtonClass="assign-btn"
               />
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="team-members-section">
-        <h3>Available Team Members</h3>
-        {teamMembers.length > 0 ? (
-          <ul className="team-list">
-            {teamMembers.map((member) => {
-              const isDisabled = DisabledTeamMembers.includes(
-                member.member_name
-              );
-
-              return (
-                <TeamMember
-                  key={member.member_id}
-                  member={member}
-                  onAction={assignMember}
-                  actionIcon={CiCirclePlus}
-                  isDisabled={isDisabled}
-                  actionButtonClass="assign-btn"
-                />
-              );
-            })}
-          </ul>
-        ) : (
-          <p>No team members available.</p>
+            );
+          })}
+        </ul>
+        
+        {teamMembers.length === 0 && assignedMembers.length === 0 && (
+          <div className="no-members-message">
+            <p>No team members available.</p>
+          </div>
         )}
       </div>
     </div>
