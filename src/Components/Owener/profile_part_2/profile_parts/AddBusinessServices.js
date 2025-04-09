@@ -56,7 +56,7 @@ function AddBusinessServices() {
       serviceName: service.service_name,
       pricePerDay: service.price_per_day,
       description: service.description || '',
-      user_email: user.user_email
+      user_email: service.user_email
     });
     setShowForm(true);
     setErrors({});
@@ -332,16 +332,61 @@ function AddBusinessServices() {
     setErrors({});
   };
 
-  // Function to get the appropriate icon based on service name
   const getServiceIcon = (serviceName) => {
     const name = serviceName.toLowerCase();
-    if (name.includes('wedding')) {
+    
+    // Wedding and celebration photography
+    if (name.includes('wedding') || name.includes('proposal') || name.includes('engagement')) {
       return <BiCameraMovie className="service-icon wedding" />;
-    } else if (name.includes('event') || name.includes('concert') || name.includes('festival')) {
+    } 
+    // Events and gatherings
+    else if (name.includes('event') || name.includes('concert') || name.includes('festival') || name.includes('performance')) {
       return <FaCameraRetro className="service-icon event" />;
-    } else if (name.includes('portrait') || name.includes('headshot')) {
+    } 
+    // People-focused photography
+    else if (name.includes('portrait') || name.includes('headshot') || name.includes('family') || 
+             name.includes('maternity') || name.includes('newborn') || name.includes('boudoir')) {
       return <BsPersonSquare className="service-icon portrait" />;
-    } else {
+    }
+    // Nature and outdoors
+    else if (name.includes('landscape') || name.includes('nature') || name.includes('wildlife') || 
+             name.includes('travel') || name.includes('adventure') || name.includes('underwater')) {
+      return <MdPhotoCamera className="service-icon nature" />;
+    }
+    // Food and product
+    else if (name.includes('food') || name.includes('product') || name.includes('commercial') || 
+             name.includes('e-commerce')) {
+      return <MdPhotoCamera className="service-icon product" />;
+    }
+    // Architecture and real estate
+    else if (name.includes('architectural') || name.includes('real estate') || name.includes('interior')) {
+      return <MdPhotoCamera className="service-icon architectural" />;
+    }
+    // Fashion and style
+    else if (name.includes('fashion') || name.includes('editorial') || name.includes('glamour') || 
+             name.includes('model')) {
+      return <FaCameraRetro className="service-icon fashion" />;
+    }
+    // Specialty photography
+    else if (name.includes('aerial') || name.includes('drone') || name.includes('macro') || 
+             name.includes('astro') || name.includes('night')) {
+      return <BiCameraMovie className="service-icon specialty" />;
+    }
+    // Sports and action
+    else if (name.includes('sport') || name.includes('action') || name.includes('adventure')) {
+      return <FaCameraRetro className="service-icon sports" />;
+    }
+    // Art and creative
+    else if (name.includes('fine art') || name.includes('abstract') || name.includes('black and white') || 
+             name.includes('conceptual') || name.includes('creative')) {
+      return <MdPhotoCamera className="service-icon art" />;
+    }
+    // Business and corporate
+    else if (name.includes('corporate') || name.includes('business') || name.includes('professional')) {
+      return <BsPersonSquare className="service-icon corporate" />;
+    }
+    // Default icon for any other type
+    else {
       return <MdPhotoCamera className="service-icon" />;
     }
   };
