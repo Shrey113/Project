@@ -3,6 +3,7 @@ import "./TeamOverview.css";
 import { useSelector } from "react-redux";
 // import add_icon from "./Team_overview/plus.png";
 import Edit_icon from "./Team_overview/pencil.png";
+import "./PopupStyles.css";
 import Remove_icon from "./Team_overview/delete.png";
 // import View_icon from "./Team_overview/info.png";
 import profile_pic_user1 from "./profile_pic/user1.jpg";
@@ -69,7 +70,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
           body: JSON.stringify({
             owner_email: user.user_email,
             member_name: formData.member_name,
-            member_profile_img: profile_pic_user1,
+            member_profile_img: formData.member_profile_img,
             member_role: formData.member_role,
           }),
         });
@@ -128,77 +129,71 @@ const PopUp = ({ action, member, onClose, onSave }) => {
       onClick={handleOverlayClick}
     >
       <div className="popup-content">
-        <h3>{action} User</h3>
+        <h3 className="popup-title">{action} User</h3>
         {action !== "View" ? (
-          <form>
-            <label>
-              Name:
-              <input
-                type="text"
-                name="member_name"
-                value={formData.member_name}
-                onChange={handleChange}
-              />
-              {formErrors.member_name && (
-                <div className="error">{formErrors.member_name}</div>
-              )}
-            </label>
-            <label>
-              Role:
-              <input
-                type="text"
-                name="member_role"
-                value={formData.member_role}
-                onChange={handleChange}
-              />
-              {formErrors.member_role && (
-                <div className="error">{formErrors.member_role}</div>
-              )}
-            </label>
+          <form className="user-form">
+            <div className="form-group">
+              <label className="form-label">
+                Name:
+                <input
+                  type="text"
+                  name="member_name"
+                  className="form-input"
+                  placeholder="Enter team member's name"
+                  value={formData.member_name}
+                  onChange={handleChange}
+                />
+                {formErrors.member_name && (
+                  <div className="error-message">{formErrors.member_name}</div>
+                )}
+              </label>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">
+                Role:
+                <input
+                  type="text"
+                  name="member_role"
+                  className="form-input"
+                  placeholder="Enter team member's role"
+                  value={formData.member_role}
+                  onChange={handleChange}
+                />
+                {formErrors.member_role && (
+                  <div className="error-message">{formErrors.member_role}</div>
+                )}
+              </label>
+            </div>
 
-
-            <label className="pro_title">Profile Picture:</label>
-            <div className="profile-pic-selection">
-              <img
-                src={profile_pic_user1}
-                alt="User 1"
-                onClick={() => handleProfilePicChange(profile_pic_user1)}
-                className={
-                  formData.member_profile_img === profile_pic_user1
-                    ? "selected"
-                    : ""
-                }
-              />
-              <img
-                src={profile_pic_user2}
-                alt="User 2"
-                onClick={() => handleProfilePicChange(profile_pic_user2)}
-                className={
-                  formData.member_profile_img === profile_pic_user2
-                    ? "selected"
-                    : ""
-                }
-              />
-              <img
-                src={profile_pic_user3}
-                alt="User 3"
-                onClick={() => handleProfilePicChange(profile_pic_user3)}
-                className={
-                  formData.member_profile_img === profile_pic_user3
-                    ? "selected"
-                    : ""
-                }
-              />
-              <img
-                src={profile_pic_user4}
-                alt="User 4"
-                onClick={() => handleProfilePicChange(profile_pic_user4)}
-                className={
-                  formData.member_profile_img === profile_pic_user4
-                    ? "selected"
-                    : ""
-                }
-              />
+            <div className="form-group">
+              <label className="form-label">Profile Picture:</label>
+              <div className="profile-pic-selection">
+                <div 
+                  className={`profile-option ${formData.member_profile_img === profile_pic_user1 ? "selected" : ""}`}
+                  onClick={() => handleProfilePicChange(profile_pic_user1)}
+                >
+                  <img src={profile_pic_user1} alt="User 1" />
+                </div>
+                <div 
+                  className={`profile-option ${formData.member_profile_img === profile_pic_user2 ? "selected" : ""}`}
+                  onClick={() => handleProfilePicChange(profile_pic_user2)}
+                >
+                  <img src={profile_pic_user2} alt="User 2" />
+                </div>
+                <div 
+                  className={`profile-option ${formData.member_profile_img === profile_pic_user3 ? "selected" : ""}`}
+                  onClick={() => handleProfilePicChange(profile_pic_user3)}
+                >
+                  <img src={profile_pic_user3} alt="User 3" />
+                </div>
+                <div 
+                  className={`profile-option ${formData.member_profile_img === profile_pic_user4 ? "selected" : ""}`}
+                  onClick={() => handleProfilePicChange(profile_pic_user4)}
+                >
+                  <img src={profile_pic_user4} alt="User 4" />
+                </div>
+              </div>
             </div>
           </form>
         ) : (
@@ -235,8 +230,8 @@ const PopUp = ({ action, member, onClose, onSave }) => {
         )}
 
         <div className="popup-actions">
-          <button onClick={onClose}>Cancel</button>
-          {action !== "View" && <button onClick={handleSubmit}>Save</button>}
+          <button className="btn btn-cancel" onClick={onClose}>Cancel</button>
+          {action !== "View" && <button className="btn btn-save" onClick={handleSubmit}>Save</button>}
         </div>
       </div>
     </div>

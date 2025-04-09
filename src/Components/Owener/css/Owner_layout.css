@@ -29,7 +29,7 @@
 }
 
 .main_part {
-  padding: 20px;
+  /* padding: 20px; */
   min-height: calc(100vh - 70px); /* Subtract navbar height */
   width: 100%;
   box-sizing: border-box; /* Include padding in width calculation */
