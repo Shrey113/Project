@@ -1,0 +1,47 @@
+.Owner_main_home_pag_con {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  transition: margin-left 0.3s ease;
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  box-sizing: border-box; /* Ensure padding doesn't add to width */
+}
+
+/* Desktop styles */
+@media screen and (min-width: 1201px) {
+  .Owner_main_home_pag_con {
+    margin-left: 250px;
+    width: calc(100% - 250px); /* Account for sidebar width */
+  }
+
+  .Owner_main_home_pag_con.sidebar-closed {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* Mobile styles */
+@media screen and (max-width: 1200px) {
+  .Owner_main_home_pag_con {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+.main_part {
+  padding: 20px;
+  min-height: calc(100vh - 70px); /* Subtract navbar height */
+  width: 100%;
+  box-sizing: border-box; /* Include padding in width calculation */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.footer-bottom {
+  text-align: center;
+  padding: 20px;
+  background-color: white;
+  border-top: 1px solid #eee;
+  margin-top: auto;
+  width: 100%;
+  box-sizing: border-box; /* Include padding in width calculation */
+} 

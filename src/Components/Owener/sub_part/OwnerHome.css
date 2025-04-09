@@ -8,7 +8,7 @@
   /* background: var(--owner_home_page_bg); */
   display: flex;
 
-  padding-left: var(--owner_side_bar_width);
+  /* padding-left: var(--owner_side_bar_width); */
 }
 
 .Owner_main_home_pag_con.for_mobile {

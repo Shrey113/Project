@@ -22,16 +22,28 @@ const initialState = {
   user_profile_image_base64: '',
   business_profile_base64: '',
 
-  // for mobile
-  isMobile: window.innerWidth <= 1200,
-  isSidebarOpen: window.innerWidth > 1200,
-  activeIndex: 0,
+  // UI state is now managed via React Context instead of Redux
+  // to prevent unnecessary re-renders
 };
 
+// Create a shallow copy of state only when necessary
+// This helps prevent unnecessary re-renders
 const user_data = (state = initialState, action) => {
   switch (action.type) {
-    case 'SET_USER_Owner':
-      return { ...state, ...action.payload };
+    case 'SET_USER_Owner': {
+      // Only create a new state object if something actually changed
+      const newState = { ...state };
+      let hasChanged = false;
+      
+      Object.entries(action.payload).forEach(([key, value]) => {
+        if (state[key] !== value) {
+          newState[key] = value;
+          hasChanged = true;
+        }
+      });
+      
+      return hasChanged ? newState : state;
+    }
     case 'RESET_USER_Owner':
       return initialState;
     default:

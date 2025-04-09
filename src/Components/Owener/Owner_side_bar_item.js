@@ -8,7 +8,7 @@ const MenuItem = memo(({
   activeIndex, 
   handleItemClick,
   isMobile,
-  set_is_sidebar_open,
+  setIsSidebarOpen,
   setActiveIndex,
   navigate
 }) => {
@@ -44,7 +44,7 @@ const MenuItem = memo(({
                 setActiveIndex(index + (subIndex + 1) / 10);
                 navigate(subItem.path);
                 if (isMobile) {
-                  set_is_sidebar_open(false);
+                  setIsSidebarOpen(false);
                 }
               }}
             >

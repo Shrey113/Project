@@ -1,8 +1,21 @@
+/* Global CSS to prevent horizontal scrolling */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   user-select: none;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .App {

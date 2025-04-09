@@ -2,7 +2,6 @@ import {
   Route,
   Routes,
   // useParams,
-  useLocation,
 } from "react-router-dom";
 import "./App.css"
 import React, { useState, useEffect } from "react";
@@ -10,6 +9,7 @@ import LoginRegisterOwener from "./Components/Owener/Login_Register.js";
 import LoginRegisterClient from "./Components/Client/login_register.js";
 import ShowLoder from "./Components/Owener/sub_components/show_loder.js";
 import { useDispatch, useSelector } from "react-redux";
+import { UIProvider } from "./redux/UIContext.js";
 // set etewt weewfsf
 // set etewt weewfsf
 // set etewt weewfsf
@@ -74,14 +74,13 @@ import OwnerNavbar from "./Components/Owener/OwnerNavbar.js";
 import AllPhotoFiles from "./Components/Owener/sub_part/Search_photographer/sub_part/AllPhotoFiles.js";
 import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_part/AllServices .js";
 import StackingCards from "./Components/BeforeLogin/new_design/StackingCards/StackingCards.js";
+import OwnerLayout from "./Components/Owener/OwnerLayout.js";
 
 
 
 function App() {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
-  const location = useLocation();
-  const isMobile = useSelector((state) => state.user.isMobile);
 
   // Socket connection management with useEffect
   useEffect(() => {
@@ -102,54 +101,9 @@ function App() {
     client: null,
   });
 
-
   const [OwnerStatus, setOwnerStatus] = useState("");
 
-
   // const { owner_email } = useParams();
-
-  useEffect(() => {
-    const setActiveIndex = (value) => {
-      dispatch({
-        type: "SET_USER_Owner",
-        payload: { activeIndex: value },
-      });
-    };
-
-    switch (location.pathname) {
-      case "/Owner":
-        setActiveIndex(0);
-        break;
-      case "/Owner/Event":
-        setActiveIndex(1);
-        break;
-      case "/Owner/Team":
-        setActiveIndex(2);
-        break;
-      case "/Owner/Invoice":
-        setActiveIndex(3);
-        break;
-      case "/Owner/Packages":
-        setActiveIndex(4);
-        break;
-      case "/Owner/Event/packages":
-        setActiveIndex(1.1);
-        break;
-      case "/Owner/Event/equipment":
-        setActiveIndex(1.2);
-        break;
-      case "/Owner/Event/services":
-        setActiveIndex(1.3);
-        break;
-      case "/Owner/Profile":
-        setActiveIndex(8);
-        break;
-      default:
-        if (location.pathname.includes("/Owner/search_photographer")) {
-          setActiveIndex(5);
-        }
-    }
-  }, [dispatch, location.pathname]);
 
   const renderStatus = () => {
     switch (OwnerStatus) {
@@ -165,37 +119,26 @@ function App() {
   };
 
   const SetOwnerPage = ({ ActivePage, category }) => {
-
     const [searchTerm, setSearchTerm] = useState("");
     const location = window.location.pathname;
+    
     return OwnerStatus === "Accept" ? (
-      <div
-        className={`Owner_main_home_pag_con ${isMobile ? "for_mobile" : ""} 
-          }`}
-      >
-        <div className="main_part">
+      <OwnerLayout>
+        <OwnerNavbar
+          searchTerm={location === "/Owner/search_photographer" ? searchTerm : ''}
+          setSearchTerm={location === "/Owner/search_photographer" ? setSearchTerm : ''} 
+        />
 
-          <OwnerNavbar
+        <ActivePage
+          category={category}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm} 
+        />
 
-            searchTerm={location === "/Owner/search_photographer" ? searchTerm : ''}
-
-            setSearchTerm={location === "/Owner/search_photographer" ? setSearchTerm : ''} />
-
-
-
-          <ActivePage
-
-            category={category}
-
-            searchTerm={searchTerm}
-
-            setSearchTerm={setSearchTerm} />
-
-          <div className="footer-bottom">
-            <p>&copy; 2025 Photography Hub. All rights reserved.</p>
-          </div>
+        <div className="footer-bottom">
+          <p>&copy; 2025 Photography Hub. All rights reserved.</p>
         </div>
-      </div>
+      </OwnerLayout>
     ) : (
       renderStatus()
     );
@@ -254,37 +197,36 @@ function App() {
           const data = await response.json();
 
           if (data.user) {
-            dispatch({
-              type: "SET_USER_Owner",
-              payload: {
-                client_id: data.user.client_id || null,
-                user_name: data.user.user_name || null,
-                user_email: data.user.user_email || null,
-                user_password: data.user.user_password || null,
-                business_name: data.user.business_name || null,
-                business_address: data.user.business_address || null,
-                mobile_number: data.user.mobile_number || null,
-                gst_number: data.user.gst_number || null,
-                user_Status: data.user.user_Status || null,
-                admin_message: data.user.admin_message || null,
-                set_status_by_admin: data.user.set_status_by_admin || null,
-                first_name: data.user.first_name || null,
-                last_name: data.user.last_name || null,
-                gender: data.user.gender || null,
-                social_media: data.user.social_media || null,
-                website: data.user.website || null,
-                services: data.user.services || null,
-                business_email: data.user.business_email || null,
-
-                business_profile_base64:
-                  data.user.business_profile_base64 || null,
-                user_profile_image_base64:
-                  data.user.user_profile_image_base64 || null,
-              },
+            // Create a payload with only the fields that have changed
+            const userFields = [
+              'client_id', 'user_name', 'user_email', 'user_password', 
+              'business_name', 'business_address', 'mobile_number', 
+              'gst_number', 'user_Status', 'admin_message',
+              'set_status_by_admin', 'first_name', 'last_name', 'gender',
+              'social_media', 'website', 'services', 'business_email',
+              'business_profile_base64', 'user_profile_image_base64'
+            ];
+            
+            const payload = {};
+            let hasChanges = false;
+            
+            userFields.forEach(field => {
+              const newValue = data.user[field] || null;
+              if (user[field] !== newValue) {
+                payload[field] = newValue;
+                hasChanges = true;
+              }
             });
+            
+            // Only dispatch if there are actual changes
+            if (hasChanges) {
+              dispatch({
+                type: "SET_USER_Owner",
+                payload
+              });
+            }
 
             setOwnerStatus(data.user.user_Status);
-
             setAuthStatus((prev) => ({ ...prev, owner: true }));
           } else {
             setAuthStatus((prev) => ({ ...prev, owner: false }));
@@ -333,12 +275,11 @@ function App() {
     };
 
     authenticateUser();
-  }, [dispatch]);
+  }, [dispatch, user]);
 
   // 3. Show Loader
   if (
     authStatus.owner === null ||
-
     authStatus.client === null ||
     authStatus.admin === null
   ) {
@@ -346,275 +287,277 @@ function App() {
   }
 
   return (
-    <>
-      <Routes>
-        {/* testing part */}
-        <Route path="/Admin2" element={<Admin2 socket={socket} />} />
-        {/* <Route path="/Admin1" element={<Admin/> } /> */}
-        <Route path="/BeforeLogin" element={<BeforeLogin2 />} />
+    <UIProvider>
+      <>
+        <Routes>
+          {/* testing part */}
+          <Route path="/Admin2" element={<Admin2 socket={socket} />} />
+          {/* <Route path="/Admin1" element={<Admin/> } /> */}
+          <Route path="/BeforeLogin" element={<BeforeLogin2 />} />
 
-        {/* Default route */}
-        <Route
-          path="/"
-          element={
-            authStatus.client ? (
-              <HomePage />
-            ) : authStatus.owner ? (
-              <SetOwnerPage ActivePage={OwnerHome} />
-            ) : authStatus.admin ? (
-              <Admin2 />
-            ) : (
-              <BeforeLogin2 />
-            )
-          }
-        />
+          {/* Default route */}
+          <Route
+            path="/"
+            element={
+              authStatus.client ? (
+                <HomePage />
+              ) : authStatus.owner ? (
+                <SetOwnerPage ActivePage={OwnerHome} />
+              ) : authStatus.admin ? (
+                <Admin2 />
+              ) : (
+                <BeforeLogin2 />
+              )
+            }
+          />
 
-        {/* Client routes */}
-        <Route
-          path="/Client"
-          element={authStatus.client ? <HomePage /> : <LoginRegisterClient />}
-        />
-        <Route
-          path="/Client/HomePage"
-          element={authStatus.client ? <HomePage /> : <LoginRegisterClient />}
-        />
+          {/* Client routes */}
+          <Route
+            path="/Client"
+            element={authStatus.client ? <HomePage /> : <LoginRegisterClient />}
+          />
+          <Route
+            path="/Client/HomePage"
+            element={authStatus.client ? <HomePage /> : <LoginRegisterClient />}
+          />
 
-        {/* -------------------------------------------------------------------------------------------------------------- */}
+          {/* -------------------------------------------------------------------------------------------------------------- */}
 
-        {/* Owner routes */}
-        <Route
-          path="/Owner"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={OwnerHome} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          {/* Owner routes */}
+          <Route
+            path="/Owner"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={OwnerHome} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        {/* Owner routes Event Management */}
-        {/* <Route
-          path="/Owner/Event"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={EventManagement} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        /> */}
-        <Route
-          path="/Owner/Event/packages"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={EventManagement} category="Packages" />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
-        <Route
-          path="/Owner/Event/equipment"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={EventManagement} category="Equipment" />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          {/* Owner routes Event Management */}
+          {/* <Route
+            path="/Owner/Event"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={EventManagement} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          /> */}
+          <Route
+            path="/Owner/Event/packages"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={EventManagement} category="Packages" />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
+          <Route
+            path="/Owner/Event/equipment"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={EventManagement} category="Equipment" />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        <Route
-          path="/Owner/Event/services"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={EventManagement} category="Service" />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
-        {/* <Route
-          path="/Owner/Event/services"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={Services} /> 
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        /> */}
+          <Route
+            path="/Owner/Event/services"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={EventManagement} category="Service" />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
+          {/* <Route
+            path="/Owner/Event/services"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={Services} /> 
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          /> */}
 
-        {/* Owner routes Team Management */}
-        <Route
-          path="/Owner/Team"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={TeamOverview} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          {/* Owner routes Team Management */}
+          <Route
+            path="/Owner/Team"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={TeamOverview} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        {/* Owner routes Invoice */}
-        <Route
-          path="/Owner/Invoice"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={TableToggleButtons} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          {/* Owner routes Invoice */}
+          <Route
+            path="/Owner/Invoice"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={TableToggleButtons} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
 
-        {/* Owner routes Packages */}
-        <Route
-          path="/Owner/Packages"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={Packages} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          {/* Owner routes Packages */}
+          <Route
+            path="/Owner/Packages"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={Packages} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        {/* Owner routes calendar */}
-        {/* <Route path="/Owner/calendar" element={authStatus.owner ? 
-          <SetOwnerPage ActivePage={Calendar} /> : 
-          <LoginRegisterOwener />
-        } /> */}
+          {/* Owner routes calendar */}
+          {/* <Route path="/Owner/calendar" element={authStatus.owner ? 
+            <SetOwnerPage ActivePage={Calendar} /> : 
+            <LoginRegisterOwener />
+          } /> */}
 
-        <Route
-          path="/Owner/search_photographer"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={Search_photographer} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          <Route
+            path="/Owner/search_photographer"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={Search_photographer} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        <Route
-          path="/Owner/search_photographer/:owner_email"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={OwnerDetails} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
-        <Route
-          path="/Owner/search_photographer/:owner_email/:type"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={DetailedView} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          <Route
+            path="/Owner/search_photographer/:owner_email"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={OwnerDetails} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
+          <Route
+            path="/Owner/search_photographer/:owner_email/:type"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={DetailedView} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        <Route
-          path="/Owner/search_photographer/:owner_email/all_photos"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={AllPhotoFiles} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          <Route
+            path="/Owner/search_photographer/:owner_email/all_photos"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={AllPhotoFiles} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        <Route
-          path="/Owner/search_photographer/:owner_email/all_services"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={AllServices} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          <Route
+            path="/Owner/search_photographer/:owner_email/all_services"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={AllServices} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        <Route
-          path="/Owner/Profile"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={Profile} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          <Route
+            path="/Owner/Profile"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={Profile} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        {/* -------------------------------------------------------------------------------------------------------------- */}
+          {/* -------------------------------------------------------------------------------------------------------------- */}
 
-        <Route
-          path="/Owner_profile/search_photographer/:owner_email"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={OwnerDetails} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          <Route
+            path="/Owner_profile/search_photographer/:owner_email"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={OwnerDetails} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        <Route
-          path="/Owner/share_profile/:owner_email"
-          element={<OwnerDetails />
-          }
-        />
+          <Route
+            path="/Owner/share_profile/:owner_email"
+            element={<OwnerDetails />
+            }
+          />
 
-        <Route
-          path="/Owner/share_profile/:owner_email/:type"
-          element={<DetailedView />
-          }
-        />
+          <Route
+            path="/Owner/share_profile/:owner_email/:type"
+            element={<DetailedView />
+            }
+          />
 
-        <Route
-          path="/Owner/share_profile/:owner_email/all_photos"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={AllPhotoFiles} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          <Route
+            path="/Owner/share_profile/:owner_email/all_photos"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={AllPhotoFiles} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        <Route
-          path="/Owner/share_profile/:owner_email/all_services"
-          element={
-            authStatus.owner ? (
-              <SetOwnerPage ActivePage={AllServices} />
-            ) : (
-              <LoginRegisterOwener />
-            )
-          }
-        />
+          <Route
+            path="/Owner/share_profile/:owner_email/all_services"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={AllServices} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
 
-        <Route
-          path="/test"
-          element={<StackingCards />}
-        />
+          <Route
+            path="/test"
+            element={<StackingCards />}
+          />
 
-        {/* 404 Page */}
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-      {authStatus.owner && OwnerStatus === "Accept" && !window.location.pathname.includes("/Owner/share_profile") && (
-        <OwnerSideBar />
-      )}
+          {/* 404 Page */}
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+        {authStatus.owner && OwnerStatus === "Accept" && !window.location.pathname.includes("/Owner/share_profile") && (
+          <OwnerSideBar />
+        )}
 
-      <Toaster position="top-right" />
-    </>
+        <Toaster position="top-right" />
+      </>
+    </UIProvider>
   );
 }
 

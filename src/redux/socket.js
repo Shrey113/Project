@@ -13,7 +13,7 @@ const socket = io(Socket_url, {
 });
 
 socket.on("connect", () => {
-  console.log("Conne  cted to WebSocket server");
+  // console.log("Conne  cted to WebSocket server");
 });
 
 

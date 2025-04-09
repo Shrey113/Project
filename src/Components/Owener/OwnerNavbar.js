@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import "./css/Owner_navbar.css";
 import { IoIosNotifications } from "react-icons/io";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import burger_menu from "./img/burger-menu.png";
 import socket from "./../../redux/socket";
 import { Server_url } from "../../redux/AllData";
@@ -11,7 +10,7 @@ import { PiUserCheckFill } from "react-icons/pi";
 import { GrServices } from "react-icons/gr";
 import { BiSearch } from "react-icons/bi";
 import no_notification from "./img/no_notification.png"
-import { logoBlue } from './../../redux/AllData';
+import { useUIContext } from "../../redux/UIContext.js";
 // import { Bell } from "lucide-react";
 
 import { IoArrowBack } from "react-icons/io5"; // Import back icon
@@ -19,10 +18,11 @@ import { IoArrowBack } from "react-icons/io5"; // Import back icon
 function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
-  const isMobile = useSelector((state) => state.user.isMobile);
-  const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
+  
+  // Use UI Context instead of Redux for UI-specific state
+  const { isMobile, isSidebarOpen, setIsSidebarOpen } = useUIContext();
+  
   const [is_new_notification, set_is_new_notification] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const searchInputRef = useRef(null);
@@ -45,15 +45,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     localStorage.setItem(`switchState_for_${user.user_email}`, isChecked);
   }, [isChecked, user.user_email]);
 
-  const set_is_sidebar_open = (value) => {
-    dispatch({
-      type: "SET_USER_Owner",
-      payload: {
-        isSidebarOpen: value,
-      },
-    });
-  };
-
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -61,7 +52,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         !event.target.closest("#notification_popup") &&
         !event.target.closest(".bell_icon")
       ) {
-        console.log("this is navbar open:", navbar_open);
         set_navbar_open(false);
       }
     }
@@ -90,18 +80,16 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     };
   }, [isSearchVisible]);
 
-  // Modified useEffect to handle focus with a slight delay
-  useEffect(() => {
-    if (isSearchVisible && window.innerWidth <= 650) {
-      // Add a small delay to ensure the element is rendered and transition is complete
-      const timer = setTimeout(() => {
-        if (searchInputRef.current) {
-          searchInputRef.current.focus();
-        }
-      }, 100);
-      return () => clearTimeout(timer);
+  // Toggle sidebar function with explicit state
+  const handleBurgerMenuClick = () => {
+    console.log("Burger menu clicked, current state:", isSidebarOpen);
+    // Force sidebar open on mobile, especially on first click
+    if (isMobile) {
+      setIsSidebarOpen(true);
+    } else {
+      setIsSidebarOpen(!isSidebarOpen);
     }
-  }, [isSearchVisible]);
+  };
 
   async function getUserNameByEmail(user_email) {
     try {
@@ -126,16 +114,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       return `Error: ${error.message}`;
     }
   }
-
-
-  const setActiveIndex = (value) => {
-    dispatch({
-      type: "SET_USER_Owner",
-      payload: {
-        activeIndex: value,
-      },
-    });
-  };
 
   // Move email check to useEffect
   useEffect(() => {
@@ -273,31 +251,9 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     }, 3000);
   }
 
-  const get_all_notifications = async () => {
-    try {
-      const response = await fetch(`${Server_url}/get_all_notifications`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: user.user_email
-        })
-      })
-      const data = await response.json();
-      if (!response.ok) {
-        console.log("Error:", data.message);
-      }
-      set_all_data(data.notifications);
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   // for package notification 
-
   useEffect(() => {
-    const get_all_notifications = async () => {
+    const fetchAndUpdateNotifications = async () => {
       try {
         const response = await fetch(`${Server_url}/get_all_notifications`, {
           method: "POST",
@@ -317,6 +273,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         console.log(error)
       }
     }
+    
     function showNotification(data, type) {
       console.log("this is package notification id:", data, type);
       if (!isChecked) {
@@ -325,11 +282,12 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         console.log("running dot ", isChecked);
         set_is_new_notification(true);
       }
-      get_all_notifications();
+      fetchAndUpdateNotifications();
       if (navbar_open) {
         set_is_new_notification(false);
       }
     }
+    
     socket.on(`package_notification_${user.user_email}`, (data) => showNotification(data.all_data, data.type));
 
     return () => {
@@ -339,7 +297,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
   // for service notification 
   useEffect(() => {
-    const get_all_notifications = async () => {
+    const fetchAndUpdateNotifications = async () => {
       try {
         const response = await fetch(`${Server_url}/get_all_notifications`, {
           method: "POST",
@@ -368,7 +326,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       }
 
       // set_temp_notification(data, type);
-      get_all_notifications();
+      fetchAndUpdateNotifications();
       if (navbar_open) {
         set_is_new_notification(false);
       }
@@ -382,7 +340,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
   // for equipment notification 
   useEffect(() => {
-    const get_all_notifications = async () => {
+    const fetchAndUpdateNotifications = async () => {
       try {
         const response = await fetch(`${Server_url}/get_all_notifications`, {
           method: "POST",
@@ -411,7 +369,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         set_is_new_notification(true);
       }
 
-      get_all_notifications();
+      fetchAndUpdateNotifications();
       if (navbar_open) {
         set_is_new_notification(false);
       }
@@ -546,63 +504,51 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   };
 
   return (
-    <>
-      <div id="constant_navbar" className="constant_navbar">
-        <div className="navbar_section_name" style={{ cursor: "pointer" }}>
-          {isMobile && (
-            <>
-
-              <div className="toggle_button_con"
-                id="toggle_button_con_home_page"
-                onClick={() => {
-                  set_is_sidebar_open(!isSidebarOpen);
-                }}
-              >
-                <img src={burger_menu} alt="Menu" />
-              </div><div className="title_bar_img">
-                <img src={logoBlue} alt="" style={{ width: "40px", height: "40px" }} />
-              </div>
-            </>
-          )}
+    <div className={`owner_navbar_main_con ${isMobile ? "for_mobile" : ""}`}>
+      <div className="owner_navbar_flex">
+        <div
+          className="burger_menu"
+          onClick={handleBurgerMenuClick}
+        >
+          <img src={burger_menu} alt="Menu" />
+        </div>
+        <div className="navbar_section_name">
           {getNavbarName()}
         </div>
+
         <div className="navbar_profile">
-          {setSearchTerm && (
-            <div className={`search_bar ${isSearchVisible ? 'expanded' : ''}`}>
-              <BiSearch
-                className="search_icon"
-                onClick={handleSearchIconClick}
+          {location.pathname === "/Owner/search_photographer" && (
+            <div className={`search_bar ${isSearchVisible ? "expanded" : ""}`}>
+              <BiSearch 
+                className="search_icon" 
+                onClick={handleSearchIconClick} 
               />
-              <input
+              <input 
                 ref={searchInputRef}
-                type="text"
-                placeholder="Search"
-                value={searchTerm}
-                onChange={(e) => {
-                  if (setSearchTerm) {
-                    setSearchTerm(e.target.value);
-                  }
-                }}
-                onClick={(e) => e.stopPropagation()}
+                type="text" 
+                placeholder="Search by name, location..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
               />
             </div>
           )}
-
-          <div className="bell_icon" onClick={() => { handleNotificationClick(); get_all_notifications(); }}>
+          
+          <div className="bell_icon" onClick={handleNotificationClick}>
             <IoIosNotifications className="bell_icon_icon" />
             <div className={`notification_count ${is_new_notification ? "show" : ""}`}></div>
           </div>
-          <div
-            className="profile"
-            onClick={() => {
-              setActiveIndex(10);
-              navigate("/Owner/Profile");
-            }}
-          >
-            <img src={user.user_profile_image_base64} alt="" />
+          
+          <div className="profile" onClick={() => navigate('/Owner/Profile')}>
+            <img 
+              src={user.user_profile_image_base64 || "https://via.placeholder.com/40"} 
+              alt="Profile" 
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/40";
+              }} 
+            />
             <div className="profile_data">
-              <div className="user_name">{user.user_name}</div>
-              <div className="user_email">{user.user_email}</div>
+              <div className="user_name">{user.user_name || "User"}</div>
+              <div className="user_email">{user.user_email || "user@example.com"}</div>
             </div>
           </div>
         </div>
@@ -647,8 +593,8 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
         )}
       </div>
-    </>
+    </div>
   );
 }
 
-export default OwnerNavbar;
+export default React.memo(OwnerNavbar);

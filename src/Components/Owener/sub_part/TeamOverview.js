@@ -564,7 +564,6 @@ const TeamOverview = () => {
   //       };
   //     });
 
-  //     console.log("Updated Team Data:", updatedTeamData);
   //     setTeamData(updatedTeamData);
 
   //   } catch (error) {
@@ -586,7 +585,6 @@ const TeamOverview = () => {
       });
 
       const statusData = await statusResponse.json();
-      console.log("Fetched Status Data:", statusData);
 
       // Extract assigned members and their event details
       let assignedMembersMap = new Map();
@@ -595,7 +593,6 @@ const TeamOverview = () => {
       if (statusData && Array.isArray(statusData) && statusData.length > 0 && statusData[0]) {
         // Now safely check for assigned_team_member
         if (Array.isArray(statusData[0].assigned_team_member)) {
-          console.log("statusData available");
           
           statusData.forEach((item) => {
             if (item && Array.isArray(item.assigned_team_member)) {
@@ -611,12 +608,14 @@ const TeamOverview = () => {
               console.warn("Skipping item with invalid assigned_team_member:", item);
             }
           });
-        } else {
-          console.log("statusData has no valid assigned_team_member array");
-        }
-      } else {
-        console.log("No valid status data available");
-      }
+        } 
+        // else {
+        //   console.log("statusData has no valid assigned_team_member array");
+        // }
+      } 
+      // else {
+      //   console.log("No valid status data available");
+      // }
 
       // Rest of the fetch logic remains the same
       const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
@@ -693,12 +692,14 @@ const TeamOverview = () => {
                 console.warn("Skipping item with invalid assigned_team_member:", item);
               }
             });
-          } else {
-            console.log("statusData has no valid assigned_team_member array");
           }
-        } else {
-          console.log("No valid status data available");
+          //  else {
+          //   console.log("statusData has no valid assigned_team_member array");
+          // }
         }
+        //  else {
+        //   console.log("No valid status data available");
+        // }
 
         // Rest of the fetch logic remains the same
         const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {

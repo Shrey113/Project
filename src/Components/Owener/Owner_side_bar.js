@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect, useState, useCallback, memo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {logoWithNameBlue } from "./../../redux/AllData.js";
+import { logoWithNameBlue } from "./../../redux/AllData.js";
+import { useUIContext } from "../../redux/UIContext.js";
 
 import "./css/Owner_side_bar.css";
 
@@ -22,12 +22,21 @@ import LogoutIcon from "@mui/icons-material/Logout";
 // import PersonIcon from '@mui/icons-material/Person';
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import MenuItem from "./Owner_side_bar_item";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 function OwnerSideBar() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Use the UI context instead of Redux
+  const { 
+    isMobile, 
+    isSidebarOpen, 
+    activeIndex, 
+    setIsSidebarOpen, 
+    setActiveIndex
+  } = useUIContext();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState({
     isVisible: false,
@@ -36,57 +45,20 @@ function OwnerSideBar() {
     onConfirm: () => { },
   });
 
-  // const user = useSelector((state) => state.user);
-  const isMobile = useSelector((state) => state.user.isMobile);
-  const isSidebarOpen = useSelector((state) => state.user.isSidebarOpen);
-  const activeIndex = useSelector((state) => state.user.activeIndex);
 
-  const set_is_sidebar_open = (value) => {
-    dispatch({
-      type: "SET_USER_Owner",
-      payload: {
-        isSidebarOpen: value,
-      },
-    });
-  };
-  const setActiveIndex = (value) => {
-    dispatch({
-      type: "SET_USER_Owner",
-      payload: {
-        activeIndex: value,
-      },
-    });
+
+  const sliderRef = React.useRef(null);
+  const catRef = React.useRef(null);
+
+  const menuItemsRef = useRef([]);
+  
+  // Add this to handle refs for menu items
+  const setMenuItemRef = (index) => (element) => {
+    menuItemsRef.current[index] = element;
   };
 
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const handleItemClick = (index) => {
-    if (menuItems[index].name === 'Event') {
-      // Toggle the sub-menu visibility without setting active index
-      setActiveIndex(activeIndex === index ? 1 : 1.1);
-      navigate(menuItems[index].path);
-    } else if (menuItems[index].subMenu) {
-      setActiveIndex(index);
-    } else {
-      const targetPath = menuItems[index].path;
-      if (location.pathname !== targetPath) {
-        setActiveIndex(index);
-        navigate(targetPath);
-      }
-    }
-
-    if (isMobile) {
-      set_is_sidebar_open(false);
-    }
-  };
-
-  const menuItems = [
+  // Memoize menu items to prevent recreation on each render
+  const menuItems = React.useMemo(() => [
     {
       name: "Dashboard",
       icon: (<DashboardIcon className={`menu-icon ${activeIndex === 0 ? "active" : ""}`} />
@@ -136,7 +108,50 @@ function OwnerSideBar() {
       icon: (<SearchIcon className={`menu-icon ${activeIndex === 5 ? "active" : ""}`} />),
       path: "/Owner/search_photographer",
     },
-  ];
+  ], [activeIndex]);
+
+
+
+  useEffect(() => {
+    if (activeIndex !== null && sliderRef.current) {
+      const activeMenuIndex = Math.floor(activeIndex);
+      const activeMenuItemElement = menuItemsRef.current[activeMenuIndex];
+      
+      if (activeMenuItemElement) {
+        const itemTop = activeMenuItemElement.offsetTop;
+        const itemHeight = activeMenuItemElement.offsetHeight;
+        
+        sliderRef.current.style.top = `${itemTop}px`;
+        sliderRef.current.style.height = `${itemHeight}px`;
+      }
+    }
+  }, [activeIndex]);
+
+  const handleItemClick = useCallback((index) => {
+    const item = menuItems[index];
+    
+    if (item.name === 'Event') {
+      // Toggle the sub-menu visibility for Event
+      setActiveIndex(activeIndex === 1 ? null : 1);
+      if (activeIndex !== 1) {
+        navigate(item.path);
+      }
+    } else if (item.subMenu) {
+      // Toggle active index for items with submenus
+      setActiveIndex(activeIndex === index ? null : index);
+    } else {
+      // For regular items just navigate
+      const targetPath = item.path;
+      if (location.pathname !== targetPath) {
+        setActiveIndex(index);
+        navigate(targetPath);
+      }
+    }
+
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  }, [isMobile, activeIndex, setActiveIndex, setIsSidebarOpen, navigate, location.pathname, menuItems]);
 
   useEffect(() => {
     if (isSidebarOpen && isMobile) {
@@ -151,35 +166,32 @@ function OwnerSideBar() {
     };
   }, [isSidebarOpen, isMobile]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setShowDeleteConfirm({
       isVisible: true,
       message_title: "Confirm Logout",
       message: "Are you sure you want to log out?",
       onConfirm: () => {
         window.location.href = "/";
-        localStorage.removeItem(localstorage_key_for_jwt_user_side_key); // Remove admin token from localStorage
-        // window.location.reload();
+        localStorage.removeItem(localstorage_key_for_jwt_user_side_key);
       },
     });
-  };
+  }, []);
 
   return (
     <>
+      {/* Black overlay for mobile */}
       <div
         className="side_bar_black_bg"
         style={{ display: isMobile && isSidebarOpen ? "block" : "none" }}
-        onClick={() => set_is_sidebar_open(!isSidebarOpen)}
+        onClick={() => setIsSidebarOpen(false)}
       ></div>
-      {/* side bar */}
-      <div
-        className={`side_bar ${!isSidebarOpen ? "open_side_bar" : "close_side_bar"
-          } 
-                         ${isMobile ? "for_mobile" : ""}`}
-        id="OwnerSideBar"
+      
+      {/* Sidebar - simplified class logic */}
+      <div 
+        className={`side_bar ${isMobile ? "for_mobile" : ""} ${isMobile && isSidebarOpen ? "open_side_bar" : !isMobile && !isSidebarOpen ? "open_side_bar" : ""}`}
+        style={{ transform: isMobile && !isSidebarOpen ? "translateX(-250px)" : !isMobile && isSidebarOpen ? "translateX(0)" : isMobile && isSidebarOpen ? "translateX(0)" : !isMobile && !isSidebarOpen ? "translateX(-250px)" : "" }}
       >
-        {/* close side bar button */}
-
         <div className="side_bar_title">
           {isMobile ? (
             <div className="navbar_open">
@@ -187,48 +199,83 @@ function OwnerSideBar() {
                 <img src={logoWithNameBlue} alt="" />
               </div>
               <div
-                className={`close_side_bar_button ${isSidebarOpen ? "active" : ""
-                  }`}
-                onClick={() => set_is_sidebar_open(!isSidebarOpen)}
+                className="close_side_bar_button active"
+                onClick={() => setIsSidebarOpen(false)}
               >
                 <MenuOpenIcon />
               </div>
-
             </div>
           ) : (
             <div className="title_bar_img">
               <img src={logoWithNameBlue} alt="" />
             </div>
           )}
-
-          {/* <div className="title_bar_text">Owner {user.user_Status}</div> */}
         </div>
 
-        <div className={`category_con ${isMobile ? "for_mobile" : ""}`}>
+        <div
+          className="side_menu_options_lists"
+          style={{
+            color: "var(--text_white)",
+            position: "relative"
+          }}
+          ref={catRef}
+        >
+          {/* Active slider positioned at the beginning */}
           {activeIndex <= menuItems.length && (
             <div
               className={`active_me_slider ${isMobile ? "for_mobile" : ""}`}
+              ref={sliderRef}
               style={{
-                height: `${windowWidth <= 768 ? 50 : 60}px`,
-                top: `${Math.floor(activeIndex) * (windowWidth <= 768 ? 50 : 60)
-                  }px`,
                 transition: "all 0.2s ease-in-out",
+                position: "absolute",
+                left: 0,
+                width: "100%",
+                zIndex: 0
               }}
             ></div>
           )}
 
           {menuItems.map((item, index) => (
-            <MenuItem
-              key={index}
-              item={item}
-              index={index}
-              activeIndex={activeIndex}
-              handleItemClick={handleItemClick}
-              isMobile={isMobile}
-              set_is_sidebar_open={set_is_sidebar_open}
-              setActiveIndex={setActiveIndex}
-              navigate={navigate}
-            />
+            <div key={index}>
+              <div 
+                ref={setMenuItemRef(index)}
+                className={`item ${index === Math.floor(activeIndex) ? "active" : ""}`}
+                onClick={() => handleItemClick(index)}
+              >
+                <div className="icon">{item.icon}</div>
+                <div className="text">{item.name}</div>
+                {item.subMenu && (
+                  <div className={`submenu-arrow ${index === Math.floor(activeIndex) ? "open" : ""}`}>
+                    {index === Math.floor(activeIndex) ? 
+                      <KeyboardArrowDownIcon className="arrow-icon" /> : 
+                      <KeyboardArrowRightIcon className="arrow-icon" />
+                    }
+                  </div>
+                )}
+              </div>
+              
+              {/* Render submenu if this item has one and is active */}
+              {item.subMenu && index === Math.floor(activeIndex) && (
+                <div className="sub-menu">
+                  {item.subMenu.map((subItem, subIndex) => (
+                    <div
+                      key={`${index}-${subIndex}`}
+                      className={`sub-item ${location.pathname === subItem.path ? "active" : ""}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(subItem.path);
+                        if (isMobile) {
+                          setIsSidebarOpen(false);
+                        }
+                      }}
+                    >
+                      <div className="icon">{subItem.icon}</div>
+                      <div className="text">{subItem.name}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
 
@@ -241,12 +288,8 @@ function OwnerSideBar() {
         >
           <button className="logout_button">
             <div>
-              {" "}
-              <LogoutIcon
-                style={{ color: "#f08080" }}
-              />
+              <LogoutIcon style={{ color: "#f08080" }} />
             </div>
-
             <span className="logout_text">Logout</span>
           </button>
         </div>
@@ -267,4 +310,5 @@ function OwnerSideBar() {
   );
 }
 
-export default OwnerSideBar;
+// Wrap the component with React.memo to prevent unnecessary re-renders
+export default memo(OwnerSideBar);
