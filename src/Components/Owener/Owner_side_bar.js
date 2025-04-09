@@ -294,7 +294,9 @@ function OwnerSideBar() {
           </button>
         </div>
 
-        {showDeleteConfirm.isVisible && (
+
+      </div>
+      {showDeleteConfirm.isVisible && (
           <ConfirmMessage
             message_title={showDeleteConfirm.message_title}
             message={showDeleteConfirm.message}
@@ -305,7 +307,6 @@ function OwnerSideBar() {
             button_text="Logout"
           />
         )}
-      </div>
     </>
   );
 }

@@ -33,7 +33,7 @@ function AddBusinessServices() {
           // Sort services to show newest first
           const sortedData = data.reverse();
           setServices(sortedData);
-          setShowMinWarning(sortedData.length < 3);
+          setShowMinWarning(sortedData.length < 2);
         }
       } catch (error) {
         console.error('Error fetching services:', error);
@@ -235,7 +235,7 @@ function AddBusinessServices() {
         const updatedServices = [newService, ...services];
         setServices(updatedServices);
         // Check if we still need to show the minimum warning
-        setShowMinWarning(updatedServices.length < 3);
+        setShowMinWarning(updatedServices.length < 2);
         setFormData({ ...formData, serviceName: '', pricePerDay: '', description: '' });
         setShowForm(false);
       }
@@ -308,8 +308,8 @@ function AddBusinessServices() {
 
   const handleRemoveService = async (serviceId) => {
     // Check if deleting would reduce services below 3
-    if (services.length <= 3) {
-      showWarningToast({message: "Minimum 3 services required. Cannot delete."});
+    if (services.length <= 2) {
+      showWarningToast({message: "Minimum 2 services required. Cannot delete."});
       return;
     }
     
@@ -332,7 +332,7 @@ function AddBusinessServices() {
       if (response.ok) {
         const updatedServices = services.filter(service => service.id !== serviceToRemove);
         setServices(updatedServices);
-        setShowMinWarning(updatedServices.length < 3);
+        setShowMinWarning(updatedServices.length < 2);
       }
     } catch (error) {
       console.error('Error removing service:', error);
@@ -411,7 +411,7 @@ function AddBusinessServices() {
       {showMinWarning && (
         <div className="min-services-warning">
           <MdWarning className="warning-icon" />
-          <span>Minimum 3 services required. Please add more services.</span>
+          <span>Minimum 2 services required. Please add more services.</span>
         </div>
       )}
 

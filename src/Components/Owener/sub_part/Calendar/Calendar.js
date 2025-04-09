@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 import { Calendar as BigCalendar, dateFnsLocalizer, Views } from 'react-big-calendar'
 import format from 'date-fns/format'
@@ -57,14 +57,58 @@ function Calendar() {
   const [view, setView] = useState(Views.MONTH);
   const [is_button_disabled, set_is_button_disabled] = useState(false);
 
+  
+  // Reference to the calendar container
+  const calendarContainerRef = useRef(null);
+  // Ref to track the latest scroll position to avoid dependency issues
+  const scrollPositionRef = useRef(0);
+
+  // Save and restore scroll position when modals open/close
   useEffect(() => {
-    if (showEventDetails) {
+    const shouldHandleScroll = showEventModal || showEventDetails || showContextMenu;
+    
+    if (shouldHandleScroll) {
+      // Get the scroll position of the calendar container or the window
+      const currentPosition = window.pageYOffset || document.documentElement.scrollTop;
+
+      scrollPositionRef.current = currentPosition;
+      console.log("Saving scroll position:", currentPosition);
+    } else if (scrollPositionRef.current > 0) {
+      // When popups close, restore the saved scroll position
+      console.log("Restoring scroll position:", scrollPositionRef.current);
+      setTimeout(() => {
+        window.scrollTo(0, scrollPositionRef.current);
+      }, 50);
+    }
+  }, [showEventModal, showEventDetails, showContextMenu]); // eslint-disable-line react-hooks/exhaustive-deps
+  // We're using scrollPositionRef instead of scrollPosition state to avoid the dependency
+
+  // Original overflow effect for body
+  useEffect(() => {
+    if (showEventDetails || showEventModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
     }
-  }, [showEventDetails]);
+  }, [showEventDetails, showEventModal]);
 
+  useEffect(() => {
+    const mainPart = document.querySelector('.main_part');
+    
+    if (mainPart) {
+      switch (true) {
+        case showEventModal:
+        case showEventDetails:
+          mainPart.style.minHeight = '100vh';
+          break;
+        default:
+          mainPart.style.minHeight = 'fit-content';
+          break;
+      }
+    }
+  }, [showEventModal, showEventDetails]);
+  
+  // Original fetchEvents effect
   useEffect(() => {
     const fetchEvents = async () => {
         try {
@@ -97,24 +141,7 @@ function Calendar() {
     if (user.user_email) {
         fetchEvents();
     }
-}, [user.user_email]);
-
-  useEffect(() => {
-    const mainPart = document.querySelector('.main_part');
-    
-    if (mainPart) {
-      switch (true) {
-        case showEventModal:
-        case showEventDetails:
-          mainPart.style.minHeight = '100vh';
-          break;
-        default:
-          mainPart.style.minHeight = 'fit-content';
-          break;
-      }
-    }
-  }, [showEventModal, showEventDetails]);
-  
+  }, [user.user_email]);
 
   const [newEvent, setNewEvent] = useState({
     id: events.length,
@@ -130,13 +157,24 @@ function Calendar() {
 
   const handleDayClick = (date) => {
     setActiveDate(date); // Set the clicked date as the active date
-      setView(Views.DAY);
-    };
+    setView(Views.DAY);
+  };
 
+  // Custom open handlers to save scroll position
+  const openEventModal = (slotInfo) => {
+    setNewEvent({
+      ...newEvent,
+      start: slotInfo.start,
+      end: slotInfo.end
+    });
+    setShowEventModal(true);
+  }
 
-
-
-
+  const openEventDetails = (event) => {
+    // Save scroll position before opening details
+    setSelectedEvent(event);
+    setShowEventDetails(true);
+  }
 
   const handleSelectSlot = (slotInfo) => {
     const currentDate = new Date();
@@ -147,12 +185,7 @@ function Calendar() {
       return; // Prevent creating events in the past
     }
 
-    setNewEvent({
-      ...newEvent,
-      start: slotInfo.start,
-      end: slotInfo.end
-    })
-    setShowEventModal(true)
+    openEventModal(slotInfo);
   }
 
   const handleSelectEvent = (event) => {
@@ -168,8 +201,7 @@ function Calendar() {
     // Allow viewing but disable editing for past events
     setIsEditing(event.start >= currentDate);
     set_is_button_disabled(event.start > currentDate);
-    setSelectedEvent(formattedEvent);
-    setShowEventDetails(true);
+    openEventDetails(formattedEvent);
   }
 
   const CustomEvent = ({ event }) => {
@@ -179,6 +211,7 @@ function Calendar() {
       </div>
     );
   };
+  
   const handleEventDrop = async ({ event, start, end }) => {
    
     const currentDate = new Date();
@@ -190,79 +223,22 @@ function Calendar() {
     }else{
       return;
     }
-    
+  };
 
-    // // Update the event locally
-    // const updatedEvent = { ...event, start, end };
-    // const updatedEvents = events.map((e) => 
-    //     e.id === event.id ? updatedEvent : e
-    // );
-    // setEvents(updatedEvents);
-
-    // try {
-    //     const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
-    //         method: 'PUT',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             ...updatedEvent,
-    //             id: event.id,
-    //         }),
-    //     });
-
-    //     const data = await response.json();
-    //     if (!response.ok) {
-    //         console.error(data.error || 'Failed to update event on server');
-    //     }
-    // } catch (err) {
-    //     console.error('Failed to save updated event:', err.message);
-    // }
+  const handleEventResize = async ({ event, start, end }) => {
+    // return;
+    // Update the event locally
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); 
 
 
-};
-
-const handleEventResize = async ({ event, start, end }) => {
-  // return;
-  // Update the event locally
-  const currentDate = new Date();
-  currentDate.setHours(0, 0, 0, 0); 
-
-
-  if (start < currentDate) {
-    showWarningToast({message: "You cannot resize past events" });
-    return; // Keep the event in its original position
-}else{
-  return;
-}
-
-  // const updatedEvent = { ...event, start, end };
-  // const updatedEvents = events.map((e) => 
-  //     e.id === event.id ? updatedEvent : e
-  // );
-  // setEvents(updatedEvents);
-
-
-  // try {
-  //     const response = await fetch(`${Server_url}/calendar/events/${event.id}`, {
-  //         method: 'PUT',
-  //         headers: {
-  //             'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({
-  //             ...updatedEvent,
-  //             id: event.id,
-  //         }),
-  //     });
-
-  //     const data = await response.json();
-  //     if (!response.ok) {
-  //         console.error(data.error || 'Failed to update event on server');
-  //     }
-  // } catch (err) {
-  //     console.error('Failed to save updated event:', err.message);
-  // }
-};
+    if (start < currentDate) {
+      showWarningToast({message: "You cannot resize past events" });
+      return; // Keep the event in its original position
+    }else{
+      return;
+    }
+  };
 
 
   const handleEventContextMenu = (event, e) => {
@@ -275,6 +251,7 @@ const handleEventResize = async ({ event, start, end }) => {
     }
 
     e.preventDefault();
+    // Save scroll position before showing context menu
     setContextMenuEvent(event);
     setContextMenuPosition({ x: e.clientX, y: e.clientY });
     setShowContextMenu(true);
@@ -303,7 +280,7 @@ const handleEventResize = async ({ event, start, end }) => {
 
 
   return (
-    <div className='owner-calendar-main-container'>
+    <div className='owner-calendar-main-container' ref={calendarContainerRef}>
       {view === 'year' ? (
         <CustomYearView 
           date={new Date()} 
@@ -384,7 +361,7 @@ const handleEventResize = async ({ event, start, end }) => {
           />
         </DndProvider>
       )}
-
+ 
       {showContextMenu && (
     <ShowContextMenuForCalendar 
     
