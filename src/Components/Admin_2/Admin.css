@@ -411,7 +411,9 @@
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: space-between;
+    flex:1;
+    padding-right: 20px;
 }
 
 .dashboard-grid-medium .dashboard-stats-wrapper {
@@ -486,6 +488,9 @@
     
  }
  @media (max-width: 1360px) {
+    .dashboard-stats-wrapper {
+        padding-right: 0px;
+    }
     .section_2_admin{
         margin-top: 0;
         width: 100%;

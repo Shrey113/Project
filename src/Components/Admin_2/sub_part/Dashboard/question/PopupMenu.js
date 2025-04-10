@@ -12,6 +12,7 @@ const PopupMenu = ({ email, handleClose, onSuccess, admin_email }) => {
     
     setIsSubmitting(true);
     try {
+      console.log(message, admin_email);
       onSuccess?.(message, admin_email);
       handleClose();
     } catch (error) {

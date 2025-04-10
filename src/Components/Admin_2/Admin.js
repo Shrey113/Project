@@ -84,6 +84,7 @@ function Admin2({socket}) {
               
               if(result.data.user_email){
                 set_admin_email(result.data.user_email)
+                console.log(result.data.user_email);
               }
             }
             
@@ -198,7 +199,7 @@ function Admin2({socket}) {
       <div className={`admin_body_main ${is_mobile ? 'with_bottom_navbar' : 'with_left_sidebar'}`}>
         <TitleBar adminSettings={adminSettings} setActiveRow={setActiveRow} activeRow={activeRow} admin_email={admin_email} />
 
-        {activeRow === 0 && <Dashboard socket={socket} adminSettings={adminSettings} activeRow={activeRow} setActiveRow={setActiveRow} />}
+        {activeRow === 0 && <Dashboard socket={socket} adminSettings={adminSettings} activeRow={activeRow} setActiveRow={setActiveRow} admin_email={admin_email} />}
         {activeRow === 1 && <ProfileManager activeRow={activeRow} admin_email={admin_email} />}
         {activeRow === 2 && <Charts activeRow={activeRow} setActiveRow={setActiveRow} />}
         {activeRow === 3 && <AdminProfile activeRow={activeRow} setActiveRow={setActiveRow} admin_email={admin_email} />}

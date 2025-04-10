@@ -39,7 +39,7 @@ const MainBox = ({fix_img,main_img,amount,other_amount,title})=>{
   }
   
 
-function Dashboard({adminSettings,activeRow,setActiveRow,socket}) {
+function Dashboard({adminSettings,activeRow,setActiveRow,socket,admin_email}) {
   const [data, setData] = useState(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -162,7 +162,7 @@ function Dashboard({adminSettings,activeRow,setActiveRow,socket}) {
       </div>
   
       <div className="section_2_admin">
-        <UserDataList setActiveRow={setActiveRow} />
+        <UserDataList setActiveRow={setActiveRow} admin_email={admin_email} />
         <ChartWithData/>
       </div>
       <div className="section_3_admin">
