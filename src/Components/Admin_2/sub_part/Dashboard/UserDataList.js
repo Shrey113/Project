@@ -10,7 +10,7 @@ import back from './sub_img/back.png';
 
 
 import { Server_url } from '../../../../redux/AllData';
-function UserDataList({setActiveRow}) {
+function UserDataList({setActiveRow,admin_email}) {
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 3;
   
@@ -109,7 +109,7 @@ function get_admin_data(){
   };
 
 
-  function updateUserStatus(email, status) {
+  function updateUserStatus(email, status, message = null, set_status_by_admin = null) {
     fetch(`${Server_url}/owner/update-status`, {
         method: 'POST',
         headers: {
@@ -118,6 +118,8 @@ function get_admin_data(){
         body: JSON.stringify({
             user_email: email,
             user_Status: status,
+            message: message,
+            set_status_by_admin: set_status_by_admin
         }),
     })
     .then(response => {
@@ -169,19 +171,6 @@ function get_admin_data(){
                 <td>{user.user_name}</td>
                 <td>{user.user_email}</td>
                 <td>{user.business_name}</td>
-                {/* <td>
-                  <div className="more_option_pop">
-                    <div className="icon_img" onClick={()=>{updateUserStatus(user.user_email,"Accept")}}>
-                      <img src={accept} alt="Accept" />
-                    </div>
-                    <div className="icon_img" onClick={()=>{updateUserStatus(user.user_email,"Reject")}}>
-                      <img src={reject} alt="Reject" />
-                    </div>
-                    <div className="icon_img" onClick={()=>{fetchOwnerByEmail(user.user_email)}}>
-                      <img src={info} alt="Info" />
-                    </div>
-                  </div>
-                </td> */}
               </tr>
             ))
           ) : (
@@ -271,10 +260,10 @@ function get_admin_data(){
                             </tbody>
                         </table>
                         <div className="button_con">
-                        <div className="icon_img" onClick={()=>{updateUserStatus(selected_user.user_email,"Accept")}}>
+                        <div className="icon_img" onClick={()=>{updateUserStatus(selected_user.user_email,"Accept",null,admin_email)}}>
                             <img src={accept} alt="Accept" />
                           </div>
-                          <div className="icon_img" onClick={()=>{updateUserStatus(selected_user.user_email,"Reject")}}>
+                          <div className="icon_img" onClick={()=>{updateUserStatus(selected_user.user_email,"Reject",null,admin_email)}}>
                             <img src={reject} alt="Reject" />
                           </div>
                         </div>

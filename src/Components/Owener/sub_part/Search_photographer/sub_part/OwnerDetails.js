@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, } from "react";
 import { useLocation, useNavigate, useParams, } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import "./OwnerDetails.css";
-import NoDataForEquipment from "./NoDataForEquipment.png";
+// import NoDataForEquipment from "./NoDataForEquipment.png";
 import { Server_url } from "../../../../../redux/AllData";
 // import { IoArrowBack } from "react-icons/io5";
 // import {  FaMapMarkerAlt } from "react-icons/fa";
@@ -37,6 +37,48 @@ import lens_icon from "./test_img_equipment/lens.png";
 import { IoCloseSharp } from "react-icons/io5";
 import { FaCloudDownloadAlt } from "react-icons/fa";
 import SharePopup from "./SharePopup";
+import { MdContentPasteOff } from "react-icons/md";
+import { BiSolidCamera } from "react-icons/bi";
+import { FaBoxOpen, FaFileInvoiceDollar } from "react-icons/fa";
+
+const NoDataComponent = ({ type }) => {
+  // Define the icon and message based on type
+  let icon, message, description;
+  
+  switch(type) {
+    case "equipment":
+      icon = <FaBoxOpen className="no-data-icon" />;
+      message = "NO EQUIPMENT AVAILABLE";
+      description = "This photographer hasn't added any equipment yet.";
+      break;
+    case "packages":
+      icon = <FaFileInvoiceDollar className="no-data-icon" />;
+      message = "NO PACKAGES AVAILABLE";
+      description = "This photographer hasn't created any packages yet.";
+      break;
+    case "photos":
+      icon = <BiSolidCamera className="no-data-icon" />;
+      message = "NO PHOTOS AVAILABLE";
+      description = "This photographer hasn't uploaded any photos yet.";
+      break;
+    default:
+      icon = <MdContentPasteOff className="no-data-icon" />;
+      message = "NO DATA AVAILABLE";
+      description = "No information has been added yet.";
+  }
+  
+  return (
+    <div className="empty-state-container">
+      <div className="empty-state-content">
+        <div className="empty-state-icon-container">
+          {icon}
+        </div>
+        <h3 className="empty-state-title">{message}</h3>
+        <p className="empty-state-description">{description}</p>
+      </div>
+    </div>
+  );
+};
 
 const OwnerDetails = () => {
   const equipmentTypes = [
@@ -621,7 +663,7 @@ const OwnerDetails = () => {
                     );
                   })
                 ) : (
-                  <p>Not Available</p>
+                  <p> </p>
                 )}
               </div>
 
@@ -763,7 +805,7 @@ const OwnerDetails = () => {
               ) : (
                 <div className="photo_container">
                   {photos.length === 0 ? (
-                    <p style={{ textAlign: "center" }}>No photos found.</p>
+                    <NoDataComponent type="photos" />
                   ) : (
                     <div className="photos_grid">
                       {photos.slice(0, 10).map((photoItem, index) => (
@@ -792,16 +834,17 @@ const OwnerDetails = () => {
             </div>
           </div>
         ) : (
-          <div className="no_equipments">
-            <img src={NoDataForEquipment} alt="" />
-            <p className="no-data">NO PHOTOS AVAILABLE</p>
-          </div>
+          <NoDataComponent type="photos" />
         )}
       </div>
 
       {/* Packages Section */}
 
       <div className="section packages_section">
+
+
+        {ownerData.packages?.length > 0 ? (
+          <>
         <div className="profile_preview_packages_title">
           <div className="packages-card-title">Packages</div>
           {packagesMoreThan4 && (
@@ -813,47 +856,46 @@ const OwnerDetails = () => {
 
         <hr style={{ width: "98%", margin: "auto" }} />
 
-        <div className="swiper_container_for_packages">
-          {/* Previous Button */}
-          <div className="custom-swiper-button-prev-packages"
-            style={{
-              display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
-            }}
-          >❮</div>
+          <div className="swiper_container_for_packages">
+            {/* Previous Button */}
+            <div className="custom-swiper-button-prev-packages"
+              style={{
+                display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
+              }}
+            >❮</div>
 
-          <Swiper
-            modules={[Navigation, Pagination, Autoplay]}
-            useRef={swiperRefPackage}
-            slidesPerView="auto"
-            autoplay={{
-              delay: 5000, // Time in milliseconds between slides
-            }}
-            loop={true}
-            navigation={{
-              nextEl: ".custom-swiper-button-next-packages",
-              prevEl: ".custom-swiper-button-prev-packages",
-            }}
+            <Swiper
+              modules={[Navigation, Pagination, Autoplay]}
+              useRef={swiperRefPackage}
+              slidesPerView="auto"
+              autoplay={{
+                delay: 5000, // Time in milliseconds between slides
+              }}
+              loop={true}
+              navigation={{
+                nextEl: ".custom-swiper-button-next-packages",
+                prevEl: ".custom-swiper-button-prev-packages",
+              }}
 
-            spaceBetween={10}
-            pagination={{
-              clickable: true,
-              renderBullet: (index, className) =>
-                `<span class="${className} custom-swiper-pagination-bullet"></span>`,
-            }}
-            breakpoints={{
-              350: { slidesPerView: 1.2 },
-              450: { slidesPerView: 1.2, spaceBetween: 5 },
-              500: { slidesPerView: 1.5 },
-              580: { slidesPerView: 1.5, spaceBetween: 8 },
+              spaceBetween={10}
+              pagination={{
+                clickable: true,
+                renderBullet: (index, className) =>
+                  `<span class="${className} custom-swiper-pagination-bullet"></span>`,
+              }}
+              breakpoints={{
+                350: { slidesPerView: 1.2 },
+                450: { slidesPerView: 1.2, spaceBetween: 5 },
+                500: { slidesPerView: 1.5 },
+                580: { slidesPerView: 1.5, spaceBetween: 8 },
 
-              640: { slidesPerView: 2.2, spaceBetween: 10 },
-              768: { slidesPerView: 2.5, spaceBetween: 10 },
-              860: { slidesPerView: 3, spaceBetween: 10 },
-              1024: { slidesPerView: 3.5, spaceBetween: 15 },
-            }}
-          >
-            {ownerData.packages?.length > 0 ? (
-              ownerData.packages.map((pkg, index) => (
+                640: { slidesPerView: 2.2, spaceBetween: 10 },
+                768: { slidesPerView: 2.5, spaceBetween: 10 },
+                860: { slidesPerView: 3, spaceBetween: 10 },
+                1024: { slidesPerView: 3.5, spaceBetween: 15 },
+              }}
+            >
+              {ownerData.packages.map((pkg, index) => (
                 <SwiperSlide key={pkg.id || index} className="package-card" style={{
                   backgroundColor: `#ffffff`,
                   borderTop: `6px solid ${pkg.card_color || "#6fa8dc"}`,
@@ -898,20 +940,19 @@ const OwnerDetails = () => {
                     Book Package
                   </div>
                 </SwiperSlide>
-              ))
-            ) : (
-
-              <p className="no-data">NO PACKAGES AVAILABLE</p>
-
-            )}
-          </Swiper>
-          {/* Next Button */}
-          <div className="custom-swiper-button-next-packages"
-            style={{
-              display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
-            }}
-          >❯</div>
-        </div>
+              ))}
+            </Swiper>
+            {/* Next Button */}
+            <div className="custom-swiper-button-next-packages"
+              style={{
+                display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
+              }}
+            >❯</div>
+          </div>
+          </>
+        ) : (
+          <NoDataComponent type="packages" />
+        )}
       </div>
 
       {/* Equipment Section */}
@@ -992,10 +1033,7 @@ const OwnerDetails = () => {
             </div>
           </ul>
         ) : (
-          <div className="no_equipments">
-            <img src={NoDataForEquipment} alt="" />
-            <p className="no-data">NO EQUIPMENTS AVAILABLE</p>
-          </div>
+          <NoDataComponent type="equipment" />
         )}
       </div>
 
@@ -1075,7 +1113,7 @@ const OwnerDetails = () => {
           </ul>
         ) : (
           <div className="no_services">
-            <p className="no-data">NO SERVICES AVAILABLE</p>
+            <NoDataComponent type="services" />
           </div>
         )}
       </div>
