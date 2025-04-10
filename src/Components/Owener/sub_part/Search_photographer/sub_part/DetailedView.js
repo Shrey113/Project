@@ -20,14 +20,11 @@ function DetailedView() {
   const [selectedData, setSelectedData] = useState(null);
   const [selectedOwner, setSelectedOwner] = useState(null);
 
-  useEffect(() => {
-    console.log("data from another side ", allData);
-  });
 
   useEffect(() => {
     if (selectedData) {
       setSelectedOwner({
-        user_email: selectedData.user_email, // Adjust field name as needed
+        user_email: selectedData.user_email, 
       });
     }
   }, [selectedData]);
