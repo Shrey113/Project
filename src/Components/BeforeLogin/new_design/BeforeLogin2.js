@@ -17,6 +17,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { logoBlack, logoWithNameBlack } from '../../../redux/AllData';
 
 import StackingCards from './../new_design/StackingCards/StackingCards'
+import HorizontalScroll from './../new_design/HorizontalScroll/HorizontalScroll.js'
 // Register ScrollTrigger with GSAP
 gsap.registerPlugin(ScrollTrigger);
 function BeforeLogin2() {
@@ -68,14 +69,7 @@ function BeforeLogin2() {
     };
 
 
-    const cardData = [
-        { icon: "📸", title: "Get Hired Instantly", description: "Showcase your portfolio & attract top clients." },
-        { icon: "💼", title: "Rent & Earn", description: "List your camera gear & make passive income." },
-        { icon: "🔗", title: "Connect & Collaborate", description: "Expand your network & work with professionals." },
-        { icon: "📅", title: "Seamless Bookings", description: "Manage appointments, clients & payments hassle-free." },
-        { icon: "📊", title: "Business Insights", description: "Track your growth with real-time analytics." },
-        { icon: "📝", title: " Smart Invoicing", description: "Generate professional invoices in one click." }
-    ];
+
     const Links = [
         { id: "first_container", label: "Home" },
         { id: "second_container", label: "About" },
@@ -193,34 +187,10 @@ function BeforeLogin2() {
             {/* Third Section with Auto-Scroll Horizontal Effect */}
 
             <section className="horizontal-scroll-section" id='third_container'>
-
-                <div className="key-feature-image-container">
-                    <img src={third_section_image} alt="Photographer Network" />
-                </div>
-
-                <div className="key_feature_title">Key Features !</div>
-
-                <div className="cards-container">
-                    {cardData.map((card, index) => (
-                        <div key={index} className="card">
-                            <div className="icon-placeholder">{card.icon}</div>
-                            <div className="key_words">
-                                <h3 className="feature-title">{card.title}</h3>
-                                <p className="feature-description">{card.description}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <HorizontalScroll />
             </section>
 
             {/* Fourth Section */}
-            {/* <section className="thriving-section">
-                <h2 className="section-title">Your Path to Success Starts Here</h2>
-                <p className="section-description">
-                    Whether you're a photographer looking for gigs or renting out your gear, our platform connects you with opportunities to grow and thrive.
-                </p>
-            </section> */}
-
 
             <div className="steps-container" id="fourth_container">
                 <StackingCards />

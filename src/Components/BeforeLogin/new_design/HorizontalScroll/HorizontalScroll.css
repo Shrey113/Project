@@ -1,0 +1,102 @@
+.horizontal-scroll-container .key_feature_title {
+    color: white;
+    z-index: 10;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-shadow: 3px 2px 1px rgba(0, 0, 0, 0.17);
+    align-self: center;
+}
+
+.horizontal-scroll-container .key-feature-image-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.horizontal-scroll-container .key-feature-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.horizontal-scroll-container .horizontal-scroll-section .key-feature-image-container::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "";
+    width: 100%;
+    height: 100%;
+    background-color: #01010171;
+
+}
+
+
+.horizontal-scroll-container .cards-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    overflow-x: scroll;
+    z-index: 10;
+    width: 100%;
+}
+
+.horizontal-scroll-container .cards-container::-webkit-scrollbar {
+    height: 5px;
+}
+
+.horizontal-scroll-container .cards-container::-webkit-scrollbar-thumb {
+
+    background-color: #343434;
+}
+
+.horizontal-scroll-container .card {
+    flex: 0 0 320px;
+    background: rgba(0, 0, 0, 0.354);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    min-height: fit-content;
+    height: 450px;
+    backdrop-filter: blur(10px);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    position: relative;
+}
+
+.horizontal-scroll-section .icon-placeholder {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    /* background-color: gray; */
+    border: 2px solid #9c9c9c;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 100px;
+}
+
+.horizontal-scroll-section .key_words {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.horizontal-scroll-section .feature-title {
+    font-size: 22px;
+    font-weight: bold;
+    text-align: start;
+}
+
+.horizontal-scroll-section .feature-description {
+    font-size: 14px;
+    text-align: start;
+}

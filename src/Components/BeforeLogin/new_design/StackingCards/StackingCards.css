@@ -1,5 +1,20 @@
 /* Base styles with more specific selectors */
 /* Stacking cards specific styles with unique prefixes */
+
+.background-unified {
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.fourth_section_heading {
+  /* background: linear-gradient(145deg, #2a2a2a, #1a1a1a); */
+  width: 100%;
+}
+
 .stacking-page-wrapper {
   width: 100%;
   padding: 0;
@@ -7,7 +22,7 @@
   height: 100vh;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  /* background: linear-gradient(145deg, #2a2a2a, #1a1a1a); */
 }
 
 .stacking-container {
@@ -74,10 +89,12 @@
     opacity: 1;
     top: 10px;
   }
+
   50% {
     opacity: 1;
     top: 30px;
   }
+
   100% {
     opacity: 0;
     top: 30px;
@@ -85,9 +102,12 @@
 }
 
 @keyframes fadeInOut {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.5;
   }
+
   50% {
     opacity: 1;
   }
@@ -119,11 +139,9 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0) 100%);
   border-radius: 16px;
   z-index: -1;
 }
@@ -219,22 +237,22 @@
     min-height: 250px;
     padding: 1.5rem;
   }
-  
+
   .card-content .icon-container {
     width: 80px;
     height: 80px;
     margin-bottom: 1rem;
   }
-  
+
   .card-content .icon-container svg {
     height: 40px;
     width: 40px;
   }
-  
+
   .card-content .step-title {
     font-size: 1.5rem;
   }
-  
+
   .card-content .step-description {
     font-size: 0.95rem;
     max-width: 95%;
@@ -247,22 +265,22 @@
     min-height: 220px;
     padding: 1.2rem;
   }
-  
+
   .card-content .icon-container {
     width: 70px;
     height: 70px;
   }
-  
+
   .card-content .icon-container svg {
     height: 35px;
     width: 35px;
   }
-  
+
   .card-content .step-title {
     font-size: 1.3rem;
     margin-bottom: 0.5rem;
   }
-  
+
   .card-content .step-description {
     font-size: 0.9rem;
   }

@@ -42,11 +42,10 @@ const StackingCards = () => {
   useEffect(() => {
     // Clear any existing ScrollTriggers
     ScrollTrigger.getAll().forEach(st => st.kill());
-    
+
     const cards = cardsRef.current.filter(Boolean);
-    const wrapper = wrapperRef.current;
     const section = sectionRef.current;
-    
+
     // Set initial positions - all cards stacked with initial opacity
     gsap.set(cards, {
       y: (i) => i * 10,
@@ -55,7 +54,7 @@ const StackingCards = () => {
       scale: (i) => 1 - (i * 0.05),
       zIndex: (i) => cards.length - i,
     });
-    
+
     // Create a ScrollTrigger for the entire section
     ScrollTrigger.create({
       trigger: section,
@@ -67,7 +66,7 @@ const StackingCards = () => {
       anticipatePin: 1,
       markers: false, // Set to true for debugging
     });
-    
+
     // Create a master timeline for scroll animations
     const masterTl = gsap.timeline({
       scrollTrigger: {
@@ -78,10 +77,10 @@ const StackingCards = () => {
         invalidateOnRefresh: true,
       }
     });
-    
+
     // Phase 1: Fan out cards from stacked position
     const fanOutTl = gsap.timeline();
-    
+
     cards.forEach((card, idx) => {
       if (idx > 0) {
         fanOutTl.to(card, {
@@ -95,14 +94,14 @@ const StackingCards = () => {
         }, 0);
       }
     });
-    
+
     masterTl.add(fanOutTl);
-    
+
     // Phase 2: Bring cards to center one by one
     cards.forEach((card, idx) => {
       if (idx > 0) {
         const cardTl = gsap.timeline();
-        
+
         // Focus on current card
         cardTl.to(card, {
           rotation: 0,
@@ -114,7 +113,7 @@ const StackingCards = () => {
           duration: 0.5,
           ease: "back.out(1.7)"
         });
-        
+
         // Move other cards out of the way
         cards.forEach((otherCard, otherIdx) => {
           if (otherIdx !== idx) {
@@ -133,17 +132,17 @@ const StackingCards = () => {
             }, "<");
           }
         });
-        
+
         // Pause for a moment
         cardTl.to({}, { duration: 0.3 });
-        
+
         masterTl.add(cardTl, "+=0.5");
       }
     });
-    
+
     // Phase 3: Final spread - fan all cards out in a semicircle
     const finalTl = gsap.timeline();
-    
+
     finalTl.to(cards, {
       y: (i) => Math.sin((i / (cards.length - 1)) * Math.PI) * -120,
       x: (i) => (i / (cards.length - 1) - 0.5) * 500,
@@ -154,9 +153,9 @@ const StackingCards = () => {
       ease: "power2.inOut",
       stagger: 0.05
     });
-    
+
     masterTl.add(finalTl, "+=0.5");
-    
+
     // Add hover effect to increase visibility when mouse is over card
     cards.forEach((card, idx) => {
       card.addEventListener('mouseenter', () => {
@@ -167,7 +166,7 @@ const StackingCards = () => {
           ease: "power2.out"
         });
       });
-      
+
       card.addEventListener('mouseleave', () => {
         if (idx >= 2) {
           // Only reduce opacity for cards after the first two if not in focus
@@ -180,16 +179,16 @@ const StackingCards = () => {
         }
       });
     });
-    
+
     // Responsive adjustments
     window.addEventListener('resize', () => {
       ScrollTrigger.refresh();
     });
-    
+
     return () => {
       ScrollTrigger.getAll().forEach(st => st.kill());
       window.removeEventListener('resize', null);
-      
+
       // Remove event listeners to prevent memory leaks
       cards.forEach(card => {
         card.removeEventListener('mouseenter', null);
@@ -199,29 +198,37 @@ const StackingCards = () => {
   }, []);
 
   return (
-    <div className="stacking-page-wrapper" ref={sectionRef}>
-      <div className="stacking-container" ref={containerRef}>
-        <div className="stacking-cards-wrapper" ref={wrapperRef}>
-          {stepCards.map((card, idx) => (
-            <div
-              className={`step-card ${idx === 0 ? 'primary' : idx === 1 ? 'secondary' : 'tertiary'}`}
-              id={card.id}
-              key={idx}
-              ref={(el) => {
-                if (el) cardsRef.current[idx] = el;
-              }}
-            >
-              <div className="card-content">
-                <div className="icon-container">{card.icon}</div>
-                <h3 className="step-title">{card.title}</h3>
-                <p className="step-description">{card.description}</p>
+    <div className="background-unified">
+      <div className="fourth_section_heading">
+        <h2 className="section-title">Your Path to Success Starts Here</h2>
+        <p className="section-description">
+          Whether you're a photographer looking for gigs or renting out your gear, our platform connects you with opportunities to grow and thrive.
+        </p>
+      </div>
+      <div className="stacking-page-wrapper" ref={sectionRef}>
+        <div className="stacking-container" ref={containerRef}>
+          <div className="stacking-cards-wrapper" ref={wrapperRef}>
+            {stepCards.map((card, idx) => (
+              <div
+                className={`step-card ${idx === 0 ? 'primary' : idx === 1 ? 'secondary' : 'tertiary'}`}
+                id={card.id}
+                key={idx}
+                ref={(el) => {
+                  if (el) cardsRef.current[idx] = el;
+                }}
+              >
+                <div className="card-content">
+                  <div className="icon-container">{card.icon}</div>
+                  <h3 className="step-title">{card.title}</h3>
+                  <p className="step-description">{card.description}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-        <div className="scroll-indicator">
-          <div className="scroll-icon"></div>
-          <p>Scroll to explore</p>
+            ))}
+          </div>
+          <div className="scroll-indicator">
+            <div className="scroll-icon"></div>
+            <p>Scroll to explore</p>
+          </div>
         </div>
       </div>
     </div>
