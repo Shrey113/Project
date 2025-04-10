@@ -663,7 +663,7 @@ function redirectToUrl(url) {
                     );
                   })
                 ) : (
-                  <p>Not Available</p>
+                  <p> </p>
                 )}
               </div>
 

@@ -34,108 +34,179 @@ const stepCards = [
 ];
 
 const StackingCards = () => {
-  // Create a ref to store card DOM nodes
   const cardsRef = useRef([]);
   const containerRef = useRef(null);
+  const wrapperRef = useRef(null);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
-    ScrollTrigger.getAll().forEach(st => st.kill());  // Cleanup existing ScrollTriggers
-
+    // Clear any existing ScrollTriggers
+    ScrollTrigger.getAll().forEach(st => st.kill());
+    
     const cards = cardsRef.current.filter(Boolean);
-
-    // Create ScrollTrigger for the footer section
-    const footerTrigger = ScrollTrigger.create({
-      trigger: ".footer-container",   // Footer trigger class or id
-      start: "top bottom",            // Trigger when the top of the footer reaches the bottom of the viewport
-      end: "bottom bottom",           // End when the bottom of the footer reaches the bottom of the viewport
-      onEnter: () => {
-        // Unpin the cards when entering the footer
-        cards.forEach((card, index) => {
-          ScrollTrigger.getById(`pin-card-${index}`).kill(); // Kill the pinning effect
-        });
-      },
-      onLeaveBack: () => {
-        // Reapply pinning when leaving the footer section
-        cards.forEach((card, index) => {
-          // Reapply the pinning and animation effects for each card
-          ScrollTrigger.create({
-            trigger: card,
-            start: "top 20px",
-            pin: true,
-            pinSpacing: false,
-            id: `pin-card-${index}`,
-            end: 'max',
-            invalidateOnRefresh: true,
-            scrub: true,
-          });
-        });
-      },
+    const wrapper = wrapperRef.current;
+    const section = sectionRef.current;
+    
+    // Set initial positions - all cards stacked with initial opacity
+    gsap.set(cards, {
+      y: (i) => i * 10,
+      rotation: (i) => i === 0 ? 0 : (i % 2 === 0 ? -15 : 15),
+      opacity: (i) => i < 2 ? 1 : 0.75,  // First two cards fully visible
+      scale: (i) => 1 - (i * 0.05),
+      zIndex: (i) => cards.length - i,
     });
-
-    // Create animation and pinning effect for each card
-    cards.forEach((card, index) => {
-      gsap.to(card, {
-        scrollTrigger: {
-          trigger: card,
-          start: "top center",
-          end: "top top+=40",
-          scrub: 1,
-          invalidateOnRefresh: true
-        },
-        ease: "power1.out",
-      });
-
-      // Add ScrollTrigger for rotation control
-      ScrollTrigger.create({
-        trigger: card,
-        start: "top 40%", // When the top of the card reaches 40% from the top of viewport
-        end: "bottom 40%", // When the bottom of the card passes 40% mark
-        onEnter: () => {
-          // Don't apply to the first card
-          if (index !== 0) {
-            card.classList.add('no-degree');
-          }
-        },
-        onLeaveBack: () => {
-          // Don't apply to the first card
-          if (index !== 0) {
-            card.classList.remove('no-degree');
-          }
-        },
-        invalidateOnRefresh: true
-      });
-
-      // Pin the card initially
-      ScrollTrigger.create({
-        trigger: card,
-        start: "top 20px",
-        pin: true,
-        pinSpacing: false,
-        id: `pin-card-${index}`,
-        end: 'max',
+    
+    // Create a ScrollTrigger for the entire section
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: `+=${window.innerHeight * 4}`, // Extend scrolling area
+      pin: true,
+      pinSpacing: true,
+      scrub: 1.5, // Smoother scrubbing
+      anticipatePin: 1,
+      markers: false, // Set to true for debugging
+    });
+    
+    // Create a master timeline for scroll animations
+    const masterTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: `+=${window.innerHeight * 4}`,
+        scrub: 1.5, // Smoother scrubbing for better opacity transitions
         invalidateOnRefresh: true,
-        scrub: true,
+      }
+    });
+    
+    // Phase 1: Fan out cards from stacked position
+    const fanOutTl = gsap.timeline();
+    
+    cards.forEach((card, idx) => {
+      if (idx > 0) {
+        fanOutTl.to(card, {
+          y: (idx) * 50,
+          rotation: idx % 2 === 0 ? -15 : 15,
+          x: idx % 2 === 0 ? -150 : 150,
+          scale: 0.9,
+          opacity: (i) => i < 2 ? 1 : 0.85, // First two cards stay fully visible
+          duration: 0.5,
+          ease: "power1.inOut"
+        }, 0);
+      }
+    });
+    
+    masterTl.add(fanOutTl);
+    
+    // Phase 2: Bring cards to center one by one
+    cards.forEach((card, idx) => {
+      if (idx > 0) {
+        const cardTl = gsap.timeline();
+        
+        // Focus on current card
+        cardTl.to(card, {
+          rotation: 0,
+          y: 0,
+          x: 0,
+          scale: 1,
+          opacity: 1, // All cards fully visible when centered
+          zIndex: 100,
+          duration: 0.5,
+          ease: "back.out(1.7)"
+        });
+        
+        // Move other cards out of the way
+        cards.forEach((otherCard, otherIdx) => {
+          if (otherIdx !== idx) {
+            cardTl.to(otherCard, {
+              y: otherIdx < idx ? -100 : 100,
+              x: otherIdx % 2 === 0 ? -200 : 200,
+              rotation: otherIdx % 2 === 0 ? -20 : 20,
+              scale: 0.8,
+              opacity: (i) => {
+                // Keep first two cards more visible even when not focused
+                if (otherIdx < 2) return 0.85;
+                return 0.6;
+              },
+              duration: 0.5,
+              ease: "power1.inOut"
+            }, "<");
+          }
+        });
+        
+        // Pause for a moment
+        cardTl.to({}, { duration: 0.3 });
+        
+        masterTl.add(cardTl, "+=0.5");
+      }
+    });
+    
+    // Phase 3: Final spread - fan all cards out in a semicircle
+    const finalTl = gsap.timeline();
+    
+    finalTl.to(cards, {
+      y: (i) => Math.sin((i / (cards.length - 1)) * Math.PI) * -120,
+      x: (i) => (i / (cards.length - 1) - 0.5) * 500,
+      rotation: (i) => (i / (cards.length - 1) - 0.5) * 25,
+      scale: 0.85,
+      opacity: (i) => i < 2 ? 1 : 0.85, // First two cards stay fully visible
+      duration: 1,
+      ease: "power2.inOut",
+      stagger: 0.05
+    });
+    
+    masterTl.add(finalTl, "+=0.5");
+    
+    // Add hover effect to increase visibility when mouse is over card
+    cards.forEach((card, idx) => {
+      card.addEventListener('mouseenter', () => {
+        gsap.to(card, {
+          opacity: 1,
+          scale: 0.9,
+          duration: 0.3,
+          ease: "power2.out"
+        });
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        if (idx >= 2) {
+          // Only reduce opacity for cards after the first two if not in focus
+          gsap.to(card, {
+            opacity: 0.85,
+            scale: 0.85,
+            duration: 0.3,
+            ease: "power2.in"
+          });
+        }
       });
     });
-
-    // Cleanup function
+    
+    // Responsive adjustments
+    window.addEventListener('resize', () => {
+      ScrollTrigger.refresh();
+    });
+    
     return () => {
-      footerTrigger.kill();
       ScrollTrigger.getAll().forEach(st => st.kill());
+      window.removeEventListener('resize', null);
+      
+      // Remove event listeners to prevent memory leaks
+      cards.forEach(card => {
+        card.removeEventListener('mouseenter', null);
+        card.removeEventListener('mouseleave', null);
+      });
     };
   }, []);
 
-
   return (
-    <div className="stacking-page-wrapper" ref={containerRef}>
-      <div className="stacking-container">
-        <div className="stacking-cards-wrapper">
+    <div className="stacking-page-wrapper" ref={sectionRef}>
+      <div className="stacking-container" ref={containerRef}>
+        <div className="stacking-cards-wrapper" ref={wrapperRef}>
           {stepCards.map((card, idx) => (
             <div
-              className={`step-card ${idx === 0 ? 'fixed' : idx % 2 === 0 ? 'odd' : 'even'}`}
+              className={`step-card ${idx === 0 ? 'primary' : idx === 1 ? 'secondary' : 'tertiary'}`}
               id={card.id}
               key={idx}
-              style={{ top: 40 + idx * 5, maxWidth: "400px", maxHeight: "300px" }}
               ref={(el) => {
                 if (el) cardsRef.current[idx] = el;
               }}
@@ -147,6 +218,10 @@ const StackingCards = () => {
               </div>
             </div>
           ))}
+        </div>
+        <div className="scroll-indicator">
+          <div className="scroll-icon"></div>
+          <p>Scroll to explore</p>
         </div>
       </div>
     </div>
