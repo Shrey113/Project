@@ -148,7 +148,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
                 )}
               </label>
             </div>
-            
+
             <div className="form-group">
               <label className="form-label">
                 Role:
@@ -169,25 +169,25 @@ const PopUp = ({ action, member, onClose, onSave }) => {
             <div className="form-group">
               <label className="form-label">Profile Picture:</label>
               <div className="profile-pic-selection">
-                <div 
+                <div
                   className={`profile-option ${formData.member_profile_img === profile_pic_user1 ? "selected" : ""}`}
                   onClick={() => handleProfilePicChange(profile_pic_user1)}
                 >
                   <img src={profile_pic_user1} alt="User 1" />
                 </div>
-                <div 
+                <div
                   className={`profile-option ${formData.member_profile_img === profile_pic_user2 ? "selected" : ""}`}
                   onClick={() => handleProfilePicChange(profile_pic_user2)}
                 >
                   <img src={profile_pic_user2} alt="User 2" />
                 </div>
-                <div 
+                <div
                   className={`profile-option ${formData.member_profile_img === profile_pic_user3 ? "selected" : ""}`}
                   onClick={() => handleProfilePicChange(profile_pic_user3)}
                 >
                   <img src={profile_pic_user3} alt="User 3" />
                 </div>
-                <div 
+                <div
                   className={`profile-option ${formData.member_profile_img === profile_pic_user4 ? "selected" : ""}`}
                   onClick={() => handleProfilePicChange(profile_pic_user4)}
                 >
@@ -583,12 +583,12 @@ const TeamOverview = () => {
 
       // Extract assigned members and their event details
       let assignedMembersMap = new Map();
-      
+
       // Safely check if statusData exists and has items
       if (statusData && Array.isArray(statusData) && statusData.length > 0 && statusData[0]) {
         // Now safely check for assigned_team_member
         if (Array.isArray(statusData[0].assigned_team_member)) {
-          
+
           statusData.forEach((item) => {
             if (item && Array.isArray(item.assigned_team_member)) {
               item.assigned_team_member.forEach((member) => {
@@ -603,11 +603,11 @@ const TeamOverview = () => {
               console.warn("Skipping item with invalid assigned_team_member:", item);
             }
           });
-        } 
+        }
         // else {
         //   console.log("statusData has no valid assigned_team_member array");
         // }
-      } 
+      }
       // else {
       //   console.log("No valid status data available");
       // }
@@ -666,13 +666,13 @@ const TeamOverview = () => {
 
         // Extract assigned members and their event details
         let assignedMembersMap = new Map();
-        
+
         // Safely check if statusData exists and has items
         if (statusData && Array.isArray(statusData) && statusData.length > 0 && statusData[0]) {
           // Now safely check for assigned_team_member
           if (Array.isArray(statusData[0].assigned_team_member)) {
             console.log("statusData available");
-            
+
             statusData.forEach((item) => {
               if (item && Array.isArray(item.assigned_team_member)) {
                 item.assigned_team_member.forEach((member) => {
@@ -859,10 +859,10 @@ const TeamOverview = () => {
             </div>
             <h3>Build Your Dream Team</h3>
             <p>Start by adding your first team member. Expand your photography business with a talented crew!</p>
-            <button className="add-member-btn empty-state-btn" onClick={handleAddUser}>
+            {/* <button className="add-member-btn empty-state-btn" onClick={handleAddUser}>
               <span>Add Your First Team Member</span>
               <span className="plus-icon">+</span>
-            </button>
+            </button> */}
           </div>
         ) : (
           <div className="members-grid">

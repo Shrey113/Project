@@ -27,7 +27,7 @@ const TableToggleButtons = () => {
 
     setIsDropdownOpen(false);
   };
- 
+
   useEffect(() => {
     console.log(count);
   }, [count]);
@@ -163,7 +163,7 @@ const TableToggleButtons = () => {
       </div>
 
       <div className="table_con">
-        {selectedTable === "firstTable" && <InvoiceForm />}
+        {selectedTable === "firstTable" && <InvoiceForm handleTableToggle={handleTableToggle} />}
         {selectedTable === "secondTable" && <InvoicePage2 />}
         {selectedTable === "draftTable" && <DraftInvoices />}
       </div>

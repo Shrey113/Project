@@ -6,8 +6,9 @@ import { Server_url } from "../../../../redux/AllData";
 import EditInvoiceModal from "./Sub_component/EditInvoiceModal";
 import { VscOpenPreview } from "react-icons/vsc";
 import { IoInformation } from "react-icons/io5";
+import invoiceIcon from "./Images/invoice Icon.png"
 
-const InvoiceForm = () => {
+const InvoiceForm = ({ handleTableToggle }) => {
   const user = useSelector((state) => state.user);
 
   // const [activeTable, setActiveTable] = useState("firstTable");
@@ -353,34 +354,44 @@ const InvoiceForm = () => {
       {/* <h2>Invoice List</h2> */}
       <div className="invoice_list">
         {loading ? (
-          <p>Loading invoices...</p>
+          <div className="fancy-loader">
+            <span className="dot dot1"></span>
+            <span className="dot dot2"></span>
+            <span className="dot dot3"></span>
+            <p>Loading invoices<span className="dotty">...</span></p>
+          </div>
         ) : error ? (
           <p style={{ color: "red" }}>{error}</p>
         ) : (
           <>
-            <table className="invoice_table">
-              <thead>
-                <tr>
-                  <th>Index</th>
-                  <th>Invoice ID</th>
-                  <th>User Email</th>
-                  <th>Date</th>
-                  <th>Subtotal</th>
-                  <th>GST</th>
-                  <th>Total</th>
-                  <th>Invoice To</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.length === 0 ? (
+            {invoices.length === 0 ? (
+              <div className="empty-invoice-state">
+                <div className="icon-wrapper pulse-animation">
+                  <img src={invoiceIcon} alt="No Invoices" />
+                </div>
+                <div className="empty-title">No invoices yet</div>
+                <p className="empty-subtitle">Start by creating your first invoice to keep things organized.</p>
+                <button className="create-btn" onClick={() => { handleTableToggle("secondTable", "Invoice Generator") }}>
+                  Create Invoice
+                </button>
+              </div>
+            ) :
+              <table className="invoice_table">
+                <thead>
                   <tr>
-                    <td colSpan="10" style={{ textAlign: "center" }}>
-                      No Invoices Generated yet. Please Create an Invoice.
-                    </td>
+                    <th>Index</th>
+                    <th>Invoice ID</th>
+                    <th>User Email</th>
+                    <th>Date</th>
+                    <th>Subtotal</th>
+                    <th>GST</th>
+                    <th>Total</th>
+                    <th>Invoice To</th>
+                    <th>Action</th>
                   </tr>
-                ) : (
-                  invoices.map((inv, index) => (
+                </thead>
+                <tbody>
+                  {invoices.map((inv, index) => (
                     <tr
                       key={index}
                       style={{ cursor: "pointer" }}
@@ -415,10 +426,10 @@ const InvoiceForm = () => {
                       </td>
                     </tr>
                   ))
-                )}
-              </tbody>
-            </table>
-
+                  }
+                </tbody>
+              </table>
+            }
           </>
         )}
       </div>

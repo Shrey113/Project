@@ -14,8 +14,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .popup-content {
@@ -30,8 +35,15 @@
 }
 
 @keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .popup-title {
@@ -145,7 +157,7 @@
   margin-top: 25px;
 }
 
-.btn {
+.popup-overlay .btn {
   flex: 1;
   padding: 12px 0;
   border-radius: 8px;
@@ -182,11 +194,11 @@
     padding: 20px;
     width: 95%;
   }
-  
+
   .profile-pic-selection {
     gap: 15px;
   }
-  
+
   .profile-option {
     width: 60px;
     height: 60px;
@@ -197,12 +209,12 @@
   .popup-title {
     font-size: 20px;
   }
-  
+
   .form-input {
     padding: 12px;
   }
-  
+
   .btn {
     padding: 10px 20px;
   }
-} 
+}

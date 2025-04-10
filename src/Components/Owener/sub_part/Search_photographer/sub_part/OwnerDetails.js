@@ -554,23 +554,23 @@ const OwnerDetails = () => {
 
   function cleanUrl(url) {
     if (!url) return "";
-    
+
     try {
-        let hostname = new URL(url).hostname; // Extract hostname from URL
-        return hostname.replace(/^www\./, ''); // Remove "www." if present
+      let hostname = new URL(url).hostname; // Extract hostname from URL
+      return hostname.replace(/^www\./, ''); // Remove "www." if present
     } catch (error) {
-        // Handle cases where the input isn't a valid URL
-        return url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+      // Handle cases where the input isn't a valid URL
+      return url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
     }
-}
+  }
 
 
-function redirectToUrl(url) {
-  if (url && url !== "Not Available") {
+  function redirectToUrl(url) {
+    if (url && url !== "Not Available") {
       const fullUrl = url.startsWith("http") ? url : `https://${url}`;
       window.open(fullUrl, "_blank");
+    }
   }
-}
 
 
 
@@ -639,7 +639,15 @@ function redirectToUrl(url) {
                     </div>
                     <div>
                       <label>Email</label>
-                      <p>{selectedOwner?.user_email}</p>
+                      <a
+                        href={`https://mail.google.com/mail/u/0/?view=cm&fs=1&to=${selectedOwner?.user_email}&su=Photography%20Equipment%20Rental%20Inquiry&body=Hello%2C%20I%20am%20interested%20in%20renting%20photography%20equipment.%20Could%20you%20please%20provide%20more%20details%20regarding%20the%20available%20gear%20and%20rental%20process%3F%20Thank%20you.`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: 'blue', textDecoration: 'underline' }}
+                      >
+                        {selectedOwner?.user_email}
+                      </a>
+
                     </div>
                   </div>
                 </div>
@@ -677,7 +685,7 @@ function redirectToUrl(url) {
                     <div>
                       <label>Website</label>
                       <p onClick={() => redirectToUrl(selectedOwner?.social_media)} style={{ color: "blue", cursor: "pointer" }}>
-                          {cleanUrl(selectedOwner?.social_media || "Not Available")}
+                        {cleanUrl(selectedOwner?.social_media || "Not Available")}
                       </p>
                     </div>
                   </div>

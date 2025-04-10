@@ -486,7 +486,6 @@ main .steps-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 6rem;
 }
 
 .hero-container .hero_image_container {
@@ -692,8 +691,194 @@ main .footer-bottom {
     }
 }
 
+/* Mobile Screens - 425px */
+@media screen and (max-width : 450px) {
+    main .before-login-container {
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    main .content {
+        padding: 0 0 0 1rem;
+        gap: 25px;
+        line-height: 1.5rem;
+        margin-bottom: 0px;
+    }
+
+    main .content .text_content {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    main .content h1 {
+        font-weight: bold;
+        font-size: 28px;
+        font-family: circular;
+        letter-spacing: 0px;
+        line-height: 2rem;
+    }
+
+
+    main .content p {
+        font-size: 18px;
+        letter-spacing: 0px;
+        margin-bottom: 1.5rem;
+        font-weight: 250;
+    }
+
+    main .join-button {
+        background-color: #ffd700;
+        color: black;
+        padding: 5px 20px;
+        font-size: 1.3rem;
+        align-self: center;
+    }
+
+    /* second container  */
+    .who-we-are-container {
+        padding: 10px;
+    }
+
+    .who-we-are-container .content-wrapper {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .content-wrapper .text-content {
+        flex: 1;
+        padding: 6px;
+        text-align: center;
+    }
+
+    .content-wrapper .text-content .section-title {
+        font-size: 1.5rem;
+    }
+
+    .content-wrapper .section-description {
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 20px;
+    }
+
+    .content-wrapper .section-highlight {
+        font-size: 0.9rem;
+        color: #555;
+        margin-bottom: 25px;
+    }
+
+    .content-wrapper .cta-button {
+        padding: 10px;
+        font-size: 14px;
+        margin-top: 0px;
+    }
+
+    /* third container  */
+    .horizontal-scroll-section .key_feature_title {
+        font-size: 1.8rem;
+    }
+
+    .horizontal-scroll-section .cards-container {
+        gap: 15px;
+        padding: 12px 15px;
+        overflow-x: scroll;
+    }
+
+    .horizontal-scroll-section .card {
+        flex: 0 0 200px;
+        padding: 18px;
+        text-align: center;
+        min-height: fit-content;
+        height: 400px;
+        gap: 20px;
+        position: relative;
+    }
+
+    .horizontal-scroll-section .feature-title {
+        font-size: 15px;
+    }
+
+    .horizontal-scroll-section .key_words {
+        gap: 10px;
+    }
+
+    .horizontal-scroll-section .feature-description {
+        font-size: 13px;
+        text-align: start;
+    }
+
+    /* fourth container  */
+    .thriving-section {
+        background-color: #fff;
+        color: rgb(23, 23, 23);
+        /* padding: 4rem 1.5rem; */
+        padding: 40px 10px 5px 10px;
+        text-align: center;
+        min-height: fit-content;
+        width: 100%;
+    }
+
+    .thriving-section .section-title {
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .thriving-section .section-description {
+        font-size: 0.9rem;
+        color: #1a1a1a;
+        font-family: circular;
+    }
+
+
+    /* fifth container  */
+    .hero-container .hero-content h1 {
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+        line-height: 1.2;
+    }
+
+    .hero-container .hero-button {
+        font-size: 22px;
+    }
+
+    /* footer  */
+    .footer-container {
+        padding: 15px;
+    }
+
+    .footer-section h2,
+    .footer-section h3 {
+        font-size: 18px;
+    }
+
+    .footer-section p,
+    .footer-section ul li {
+        font-size: 14px;
+    }
+
+    .footer-section ul {
+        padding-left: 0;
+    }
+
+    .footer-section ul li button {
+        font-size: 14px;
+    }
+
+    .social-icons button {
+        font-size: 18px;
+    }
+
+    .footer-bottom {
+        font-size: 12px;
+    }
+}
+
 /* Mobile Screens - 320px */
-@media screen and (max-width : 375px) {
+@media screen and (max-width : 376px) {
 
     /* first container  */
     main .before-login-container {
@@ -817,7 +1002,6 @@ main .footer-bottom {
     .thriving-section {
         background-color: #fff;
         color: rgb(23, 23, 23);
-        /* padding: 4rem 1.5rem; */
         padding: 40px 10px 5px 10px;
         text-align: center;
         min-height: fit-content;

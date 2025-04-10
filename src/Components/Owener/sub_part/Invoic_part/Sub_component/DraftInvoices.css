@@ -1,7 +1,117 @@
 .draft-invoices-container {
   padding: 20px;
   position: relative;
+  min-height: 80vh;
 }
+
+
+.draft-invoices-container .empty-drafts-wrapper {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  animation: fadeInUp 0.6s ease-in-out both;
+}
+
+.draft-invoices-container .icon-wrapper.pulse-animation {
+  width: 130px;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  position: relative;
+  display: inline-block;
+}
+
+.draft-invoices-container .dots {
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+}
+
+
+.draft-invoices-container .dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #b3b6ff;
+  border-radius: 50%;
+  animation: blink 2s ease-in-out;
+}
+
+.draft-invoices-container .dot1 {
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 150%);
+  animation-delay: 0s;
+}
+
+.draft-invoices-container .dot2 {
+  top: 20%;
+  right: 0;
+  transform: translateY(50%);
+  animation-delay: 0.2s;
+}
+
+.draft-invoices-container .dot3 {
+  bottom: 20%;
+  right: 0;
+  transform: translate(180%, 20%);
+  animation-delay: 0.4s;
+}
+
+.draft-invoices-container.dot4 {
+  bottom: 0;
+  left: 50%;
+  transform: translate(-10%, 160%);
+  animation-delay: 0.6s;
+}
+
+.draft-invoices-container .dot5 {
+  top: 50%;
+  left: 0;
+  transform: translate(100%, 50%);
+  animation-delay: 0.8s;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.draft-invoices-container .icon-wrapper.pulse-animation img {
+  height: 100%;
+}
+
+.draft-invoices-container .empty-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #2e2e2e;
+}
+
+.draft-invoices-container .empty-subtitle {
+  font-size: 1rem;
+  color: #555;
+  max-width: 300px;
+  line-height: 1.6;
+  background: linear-gradient(90deg, #7c83f4, #a9a1ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .draft-invoices-container .delete-modal {
   display: flex;
   justify-content: center;
@@ -16,6 +126,7 @@
   z-index: 1000;
   border-radius: 5px;
 }
+
 .draft-invoices-container .delete-modal .delete-content {
   background-color: white;
   padding: 20px;
@@ -27,12 +138,14 @@
   justify-content: space-between;
   align-items: center;
 }
+
 .draft-invoices-container .delete-modal .delete-content h3 {
   font-size: 21px;
   font-weight: 600;
   color: #333;
   text-align: center;
 }
+
 .draft-invoices-container .delete-modal .delete-content .delte-actions {
   display: flex;
   width: 40px;
@@ -40,6 +153,7 @@
   align-items: center;
   gap: 15px;
 }
+
 .draft-invoices-container .delete-modal .delete-content .delte-actions button {
   padding: 6px;
   border: none;
@@ -47,13 +161,11 @@
   font-size: 14px;
   transition: all 0.3s ease;
 }
-.draft-invoices-container
-  .delete-modal
-  .delete-content
-  .delte-actions
-  button:hover {
+
+.draft-invoices-container .delete-modal .delete-content .delte-actions button:hover {
   background-color: #a3a3a3;
 }
+
 .draft-invoices-container .no-drafts-message {
   color: #666;
   font-family: "Raleway", sans-serif;
@@ -184,6 +296,16 @@
   .draft-invoices-container .drafts-grid {
     display: flex;
     flex-direction: column;
-    /* background: rebeccapurple; */
+  }
+}
+
+@media (max-width: 450px) {
+
+  .draft-invoices-container .empty-title {
+    font-size: 18px;
+  }
+
+  .draft-invoices-container .empty-subtitle {
+    font-size: 14px;
   }
 }

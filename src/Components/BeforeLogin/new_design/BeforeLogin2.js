@@ -214,16 +214,15 @@ function BeforeLogin2() {
             </section>
 
             {/* Fourth Section */}
-            <section className="thriving-section">
+            {/* <section className="thriving-section">
                 <h2 className="section-title">Your Path to Success Starts Here</h2>
                 <p className="section-description">
                     Whether you're a photographer looking for gigs or renting out your gear, our platform connects you with opportunities to grow and thrive.
                 </p>
-            </section>
+            </section> */}
 
 
             <div className="steps-container" id="fourth_container">
-                {/* <img src={gsapBackground} style={{ height: "100%", width: "100%", position: "absolute", objectFit: "cover", objectPosition: "center", opacity: 0.7 }} alt="" /> */}
                 <StackingCards />
             </div>
 

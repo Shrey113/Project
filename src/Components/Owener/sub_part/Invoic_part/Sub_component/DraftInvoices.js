@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { Server_url, showRejectToast, showAcceptToast } from "../../../../../redux/AllData";
 import DraftInvoiceLayout from "./DraftInvoiceLayout";
 import { useCount } from "../../../../../redux/CountContext";
+import draftIcon from "./../Images/draft Icon.png"
 
 function DraftInvoices() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -192,7 +193,20 @@ function DraftInvoices() {
       ) : (
         <div className="draft-invoices-container">
           {draftCount === 0 ? (
-            <p className="no-drafts-message">No Draft Invoices Available</p>
+            <div className="empty-drafts-wrapper">
+              <div className="icon-wrapper pulse-animation">
+                <img src={draftIcon} alt="No Drafts" />
+                <div className="dots">
+                  <span className="dot dot1"></span>
+                  <span className="dot dot2"></span>
+                  <span className="dot dot3"></span>
+                  <span className="dot dot4"></span>
+                  <span className="dot dot5"></span>
+                </div>
+              </div>
+              <div className="empty-title">No draft invoices</div>
+              <p className="empty-subtitle">Your saved draft invoices will appear here. Start one anytime.</p>
+            </div>
           ) : (
             <div className="drafts-grid">
               {draftInvoices.map((invoice) => (
