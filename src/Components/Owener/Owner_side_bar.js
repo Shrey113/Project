@@ -19,11 +19,18 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import SearchIcon from "@mui/icons-material/Search";
 import LogoutIcon from "@mui/icons-material/Logout";
-// import PersonIcon from '@mui/icons-material/Person';
+import PersonIcon from '@mui/icons-material/Person';
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import BusinessIcon from '@mui/icons-material/Business';
+import BuildIcon from '@mui/icons-material/Build';
+import CollectionsIcon from '@mui/icons-material/Collections';
+import ReviewsIcon from '@mui/icons-material/Reviews';
+import ShareIcon from '@mui/icons-material/Share';
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function OwnerSideBar() {
   const navigate = useNavigate();
@@ -34,8 +41,11 @@ function OwnerSideBar() {
     isMobile, 
     isSidebarOpen, 
     activeIndex, 
+    activeProfileSection,
+    profileSections,
     setIsSidebarOpen, 
-    setActiveIndex
+    setActiveIndex,
+    setActiveProfileSection
   } = useUIContext();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState({
@@ -45,16 +55,23 @@ function OwnerSideBar() {
     onConfirm: () => { },
   });
 
-
+  const isProfilePage = location.pathname === "/Owner/Profile";
 
   const sliderRef = React.useRef(null);
+  const profileSliderRef = React.useRef(null);
   const catRef = React.useRef(null);
 
   const menuItemsRef = useRef([]);
+  const profileItemsRef = useRef([]);
   
   // Add this to handle refs for menu items
   const setMenuItemRef = (index) => (element) => {
     menuItemsRef.current[index] = element;
+  };
+
+  // Handle refs for profile section items
+  const setProfileItemRef = (index) => (element) => {
+    profileItemsRef.current[index] = element;
   };
 
   // Memoize menu items to prevent recreation on each render
@@ -110,8 +127,29 @@ function OwnerSideBar() {
     },
   ], [activeIndex]);
 
+  // Get profile section icon based on section name
+  const getProfileSectionIcon = (sectionName) => {
+    switch(sectionName) {
+      case 'User Profile':
+        return <PersonIcon className="menu-icon" />;
+      case 'Business Profile':
+        return <BusinessIcon className="menu-icon" />;
+      case 'Business Services':
+        return <MiscellaneousServicesIcon className="menu-icon" />;
+      case 'Portfolio':
+        return <CollectionsIcon className="menu-icon" />;
+      case "Equipment's":
+        return <BuildIcon className="menu-icon" />;
+      case "Social Media Links":
+        return <ShareIcon className="menu-icon" />;
+      case "Reviews":
+        return <ReviewsIcon className="menu-icon" />;
+      default:
+        return <PersonIcon className="menu-icon" />;
+    }
+  };
 
-
+  // Update slider position for main menu
   useEffect(() => {
     if (activeIndex !== null && sliderRef.current) {
       const activeMenuIndex = Math.floor(activeIndex);
@@ -126,6 +164,41 @@ function OwnerSideBar() {
       }
     }
   }, [activeIndex]);
+
+  // Update profile section style handling to be simpler
+  const handleProfileSectionClick = useCallback((section) => {
+    setActiveProfileSection(section);
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  }, [setActiveProfileSection, isMobile, setIsSidebarOpen]);
+
+  // Simplified back button click handler
+  const handleBackButtonClick = useCallback(() => {
+    navigate("/Owner");
+  }, [navigate]);
+
+  // Update slider position for profile sections - simplified
+  useEffect(() => {
+    if (isProfilePage && profileSliderRef.current) {
+      try {
+        const activeProfileSectionIndex = profileSections.findIndex(
+          section => section === activeProfileSection
+        );
+        
+        if (activeProfileSectionIndex !== -1 && profileItemsRef.current[activeProfileSectionIndex]) {
+          const itemElement = profileItemsRef.current[activeProfileSectionIndex];
+          const itemTop = itemElement.offsetTop;
+          const itemHeight = itemElement.offsetHeight;
+          
+          profileSliderRef.current.style.top = `${itemTop}px`;
+          profileSliderRef.current.style.height = `${itemHeight}px`;
+        }
+      } catch (error) {
+        console.log("Error updating profile slider:", error);
+      }
+    }
+  }, [activeProfileSection, isProfilePage, profileSections]);
 
   const handleItemClick = useCallback((index) => {
     const item = menuItems[index];
@@ -221,7 +294,7 @@ function OwnerSideBar() {
           ref={catRef}
         >
           {/* Active slider positioned at the beginning */}
-          {activeIndex <= menuItems.length && (
+          {activeIndex <= menuItems.length && !isProfilePage && (
             <div
               className={`active_me_slider ${isMobile ? "for_mobile" : ""}`}
               ref={sliderRef}
@@ -235,81 +308,128 @@ function OwnerSideBar() {
             ></div>
           )}
 
-          {menuItems.map((item, index) => (
-            <div key={index}>
-              <div 
-                ref={setMenuItemRef(index)}
-                className={`item ${index === Math.floor(activeIndex) ? "active" : ""}`}
-                onClick={() => handleItemClick(index)}
-              >
-                <div className="icon">{item.icon}</div>
-                <div className="text">{item.name}</div>
-                {item.subMenu && (
-                  <div className={`submenu-arrow ${index === Math.floor(activeIndex) ? "open" : ""}`}>
-                    {index === Math.floor(activeIndex) ? 
-                      <KeyboardArrowDownIcon className="arrow-icon" /> : 
-                      <KeyboardArrowRightIcon className="arrow-icon" />
-                    }
+          {!isProfilePage ? (
+            // Show regular menu items when not on profile page
+            menuItems.map((item, index) => (
+              <div key={index}>
+                <div 
+                  ref={setMenuItemRef(index)}
+                  className={`item ${index === Math.floor(activeIndex) ? "active" : ""}`}
+                  onClick={() => handleItemClick(index)}
+                >
+                  <div className="icon">{item.icon}</div>
+                  <div className="text">{item.name}</div>
+                  {item.subMenu && (
+                    <div className={`submenu-arrow ${index === Math.floor(activeIndex) ? "open" : ""}`}>
+                      {index === Math.floor(activeIndex) ? 
+                        <KeyboardArrowDownIcon className="arrow-icon" /> : 
+                        <KeyboardArrowRightIcon className="arrow-icon" />
+                      }
+                    </div>
+                  )}
+                </div>
+                
+                {/* Show sub-menu if item has sub-menu and is active */}
+                {item.subMenu && index === Math.floor(activeIndex) && (
+                  <div className="submenu">
+                    {item.subMenu.map((subItem, subIndex) => (
+                      <div
+                        key={subIndex}
+                        className={`submenu-item ${location.pathname === subItem.path ? "active" : ""}`}
+                        onClick={() => {
+                          navigate(subItem.path);
+                          // Update activeIndex to identify which sub-menu item is active
+                          setActiveIndex(index + (subIndex + 1) / 10);
+                          if (isMobile) {
+                            setIsSidebarOpen(false);
+                          }
+                        }}
+                      >
+                        <div className="icon">{subItem.icon}</div>
+                        <div className="text">{subItem.name}</div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-              
-              {/* Render submenu if this item has one and is active */}
-              {item.subMenu && index === Math.floor(activeIndex) && (
-                <div className="sub-menu">
-                  {item.subMenu.map((subItem, subIndex) => (
-                    <div
-                      key={`${index}-${subIndex}`}
-                      className={`sub-item ${location.pathname === subItem.path ? "active" : ""}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(subItem.path);
-                        if (isMobile) {
-                          setIsSidebarOpen(false);
-                        }
-                      }}
-                    >
-                      <div className="icon">{subItem.icon}</div>
-                      <div className="text">{subItem.name}</div>
-                    </div>
-                  ))}
+            ))
+          ) : (
+            // Show profile sections when on profile page
+            <>
+              {/* Back button for profile page */}
+              <div 
+                className="item profile-back-button"
+                onClick={handleBackButtonClick}
+              >
+                <div className="icon">
+                  <ArrowBackIcon className="menu-icon" />
                 </div>
-              )}
+                <div className="text">Back to Dashboard</div>
+              </div>
+              
+
+              {/* Profile sections container with active slider */}
+              <div className="profile-sections-container">
+                {/* Profile sections slider */}
+                <div
+                  className="active_me_slider profile-active-slider"
+                  ref={profileSliderRef}
+                  style={{
+                    transition: "all 0.2s ease-in-out",
+                    position: "absolute",
+                    left: 0,
+                    width: "100%",
+                    zIndex: 0
+                  }}
+                ></div>
+                
+                {/* Profile sections items */}
+                {profileSections.map((section, index) => (
+                  <div 
+                    key={index}
+                    ref={setProfileItemRef(index)}
+                    className={`item ${section === activeProfileSection ? "active profile-section-active" : "profile-section"}`}
+                    onClick={() => handleProfileSectionClick(section)}
+                  >
+                    <div className="icon">{getProfileSectionIcon(section)}</div>
+                    <div className="text">{section}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          <div className="logout_button" onClick={handleLogout}>
+            <div className="icon">
+              <LogoutIcon className="menu-icon" />
             </div>
-          ))}
+            <div className="text">Logout</div>
+          </div>
+
         </div>
-
-        <div
-          className="user_profile"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleLogout();
-          }}
-        >
-          <button className="logout_button">
-            <div>
-              <LogoutIcon style={{ color: "#f08080" }} />
-            </div>
-            <span className="logout_text">Logout</span>
-          </button>
-        </div>
-
-
       </div>
+
       {showDeleteConfirm.isVisible && (
-          <ConfirmMessage
-            message_title={showDeleteConfirm.message_title}
-            message={showDeleteConfirm.message}
-            onCancel={() =>
-              setShowDeleteConfirm({ ...showDeleteConfirm, isVisible: false })
-            }
-            onConfirm={showDeleteConfirm.onConfirm}
-            button_text="Logout"
-          />
-        )}
+        <ConfirmMessage
+          title={showDeleteConfirm.message_title}
+          message={showDeleteConfirm.message}
+          onClose={() => {
+            setShowDeleteConfirm((prevState) => ({
+              ...prevState,
+              isVisible: false,
+            }));
+          }}
+          onConfirm={() => {
+            showDeleteConfirm.onConfirm();
+            setShowDeleteConfirm((prevState) => ({
+              ...prevState,
+              isVisible: false,
+            }));
+          }}
+        />
+      )}
     </>
   );
 }
 
-// Wrap the component with React.memo to prevent unnecessary re-renders
 export default memo(OwnerSideBar);

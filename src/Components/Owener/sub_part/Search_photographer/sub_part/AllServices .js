@@ -10,6 +10,14 @@ function AllServices() {
     const [selectedData, setSelectedData] = useState(false);
     const [showSelectedCard, setShowSelectedCard] = useState(false);
 
+    useEffect(() => {
+        if (showSelectedCard) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "auto";
+        }
+    }, [showSelectedCard]);
+
 
     useEffect(() => {
         const fetch_services = async (owner_email) => {

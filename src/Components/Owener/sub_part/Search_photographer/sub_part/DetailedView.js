@@ -20,6 +20,14 @@ function DetailedView() {
   const [selectedData, setSelectedData] = useState(null);
   const [selectedOwner, setSelectedOwner] = useState(null);
 
+  useEffect(() => {
+    if (showSelectedCard) {
+        document.body.style.overflow = "hidden";
+    } else {
+        document.body.style.overflow = "auto";
+    }
+}, [showSelectedCard]);
+
 
   useEffect(() => {
     if (selectedData) {

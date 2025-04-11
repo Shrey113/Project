@@ -100,8 +100,8 @@
   margin-bottom: 4px;
 }
 
-.form-group input, 
-.form-group select, 
+.add-business-services-container .form-group input, 
+.add-business-services-container .form-group select, 
 .add-business-services-container .form-group textarea {
     width: 100%;
     padding: 12px 16px;

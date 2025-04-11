@@ -64,7 +64,7 @@
 
 .profile-container-after-accept .content .wrap_content {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1000px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -167,4 +167,88 @@
     padding: 15px;
     border-bottom: 1px solid #eee;
   }
+}
+
+/* New styles for profile without sidebar */
+.profile-without-sidebar {
+  margin: 0;
+  padding: 10px 20px 30px 20px;
+  width: 100%;
+  min-height: calc(100vh - 70px);
+}
+
+.profile-without-sidebar .content {
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  overflow-y: visible;
+}
+
+.profile-without-sidebar .wrap_content {
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); */
+  padding: 25px 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+  gap: 30px;
+}
+
+@media screen and (max-width: 768px) {
+  .profile-without-sidebar {
+    padding: 10px;
+  }
+  
+  .profile-without-sidebar .wrap_content {
+    padding: 20px;
+  }
+  
+  .profile-page-header h2 {
+    font-size: 20px;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .profile-without-sidebar .content {
+    padding: 0;
+  }
+  
+  .profile-without-sidebar .wrap_content {
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .profile-page-header {
+    margin-bottom: 10px;
+    padding: 5px 10px;
+  }
+  
+  .profile-page-header h2 {
+    font-size: 18px;
+  }
+}
+
+.profile-page-header {
+  margin-bottom: 15px;
+  padding: 10px 0;
+}
+
+.profile-page-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  padding: 0 5px;
+}
+
+/* Update existing profile containers to match new style */
+.business_profile_main_container,
+.add_profile_main_container,
+.add_portfolio_main_container,
+.add_equipment_main_container,
+.add_reviews_main_container,
+.add_service_main_container,
+.owner_url_list_container {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
 }

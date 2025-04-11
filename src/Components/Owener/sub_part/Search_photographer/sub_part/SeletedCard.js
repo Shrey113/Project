@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./SeletedCard.css";
 import { IoClose } from "react-icons/io5";
+import { IoLocationOutline, IoCalendarOutline } from "react-icons/io5";
+import { BsCurrencyRupee, BsCheckCircleFill, BsChevronDown } from "react-icons/bs";
+import { MdBusinessCenter, MdCategory } from "react-icons/md";
 import {
   Server_url,
   showAcceptToast,
@@ -40,8 +43,52 @@ const theme = createTheme({
         },
       },
     },
+    MuiPickersDay: {
+      styleOverrides: {
+        root: {
+          fontWeight: "600",
+          "&.Mui-selected": {
+            backgroundColor: "#4f46e5",
+          },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+        }
+      }
+    }
   },
 });
+
+// Collapsible section component
+const CollapsibleSection = ({ title, children, icon, defaultOpen = false }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  
+  return (
+    <div className="booking-section">
+      <div 
+        className={`collapsible-header ${isOpen ? 'collapsible-header-active' : ''}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="collapsible-title">
+          {icon}
+          <span>{title}</span>
+        </div>
+        <BsChevronDown 
+          className={`collapsible-icon ${isOpen ? 'collapsible-icon-open' : ''}`} 
+          size={16} 
+        />
+      </div>
+      <div className={`collapsible-content ${isOpen ? 'collapsible-content-open' : ''}`}>
+        {children}
+      </div>
+    </div>
+  );
+};
 
 function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
   const user = useSelector((state) => state.user);
@@ -182,7 +229,6 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       sender_email: user.user_email,
       receiver_email: selectedOwner.user_email,
     };
-    // console.log("datassssssssssssssssssss", data);
 
     try {
       const response = await fetch(`${Server_url}/owner/add-package-request`, {
@@ -399,7 +445,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       <div className="on_close" onClick={onClose}>
         <IoClose style={{
           fontWeight: "600",
-          fontSize: "20px",
+          fontSize: "18px",
         }} />
       </div>
       <div
@@ -416,147 +462,183 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
             </div>
             <form onSubmit={handleSubmit} className="booking-form">
               {/* Information Display Section */}
-              <div className="info-section">
-                <div className="info-group">
-                  <label>Equipment Name</label>
-                  <div className="info-value">{formData.name}</div>
-                  {/* <div className="info-value">{formData.start_date}</div> */}
-                </div>
+              <CollapsibleSection 
+                title="Equipment Details" 
+                icon={<MdBusinessCenter size={16} />}
+              >
+                <div className="info-section">
+                  <div className="info-group">
+                    <label>Equipment Name</label>
+                    <div className="info-value">{formData.name}</div>
+                  </div>
 
-                <div className="date-time-container">
-                  <ThemeProvider theme={theme}>
-                    <div className="date-input-group">
-                      <label className="form-label">Start Date:</label>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          value={
-                            formData.start_date
-                              ? dayjs(formData.start_date)
-                              : null
-                          }
-                          onChange={(newValue) =>
-                            handleDateChange("start_date", newValue)
-                          }
-                          minDate={dayjs()}
-                          format="DD-MM-YYYY"
-                          shouldDisableDate={shouldDisableDate}
-                          renderDay={renderDay}
-                          slotProps={{
-                            textField: {
-                              className: "form-input",
-                              error: !!dateErrors.start_date,
-                              helperText: dateErrors.start_date,
-                              sx: {
-                                "& .MuiFormHelperText-root": {
-                                  color: "#d32f2f",
-                                  marginLeft: "0",
+                  <div className="info-group">
+                    <label>Company</label>
+                    <div className="info-value">{formData.equipment_company}</div>
+                  </div>
+                  <div className="info-group">
+                    <label>Equipment Type</label>
+                    <div className="info-value">{formData.equipment_type}</div>
+                  </div>
+                  <div className="info-group" style={{ gridColumn: "1 / -1" }}>
+                    <label>Description</label>
+                    <div className="info-value">
+                      {formData.equipment_description}
+                    </div>
+                  </div>
+                  <div className="info-group">
+                    <label>Price per Day</label>
+                    <div className="info-value" style={{ display: 'flex', alignItems: 'center' }}>
+                      <BsCurrencyRupee /> {formData.equipment_price_per_day}
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Combined Booking Details Section */}
+              <div className="booking-section">
+
+
+                {/* Date Selection */}
+                <div style={{ marginBottom: "16px" }}>
+                  <div className="date-time-container">
+                    <ThemeProvider theme={theme}>
+                      <div className="date-input-group">
+                        <label className="form-label">
+                          <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                          Start Date
+                        </label>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            value={
+                              formData.start_date
+                                ? dayjs(formData.start_date)
+                                : null
+                            }
+                            onChange={(newValue) =>
+                              handleDateChange("start_date", newValue)
+                            }
+                            minDate={dayjs()}
+                            format="DD-MM-YYYY"
+                            shouldDisableDate={shouldDisableDate}
+                            renderDay={renderDay}
+                            slotProps={{
+                              textField: {
+                                className: "form-input",
+                                error: !!dateErrors.start_date,
+                                helperText: dateErrors.start_date,
+                                size: "small",
+                                sx: {
+                                  "& .MuiFormHelperText-root": {
+                                    color: "#d32f2f",
+                                    marginLeft: "0",
+                                    fontSize: "0.7rem",
+                                  },
                                 },
                               },
-                            },
-                          }}
-                        />
-                      </LocalizationProvider>
-                    </div>
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
 
-                    <div className="date-input-group">
-                      <label className="form-label">End Date:</label>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          value={
-                            formData.end_date ? dayjs(formData.end_date) : null
-                          }
-                          onChange={(newValue) =>
-                            handleDateChange("end_date", newValue)
-                          }
-                          minDate={dayjs()}
-                          format="DD-MM-YYYY"
-                          shouldDisableDate={shouldDisableDate}
-                          renderDay={renderDay}
-                          slotProps={{
-                            textField: {
-                              className: "form-input",
-                              error: !!dateErrors.end_date,
-                              helperText: dateErrors.end_date,
-                              sx: {
-                                "& .MuiFormHelperText-root": {
-                                  color: "#d32f2f",
-                                  marginLeft: "0",
+                      <div className="date-input-group">
+                        <label className="form-label">
+                          <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                          End Date
+                        </label>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            value={
+                              formData.end_date ? dayjs(formData.end_date) : null
+                            }
+                            onChange={(newValue) =>
+                              handleDateChange("end_date", newValue)
+                            }
+                            minDate={dayjs()}
+                            format="DD-MM-YYYY"
+                            shouldDisableDate={shouldDisableDate}
+                            renderDay={renderDay}
+                            slotProps={{
+                              textField: {
+                                className: "form-input",
+                                error: !!dateErrors.end_date,
+                                helperText: dateErrors.end_date,
+                                size: "small",
+                                sx: {
+                                  "& .MuiFormHelperText-root": {
+                                    color: "#d32f2f",
+                                    marginLeft: "0",
+                                    fontSize: "0.7rem",
+                                  },
                                 },
                               },
-                            },
-                          }}
-                        />
-                      </LocalizationProvider>
-                    </div>
-                  </ThemeProvider>
-                </div>
-                <div className="info-group">
-                  <label>Company</label>
-                  <div className="info-value">{formData.equipment_company}</div>
-                </div>
-                <div className="info-group">
-                  <label>Equipment Type</label>
-                  <div className="info-value">{formData.equipment_type}</div>
-                </div>
-                <div className="info-group">
-                  <label>Description</label>
-                  <div className="info-value">
-                    {formData.equipment_description}
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </ThemeProvider>
                   </div>
                 </div>
-                <div className="info-group">
-                  <label>Price per Day</label>
-                  <div className="info-value">
-                    {formData.equipment_price_per_day}
+
+                {/* Other Booking Details */}
+                <div className="compact-fields">
+                  <div className="form-group">
+                    <label>Days Required</label>
+                    <input
+                      type="number"
+                      name="days_required"
+                      value={formData.days_required}
+                      onChange={handleChange}
+                      min="1"
+                      required
+                    />
+                    {formData.days_required_error && (
+                      <div className="error-message">
+                        {formData.days_required_error}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>
+                      <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      placeholder="Enter delivery location"
+                      required
+                    />
+                    {formData.location_error && (
+                      <div className="error-message">{formData.location_error}</div>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              {/* User Input Section */}
-              <div className="form-group">
-                <label>Number of Days Required</label>
-                <input
-                  type="number"
-                  name="days_required"
-                  value={formData.days_required}
-                  onChange={handleChange}
-                  min="1"
-                  required
-                />
-                {formData.days_required_error && (
-                  <div className="error-message">
-                    {formData.days_required_error}
+                <div className="form-group">
+                  <label>Requirements (Optional)</label>
+                  <textarea
+                    name="requirements"
+                    value={formData.requirements}
+                    onChange={handleChange}
+                    rows="2"
+                    placeholder="Any specific requirements for your booking"
+                  />
+                </div>
+                
+                <div className="info-group total-amount">
+                  <label>Total Amount</label>
+                  <div className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <BsCurrencyRupee /> {formData.total_amount}
                   </div>
-                )}
-              </div>
-              <div className="info-group total-amount">
-                <label>Total Amount</label>
-                <div className="info-value">₹{formData.total_amount}</div>
-              </div>
-
-              <div className="form-group">
-                <label>Location</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Requirements (Optional)</label>
-                <textarea
-                  name="requirements"
-                  value={formData.requirements}
-                  onChange={handleChange}
-                  rows="3"
-                />
+                </div>
               </div>
 
               <button type="submit" className="submit-btn">
-                Book Now
+                <BsCheckCircleFill style={{ marginRight: "8px" }} /> Book Now
               </button>
             </form>
           </div>
@@ -567,136 +649,175 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
             <div className="package-card-title-selected">Package Booking</div>
             <form onSubmit={handleSubmit} className="booking-form">
               {/* Information Display Section */}
-              <div className="info-section">
-                <div className="info-group">
-                  <label>Package Name</label>
-                  <div className="info-value">{formData.package_name}</div>
-                </div>
-                <div className="date-time-container">
-                  <ThemeProvider theme={theme}>
-                    <div className="date-input-group">
-                      <label className="form-label">Start Date:</label>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          value={
-                            formData.start_date
-                              ? dayjs(formData.start_date)
-                              : null
-                          }
-                          onChange={(newValue) =>
-                            handleDateChange("start_date", newValue)
-                          }
-                          minDate={dayjs()}
-                          format="DD-MM-YYYY"
-                          shouldDisableDate={shouldDisableDate}
-                          renderDay={renderDay}
-                          slotProps={{
-                            textField: {
-                              className: "form-input",
-                              error: !!dateErrors.start_date,
-                              helperText: dateErrors.start_date,
-                              sx: {
-                                "& .MuiFormHelperText-root": {
-                                  color: "#d32f2f",
-                                  marginLeft: "0",
-                                },
-                              },
-                            },
-                          }}
-                        />
-                      </LocalizationProvider>
-                    </div>
-
-                    <div className="date-input-group">
-                      <label className="form-label">End Date:</label>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          value={
-                            formData.end_date ? dayjs(formData.end_date) : null
-                          }
-                          onChange={(newValue) =>
-                            handleDateChange("end_date", newValue)
-                          }
-                          minDate={dayjs()}
-                          format="DD-MM-YYYY"
-                          shouldDisableDate={shouldDisableDate}
-                          renderDay={renderDay}
-                          slotProps={{
-                            textField: {
-                              className: "form-input",
-                              error: !!dateErrors.end_date,
-                              helperText: dateErrors.end_date,
-                              sx: {
-                                "& .MuiFormHelperText-root": {
-                                  color: "#d32f2f",
-                                  marginLeft: "0",
-                                },
-                              },
-                            },
-                          }}
-                        />
-                      </LocalizationProvider>
-                    </div>
-                  </ThemeProvider>
-                </div>
-                <div className="info-group">
-                  <label>Service</label>
-                  <div className="info-value">{formData.service}</div>
-                </div>
-                <div className="info-group">
-                  <label>Description</label>
-                  <div className="info-value">{formData.description}</div>
-                </div>
-                <div className="info-group">
-                  <label>Price</label>
-                  <div className="info-value">{formData.price}</div>
-                </div>
-              </div>
-
-              {/* User Input Section */}
-              <div className="form-group">
-                <label>Number of Days Required</label>
-                <input
-                  type="number"
-                  name="days_required"
-                  value={formData.days_required}
-                  onChange={handleChange}
-                  min="1"
-                  required
-                />
-                {formData.days_required_error && (
-                  <div className="error-message">
-                    {formData.days_required_error}
+              <CollapsibleSection 
+                title="Package Details" 
+                icon={<MdBusinessCenter size={16} />}
+              >
+                <div className="info-section">
+                  <div className="info-group">
+                    <label>Package Name</label>
+                    <div className="info-value">{formData.package_name}</div>
                   </div>
-                )}
-              </div>
-              <div className="info-group total-amount">
-                <label>Total Amount</label>
-                <div className="info-value">₹{formData.total_amount}</div>
-              </div>
-              <div className="form-group">
-                <label>Location</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+                  <div className="info-group">
+                    <label>Service</label>
+                    <div className="info-value">{formData.service}</div>
+                  </div>
+                  <div className="info-group" style={{ gridColumn: "1 / -1" }}>
+                    <label>Description</label>
+                    <div className="info-value">{formData.description}</div>
+                  </div>
+                  <div className="info-group">
+                    <label>Price</label>
+                    <div className="info-value" style={{ display: 'flex', alignItems: 'center' }}>
+                      <BsCurrencyRupee /> {formData.price}
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleSection>
+              
+              {/* Combined Booking Details Section */}
+              <div className="booking-section">
 
-              <div className="form-group">
-                <label>Requirements (Optional)</label>
-                <textarea
-                  name="requirements"
-                  value={formData.requirements}
-                  onChange={handleChange}
-                  rows="3"
-                />
+                {/* Date Selection */}
+                <div style={{ marginBottom: "16px" }}>
+                  <div className="date-time-container">
+                    <ThemeProvider theme={theme}>
+                      <div className="date-input-group">
+                        <label className="form-label">
+                          <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                          Start Date
+                        </label>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            value={
+                              formData.start_date
+                                ? dayjs(formData.start_date)
+                                : null
+                            }
+                            onChange={(newValue) =>
+                              handleDateChange("start_date", newValue)
+                            }
+                            minDate={dayjs()}
+                            format="DD-MM-YYYY"
+                            shouldDisableDate={shouldDisableDate}
+                            renderDay={renderDay}
+                            slotProps={{
+                              textField: {
+                                className: "form-input",
+                                error: !!dateErrors.start_date,
+                                helperText: dateErrors.start_date,
+                                size: "small",
+                                sx: {
+                                  "& .MuiFormHelperText-root": {
+                                    color: "#d32f2f",
+                                    marginLeft: "0",
+                                    fontSize: "0.7rem",
+                                  },
+                                },
+                              },
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+
+                      <div className="date-input-group">
+                        <label className="form-label">
+                          <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                          End Date
+                        </label>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            value={
+                              formData.end_date ? dayjs(formData.end_date) : null
+                            }
+                            onChange={(newValue) =>
+                              handleDateChange("end_date", newValue)
+                            }
+                            minDate={dayjs()}
+                            format="DD-MM-YYYY"
+                            shouldDisableDate={shouldDisableDate}
+                            renderDay={renderDay}
+                            slotProps={{
+                              textField: {
+                                className: "form-input",
+                                error: !!dateErrors.end_date,
+                                helperText: dateErrors.end_date,
+                                size: "small",
+                                sx: {
+                                  "& .MuiFormHelperText-root": {
+                                    color: "#d32f2f",
+                                    marginLeft: "0",
+                                    fontSize: "0.7rem",
+                                  },
+                                },
+                              },
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </ThemeProvider>
+                  </div>
+                </div>
+
+                {/* Other Booking Details */}
+                <div className="compact-fields">
+                  <div className="form-group">
+                    <label>Days Required</label>
+                    <input
+                      type="number"
+                      name="days_required"
+                      value={formData.days_required}
+                      onChange={handleChange}
+                      min="1"
+                      required
+                    />
+                    {formData.days_required_error && (
+                      <div className="error-message">
+                        {formData.days_required_error}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>
+                      <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      placeholder="Enter event location"
+                      required
+                    />
+                    {formData.location_error && (
+                      <div className="error-message">{formData.location_error}</div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="form-group">
+                  <label>Requirements (Optional)</label>
+                  <textarea
+                    name="requirements"
+                    value={formData.requirements}
+                    onChange={handleChange}
+                    rows="2"
+                    placeholder="Any specific requirements for your package"
+                  />
+                </div>
+                
+                <div className="info-group total-amount">
+                  <label>Total Amount</label>
+                  <div className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <BsCurrencyRupee /> {formData.total_amount}
+                  </div>
+                </div>
               </div>
 
               <button type="submit" className="submit-btn">
-                Book Package
+                <BsCheckCircleFill style={{ marginRight: "8px" }} /> Book Package
               </button>
             </form>
           </div>
@@ -707,132 +828,171 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
             <div className="service-card-title-selected">Service Booking</div>
             <form onSubmit={handleSubmit} className="booking-form">
               {/* Information Display Section */}
-              <div className="info-section">
-                <div className="info-group">
-                  <label>Service Name</label>
-                  <div className="info-value">{formData.service_name}</div>
-                </div>
-                <div className="date-time-container">
-                  <ThemeProvider theme={theme}>
-                    <div className="date-input-group">
-                      <label className="form-label">Start Date:</label>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          value={
-                            formData.start_date
-                              ? dayjs(formData.start_date)
-                              : null
-                          }
-                          onChange={(newValue) =>
-                            handleDateChange("start_date", newValue)
-                          }
-                          minDate={dayjs()}
-                          format="DD-MM-YYYY"
-                          shouldDisableDate={shouldDisableDate}
-                          renderDay={renderDay}
-                          slotProps={{
-                            textField: {
-                              className: "form-input",
-                              error: !!dateErrors.start_date,
-                              helperText: dateErrors.start_date,
-                              sx: {
-                                "& .MuiFormHelperText-root": {
-                                  color: "#d32f2f",
-                                  marginLeft: "0",
-                                },
-                              },
-                            },
-                          }}
-                        />
-                      </LocalizationProvider>
-                    </div>
-
-                    <div className="date-input-group">
-                      <label className="form-label">End Date:</label>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          value={
-                            formData.end_date ? dayjs(formData.end_date) : null
-                          }
-                          onChange={(newValue) =>
-                            handleDateChange("end_date", newValue)
-                          }
-                          minDate={dayjs()}
-                          format="DD-MM-YYYY"
-                          shouldDisableDate={shouldDisableDate}
-                          renderDay={renderDay}
-                          slotProps={{
-                            textField: {
-                              className: "form-input",
-                              error: !!dateErrors.end_date,
-                              helperText: dateErrors.end_date,
-                              sx: {
-                                "& .MuiFormHelperText-root": {
-                                  color: "#d32f2f",
-                                  marginLeft: "0",
-                                },
-                              },
-                            },
-                          }}
-                        />
-                      </LocalizationProvider>
-                    </div>
-                  </ThemeProvider>
-                </div>
-                <div className="info-group">
-                  <label>Description</label>
-                  <div className="info-value">{formData.description}</div>
-                </div>
-                <div className="info-group">
-                  <label>Price</label>
-                  <div className="info-value">{formData.service_price}</div>
-                </div>
-              </div>
-
-              {/* User Input Section */}
-              <div className="form-group">
-                <label>Number of Days Required</label>
-                <input
-                  type="number"
-                  name="days_required"
-                  value={formData.days_required}
-                  onChange={handleChange}
-                  min="1"
-                  required
-                />
-                {formData.days_required_error && (
-                  <div className="error-message">
-                    {formData.days_required_error}
+              <CollapsibleSection 
+                title="Service Details" 
+                icon={<MdCategory size={16} />}
+              >
+                <div className="info-section">
+                  <div className="info-group">
+                    <label>Service Name</label>
+                    <div className="info-value">{formData.service_name}</div>
                   </div>
-                )}
-              </div>
-              <div className="info-group total-amount">
-                <label>Total Amount</label>
-                <div className="info-value">₹{formData.total_amount}</div>
-              </div>
-              <div className="form-group">
-                <label>Location</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+                  <div className="info-group" style={{ gridColumn: "1 / -1" }}>
+                    <label>Description</label>
+                    <div className="info-value">{formData.description}</div>
+                  </div>
+                  <div className="info-group">
+                    <label>Price</label>
+                    <div className="info-value" style={{ display: 'flex', alignItems: 'center' }}>
+                      <BsCurrencyRupee /> {formData.service_price}
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleSection>
+              
+              {/* Combined Booking Details Section */}
+              <div className="booking-section">
 
-              <div className="form-group">
-                <label>Requirements (Optional)</label>
-                <textarea
-                  name="requirements"
-                  value={formData.requirements}
-                  onChange={handleChange}
-                  rows="3"
-                />
+                {/* Date Selection */}
+                <div style={{ marginBottom: "16px" }}>
+                  <div className="date-time-container">
+                    <ThemeProvider theme={theme}>
+                      <div className="date-input-group">
+                        <label className="form-label">
+                          <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                          Start Date
+                        </label>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            value={
+                              formData.start_date
+                                ? dayjs(formData.start_date)
+                                : null
+                            }
+                            onChange={(newValue) =>
+                              handleDateChange("start_date", newValue)
+                            }
+                            minDate={dayjs()}
+                            format="DD-MM-YYYY"
+                            shouldDisableDate={shouldDisableDate}
+                            renderDay={renderDay}
+                            slotProps={{
+                              textField: {
+                                className: "form-input",
+                                error: !!dateErrors.start_date,
+                                helperText: dateErrors.start_date,
+                                size: "small",
+                                sx: {
+                                  "& .MuiFormHelperText-root": {
+                                    color: "#d32f2f",
+                                    marginLeft: "0",
+                                    fontSize: "0.7rem",
+                                  },
+                                },
+                              },
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+
+                      <div className="date-input-group">
+                        <label className="form-label">
+                          <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                          End Date
+                        </label>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            value={
+                              formData.end_date ? dayjs(formData.end_date) : null
+                            }
+                            onChange={(newValue) =>
+                              handleDateChange("end_date", newValue)
+                            }
+                            minDate={dayjs()}
+                            format="DD-MM-YYYY"
+                            shouldDisableDate={shouldDisableDate}
+                            renderDay={renderDay}
+                            slotProps={{
+                              textField: {
+                                className: "form-input",
+                                error: !!dateErrors.end_date,
+                                helperText: dateErrors.end_date,
+                                size: "small",
+                                sx: {
+                                  "& .MuiFormHelperText-root": {
+                                    color: "#d32f2f",
+                                    marginLeft: "0",
+                                    fontSize: "0.7rem",
+                                  },
+                                },
+                              },
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </ThemeProvider>
+                  </div>
+                </div>
+
+                {/* Other Booking Details */}
+                <div className="compact-fields">
+                  <div className="form-group">
+                    <label>Days Required</label>
+                    <input
+                      type="number"
+                      name="days_required"
+                      value={formData.days_required}
+                      onChange={handleChange}
+                      min="1"
+                      required
+                    />
+                    {formData.days_required_error && (
+                      <div className="error-message">
+                        {formData.days_required_error}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>
+                      <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      placeholder="Enter service location"
+                      required
+                    />
+                    {formData.location_error && (
+                      <div className="error-message">{formData.location_error}</div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="form-group">
+                  <label>Requirements (Optional)</label>
+                  <textarea
+                    name="requirements"
+                    value={formData.requirements}
+                    onChange={handleChange}
+                    rows="2"
+                    placeholder="Any specific requirements for this service"
+                  />
+                </div>
+                
+                <div className="info-group total-amount">
+                  <label>Total Amount</label>
+                  <div className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <BsCurrencyRupee /> {formData.total_amount}
+                  </div>
+                </div>
               </div>
 
               <button type="submit" className="submit-btn">
-                Book Service
+                <BsCheckCircleFill style={{ marginRight: "8px" }} /> Book Service
               </button>
             </form>
           </div>

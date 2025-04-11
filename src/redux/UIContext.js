@@ -27,6 +27,26 @@ export const UIProvider = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(isMobileDevice ? false : true);
   
   const [activeIndex, setActiveIndex] = useState(0);
+  
+  // Add state for profile sections
+  const storedProfileSection = localStorage.getItem('activeSection_for_profile_page') || 'User Profile';
+  const [activeProfileSection, setActiveProfileSection] = useState(storedProfileSection);
+  
+  // Use useMemo for profileSections to avoid recreating the array on every render
+  const profileSections = useMemo(() => [
+    'User Profile', 
+    'Business Profile', 
+    "Business Services", 
+    'Portfolio', 
+    "Equipment's", 
+    "Social Media Links", 
+    "Reviews"
+  ], []);
+
+  // Update localStorage when activeProfileSection changes
+  useEffect(() => {
+    localStorage.setItem('activeSection_for_profile_page', activeProfileSection);
+  }, [activeProfileSection]);
 
   // Force sidebar state reset on first render for mobile devices
   useEffect(() => {
@@ -114,10 +134,13 @@ export const UIProvider = ({ children }) => {
     isMobile,
     isSidebarOpen,
     activeIndex,
+    activeProfileSection,
+    profileSections,
     setIsSidebarOpen,
     setActiveIndex,
+    setActiveProfileSection,
     toggleSidebar
-  }), [isMobile, isSidebarOpen, activeIndex, toggleSidebar]);
+  }), [isMobile, isSidebarOpen, activeIndex, activeProfileSection, profileSections, toggleSidebar]);
 
   return (
     <UIContext.Provider value={contextValue}>

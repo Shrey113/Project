@@ -88,6 +88,7 @@ const OwnerDetails = () => {
     { type: "Lens", icon: lens_icon },
   ];
 
+  
   function get_img_by_name(name) {
     if (!name) return camera_icon;
     const equipment = equipmentTypes.find(
@@ -129,6 +130,14 @@ const OwnerDetails = () => {
       swiperRefPackage.current.swiper.navigation.update();
     }
   }, []);
+
+  useEffect(() => {
+    if (showSelectedCard) {
+        document.body.style.overflow = "hidden";
+    } else {
+        document.body.style.overflow = "auto";
+    }
+}, [showSelectedCard]);
 
   useEffect(() => {
     if (swiperRefEquipment.current && swiperRefEquipment.current.swiper) {

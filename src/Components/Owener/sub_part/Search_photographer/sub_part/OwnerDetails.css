@@ -407,10 +407,11 @@
 /* base for all sections  */
 
 .owner-details-container .section.packages_section {
-  /* border: 1px solid #c1c1c1; */
+  border: 1px solid #c1c1c1;
   border-radius: 8px;
   width: 97%;
   padding-bottom: 0px;
+
 }
 
 

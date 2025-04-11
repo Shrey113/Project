@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './Profile.css';
 
 import AddProfileData from './profile_parts/AddProfileData2';
@@ -8,48 +8,23 @@ import AddEquipment from './profile_parts/AddEquipment';
 import AddReviews from './profile_parts/AddReviews';
 import AddBusinessServices from './profile_parts/AddBusinessServices';
 import OwnerUrlList from './profile_parts/owner_url_components/OwnerUrlList';
+import { useUIContext } from '../../../redux/UIContext';
 
 function Profile() {
-  const storedSection = localStorage.getItem('activeSection_for_profile_page') || 'User Profile';
-  const [activeSection, setActiveSection] = useState(storedSection);
-  const [showMenu, setShowMenu] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem('activeSection_for_profile_page', activeSection);
-  }, [activeSection]);
-
-  const sections = ['User Profile', 'Business Profile', "Business Services", 'Portfolio', "Equipment's", "Social Media Links", "Reviews"];
+  const { activeProfileSection } = useUIContext();
 
   return (
-    <div className="profile-container-after-accept">
-      <div className="profile-header-mobile" onClick={() => setShowMenu(!showMenu)}>
-        <span>{activeSection}</span>
-        <span className={`menu-icon ${showMenu ? 'show-menu' : ''}`}>▶</span>
-      </div>
-
-      <div className={`sidebar ${showMenu ? 'show-menu' : ''}`}>
-        {sections.map((section) => (
-          <div
-            key={section}
-            className={`sidebar-item ${activeSection === section ? 'active' : ''}`}
-            onClick={() => {
-              setActiveSection(section);
-              setShowMenu(false);
-            }}
-          >
-            {section}
-          </div>
-        ))}
-      </div>
+    <div className="profile-container-after-accept profile-without-sidebar">
       <div className="content">
+
         <div className="wrap_content">
-          {activeSection === 'User Profile' && <AddProfileData />}
-          {activeSection === 'Business Profile' && <AddBusinessData />}
-          {activeSection === "Business Services" && <AddBusinessServices />}
-          {activeSection === 'Portfolio' && <AddPortfolio />}
-          {activeSection === "Equipment's" && <AddEquipment />}
-          {activeSection === "Social Media Links" && <OwnerUrlList />}
-          {activeSection === "Reviews" && <AddReviews />}
+          {activeProfileSection === 'User Profile' && <AddProfileData />}
+          {activeProfileSection === 'Business Profile' && <AddBusinessData />}
+          {activeProfileSection === "Business Services" && <AddBusinessServices />}
+          {activeProfileSection === 'Portfolio' && <AddPortfolio />}
+          {activeProfileSection === "Equipment's" && <AddEquipment />}
+          {activeProfileSection === "Social Media Links" && <OwnerUrlList />}
+          {activeProfileSection === "Reviews" && <AddReviews />}
         </div>
       </div>
     </div>

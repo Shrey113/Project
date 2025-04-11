@@ -48,7 +48,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   useEffect(() => {
     function handleClickOutside(event) {
       if (
-        !navbar_open &&
         !event.target.closest("#notification_popup") &&
         !event.target.closest(".bell_icon")
       ) {

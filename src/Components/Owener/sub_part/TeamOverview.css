@@ -1014,7 +1014,7 @@
   background-color: red;
 }
 
-.profile-section {
+.team-overview-container .profile-section {
   text-align: center;
   margin-bottom: 20px;
   flex-grow: 1;
