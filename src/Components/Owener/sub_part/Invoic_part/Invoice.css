@@ -774,7 +774,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   max-width: 150px;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 
@@ -888,6 +888,7 @@
   animation: fadeInUp 0.8s ease-in-out both;
   text-align: center;
   background: linear-gradient(90deg, #7c83f4, #a9a1ff);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
