@@ -162,14 +162,11 @@
 }
 
 .submenu-item.active {
-  background-color: var(--owner_profile_pages_main_color);
-  color: white;
+  background-color:rgba(0, 0, 255, 0.063);
+
 }
 
-.submenu-item.active .icon,
-.submenu-item.active .text {
-  color: white;
-}
+
 
 .user_profile {
   height: 70px;
@@ -647,7 +644,7 @@
 }
 
 /* Profile section specific styles - simplified */
-.profile-section {
+.side_bar .profile-section {
   transition: background-color 0.2s ease;
   border-radius: 8px;
   margin: 2px 6px;

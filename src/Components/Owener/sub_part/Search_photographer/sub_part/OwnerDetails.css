@@ -112,6 +112,7 @@
   flex-direction: column;
   background-color: white;
   overflow: hidden;
+  padding-top: 20px;
 }
 
 .back_with_owner_title {
