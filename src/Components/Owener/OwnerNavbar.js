@@ -19,10 +19,10 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state) => state.user);
-  
+
   // Use UI Context instead of Redux for UI-specific state
   const { isMobile, isSidebarOpen, setIsSidebarOpen } = useUIContext();
-  
+
   const [is_new_notification, set_is_new_notification] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const searchInputRef = useRef(null);
@@ -207,10 +207,27 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     });
   };
 
+  const fetchNotificationData = async () => {
+    try {
+      const response = await fetch(`${Server_url}/get_all_notifications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: user.user_email }),
+      })
+      const data = await response.json();
+      set_all_data(data.notifications);
+      console.log("Notification data", data.notifications);
+    } catch (error) {
+      console.error("Error fetching notification data:", error);
+    }
+  }
 
   const handleNotificationClick = () => {
     set_is_new_notification(false);
     set_navbar_open(!navbar_open);
+    fetchNotificationData();
   };
 
   const renderViewPackageData = (notification) => {
@@ -269,11 +286,12 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           console.log("Error:", data.message);
         }
         set_all_data(data.notifications);
+        console.log("this is all data", data.notifications);
       } catch (error) {
         console.log(error)
       }
     }
-    
+
     function showNotification(data, type) {
       console.log("this is package notification id:", data, type);
       if (!isChecked) {
@@ -287,7 +305,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         set_is_new_notification(false);
       }
     }
-    
+
     socket.on(`package_notification_${user.user_email}`, (data) => showNotification(data.all_data, data.type));
 
     return () => {
@@ -385,18 +403,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   }, [user.user_email, navbar_open, isChecked]);
 
 
-  // function calculateDays(startDate, endDate) {
-  //   if (!startDate || !endDate) return "N/A";
-
-  //   const start = new Date(startDate);
-  //   const end = new Date(endDate);
-
-  //   const diffTime = end - start; // Difference in milliseconds
-  //   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert to days
-
-  //   return diffDays > 0 ? `${diffDays} days` : "0 days";
-  // }
-
   const getTimeDifference = (created_at) => {
     if (!created_at) return "N/A";
 
@@ -462,11 +468,17 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       >
         {/* Left: Profile/Icon */}
         <div className="notification-left">
-          <img
-            src={`${profile_image}`}
-            alt="profile"
-            className="notification-profile-img"
-          />
+          {profile_image ? (
+            <img
+              src={`${profile_image}`}
+              alt="profile"
+              className="notification-profile-img"
+            />
+          ) :
+            <div className="first_character">
+              <span>{sender_email.charAt(0).toUpperCase()}</span>
+            </div>
+          }
         </div>
 
         {/* Middle: Notification Content */}
@@ -490,7 +502,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         {/* Right: Time */}
         <div className="notification-right">
           <span className="notification-time">
-            <span>{days_required || "N/A"}</span>
+            <span>Days Required : {days_required || "N/A"}</span>
             <span className="timing">{getTimeDifference(created_at) || "N/A"}</span>
           </span>
         </div>
@@ -502,6 +514,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     e.stopPropagation();
     setIsSearchVisible(!isSearchVisible);
   };
+
 
   return (
     <div className={`owner_navbar_main_con ${isMobile ? "for_mobile" : ""}`}>
@@ -519,32 +532,32 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         <div className="navbar_profile">
           {location.pathname === "/Owner/search_photographer" && (
             <div className={`search_bar ${isSearchVisible ? "expanded" : ""}`}>
-              <BiSearch 
-                className="search_icon" 
-                onClick={handleSearchIconClick} 
+              <BiSearch
+                className="search_icon"
+                onClick={handleSearchIconClick}
               />
-              <input 
+              <input
                 ref={searchInputRef}
-                type="text" 
-                placeholder="Search by name, location..." 
-                value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)} 
+                type="text"
+                placeholder="Search by name, location..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           )}
-          
+
           <div className="bell_icon" onClick={handleNotificationClick}>
             <IoIosNotifications className="bell_icon_icon" />
             <div className={`notification_count ${is_new_notification ? "show" : ""}`}></div>
           </div>
-          
+
           <div className="profile" onClick={() => navigate('/Owner/Profile')}>
-            <img 
-              src={user.user_profile_image_base64 || "https://via.placeholder.com/40"} 
-              alt="Profile" 
+            <img
+              src={user.user_profile_image_base64 || "https://via.placeholder.com/40"}
+              alt="Profile"
               onError={(e) => {
                 e.target.src = "https://via.placeholder.com/40";
-              }} 
+              }}
             />
             <div className="profile_data">
               <div className="user_name">{user.user_name || "User"}</div>

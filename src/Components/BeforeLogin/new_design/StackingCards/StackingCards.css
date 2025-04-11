@@ -8,11 +8,30 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  padding: 20px 0px;
 }
 
 .fourth_section_heading {
-  /* background: linear-gradient(145deg, #2a2a2a, #1a1a1a); */
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.fourth_section_heading .section-title,
+.fourth_section_heading .section-description {
+  color: white;
+}
+
+.fourth_section_heading .section-title {
+  font-size: 45px;
+  font-weight: bold;
+}
+
+.fourth_section_heading .section-description {
+  font-size: 25px;
+  text-align: center;
 }
 
 .stacking-page-wrapper {
@@ -37,7 +56,7 @@
 
 .stacking-cards-wrapper {
   width: 100%;
-  height: 100vh;
+  height: 80vh;
   max-width: 1200px;
   position: relative;
   display: flex;
@@ -116,8 +135,8 @@
 /* cards design */
 .step-card {
   width: 50%;
-  max-width: 450px;
-  min-height: 300px;
+  max-width: 500px;
+  min-height: 350px;
   height: auto;
   background: linear-gradient(145deg, #535353, #373737);
   padding: 2rem;
@@ -260,6 +279,14 @@
 }
 
 @media screen and (max-width: 480px) {
+  .fourth_section_heading .section-title {
+    font-size: 26px;
+  }
+
+  .fourth_section_heading .section-description {
+    font-size: 16px;
+  }
+
   .step-card {
     width: 90%;
     min-height: 220px;

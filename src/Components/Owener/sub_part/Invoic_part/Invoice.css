@@ -909,13 +909,21 @@
 
 .invoice_list .fancy-loader {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  flex-direction: column;
+  justify-content: center;
   color: #4f46e5;
   font-weight: 600;
   font-size: 1.2rem;
   gap: 12px;
   margin: 40px 0;
+}
+
+.invoice_list .fancy-loader .loader_container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .invoice_list .fancy-loader .dot {

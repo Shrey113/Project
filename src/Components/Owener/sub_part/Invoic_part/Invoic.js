@@ -355,10 +355,14 @@ const InvoiceForm = ({ handleTableToggle }) => {
       <div className="invoice_list">
         {loading ? (
           <div className="fancy-loader">
-            <span className="dot dot1"></span>
-            <span className="dot dot2"></span>
-            <span className="dot dot3"></span>
+            <div className="loader_container">
+              <span className="dot dot1"></span>
+              <span className="dot dot2"></span>
+              <span className="dot dot3"></span></div>
+
+
             <p>Loading invoices<span className="dotty">...</span></p>
+
           </div>
         ) : error ? (
           <p style={{ color: "red" }}>{error}</p>

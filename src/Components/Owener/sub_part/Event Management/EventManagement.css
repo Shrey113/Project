@@ -499,8 +499,6 @@
   width: 100%;
   border-collapse: collapse;
   background-color: #fff;
-  /* overflow: hidden; */
-  border-radius: 10px;
 }
 
 #owner-main-container-EventManagement thead tr {

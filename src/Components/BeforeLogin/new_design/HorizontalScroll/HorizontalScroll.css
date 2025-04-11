@@ -1,6 +1,5 @@
 .horizontal-scroll-container .key_feature_title {
     color: white;
-    z-index: 10;
     font-size: 2.5rem;
     font-weight: bold;
     text-shadow: 3px 2px 1px rgba(0, 0, 0, 0.17);
@@ -36,8 +35,8 @@
 
 .horizontal-scroll-container .cards-container {
     display: flex;
-    gap: 20px;
-    padding: 20px;
+    gap: 15px;
+    padding: 10px;
     overflow-x: scroll;
     z-index: 10;
     width: 100%;
