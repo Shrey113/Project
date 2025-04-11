@@ -24,7 +24,7 @@
 }
 .modal-overlay_add_event .add_event_modal {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 12px;
   width: 80%;
   max-width: 900px;
@@ -668,7 +668,7 @@
   }
   
   .modal-overlay_add_event .team-members-section .team-member {
-    width: 90px;
+    width: 100%;
     padding: 0.7rem 0.3rem;
   }
   
