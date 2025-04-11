@@ -627,7 +627,7 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.close-btn {
+.add-business-services-container .close-btn {
   background-color: #ff4d4f;
   color: white;
   border: none;

@@ -142,7 +142,6 @@ const RequestDetailPopup = ({
   const renderServiceDetails = () => (
     <table className="details-table">
       <tbody>
-        {/* <tr><td><strong>ID:</strong></td><td>{requestData.id}</td></tr> */}
         <tr><td><strong>Service Name:</strong></td><td>{requestData.service_name}</td></tr>
         {requestData.event_status !== "Rejected" && requestData.requirements && requestData.requirements.trim() !== "" && (
           <tr><td><strong>Requirement:</strong></td><td>{requestData.requirements}</td></tr>
