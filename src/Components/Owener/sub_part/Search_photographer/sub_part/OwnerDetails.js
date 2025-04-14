@@ -44,8 +44,8 @@ import { FaBoxOpen, FaFileInvoiceDollar } from "react-icons/fa";
 const NoDataComponent = ({ type }) => {
   // Define the icon and message based on type
   let icon, message, description;
-  
-  switch(type) {
+
+  switch (type) {
     case "equipment":
       icon = <FaBoxOpen className="no-data-icon" />;
       message = "NO EQUIPMENT AVAILABLE";
@@ -66,7 +66,7 @@ const NoDataComponent = ({ type }) => {
       message = "NO DATA AVAILABLE";
       description = "No information has been added yet.";
   }
-  
+
   return (
     <div className="empty-state-container">
       <div className="empty-state-content">
@@ -88,7 +88,7 @@ const OwnerDetails = () => {
     { type: "Lens", icon: lens_icon },
   ];
 
-  
+
   function get_img_by_name(name) {
     if (!name) return camera_icon;
     const equipment = equipmentTypes.find(
@@ -133,11 +133,11 @@ const OwnerDetails = () => {
 
   useEffect(() => {
     if (showSelectedCard) {
-        document.body.style.overflow = "hidden";
+      document.querySelector(".main_part").style.overflow = "hidden";
     } else {
-        document.body.style.overflow = "auto";
+      document.querySelector(".main_part").style.overflow = "auto";
     }
-}, [showSelectedCard]);
+  }, [showSelectedCard]);
 
   useEffect(() => {
     if (swiperRefEquipment.current && swiperRefEquipment.current.swiper) {
@@ -626,7 +626,7 @@ const OwnerDetails = () => {
 
 
   return (
-    <div className="owner-details-container">
+    <div className="owner-details-container" id="owner-details-container">
       {at_share_link ? (<div style={{ marginTop: "50px" }}></div>) : (
         <></>)
       }
@@ -853,112 +853,112 @@ const OwnerDetails = () => {
 
 
         {ownerData.packages?.length > 0 ? (
-          <>
-        <div className="profile_preview_packages_title">
-          <div className="packages-card-title">Packages</div>
-          {packagesMoreThan4 && (
-            <div className="see_all_button" onClick={() => handleShowAllClick("packages")}>
-              See All <MdOutlineKeyboardDoubleArrowRight style={{ fontSize: "20px" }} />
+          <div className="package-list">
+            <div className="profile_preview_packages_title">
+              <div className="packages-card-title">Packages</div>
+              {packagesMoreThan4 && (
+                <div className="see_all_button" onClick={() => handleShowAllClick("packages")}>
+                  See All <MdOutlineKeyboardDoubleArrowRight style={{ fontSize: "20px" }} />
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        <hr style={{ width: "98%", margin: "auto" }} />
+            <hr style={{ width: "98%", margin: "auto" }} />
 
-          <div className="swiper_container_for_packages">
-            {/* Previous Button */}
-            <div className="custom-swiper-button-prev-packages"
-              style={{
-                display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
-              }}
-            >❮</div>
-
-            <Swiper
-              modules={[Navigation, Pagination, Autoplay]}
-              useRef={swiperRefPackage}
-              slidesPerView="auto"
-              autoplay={{
-                delay: 5000, // Time in milliseconds between slides
-              }}
-              loop={true}
-              navigation={{
-                nextEl: ".custom-swiper-button-next-packages",
-                prevEl: ".custom-swiper-button-prev-packages",
-              }}
-
-              spaceBetween={10}
-              pagination={{
-                clickable: true,
-                renderBullet: (index, className) =>
-                  `<span class="${className} custom-swiper-pagination-bullet"></span>`,
-              }}
-              breakpoints={{
-                350: { slidesPerView: 1.2 },
-                450: { slidesPerView: 1.2, spaceBetween: 5 },
-                500: { slidesPerView: 1.5 },
-                580: { slidesPerView: 1.5, spaceBetween: 8 },
-
-                640: { slidesPerView: 2.2, spaceBetween: 10 },
-                768: { slidesPerView: 2.5, spaceBetween: 10 },
-                860: { slidesPerView: 3, spaceBetween: 10 },
-                1024: { slidesPerView: 3.5, spaceBetween: 15 },
-              }}
-            >
-              {ownerData.packages.map((pkg, index) => (
-                <SwiperSlide key={pkg.id || index} className="package-card" style={{
-                  backgroundColor: `#ffffff`,
-                  borderTop: `6px solid ${pkg.card_color || "#6fa8dc"}`,
-                  borderRight: "1px solid #919394",
-                  borderLeft: "1px solid #919394",
-                  borderBottom: "1px solid #919394",
+            <div className="swiper_container_for_packages">
+              {/* Previous Button */}
+              <div className="custom-swiper-button-prev-packages"
+                style={{
+                  display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
                 }}
-                  onClick={() => handleItemClick(pkg, "package")}>
+              >❮</div>
 
-                  <div className="package_title">
-                    <div className="package_name">{pkg.package_name || "Package Name"}</div>
-                  </div>
+              <Swiper
+                modules={[Navigation, Pagination, Autoplay]}
+                useRef={swiperRefPackage}
+                slidesPerView="auto"
+                autoplay={{
+                  delay: 5000, // Time in milliseconds between slides
+                }}
+                loop={true}
+                navigation={{
+                  nextEl: ".custom-swiper-button-next-packages",
+                  prevEl: ".custom-swiper-button-prev-packages",
+                }}
 
-                  <div className="package_pricing" style={{ color: pkg.card_color || "#6fa8dc" }}>
-                    <div className="rupee_symbol">₹</div>
-                    <div className="value">{pkg.price || "Price"}</div>
-                    <span>/day</span>
-                  </div>
+                spaceBetween={10}
+                pagination={{
+                  clickable: true,
+                  renderBullet: (index, className) =>
+                    `<span class="${className} custom-swiper-pagination-bullet"></span>`,
+                }}
+                breakpoints={{
+                  350: { slidesPerView: 1.2 },
+                  450: { slidesPerView: 1.2, spaceBetween: 5 },
+                  500: { slidesPerView: 1.5 },
+                  580: { slidesPerView: 1.5, spaceBetween: 8 },
 
-                  <hr style={{ width: "96%", margin: "8px 0" }} />
+                  640: { slidesPerView: 2.2, spaceBetween: 10 },
+                  768: { slidesPerView: 2.5, spaceBetween: 10 },
+                  860: { slidesPerView: 3, spaceBetween: 10 },
+                  1024: { slidesPerView: 3.5, spaceBetween: 15 },
+                }}
+              >
+                {ownerData.packages.map((pkg, index) => (
+                  <SwiperSlide key={pkg.id || index} className="package-card" style={{
+                    backgroundColor: `#ffffff`,
+                    borderTop: `6px solid ${pkg.card_color || "#6fa8dc"}`,
+                    borderRight: "1px solid #919394",
+                    borderLeft: "1px solid #919394",
+                    borderBottom: "1px solid #919394",
+                  }}
+                    onClick={() => handleItemClick(pkg, "package")}>
 
-                  <div className="package_Services">
-                    {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
-                      pkg.service.map((srv, idx) => (
-                        <div key={idx} className="service_item">
-                          <div className="key" style={{ backgroundColor: pkg.card_color, color: pkg.text_color || "#fff" }}>
-                            {idx + 1}
+                    <div className="package_title">
+                      <div className="package_name">{pkg.package_name || "Package Name"}</div>
+                    </div>
+
+                    <div className="package_pricing" style={{ color: pkg.card_color || "#6fa8dc" }}>
+                      <div className="rupee_symbol">₹</div>
+                      <div className="value">{pkg.price || "Price"}</div>
+                      <span>/day</span>
+                    </div>
+
+                    <hr style={{ width: "96%", margin: "8px 0" }} />
+
+                    <div className="package_Services">
+                      {Array.isArray(pkg.service) && pkg.service.length > 0 ? (
+                        pkg.service.map((srv, idx) => (
+                          <div key={idx} className="service_item">
+                            <div className="key" style={{ backgroundColor: pkg.card_color, color: pkg.text_color || "#fff" }}>
+                              {idx + 1}
+                            </div>
+                            <div className="individual_services">{srv}</div>
                           </div>
-                          <div className="individual_services">{srv}</div>
-                        </div>
-                      ))
-                    ) : (
-                      <span style={{ alignSelf: "center" }}>No services available</span>
-                    )}
-                  </div>
+                        ))
+                      ) : (
+                        <span style={{ alignSelf: "center" }}>No services available</span>
+                      )}
+                    </div>
 
-                  <div
-                    className="book-package-button"
-                    onClick={() => handleItemClick(pkg, "package")}
-                    style={{ backgroundColor: pkg.card_color || "#6fa8dc", color: "#fff" }}
-                  >
-                    Book Package
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-            {/* Next Button */}
-            <div className="custom-swiper-button-next-packages"
-              style={{
-                display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
-              }}
-            >❯</div>
+                    <div
+                      className="book-package-button"
+                      onClick={() => handleItemClick(pkg, "package")}
+                      style={{ backgroundColor: pkg.card_color || "#6fa8dc", color: "#fff" }}
+                    >
+                      Book Package
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              {/* Next Button */}
+              <div className="custom-swiper-button-next-packages"
+                style={{
+                  display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
+                }}
+              >❯</div>
+            </div>
           </div>
-          </>
         ) : (
           <NoDataComponent type="packages" />
         )}

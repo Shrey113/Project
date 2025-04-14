@@ -102,7 +102,6 @@
 
 .owner-details-container {
   font-family: Arial, sans-serif;
-  overflow-y: scroll;
   height: fit-content;
   width: 100%;
   box-sizing: border-box;
@@ -111,7 +110,6 @@
   justify-content: flex-start;
   flex-direction: column;
   background-color: white;
-  overflow: hidden;
   padding-top: 20px;
 }
 
@@ -332,18 +330,6 @@
   max-width: 750px;
 }
 
-/* 
-.owner-details-container .services_in_profile .service-list {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-wrap: nowrap;
-  gap: 10px;
-  width: 100%;
-  overflow-x: auto;
-  max-width: 750px;
-} */
-
 .owner-details-container .services_in_profile .service-list .service_items::-webkit-scrollbar {
   height: 0px;
 }
@@ -407,14 +393,32 @@
 
 /* base for all sections  */
 
-.owner-details-container .section.packages_section {
+/* .owner-details-container .section.packages_section {
   border: 1px solid #c1c1c1;
   border-radius: 8px;
   width: 97%;
   padding-bottom: 0px;
+} */
 
+.owner-details-container .section.packages_section .package-list {
+  /* display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  list-style: none;
+  height: fit-content;
+  width: 100%;
+  border: 1px solid #c1c1c1;
+  gap: 0px;
+  overflow: hidden; */
+
+  border: 1px solid #c1c1c1;
+  border-radius: 10px;
+
+  position: relative;
+  width: 100%;
+  padding-bottom: 0px;
+  padding: 20px 15px 0px 15px;
 }
-
 
 .owner-details-container .section.services_section .services-list {
   display: flex;
@@ -701,6 +705,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -712,20 +717,20 @@
   .empty-state-container {
     padding: 30px 15px;
   }
-  
+
   .empty-state-icon-container {
     width: 80px;
     height: 80px;
   }
-  
+
   .empty-state-container .no-data-icon {
     font-size: 32px;
   }
-  
+
   .empty-state-title {
     font-size: 18px;
   }
-  
+
   .empty-state-description {
     font-size: 14px;
   }
@@ -1108,6 +1113,10 @@
 
 /* Equipment Section */
 .owner-details-container .equipment_section {
+  position: relative;
+}
+
+.owner-details-container .packages_section {
   position: relative;
 }
 

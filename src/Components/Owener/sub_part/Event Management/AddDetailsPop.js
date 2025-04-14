@@ -134,9 +134,10 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     } else if (newEvent.event_request_type === "package") {
       set_receiver_package_data(prevData =>
         prevData.map(item =>
-          item.id === newEvent.id ? { ...item, event_status: "Accepted", reason } : item
+          item.id === newEvent.id ? { ...item, assigned_team_member: teamMembers, event_status: "Accepted", reason } : item
         )
       );
+      // window.location.reload();
     } else if (newEvent.event_request_type === "service") {
       set_receiver_service_data(prevData =>
         prevData.map(item =>
@@ -470,19 +471,19 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           {assignedMembers.map((member) => (
             <TeamMember
               key={member.member_id}
-              member={{...member, status: 'assigned'}}
+              member={{ ...member, status: 'assigned' }}
               onAction={removeAssignedMember}
               actionIcon={CiCircleMinus}
               actionButtonClass="remove-btn"
             />
           ))}
-          
+
           {/* Render available members */}
           {teamMembers.map((member) => {
             const isDisabled = DisabledTeamMembers.includes(
               member.member_name
             );
-            
+
             // Skip if this member is already assigned
             if (assignedMembers.some(m => m.member_id === member.member_id)) {
               return null;
@@ -491,7 +492,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
             return (
               <TeamMember
                 key={member.member_id}
-                member={{...member, status: isDisabled ? 'busy' : 'available'}}
+                member={{ ...member, status: isDisabled ? 'busy' : 'available' }}
                 onAction={assignMember}
                 actionIcon={CiCirclePlus}
                 isDisabled={isDisabled}
@@ -500,7 +501,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
             );
           })}
         </ul>
-        
+
         {teamMembers.length === 0 && assignedMembers.length === 0 && (
           <div className="no-members-message">
             <p>No team members available.</p>

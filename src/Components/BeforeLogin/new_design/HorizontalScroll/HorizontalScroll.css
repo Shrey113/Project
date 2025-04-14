@@ -1,9 +1,23 @@
+.horizontal-scroll-container {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    background: #f4f4f4;
+    position: relative;
+    gap: 30px;
+}
+
 .horizontal-scroll-container .key_feature_title {
     color: white;
     font-size: 2.5rem;
     font-weight: bold;
-    text-shadow: 3px 2px 1px rgba(0, 0, 0, 0.17);
+    text-shadow: 3px 2px 1px rgba(0, 0, 0, 0.466);
     align-self: center;
+    z-index: 999;
 }
 
 .horizontal-scroll-container .key-feature-image-container {
@@ -69,7 +83,7 @@
     position: relative;
 }
 
-.horizontal-scroll-section .icon-placeholder {
+.horizontal-scroll-container .icon-placeholder {
     width: 180px;
     height: 180px;
     border-radius: 50%;
@@ -82,20 +96,91 @@
     font-size: 100px;
 }
 
-.horizontal-scroll-section .key_words {
+.horizontal-scroll-container .key_words {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
 }
 
-.horizontal-scroll-section .feature-title {
+.horizontal-scroll-container .feature-title {
     font-size: 22px;
     font-weight: bold;
     text-align: start;
 }
 
-.horizontal-scroll-section .feature-description {
+.horizontal-scroll-container .feature-description {
     font-size: 14px;
     text-align: start;
+}
+
+@media screen and (max-width : 450px) {
+
+    .horizontal-scroll-container .key_feature_title {
+        font-size: 1.8rem;
+    }
+
+    .horizontal-scroll-container .cards-container {
+        gap: 15px;
+        padding: 12px 15px;
+        overflow-x: scroll;
+    }
+
+    .horizontal-scroll-container .card {
+        flex: 0 0 200px;
+        padding: 18px;
+        text-align: center;
+        min-height: fit-content;
+        height: 400px;
+        gap: 20px;
+        position: relative;
+    }
+
+    .horizontal-scroll-container .feature-title {
+        font-size: 15px;
+    }
+
+    .horizontal-scroll-container .key_words {
+        gap: 10px;
+    }
+
+    .horizontal-scroll-container .feature-description {
+        font-size: 13px;
+        text-align: start;
+    }
+}
+
+@media screen and (max-width : 376px) {
+    .horizontal-scroll-section .key_feature_title {
+        font-size: 1.8rem;
+    }
+
+    .horizontal-scroll-section .cards-container {
+        gap: 15px;
+        padding: 12px 15px;
+        overflow-x: scroll;
+    }
+
+    .horizontal-scroll-section .card {
+        flex: 0 0 200px;
+        padding: 18px;
+        text-align: center;
+        min-height: fit-content;
+        height: 400px;
+        gap: 20px;
+        position: relative;
+    }
+
+    .horizontal-scroll-section .feature-title {
+        font-size: 15px;
+    }
+
+    .horizontal-scroll-section .key_words {
+        gap: 10px;
+    }
+
+    .horizontal-scroll-section .feature-description {
+        font-size: 13px;
+        text-align: start;
+    }
 }
