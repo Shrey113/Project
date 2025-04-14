@@ -469,25 +469,35 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   };
 
 
-
   // Global cache for profile images
   const profileImageCache = new Map();
-
+  
   const RenderNotificationContent = ({ notification }) => {
     const [profileImage, setProfileImage] = useState(null);
-
+  
     useEffect(() => {
-      const get_profile_image = async () => {
-        const response = await fetch(`${Server_url}/owner/get-profile-image/${notification.sender_email}`);
-        const data = await response.json();
-        console.log("this is profile image:", data);
-        set_profile_image(data.profile_image);
+      const loadProfileImage = async () => {
+        if (!notification?.sender_email) return;
+  
+        // Check cache first
+        if (profileImageCache.has(notification.sender_email)) {
+          setProfileImage(profileImageCache.get(notification.sender_email));
+          return;
+        }
+  
+        try {
+          const response = await fetch(`${Server_url}/owner/get-profile-image/${notification.sender_email}`);
+          const data = await response.json();
+          profileImageCache.set(notification.sender_email, data.profile_image);
+          setProfileImage(data.profile_image);
+        } catch (error) {
+          console.error("Failed to fetch profile image:", error);
+        }
       };
-
-      get_profile_image();
-    }, [notification]);
-
-
+  
+      loadProfileImage();
+    }, [notification?.sender_email]);
+  
     const updateNotificationIsSeen = async (notification_id) => {
       try {
         const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_id}`);
@@ -497,11 +507,11 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         console.error("Failed to update notification:", error);
       }
     };
-
+  
     if (!notification) return null;
-
+  
     const { notification_type, notification_name, sender_email, location, days_required, is_seen, created_at } = notification;
-
+  
     return (
       <div
         className={`notification-item ${notification_type}-notification ${is_seen ? 'read' : 'unread'}`}
@@ -530,20 +540,20 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
             </div>
           )}
         </div>
-
+  
         {/* Middle: Notification Content */}
         <div className="notification-middle">
           <div className="notification-user-line">
             <span className="notification-user-name">{sender_email || "N/A"}</span>
             <span className="notification-action">
-              <span className="notification_name">{notification_name || "N/A"}</span>
+              <span>{notification_name || "N/A"}</span>
               <div className="rounded-dot" />
               <span>{notification_type || "N/A"}</span>
             </span>
           </div>
           <div className="notification-content">{location || "N/A"}</div>
         </div>
-
+  
         {/* Right: Time */}
         <div className="notification-right">
           <span className="notification-time">
@@ -555,6 +565,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     );
   };
 
+  
 
 
 
