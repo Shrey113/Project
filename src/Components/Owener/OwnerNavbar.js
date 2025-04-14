@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import "./css/Owner_navbar.css";
 import { IoIosNotifications } from "react-icons/io";
@@ -11,9 +11,9 @@ import { GrServices } from "react-icons/gr";
 import { BiSearch } from "react-icons/bi";
 import no_notification from "./img/no_notification.png"
 import { useUIContext } from "../../redux/UIContext.js";
-// import { Bell } from "lucide-react";
-
+import { IoClose } from "react-icons/io5"; // Import close icon
 import { IoArrowBack } from "react-icons/io5"; // Import back icon
+// import { Bell } from "lucide-react";
 
 function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const navigate = useNavigate();
@@ -24,6 +24,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const { isMobile, isSidebarOpen, setIsSidebarOpen } = useUIContext();
 
   const [is_new_notification, set_is_new_notification] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const searchInputRef = useRef(null);
 
@@ -90,7 +91,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     }
   };
 
-  async function getUserNameByEmail(user_email) {
+  const getUserNameByEmail = async (user_email) => {
     try {
       const response = await fetch(`${Server_url}/owner/get-name`, {
         method: "POST",
@@ -100,15 +101,14 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         body: JSON.stringify({ user_email }),
       });
 
-      const data = await response.json();
-      set_owner_name(data.user_name)
-
+      const responseData = await response.json();
+      set_owner_name(responseData.user_name);
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch user name");
+        throw new Error(responseData.error || "Failed to fetch user name");
       }
 
-      return data.name;
+      return responseData.user_name;
     } catch (error) {
       return `Error: ${error.message}`;
     }
@@ -206,7 +206,8 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     });
   };
 
-  const fetchNotificationData = async () => {
+  // Wrap fetchNotificationData in useCallback to prevent recreating it on every render
+  const fetchNotificationData = useCallback(async () => {
     try {
       const response = await fetch(`${Server_url}/get_all_notifications`, {
         method: "POST",
@@ -217,23 +218,57 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       })
       const data = await response.json();
       set_all_data(data.notifications);
+      // Calculate unread count
+      const unreadNotifications = data.notifications.filter(notification => !notification.is_seen);
+      setUnreadCount(unreadNotifications.length);
       console.log("Notification data", data.notifications);
     } catch (error) {
       console.error("Error fetching notification data:", error);
     }
-  }
+  }, [user.user_email, set_all_data, setUnreadCount]);
 
-  const handleNotificationClick = () => {
+  // Function to mark all notifications as seen - define this BEFORE handleNotificationClick
+  const markAllNotificationsAsSeen = useCallback(async () => {
+    try {
+      const response = await fetch(`${Server_url}/owner/mark-all-notifications-seen`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: user.user_email }),
+      });
+      
+      if (response.ok) {
+        setUnreadCount(0);
+      }
+    } catch (error) {
+      console.error("Error marking notifications as seen:", error);
+    }
+  }, [user.user_email, setUnreadCount]);
+  
+  // Now define handleNotificationClick which uses markAllNotificationsAsSeen
+  const handleNotificationClick = useCallback(() => {
     set_is_new_notification(false);
     set_navbar_open(!navbar_open);
     fetchNotificationData();
-  };
-
+    
+    // Mark all notifications as seen when clicking the bell icon
+    if (!navbar_open && unreadCount > 0) {
+      markAllNotificationsAsSeen();
+    }
+  }, [set_is_new_notification, set_navbar_open, navbar_open, fetchNotificationData, unreadCount, markAllNotificationsAsSeen]);
+  
   const renderViewPackageData = (notification) => {
     return (
       <>
-        <div><GrServices style={{ height: "20px", width: "20px" }} /><p>{notification.notification_name || "N/A"}</p> </div>
-        <div><PiUserCheckFill style={{ height: "20px", width: "20px" }} /> <p>{notification.sender_email || "N/A"}</p></div>
+        <div>
+          <GrServices style={{ filter: 'brightness(0) invert(1)' }} />
+          <p>{notification.notification_name || "Package Request"}</p>
+        </div>
+        <div>
+          <PiUserCheckFill style={{ color: 'white' }} />
+          <p>{notification.sender_email || "N/A"}</p>
+        </div>
       </>
     );
   };
@@ -241,8 +276,14 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const renderViewServiceData = (notification) => {
     return (
       <>
-        <div> <GrServices style={{ height: "20px", width: "20px" }} /> <p> {notification.notification_name || "N/A"}</p></div>
-        <div> <PiUserCheckFill style={{ height: "20px", width: "20px" }} /> <p>{notification.sender_email || "N/A"}</p></div>
+        <div>
+          <GrServices style={{ filter: 'brightness(0) invert(1)' }} />
+          <p>{notification.notification_name || "Service Request"}</p>
+        </div>
+        <div>
+          <PiUserCheckFill style={{ color: 'white' }} />
+          <p>{notification.sender_email || "N/A"}</p>
+        </div>
       </>
     );
   };
@@ -250,157 +291,158 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const renderViewEquipmentData = (notification) => {
     return (
       <>
-        <div>  <GrServices style={{ height: "20px", width: "20px" }} /> <p>{notification.notification_name || "N/A"}</p> </div>
-        <div><PiUserCheckFill style={{ height: "20px", width: "20px" }} /> <p> {notification.sender_email || "N/A"}</p></div>
+        <div>
+          <GrServices style={{ filter: 'brightness(0) invert(1)' }} />
+          <p>{notification.notification_name || "Equipment Request"}</p>
+        </div>
+        <div>
+          <PiUserCheckFill style={{ color: 'white' }} />
+          <p>{notification.sender_email || "N/A"}</p>
+        </div>
       </>
     );
   };
 
-
-
-  function set_temp_notification(data) {
+  // Wrap the function in useCallback to prevent it from being recreated on every render
+  const set_temp_notification = useCallback((data, type) => {
+    // Set unread count initially if not already set
+    if (unreadCount === 0) {
+      setUnreadCount(1);
+    }
+    
     set_is_show_notification_pop(true);
     set_temp_data(data);
 
-    setTimeout(() => {
+    // Set timeout for auto close
+    const timeoutId = setTimeout(() => {
       set_is_show_notification_pop(false);
-    }, 3000);
-  }
+    }, 5000); // Extended to 5 seconds
 
-  // for package notification 
+    // Store timeout ID to be able to clear it
+    return timeoutId;
+  }, [unreadCount, set_is_show_notification_pop, set_temp_data]);  // Add all dependencies
+  
+  // Handle notification popup click
+  const handleNotificationPopupClick = useCallback((type) => {
+    if (type === "package") {
+      navigate(`/Owner/Event/packages`);
+    } else if (type === "service") {
+      navigate(`/Owner/Event/services`);
+    } else if (type === "equipment") {
+      navigate(`/Owner/Event/equipment`);
+    }
+    set_is_show_notification_pop(false);
+  }, [navigate, set_is_show_notification_pop]);
+  
+  // Close notification popup manually
+  const handleCloseNotificationPopup = useCallback(() => {
+    set_is_show_notification_pop(false);
+  }, [set_is_show_notification_pop]);
+
+  // Create callbacks for socket notifications with updated dependencies
+  const showNotification = useCallback((data, type) => {
+    console.log("this is package notification id:", data, type);
+    if (!isChecked) {
+      console.log("running package notification", isChecked)
+      set_temp_notification(data, type);
+      console.log("running dot ", isChecked);
+      set_is_new_notification(true);
+    }
+    fetchNotificationData();
+    if (navbar_open) {
+      set_is_new_notification(false);
+    }
+  }, [isChecked, navbar_open, set_temp_notification, set_is_new_notification, fetchNotificationData]);
+
+  const showNotificationService = useCallback((data, type) => {
+    console.log("this is service notification id:", data, type);
+    if (!isChecked) {
+      set_temp_notification(data, type);
+      set_is_new_notification(true);
+    }
+    fetchNotificationData();
+    if (navbar_open) {
+      set_is_new_notification(false);
+    }
+  }, [isChecked, navbar_open, set_temp_notification, set_is_new_notification, fetchNotificationData]);
+
+  const showNotificationEquipment = useCallback((data, type) => {
+    console.log("this is equipment notification id:", data, type);
+    if (!isChecked) {
+      set_temp_notification(data, type);
+      set_is_new_notification(true);
+    }
+    fetchNotificationData();
+    if (navbar_open) {
+      set_is_new_notification(false);
+    }
+  }, [isChecked, navbar_open, set_temp_notification, set_is_new_notification, fetchNotificationData]);
+
+  // First useEffect for package notifications
   useEffect(() => {
-    const fetchAndUpdateNotifications = async () => {
-      try {
-        const response = await fetch(`${Server_url}/get_all_notifications`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            email: user.user_email
-          })
-        })
-        const data = await response.json();
-        if (!response.ok) {
-          console.log("Error:", data.message);
-        }
-        set_all_data(data.notifications);
-        console.log("this is all data", data.notifications);
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-    function showNotification(data, type) {
-      console.log("this is package notification id:", data, type);
-      if (!isChecked) {
-        console.log("running package notification", isChecked)
-        set_temp_notification(data, type);
-        console.log("running dot ", isChecked);
-        set_is_new_notification(true);
-      }
-      fetchAndUpdateNotifications();
-      if (navbar_open) {
-        set_is_new_notification(false);
-      }
-    }
-
-    socket.on(`package_notification_${user.user_email}`, (data) => showNotification(data.all_data, data.type));
+    socket.on(`package_notification_${user.user_email}`, (data) => 
+      showNotification(data.all_data, data.type)
+    );
 
     return () => {
-      socket.off(`package_notification_${user.user_email}`, showNotification);
+      socket.off(`package_notification_${user.user_email}`);
     };
-  }, [user.user_email, navbar_open, isChecked]);
+  }, [user.user_email, showNotification]);
 
-  // for service notification 
+  // Second useEffect for service notification
   useEffect(() => {
-    const fetchAndUpdateNotifications = async () => {
-      try {
-        const response = await fetch(`${Server_url}/get_all_notifications`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            email: user.user_email
-          })
-        })
-        const data = await response.json();
-        if (!response.ok) {
-          console.log("Error:", data.message);
-        }
-        set_all_data(data.notifications);
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-    function showNotificationService(data, type) {
-      console.log("this is serivce notification id:", data, type);
-      if (!isChecked) {
-        set_temp_notification(data, type);
-        set_is_new_notification(true);
-      }
-
-      // set_temp_notification(data, type);
-      fetchAndUpdateNotifications();
-      if (navbar_open) {
-        set_is_new_notification(false);
-      }
-    }
-    socket.on(`service_notification_${user.user_email}`, (data) => showNotificationService(data.all_data, data.type));
+    socket.on(`service_notification_${user.user_email}`, (data) => 
+      showNotificationService(data.all_data, data.type)
+    );
 
     return () => {
-      socket.off(`service_notification_${user.user_email}`, showNotificationService);
+      socket.off(`service_notification_${user.user_email}`);
     };
-  }, [user.user_email, navbar_open, isChecked]);
+  }, [user.user_email, showNotificationService]);
 
-  // for equipment notification 
+  // Third useEffect for equipment notification
   useEffect(() => {
-    const fetchAndUpdateNotifications = async () => {
-      try {
-        const response = await fetch(`${Server_url}/get_all_notifications`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            email: user.user_email
-          })
-        })
-        const data = await response.json();
-        if (!response.ok) {
-          console.log("Error:", data.message);
-        }
-        set_all_data(data.notifications);
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-
-    function showNotificationEquipment(data, type) {
-      console.log("this is equipment notification id:", data, type);
-      if (!isChecked) {
-        set_temp_notification(data, type);
-        set_is_new_notification(true);
-      }
-
-      fetchAndUpdateNotifications();
-      if (navbar_open) {
-        set_is_new_notification(false);
-      }
-    }
-
     socket.on(`equipment_notification_${user.user_email}`, (data) => {
       showNotificationEquipment(data.all_data, data.type);
     });
 
     return () => {
-      socket.off(`equipment_notification_${user.user_email}`, showNotificationEquipment);
+      socket.off(`equipment_notification_${user.user_email}`);
     };
-  }, [user.user_email, navbar_open, isChecked]);
+  }, [user.user_email, showNotificationEquipment]);
 
+  // Add useEffect for initial notification count
+  useEffect(() => {
+    const getInitialNotifications = async () => {
+      try {
+        const response = await fetch(`${Server_url}/get_all_notifications`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: user.user_email
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          const unreadNotifications = data.notifications.filter(notification => !notification.is_seen);
+          setUnreadCount(unreadNotifications.length);
+          
+          // If there are unread notifications, set is_new_notification to true
+          if (unreadNotifications.length > 0) {
+            set_is_new_notification(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching initial notifications:", error);
+      }
+    };
+
+    if (user.user_email) {
+      getInitialNotifications();
+    }
+  }, [user.user_email]);
 
   const getTimeDifference = (created_at) => {
     if (!created_at) return "N/A";
@@ -546,8 +588,12 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           )}
 
           <div className="bell_icon" onClick={handleNotificationClick}>
-            <IoIosNotifications className="bell_icon_icon" />
-            <div className={`notification_count ${is_new_notification ? "show" : ""}`}></div>
+            <IoIosNotifications className={`bell_icon_icon ${is_new_notification ? "bell_animated" : ""}`} />
+            {unreadCount > 0 && (
+              <div className={`notification_count ${is_new_notification ? "show" : ""}`}>
+                {unreadCount}
+              </div>
+            )}
           </div>
 
           <div className="profile" onClick={() => navigate('/Owner/Profile')}>
@@ -566,7 +612,16 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         </div>
         {is_show_notification_pop && (
           <div className="wrapper_for_show_layout">
-            <div className="show_layout">
+            <div className="show_layout" onClick={() => handleNotificationPopupClick(temp_data?.notification_type)}>
+              <button 
+                className="close-notification-btn" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCloseNotificationPopup();
+                }}
+              >
+                <IoClose />
+              </button>
               {temp_data?.notification_type === "package" && renderViewPackageData(temp_data)}
               {temp_data?.notification_type === "service" && renderViewServiceData(temp_data)}
               {temp_data?.notification_type === "equipment" && renderViewEquipmentData(temp_data)}
