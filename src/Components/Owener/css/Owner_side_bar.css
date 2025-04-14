@@ -625,7 +625,7 @@
   }
 }
 
-/* Profile section specific styles */
+
 .profile-sections-container {
   display: flex;
   flex-direction: column;
@@ -638,12 +638,10 @@
   z-index: 2;
 }
 
-/* Remove profile highlight animation */
 .profile-section-active::before {
   display: none;
 }
 
-/* Profile section specific styles - simplified */
 .side_bar .profile-section {
   transition: background-color 0.2s ease;
   border-radius: 8px;
@@ -656,8 +654,8 @@
   z-index: 2;
 }
 
-.profile-section:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+.side_bar .profile-section:hover {
+  background-color: rgba(0, 0, 0, 0.096);
 }
 
 /* Profile active slider - make it consistent with main sidebar */

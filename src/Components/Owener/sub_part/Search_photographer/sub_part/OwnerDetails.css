@@ -819,9 +819,16 @@
   /* align-items: center; */
   gap: 20px;
   border: 1px solid #e2e8f0;
-  background: rebeccapurple;
-}
 
+  /* background: rebeccapurple; */
+}
+.owner-details-container .swiper_container_for_services .service_item .servers_icon{
+  /* background: red; */
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 15px;
+}
 .owner-details-container .swiper_container_for_services .service_item .container_for_services_name {
   font-size: 20px;
   font-family: var(--Heading);
@@ -842,9 +849,47 @@
   gap: 5px;
   min-height: fit-content;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
+.owner-details-container .swiper_container_for_services .service_item .service-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  line-clamp: 4;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.3;
+  margin-top: 10px;
+  flex: 1;
+  max-height: 100px;
+  text-align: start;
+}
+.owner-details-container .swiper_container_for_services .service_item .service-icon {
+  font-size: 50px;
+  /* color: #5546e8; */
+  background-color: rgba(85, 70, 232, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+}
+
+.owner-details-container .swiper_container_for_services .service_item .service-icon.wedding {
+  color: #e83a95;
+  background-color: rgba(232, 58, 149, 0.1);
+}
+
+.owner-details-container .swiper_container_for_services .service_item .service-icon.event {
+  color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.1);
+}
+
+.owner-details-container .swiper_container_for_services .service_item .service-icon.portrait {
+  color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.1);
+}
 .owner-details-container .swiper_container_for_services .service_item .services_price_container .rupee_symbol {
   font-size: 18px;
   color: #4f46e5;

@@ -7,9 +7,10 @@
   padding-left: var(--owner_side_bar_width);
   position: absolute;
   top: 80px;
-  right: 0;
+  right: 20px;
   z-index: 90;
   width: 100%;
+  /* background: rebeccapurple; */
 }
 .title_for_buttons{
   margin-left: 50px;

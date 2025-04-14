@@ -52,12 +52,9 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         !event.target.closest("#notification_popup") &&
         !event.target.closest(".bell_icon")
       ) {
-        document.querySelector(".main_part").style.overflow = "auto"
+        
         console.log("auto")
         set_navbar_open(false);
-      }
-      else {
-        document.querySelector(".main_part").style.overflow = "hidden"
       }
     }
 
@@ -66,6 +63,15 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [navbar_open]);
+
+  useEffect(()=>{
+    if(navbar_open){
+      document.documentElement.style.overflow = "hidden";
+    }else{
+      document.documentElement.style.overflow = "auto";
+      
+    }
+  },[navbar_open]);
 
   // Add useEffect for handling click outside search bar
   useEffect(() => {

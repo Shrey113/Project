@@ -31,8 +31,26 @@ import bhubaneswar from './all_data/bhubaneswar.png'
 import shimla from './all_data/shimla.png'
 import shillong from './all_data/shillong.png'
 
+const popularCities = [
+  { name: "Mumbai", icon: "🏙️" },
+  { name: "Delhi-NCR", icon: "🕌" },
+  { name: "Bengaluru", icon: "🏛️" },
+  { name: "Hyderabad", icon: "🕍" },
+  { name: "Ahmedabad", icon: "🕌" },
+  { name: "Chandigarh", icon: "🏫" },
+  { name: "Chennai", icon: "🛕" },
+  { name: "Pune", icon: "🏯" },
+  { name: "Kolkata", icon: "🏰" },
+  { name: "Kochi", icon: "🌴" }
+];
 
-
+const otherCities = [
+  "Aalo", "Addanki", "Agar Malwa", "Ahmedgarh", "Akbarpur", "Alakode", "Alibaug",
+  "Abohar", "Adilabad", "Agartala", "Ahore", "Akividu", "Alangudi", "Aligarh",
+  "Abu Road", "Adimali", "Agiripalli", "Aizawl", "Akluj", "Alangulam", "Alipurduar",
+  "Achampet", "Adipur", "Agra", "Ajmer", "Akola", "Alappuzha", "Almora",
+  "Acharapakkam", "Adoni", "Ahilyanagar (Ahmednagar)", "Akalatara", "Akot", "Alathur", "Alisar (Rajasthan)"
+];
 
 
 
@@ -303,6 +321,11 @@ function Search_photographer({ searchTerm, setSearchTerm }) {
       }
     };
 
+    if (showLocationPopup) {
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "auto";
+    }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showLocationPopup]);
@@ -360,7 +383,7 @@ function Search_photographer({ searchTerm, setSearchTerm }) {
           )}
 
           {/* Show only visible locations */}
-          {visibleLocations.map((location, index) => (
+          {/* {visibleLocations.map((location, index) => (
             <div
               key={index}
               className={`location-circle ${selectedLocation === location.value ? 'selected' : ''}`}
@@ -382,7 +405,11 @@ function Search_photographer({ searchTerm, setSearchTerm }) {
                 <span className="location-name">{location.name}</span>
               </div>
             </div>
-          ))}
+          ))} */}
+
+
+
+
 
           {/* All Locations button */}
           <div
@@ -401,6 +428,36 @@ function Search_photographer({ searchTerm, setSearchTerm }) {
               <span className="location-name">All Locations</span>
             </div>
           </div>
+
+          
+    <div className="city-selector">
+      <input className="search-input" placeholder="Search for your city" />
+      <div className="detect-location">📍 Detect my location</div>
+
+      <div className="section">
+        <h2>Popular Cities</h2>
+        <div className="popular-cities">
+          {popularCities.map((city) => (
+            <div className="city-icon" key={city.name}>
+              <div className="icon">{city.icon}</div>
+              <div>{city.name}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="section">
+        <h2>Other Cities</h2>
+        <div className="other-cities">
+          {otherCities.map((city) => (
+            <div className="city-name" key={city}>{city}</div>
+          ))}
+        </div>
+      </div>
+
+      <div className="hide-all">Hide All Cities</div>
+    </div>
+    
         </div>
       </div>
 
