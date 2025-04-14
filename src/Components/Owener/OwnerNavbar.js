@@ -56,12 +56,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         console.log("auto")
         set_navbar_open(false);
       }
-
-      if(navbar_open){
-        document.documentElement.style.overflow = "auto";
-      }else{
-        document.documentElement.style.overflow = "hidden";
-      }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -69,6 +63,15 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [navbar_open]);
+
+  useEffect(()=>{
+    if(navbar_open){
+      document.documentElement.style.overflow = "hidden";
+    }else{
+      document.documentElement.style.overflow = "auto";
+      
+    }
+  },[navbar_open]);
 
   // Add useEffect for handling click outside search bar
   useEffect(() => {
