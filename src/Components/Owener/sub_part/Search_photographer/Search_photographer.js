@@ -303,6 +303,11 @@ function Search_photographer({ searchTerm, setSearchTerm }) {
       }
     };
 
+    if (showLocationPopup) {
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "auto";
+    }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showLocationPopup]);

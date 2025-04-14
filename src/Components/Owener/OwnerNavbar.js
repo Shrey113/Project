@@ -52,12 +52,15 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         !event.target.closest("#notification_popup") &&
         !event.target.closest(".bell_icon")
       ) {
-        document.querySelector(".main_part").style.overflow = "auto"
+        
         console.log("auto")
         set_navbar_open(false);
       }
-      else {
-        document.querySelector(".main_part").style.overflow = "hidden"
+
+      if(navbar_open){
+        document.documentElement.style.overflow = "auto";
+      }else{
+        document.documentElement.style.overflow = "hidden";
       }
     }
 

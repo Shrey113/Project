@@ -14,7 +14,10 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
-
+import {MdPhotoCamera} from 'react-icons/md';
+import {  FaCameraRetro } from 'react-icons/fa';
+import { BiCameraMovie } from 'react-icons/bi';
+import { BsPersonSquare } from 'react-icons/bs';
 
 
 
@@ -623,6 +626,64 @@ const OwnerDetails = () => {
     }
   }
 
+   const getServiceIcon = (serviceName) => {
+    const name = serviceName.toLowerCase();
+    
+    // Wedding and celebration photography
+    if (name.includes('wedding') || name.includes('proposal') || name.includes('engagement')) {
+      return <BiCameraMovie className="service-icon wedding" />;
+    } 
+    // Events and gatherings
+    else if (name.includes('event') || name.includes('concert') || name.includes('festival') || name.includes('performance')) {
+      return <FaCameraRetro className="service-icon event" />;
+    } 
+    // People-focused photography
+    else if (name.includes('portrait') || name.includes('headshot') || name.includes('family') || 
+             name.includes('maternity') || name.includes('newborn') || name.includes('boudoir')) {
+      return <BsPersonSquare className="service-icon portrait" />;
+    }
+    // Nature and outdoors
+    else if (name.includes('landscape') || name.includes('nature') || name.includes('wildlife') || 
+             name.includes('travel') || name.includes('adventure') || name.includes('underwater')) {
+      return <MdPhotoCamera className="service-icon nature" />;
+    }
+    // Food and product
+    else if (name.includes('food') || name.includes('product') || name.includes('commercial') || 
+             name.includes('e-commerce')) {
+      return <MdPhotoCamera className="service-icon product" />;
+    }
+    // Architecture and real estate
+    else if (name.includes('architectural') || name.includes('real estate') || name.includes('interior')) {
+      return <MdPhotoCamera className="service-icon architectural" />;
+    }
+    // Fashion and style
+    else if (name.includes('fashion') || name.includes('editorial') || name.includes('glamour') || 
+             name.includes('model')) {
+      return <FaCameraRetro className="service-icon fashion" />;
+    }
+    // Specialty photography
+    else if (name.includes('aerial') || name.includes('drone') || name.includes('macro') || 
+             name.includes('astro') || name.includes('night')) {
+      return <BiCameraMovie className="service-icon specialty" />;
+    }
+    // Sports and action
+    else if (name.includes('sport') || name.includes('action') || name.includes('adventure')) {
+      return <FaCameraRetro className="service-icon sports" />;
+    }
+    // Art and creative
+    else if (name.includes('fine art') || name.includes('abstract') || name.includes('black and white') || 
+             name.includes('conceptual') || name.includes('creative')) {
+      return <MdPhotoCamera className="service-icon art" />;
+    }
+    // Business and corporate
+    else if (name.includes('corporate') || name.includes('business') || name.includes('professional')) {
+      return <BsPersonSquare className="service-icon corporate" />;
+    }
+    // Default icon for any other type
+    else {
+      return <MdPhotoCamera className="service-icon" />;
+    }
+  };
 
 
   return (
@@ -1097,7 +1158,10 @@ const OwnerDetails = () => {
                 {ownerData.services.map((item, index) => (
                   <SwiperSlide key={index} className="service_item">
                     <div className="container_for_services_name">
+                      <div className="servers_icon">
+                      {getServiceIcon(item.service_name)}
                       <p>{item.service_name || "Not Available"}</p>
+                      </div>
                     </div>
 
                     <div className="for_service_price_and_book_button">
@@ -1106,8 +1170,12 @@ const OwnerDetails = () => {
                         <div className="service_price">{item.price_per_day || "Not Available"}</div>
                         <span className="per_day">/Day</span>
                       </div>
-                      <hr style={{ width: "98%", marginTop: "5px" }} />
+                      <hr style={{ width: "98%", marginTop: "20px",marginBottom:"15px" }} />
                       <button onClick={() => handleItemClick(item, "service")}>Book Service</button>
+
+                      <div className="service-description">
+                      {item.description}
+                      </div>
                     </div>
                   </SwiperSlide>
                 ))}
