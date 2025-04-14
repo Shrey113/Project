@@ -52,7 +52,12 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         !event.target.closest("#notification_popup") &&
         !event.target.closest(".bell_icon")
       ) {
+        document.querySelector(".main_part").style.overflow = "auto"
+        console.log("auto")
         set_navbar_open(false);
+      }
+      else {
+        document.querySelector(".main_part").style.overflow = "hidden"
       }
     }
 
@@ -221,7 +226,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       // Calculate unread count
       const unreadNotifications = data.notifications.filter(notification => !notification.is_seen);
       setUnreadCount(unreadNotifications.length);
-      console.log("Notification data", data.notifications);
     } catch (error) {
       console.error("Error fetching notification data:", error);
     }
@@ -237,7 +241,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         },
         body: JSON.stringify({ email: user.user_email }),
       });
-      
+
       if (response.ok) {
         setUnreadCount(0);
       }
@@ -245,19 +249,19 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       console.error("Error marking notifications as seen:", error);
     }
   }, [user.user_email, setUnreadCount]);
-  
+
   // Now define handleNotificationClick which uses markAllNotificationsAsSeen
   const handleNotificationClick = useCallback(() => {
     set_is_new_notification(false);
     set_navbar_open(!navbar_open);
     fetchNotificationData();
-    
+
     // Mark all notifications as seen when clicking the bell icon
     if (!navbar_open && unreadCount > 0) {
       markAllNotificationsAsSeen();
     }
   }, [set_is_new_notification, set_navbar_open, navbar_open, fetchNotificationData, unreadCount, markAllNotificationsAsSeen]);
-  
+
   const renderViewPackageData = (notification) => {
     return (
       <>
@@ -309,7 +313,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     if (unreadCount === 0) {
       setUnreadCount(1);
     }
-    
+
     set_is_show_notification_pop(true);
     set_temp_data(data);
 
@@ -321,7 +325,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     // Store timeout ID to be able to clear it
     return timeoutId;
   }, [unreadCount, set_is_show_notification_pop, set_temp_data]);  // Add all dependencies
-  
+
   // Handle notification popup click
   const handleNotificationPopupClick = useCallback((type) => {
     if (type === "package") {
@@ -333,7 +337,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     }
     set_is_show_notification_pop(false);
   }, [navigate, set_is_show_notification_pop]);
-  
+
   // Close notification popup manually
   const handleCloseNotificationPopup = useCallback(() => {
     set_is_show_notification_pop(false);
@@ -380,7 +384,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
   // First useEffect for package notifications
   useEffect(() => {
-    socket.on(`package_notification_${user.user_email}`, (data) => 
+    socket.on(`package_notification_${user.user_email}`, (data) =>
       showNotification(data.all_data, data.type)
     );
 
@@ -391,7 +395,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
   // Second useEffect for service notification
   useEffect(() => {
-    socket.on(`service_notification_${user.user_email}`, (data) => 
+    socket.on(`service_notification_${user.user_email}`, (data) =>
       showNotificationService(data.all_data, data.type)
     );
 
@@ -428,7 +432,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         if (response.ok) {
           const unreadNotifications = data.notifications.filter(notification => !notification.is_seen);
           setUnreadCount(unreadNotifications.length);
-          
+
           // If there are unread notifications, set is_new_notification to true
           if (unreadNotifications.length > 0) {
             set_is_new_notification(true);
@@ -474,7 +478,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       const get_profile_image = async () => {
         const response = await fetch(`${Server_url}/owner/get-profile-image/${notification.sender_email}`);
         const data = await response.json();
-        console.log("this is profile image:", data);
         set_profile_image(data.profile_image);
       };
 
@@ -529,7 +532,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
               {sender_email || "N/A"}
             </span>
             <span className="notification-action">
-              <span>{notification_name || "N/A"}</span>
+              <span className="notification_name">{notification_name || "N/A"}</span>
               <div className="rounded-dot" />
               <span>{notification_type || "N/A"}</span>
             </span>
@@ -613,8 +616,8 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
         {is_show_notification_pop && (
           <div className="wrapper_for_show_layout">
             <div className="show_layout" onClick={() => handleNotificationPopupClick(temp_data?.notification_type)}>
-              <button 
-                className="close-notification-btn" 
+              <button
+                className="close-notification-btn"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleCloseNotificationPopup();

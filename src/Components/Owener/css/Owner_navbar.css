@@ -25,6 +25,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -146,6 +147,7 @@
   0% {
     width: 100%;
   }
+
   100% {
     width: 0%;
   }
@@ -155,9 +157,11 @@
   0% {
     background-position: -100px;
   }
+
   20% {
     background-position: 200px;
   }
+
   100% {
     background-position: 200px;
   }
@@ -184,20 +188,20 @@
     top: 70px;
     right: 15px;
   }
-  
+
   .show_layout {
     padding: 16px;
   }
-  
+
   .show_layout div svg {
     font-size: 18px;
     padding: 8px;
   }
-  
+
   .show_layout div p {
     font-size: 13px;
   }
-  
+
   .show_layout div:first-child p {
     font-size: 15px;
   }
@@ -208,7 +212,7 @@
     width: calc(100% - 30px);
     right: 15px;
   }
-  
+
   .show_layout {
     padding: 15px;
   }
@@ -624,18 +628,7 @@
 }
 
 /* Notification styles */
-/* .notifications {
-  position: absolute;
-  right: 16px;
-  top: 60px;
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  display: none;
-  z-index: 1000;
-  font-size: 14px;
-} */
+
 
 @media screen and (max-width: 500px) {
   .owner-packages-container .package-form-modal {
@@ -701,7 +694,6 @@
 
 .notifications {
   position: fixed;
-  top: 80px;
   right: -550px;
   width: 500px;
   height: 90%;
@@ -791,7 +783,7 @@
 
 
 .notifications.active {
-  right: 5px;
+  right: 0px;
 }
 
 
@@ -808,12 +800,6 @@
   border-left: 3px solid transparent;
   position: relative;
   overflow: hidden;
-}
-
-.notification-item:hover {
-  background-color: #f8f9fa;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
 }
 
 .notification-item.unread {
@@ -849,6 +835,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -862,10 +849,6 @@
   justify-content: center;
   height: 100%;
   transition: transform 0.3s ease;
-}
-
-.notification-item:hover .notification-left {
-  transform: scale(1.05);
 }
 
 .notification-left .first_character {
@@ -883,10 +866,6 @@
   transition: all 0.3s ease;
 }
 
-.notification-item:hover .first_character {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
 .notification-profile-img {
   width: 50px;
   height: 50px;
@@ -897,21 +876,12 @@
   transition: all 0.3s ease;
 }
 
-.notification-item:hover .notification-profile-img {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  border-color: #eaeaea;
-}
-
 .notification-middle {
   flex: 1;
   padding: 0 8px;
   transition: transform 0.2s ease;
   position: relative;
   overflow: hidden;
-}
-
-.notification-item:hover .notification-middle {
-  transform: translateX(3px);
 }
 
 .notification-user-line {
@@ -968,16 +938,19 @@
   background-color: rgba(235, 235, 235, 0.8);
 }
 
+.notification-item .notification-action .notification_name {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+}
+
 .rounded-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background-color: #0056b3;
   transition: transform 0.2s ease;
-}
-
-.notification-item:hover .rounded-dot {
-  transform: scale(1.2);
 }
 
 .notification-content {
@@ -1096,7 +1069,7 @@
   .notification-right {
     min-width: 60px;
   }
-  
+
   .notification-time span:first-child {
     padding: 2px 5px;
     max-width: 60px;
@@ -1140,7 +1113,7 @@
     font-size: 12px;
     padding-left: 12px;
   }
-  
+
   .notification-content::before {
     font-size: 10px;
   }
@@ -1436,9 +1409,21 @@
 }
 
 @keyframes bellShake {
-  0%, 100% { transform: rotate(0); }
-  20%, 60% { transform: rotate(8deg); }
-  40%, 80% { transform: rotate(-8deg); }
+
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+
+  20%,
+  60% {
+    transform: rotate(8deg);
+  }
+
+  40%,
+  80% {
+    transform: rotate(-8deg);
+  }
 }
 
 .notification_count {
@@ -1466,9 +1451,17 @@
 }
 
 @keyframes popIn {
-  0% { transform: scale(0); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Profile section */
