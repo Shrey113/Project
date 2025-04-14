@@ -429,35 +429,35 @@ function Search_photographer({ searchTerm, setSearchTerm }) {
             </div>
           </div>
 
-          
-    <div className="city-selector">
-      <input className="search-input" placeholder="Search for your city" />
-      <div className="detect-location">📍 Detect my location</div>
 
-      <div className="section">
-        <h2>Popular Cities</h2>
-        <div className="popular-cities">
-          {popularCities.map((city) => (
-            <div className="city-icon" key={city.name}>
-              <div className="icon">{city.icon}</div>
-              <div>{city.name}</div>
+          <div className="city-selector">
+            <input className="search-input" placeholder="Search for your city" />
+            <div className="detect-location">📍 Detect my location</div>
+
+            <div className="section">
+              <h2>Popular Cities</h2>
+              <div className="popular-cities">
+                {popularCities.map((city) => (
+                  <div className="city-icon" key={city.name}>
+                    <div className="icon">{city.icon}</div>
+                    <div>{city.name}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
 
-      <div className="section">
-        <h2>Other Cities</h2>
-        <div className="other-cities">
-          {otherCities.map((city) => (
-            <div className="city-name" key={city}>{city}</div>
-          ))}
-        </div>
-      </div>
+            <div className="section">
+              <h2>Other Cities</h2>
+              <div className="other-cities">
+                {otherCities.map((city) => (
+                  <div className="city-name" key={city}>{city}</div>
+                ))}
+              </div>
+            </div>
 
-      <div className="hide-all">Hide All Cities</div>
-    </div>
-    
+            <div className="hide-all">Hide All Cities</div>
+          </div>
+
         </div>
       </div>
 

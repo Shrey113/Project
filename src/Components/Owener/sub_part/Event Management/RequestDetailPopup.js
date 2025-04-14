@@ -178,7 +178,6 @@ const RequestDetailPopup = ({
     onClose();
   };
 
-
   return (
     <div className="popup-overlay" onClick={handleClose}>
       {/* Info Popup */}

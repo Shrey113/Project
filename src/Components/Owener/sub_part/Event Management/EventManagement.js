@@ -315,6 +315,13 @@ function EventManagement({ category }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  useEffect(() => {
+    if (popupType) {
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "auto";
+    }
+  }, [popupType]);
 
   const handleClose = () => {
     set_selected_sent_item(false)
