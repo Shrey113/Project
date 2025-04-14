@@ -383,7 +383,7 @@ function Search_photographer({ searchTerm, setSearchTerm }) {
           )}
 
           {/* Show only visible locations */}
-          {/* {visibleLocations.map((location, index) => (
+          {visibleLocations.map((location, index) => (
             <div
               key={index}
               className={`location-circle ${selectedLocation === location.value ? 'selected' : ''}`}
@@ -405,7 +405,7 @@ function Search_photographer({ searchTerm, setSearchTerm }) {
                 <span className="location-name">{location.name}</span>
               </div>
             </div>
-          ))} */}
+          ))}
 
 
 
