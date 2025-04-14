@@ -12,19 +12,20 @@ export const localstorage_key_for_jwt_user_side_key =
 export const localstorage_key_for_admin_login =
   "localstorage_key_for_admin_login";
 
-// export const Server_url = "http://192.168.29.193:4000";
+// localhost  ---------------------------------------------------
+export const Server_url = "http://localhost:4000";
+export const Socket_url = 'ws://localhost:4000';
 
-// export const Server_url = "http://192.168.65.233:4000";
-export const Server_url = 'http://192.168.29.34:4000';
+// praharsh  ---------------------------------------------------
+// export const Server_url = 'http://192.168.29.34:4000';
+// export const Socket_url = 'ws://192.168.29.34:4000';
+
+// Shrey11_ ---------------------------------------------------
 // export const Server_url = 'http://192.168.29.193:4000';
-// export const Server_url = 'http://127.0.0.1:3306';
-
-// export const Server_url = "http://localhost:4000";
-// export const Socket_url = 'ws://localhost:4000';
-
-export const Socket_url = 'ws://192.168.29.34:4000';
+// export const Socket_url = 'ws://192.168.29.193:4000';
 
 
+// Server at a build time   ---------------------------------------------------
 // export const Server_url = 'https://srv749838.hstgr.cloud:4000';
 // export const Socket_url = 'wss://srv749838.hstgr.cloud:4000';
 
