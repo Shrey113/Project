@@ -3,15 +3,18 @@
   background-color: #f5f7fa;
   transition: margin-left 0.3s ease;
   width: 100%;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  box-sizing: border-box; /* Ensure padding doesn't add to width */
+  overflow-x: hidden;
+  /* Prevent horizontal scrolling */
+  box-sizing: border-box;
+  /* Ensure padding doesn't add to width */
 }
 
 /* Desktop styles */
 @media screen and (min-width: 1201px) {
   .Owner_main_home_pag_con {
     margin-left: 250px;
-    width: calc(100% - 250px); /* Account for sidebar width */
+    width: calc(100% - 250px);
+    /* Account for sidebar width */
   }
 
   .Owner_main_home_pag_con.sidebar-closed {
@@ -30,8 +33,12 @@
 
 .main_part {
   /* padding: 20px; */
-  min-height: calc(100vh - 70px); /* Subtract navbar height */
+  min-height: calc(100vh - 70px);
+  /* Subtract navbar height */
   width: 100%;
-  box-sizing: border-box; /* Include padding in width calculation */
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  box-sizing: border-box;
+  /* Include padding in width calculation */
+  overflow-x: hidden;
+  overflow: hidden;
+  /* Prevent horizontal scrolling */
 }

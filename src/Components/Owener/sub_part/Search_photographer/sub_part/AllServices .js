@@ -19,6 +19,7 @@ function AllServices() {
     }, [showSelectedCard]);
 
 
+
     useEffect(() => {
         const fetch_services = async (owner_email) => {
             try {
@@ -89,19 +90,17 @@ function AllServices() {
             </div>
 
 
-            {
-                showSelectedCard && selectedData && (
-                    <SeletedCard
-                        type={"service"}
-                        onClose={() => {
-                            setShowSelectedCard(false);
-                            setSelectedData(null);
-
-                        }}
-                        selectedOwner={owner_email}
-                        selectedData={selectedData}
-                    />
-                )
+            {showSelectedCard && selectedData && (
+                <SeletedCard
+                    type={"service"}
+                    onClose={() => {
+                        setShowSelectedCard(false);
+                        setSelectedData(null);
+                    }}
+                    selectedOwner={owner_email}
+                    selectedData={selectedData}
+                />
+            )
             }
         </div>
     );

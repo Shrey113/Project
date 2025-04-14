@@ -22,17 +22,17 @@ function DetailedView() {
 
   useEffect(() => {
     if (showSelectedCard) {
-        document.body.style.overflow = "hidden";
+      document.getElementById("owner_DetailedView_container").style.overflow = "hidden";
     } else {
-        document.body.style.overflow = "auto";
+      document.getElementById("owner_DetailedView_container").style.overflow = "auto";
     }
-}, [showSelectedCard]);
+  }, [showSelectedCard]);
 
 
   useEffect(() => {
     if (selectedData) {
       setSelectedOwner({
-        user_email: selectedData.user_email, 
+        user_email: selectedData.user_email,
       });
     }
   }, [selectedData]);
@@ -144,7 +144,7 @@ function DetailedView() {
   // };
 
   return (
-    <div className="all_user_data_list" id="owner_DetailedView_container">
+    <div className="all_user_data_list" id="owner_DetailedView_container" style={{ backgroundColor: "red" }}>
       {/* <h1>{type === "packages" ? "Packages" : "Equipments"}</h1> */}
 
       <div className="filters-container">

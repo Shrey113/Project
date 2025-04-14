@@ -146,6 +146,20 @@ const RequestDetailPopup = ({
         {requestData.event_status !== "Rejected" && requestData.requirements && requestData.requirements.trim() !== "" && (
           <tr><td><strong>Requirement:</strong></td><td>{requestData.requirements}</td></tr>
         )}
+        {requestData.assigned_team_member && (
+          <tr>
+            <td><strong>Assigned Team Member:</strong></td>
+            <td>
+              {Array.isArray(requestData.assigned_team_member) ? (
+                requestData.assigned_team_member.map((team_member, index) => (
+                  <span key={index}>{team_member}{index !== requestData.assigned_team_member.length - 1 ? ', ' : ''}</span>
+                ))
+              ) : (
+                "Not Assigned"
+              )}
+            </td>
+          </tr>
+        )}
         <tr><td><strong>Price:</strong></td><td>{requestData.service_price_per_day || "N/A"}</td></tr>
         <tr><td><strong>Location:</strong></td><td>{requestData.location}</td></tr>
         <tr><td><strong>Status:</strong></td><td>{requestData.event_status}</td></tr>

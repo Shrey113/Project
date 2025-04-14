@@ -177,7 +177,7 @@
   .form-group textarea {
     padding: 0.7rem;
   }
-  
+
   .equipment-card-title-selected,
   .package-card-title-selected,
   .service-card-title-selected {
@@ -355,8 +355,15 @@ input[type="number"]:focus {
 
 /* Animation for the modal */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .selected-card-container {
