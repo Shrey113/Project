@@ -441,7 +441,7 @@ function AddBusinessServices() {
                 Save Service
               </button>
               <button type='button' className='close-btn' onClick={() => setShowForm(false)}>
-                ×
+                X
               </button>
             </div>
             

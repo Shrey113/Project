@@ -470,14 +470,17 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
 
 
+  // Global cache for profile images
+  const profileImageCache = new Map();
 
   const RenderNotificationContent = ({ notification }) => {
-    const [profile_image, set_profile_image] = useState(null);
+    const [profileImage, setProfileImage] = useState(null);
 
     useEffect(() => {
       const get_profile_image = async () => {
         const response = await fetch(`${Server_url}/owner/get-profile-image/${notification.sender_email}`);
         const data = await response.json();
+        console.log("this is profile image:", data);
         set_profile_image(data.profile_image);
       };
 
@@ -486,10 +489,14 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
 
     const updateNotificationIsSeen = async (notification_id) => {
-      const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_id}`);
-      const data = await response.json();
-      console.log("this is update notification is seen:", data);
-    }
+      try {
+        const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_id}`);
+        const data = await response.json();
+        console.log("Notification marked as seen:", data);
+      } catch (error) {
+        console.error("Failed to update notification:", error);
+      }
+    };
 
     if (!notification) return null;
 
@@ -507,52 +514,49 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           } else if (notification_type === "equipment") {
             navigate(`/Owner/Event/equipment`);
           }
-
         }}
       >
         {/* Left: Profile/Icon */}
         <div className="notification-left">
-          {profile_image ? (
+          {profileImage ? (
             <img
-              src={`${profile_image}`}
+              src={profileImage}
               alt="profile"
               className="notification-profile-img"
             />
-          ) :
+          ) : (
             <div className="first_character">
-              <span>{sender_email.charAt(0).toUpperCase()}</span>
+              <span>{sender_email?.charAt(0).toUpperCase()}</span>
             </div>
-          }
+          )}
         </div>
 
         {/* Middle: Notification Content */}
         <div className="notification-middle">
           <div className="notification-user-line">
-            <span className="notification-user-name">
-              {sender_email || "N/A"}
-            </span>
+            <span className="notification-user-name">{sender_email || "N/A"}</span>
             <span className="notification-action">
               <span className="notification_name">{notification_name || "N/A"}</span>
               <div className="rounded-dot" />
               <span>{notification_type || "N/A"}</span>
             </span>
           </div>
-
-          <div className="notification-content">
-            {location || "N/A"}
-          </div>
+          <div className="notification-content">{location || "N/A"}</div>
         </div>
 
         {/* Right: Time */}
         <div className="notification-right">
           <span className="notification-time">
-            <span>Days Required : {days_required || "N/A"}</span>
+            <span>Days Required: {days_required || "N/A"}</span>
             <span className="timing">{getTimeDifference(created_at) || "N/A"}</span>
           </span>
         </div>
       </div>
     );
   };
+
+
+
 
   const handleSearchIconClick = (e) => {
     e.stopPropagation();
