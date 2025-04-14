@@ -320,6 +320,26 @@ function EventManagement({ category }) {
     set_selected_sent_item(false)
   }
 
+  useEffect(() => {
+    const updateNotificationIsSeen = async (notification_type) => {
+      try {
+        const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_type}`);
+        console.log("notification type ", notification_type)
+        const data = await response.json();
+        console.log("Notification marked as seen:", data);
+      } catch (error) {
+        console.error("Failed to update notification:", error);
+      }
+    };
+    if (category === "Packages") {
+      updateNotificationIsSeen("package")
+    } else if (category === "Equipment") {
+      updateNotificationIsSeen("equipment")
+    } else if (category === "Service") {
+      updateNotificationIsSeen("service")
+    }
+  })
+
   return (
     <div id="owner-main-container-EventManagement">
 
@@ -690,7 +710,7 @@ function EventManagement({ category }) {
                               <td>{item.sender_email}</td>
                               <td>{item.package_name}</td>
                               <td>₹{item.price}</td>
-                              <td>{item.location}</td>
+                              <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
                               <td className={`status ${item.event_status?.toLowerCase()}`}>
                                 <span>{item.event_status}</span>
                               </td>

@@ -227,40 +227,18 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
       const unreadNotifications = data.notifications.filter(notification => !notification.is_seen);
       setUnreadCount(unreadNotifications.length);
     } catch (error) {
-      console.error("Error fetching notification data:", error);
+      console.log("No notification data available:", error);
     }
   }, [user.user_email, set_all_data, setUnreadCount]);
-
-  // Function to mark all notifications as seen - define this BEFORE handleNotificationClick
-  const markAllNotificationsAsSeen = useCallback(async () => {
-    try {
-      const response = await fetch(`${Server_url}/owner/mark-all-notifications-seen`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: user.user_email }),
-      });
-
-      if (response.ok) {
-        setUnreadCount(0);
-      }
-    } catch (error) {
-      console.error("Error marking notifications as seen:", error);
-    }
-  }, [user.user_email, setUnreadCount]);
 
   // Now define handleNotificationClick which uses markAllNotificationsAsSeen
   const handleNotificationClick = useCallback(() => {
     set_is_new_notification(false);
     set_navbar_open(!navbar_open);
-    fetchNotificationData();
-
-    // Mark all notifications as seen when clicking the bell icon
-    if (!navbar_open && unreadCount > 0) {
-      markAllNotificationsAsSeen();
+    if (!navbar_open) {
+      fetchNotificationData();
     }
-  }, [set_is_new_notification, set_navbar_open, navbar_open, fetchNotificationData, unreadCount, markAllNotificationsAsSeen]);
+  }, [set_is_new_notification, set_navbar_open, navbar_open, fetchNotificationData]);
 
   const renderViewPackageData = (notification) => {
     return (
@@ -439,7 +417,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           }
         }
       } catch (error) {
-        console.error("Error fetching initial notifications:", error);
+        console.log("No notifications avaiable:", error);
       }
     };
 
@@ -471,20 +449,20 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
 
   // Global cache for profile images
   const profileImageCache = new Map();
-  
+
   const RenderNotificationContent = ({ notification }) => {
     const [profileImage, setProfileImage] = useState(null);
-  
+
     useEffect(() => {
       const loadProfileImage = async () => {
         if (!notification?.sender_email) return;
-  
+
         // Check cache first
         if (profileImageCache.has(notification.sender_email)) {
           setProfileImage(profileImageCache.get(notification.sender_email));
           return;
         }
-  
+
         try {
           const response = await fetch(`${Server_url}/owner/get-profile-image/${notification.sender_email}`);
           const data = await response.json();
@@ -494,29 +472,32 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
           console.error("Failed to fetch profile image:", error);
         }
       };
-  
+
       loadProfileImage();
+
     }, [notification?.sender_email]);
-  
-    const updateNotificationIsSeen = async (notification_id) => {
+
+    const updateNotificationIsSeen = async (notification_type) => {
       try {
-        const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_id}`);
+        const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_type}`);
+        console.log("notification type ", notification_type)
         const data = await response.json();
         console.log("Notification marked as seen:", data);
       } catch (error) {
         console.error("Failed to update notification:", error);
       }
     };
-  
+
     if (!notification) return null;
-  
-    const { notification_type, notification_name, sender_email, location, days_required, is_seen, created_at } = notification;
-  
+
+    const { notification_type, notification_name, sender_email, days_required, is_seen, created_at } = notification;
+
     return (
       <div
         className={`notification-item ${notification_type}-notification ${is_seen ? 'read' : 'unread'}`}
         onClick={() => {
-          updateNotificationIsSeen(notification.id);
+          set_navbar_open(!navbar_open)
+          updateNotificationIsSeen(notification.notification_type);
           if (notification_type === "package") {
             navigate(`/Owner/Event/packages`);
           } else if (notification_type === "service") {
@@ -540,20 +521,20 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
             </div>
           )}
         </div>
-  
+
         {/* Middle: Notification Content */}
         <div className="notification-middle">
           <div className="notification-user-line">
             <span className="notification-user-name">{sender_email || "N/A"}</span>
             <span className="notification-action">
-              <span>{notification_name || "N/A"}</span>
+              <span className="notification_name">{notification_name || "N/A"}</span>
               <div className="rounded-dot" />
               <span>{notification_type || "N/A"}</span>
             </span>
           </div>
-          <div className="notification-content">{location || "N/A"}</div>
+          {/* <div className="notification-content">{location || "N/A"}</div> */}
         </div>
-  
+
         {/* Right: Time */}
         <div className="notification-right">
           <span className="notification-time">
@@ -565,7 +546,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     );
   };
 
-  
+
 
 
 
@@ -628,7 +609,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
             </div>
           </div>
         </div>
-        {is_show_notification_pop && (
+        {is_show_notification_pop && !navbar_open && (
           <div className="wrapper_for_show_layout">
             <div className="show_layout" onClick={() => handleNotificationPopupClick(temp_data?.notification_type)}>
               <button
