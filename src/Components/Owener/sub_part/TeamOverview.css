@@ -835,7 +835,7 @@
 }
 
 /* Team Overview Header */
-.section-header {
+.team-overview-container .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -929,7 +929,7 @@
 
 /* Responsive adjustments for section header */
 @media (max-width: 900px) {
-  .section-header {
+  .team-overview-container .section-header {
     padding: 12px;
     flex-wrap: wrap;
     gap: 16px;
@@ -955,7 +955,7 @@
 }
 
 @media (max-width: 600px) {
-  .section-header {
+  .team-overview-container .section-header {
     padding: 10px;
     margin-bottom: 16px;
   }
@@ -987,7 +987,7 @@
 }
 
 @media (max-width: 480px) {
-  .section-header {
+  .team-overview-container .section-header {
     padding: 8px;
   }
 

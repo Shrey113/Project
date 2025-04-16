@@ -426,6 +426,12 @@ function OwnerSideBar() {
               isVisible: false,
             }));
           }}
+          onCancel={() => {
+            setShowDeleteConfirm((prevState) => ({
+              ...prevState,
+              isVisible: false,
+            }));
+          }}
         />
       )}
     </>
