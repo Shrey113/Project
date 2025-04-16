@@ -28,19 +28,28 @@ const PopUp = ({ action, member, onClose, onSave }) => {
     member_event_assignment: member?.member_event_assignment || "",
     member_status: member?.member_status || "Active",
     member_profile_img: member?.member_profile_img || profile_pic_user1,
+    member_email: member?.member_email || "",
+    member_phone: member?.member_phone || "",
   });
 
   const [formErrors, setFormErrors] = useState({
     member_name: "",
     member_role: "",
     member_event_assignment: "",
+    member_email: "",
   });
+
+  const [activeTab, setActiveTab] = useState("manual");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedSearchResult, setSelectedSearchResult] = useState(null);
 
   const validateForm = () => {
     const errors = {};
     if (!formData.member_name) errors.member_name = "Name is required";
     if (!formData.member_role) errors.member_role = "Role is required";
-
+    if (activeTab === "manual" && !formData.member_email) errors.member_email = "Email is required";
 
     setFormErrors(errors);
 
@@ -56,32 +65,153 @@ const PopUp = ({ action, member, onClose, onSave }) => {
     setFormData({ ...formData, member_profile_img: img });
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
+  const handleSearchInputChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
-    if (action === "Add") {
-      // Handle adding a new member
+  useEffect(() => {
+    const performSearch = async () => {
+      if (searchQuery.trim().length < 3 || !user?.user_email) return;
+
+      setIsSearching(true);
       try {
-        const response = await fetch(`${Server_url}/team_members/add_members`, {
+        const response = await fetch(`${Server_url}/team_members/photographers`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            owner_email: user.user_email,
-            member_name: formData.member_name,
-            member_profile_img: formData.member_profile_img,
-            member_role: formData.member_role,
+            query: searchQuery,
+            user_email: user.user_email,
           }),
         });
 
-        if (response.ok) {
-          onSave(formData);
-        } else {
-          console.error("Failed to add member");
-        }
+        const data = await response.json();
+        setSearchResults(data);
       } catch (error) {
-        console.error("Error adding team member:", error);
+        console.error("Error searching photographers:", error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const searchTimeout = setTimeout(() => {
+      if (searchQuery.trim().length >= 3 && user?.user_email) {
+        performSearch();
+      } else {
+        setSearchResults([]);
+      }
+    }, 500);
+
+    return () => clearTimeout(searchTimeout);
+  }, [searchQuery, user?.user_email]);
+
+
+
+
+  const handleSelectSearchResult = (result) => {
+    setSelectedSearchResult(result);
+    setFormData({
+      ...formData,
+      member_name: result.user_name || "",
+      member_email: result.user_email || "",
+      member_phone: result.phone_number || "",
+      member_profile_img: result.user_profile_image_base64 || profile_pic_user1,
+    });
+  };
+
+  const sendInvitation = async (email) => {
+    try {
+      const response = await fetch(`${Server_url}/team_members/send_invitation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          owner_email: user.user_email,
+          member_email: email,
+          member_role: formData.member_role,
+          member_name: formData.member_name,
+          member_profile_img: formData.member_profile_img,
+          member_phone: formData.member_phone,
+        }),
+      });
+
+      if (response.ok) {
+        return true;
+      } else {
+        console.error("Failed to send invitation");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error sending invitation:", error);
+      return false;
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    if (action === "Add") {
+      if (activeTab === "search" && selectedSearchResult) {
+        // Send invitation if we're adding via search
+        const invitationSent = await sendInvitation(selectedSearchResult.user_email);
+        if (invitationSent) {
+          // Create a pending member
+          try {
+            const response = await fetch(`${Server_url}/team_members/add_pending_member`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                owner_email: user.user_email,
+                member_name: formData.member_name,
+                member_profile_img: formData.member_profile_img,
+                member_role: formData.member_role,
+                member_email: formData.member_email,
+                member_phone: formData.member_phone,
+                member_status: "Pending",
+              }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              onSave({ ...formData, ...data, member_status: "Pending" });
+            } else {
+              console.error("Failed to add pending member");
+            }
+          } catch (error) {
+            console.error("Error adding pending team member:", error);
+          }
+        }
+      } else {
+        // Handle regular manual add
+        try {
+          const response = await fetch(`${Server_url}/team_members/add_members`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              owner_email: user.user_email,
+              member_name: formData.member_name,
+              member_profile_img: formData.member_profile_img,
+              member_role: formData.member_role,
+              member_email: formData.member_email,
+              member_phone: formData.member_phone,
+            }),
+          });
+
+          if (response.ok) {
+            onSave(formData);
+          } else {
+            console.error("Failed to add member");
+          }
+        } catch (error) {
+          console.error("Error adding team member:", error);
+        }
       }
     } else if (action === "Edit") {
       // Handle updating an existing member
@@ -99,6 +229,8 @@ const PopUp = ({ action, member, onClose, onSave }) => {
               member_name: formData.member_name,
               member_profile_img: formData.member_profile_img,
               member_role: formData.member_role,
+              member_email: formData.member_email,
+              member_phone: formData.member_phone,
             }),
           }
         );
@@ -122,6 +254,192 @@ const PopUp = ({ action, member, onClose, onSave }) => {
     }
   };
 
+  // Render the tab for manual entry
+  const renderManualTab = () => (
+    <form className="user-form">
+      <div className="form-group">
+        <label className="form-label">
+          Name:
+          <input
+            type="text"
+            name="member_name"
+            className="form-input"
+            placeholder="Enter team member's name"
+            value={formData.member_name}
+            onChange={handleChange}
+          />
+          {formErrors.member_name && (
+            <div className="error-message">{formErrors.member_name}</div>
+          )}
+        </label>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">
+          Email:
+          <input
+            type="email"
+            name="member_email"
+            className="form-input"
+            placeholder="Enter team member's email"
+            value={formData.member_email}
+            onChange={handleChange}
+          />
+          {formErrors.member_email && (
+            <div className="error-message">{formErrors.member_email}</div>
+          )}
+        </label>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">
+          Phone Number:
+          <input
+            type="tel"
+            name="member_phone"
+            className="form-input"
+            placeholder="Enter team member's phone"
+            value={formData.member_phone}
+            onChange={handleChange}
+          />
+        </label>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">
+          Role:
+          <input
+            type="text"
+            name="member_role"
+            className="form-input"
+            placeholder="Enter team member's role"
+            value={formData.member_role}
+            onChange={handleChange}
+          />
+          {formErrors.member_role && (
+            <div className="error-message">{formErrors.member_role}</div>
+          )}
+        </label>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">Profile Picture:</label>
+        <div className="profile-pic-selection">
+          <div
+            className={`profile-option ${formData.member_profile_img === profile_pic_user1 ? "selected" : ""}`}
+            onClick={() => handleProfilePicChange(profile_pic_user1)}
+          >
+            <img src={profile_pic_user1} alt="User 1" />
+          </div>
+          <div
+            className={`profile-option ${formData.member_profile_img === profile_pic_user2 ? "selected" : ""}`}
+            onClick={() => handleProfilePicChange(profile_pic_user2)}
+          >
+            <img src={profile_pic_user2} alt="User 2" />
+          </div>
+          <div
+            className={`profile-option ${formData.member_profile_img === profile_pic_user3 ? "selected" : ""}`}
+            onClick={() => handleProfilePicChange(profile_pic_user3)}
+          >
+            <img src={profile_pic_user3} alt="User 3" />
+          </div>
+          <div
+            className={`profile-option ${formData.member_profile_img === profile_pic_user4 ? "selected" : ""}`}
+            onClick={() => handleProfilePicChange(profile_pic_user4)}
+          >
+            <img src={profile_pic_user4} alt="User 4" />
+          </div>
+        </div>
+      </div>
+    </form>
+  );
+
+  // Render the tab for search
+  const renderSearchTab = () => (
+    <div className="search-tab">
+      <div className="search-container">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search by name, email, business..."
+          value={searchQuery}
+          onChange={handleSearchInputChange}
+        />
+        {isSearching && <div className="search-spinner"></div>}
+      </div>
+
+      {searchQuery.trim().length > 0 && searchQuery.trim().length < 3 && (
+        <div className="search-hint">Enter at least 3 characters to search</div>
+      )}
+
+      <div className="search-results">
+        {Array.isArray(searchResults) && searchResults.length === 0 && searchQuery.trim().length >= 3 && !isSearching ? (
+          <div className="no-results">No photographers found</div>
+        ) : (
+          Array.isArray(searchResults) && searchResults.map((result) => (
+            <div
+              key={result.user_email}
+              className={`search-result-item ${selectedSearchResult?.user_email === result.user_email ? 'selected' : ''}`}
+              onClick={() => handleSelectSearchResult(result)}
+            >
+              <div className="result-avatar">
+                <img src={result.user_profile_image_base64 || profile_pic_user1} alt={result.user_name} />
+              </div>
+              <div className="result-info">
+                <div className="result-name">{result.user_name}</div>
+                <div className="result-email">{result.user_email}</div>
+                {result.business_name && <div className="result-business">{result.business_name}</div>}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {selectedSearchResult && (
+        <div className="selected-result-details">
+          <h4>Selected Photographer</h4>
+          <div className="result-details-content">
+            <div className="result-avatar large">
+              <img src={selectedSearchResult.user_profile_image_base64 || profile_pic_user1} alt={selectedSearchResult.user_name} />
+            </div>
+            <div className="result-details">
+              <div className="detail-item">
+                <span className="detail-label">Name:</span>
+                <span className="detail-value">{selectedSearchResult.user_name}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Email:</span>
+                <span className="detail-value">{selectedSearchResult.user_email}</span>
+              </div>
+              {selectedSearchResult.business_name && (
+                <div className="detail-item">
+                  <span className="detail-label">Business:</span>
+                  <span className="detail-value">{selectedSearchResult.business_name}</span>
+                </div>
+              )}
+              <div className="form-group">
+                <label className="form-label">
+                  Assign Role:
+                  <input
+                    type="text"
+                    name="member_role"
+                    className="form-input"
+                    placeholder="Enter team member's role"
+                    value={formData.member_role}
+                    onChange={handleChange}
+                  />
+                  {formErrors.member_role && (
+                    <div className="error-message">{formErrors.member_role}</div>
+                  )}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div
       className="popup-overlay"
@@ -129,73 +447,31 @@ const PopUp = ({ action, member, onClose, onSave }) => {
       onClick={handleOverlayClick}
     >
       <div className="popup-content">
-        <h3 className="popup-title">{action} User</h3>
+        <h3 className="popup-title">{action} Team Member</h3>
         {action !== "View" ? (
-          <form className="user-form">
-            <div className="form-group">
-              <label className="form-label">
-                Name:
-                <input
-                  type="text"
-                  name="member_name"
-                  className="form-input"
-                  placeholder="Enter team member's name"
-                  value={formData.member_name}
-                  onChange={handleChange}
-                />
-                {formErrors.member_name && (
-                  <div className="error-message">{formErrors.member_name}</div>
-                )}
-              </label>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                Role:
-                <input
-                  type="text"
-                  name="member_role"
-                  className="form-input"
-                  placeholder="Enter team member's role"
-                  value={formData.member_role}
-                  onChange={handleChange}
-                />
-                {formErrors.member_role && (
-                  <div className="error-message">{formErrors.member_role}</div>
-                )}
-              </label>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Profile Picture:</label>
-              <div className="profile-pic-selection">
+          <>
+            {action === "Add" && (
+              <div className="tab-container">
                 <div
-                  className={`profile-option ${formData.member_profile_img === profile_pic_user1 ? "selected" : ""}`}
-                  onClick={() => handleProfilePicChange(profile_pic_user1)}
+                  className={`tab ${activeTab === 'manual' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('manual')}
                 >
-                  <img src={profile_pic_user1} alt="User 1" />
+                  Add Manually
                 </div>
                 <div
-                  className={`profile-option ${formData.member_profile_img === profile_pic_user2 ? "selected" : ""}`}
-                  onClick={() => handleProfilePicChange(profile_pic_user2)}
+                  className={`tab ${activeTab === 'search' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('search')}
                 >
-                  <img src={profile_pic_user2} alt="User 2" />
-                </div>
-                <div
-                  className={`profile-option ${formData.member_profile_img === profile_pic_user3 ? "selected" : ""}`}
-                  onClick={() => handleProfilePicChange(profile_pic_user3)}
-                >
-                  <img src={profile_pic_user3} alt="User 3" />
-                </div>
-                <div
-                  className={`profile-option ${formData.member_profile_img === profile_pic_user4 ? "selected" : ""}`}
-                  onClick={() => handleProfilePicChange(profile_pic_user4)}
-                >
-                  <img src={profile_pic_user4} alt="User 4" />
+                  Search Photographers
                 </div>
               </div>
+            )}
+
+            <div className="tab-content">
+              {activeTab === 'manual' && renderManualTab()}
+              {activeTab === 'search' && renderSearchTab()}
             </div>
-          </form>
+          </>
         ) : (
           <div className="member-card">
             <table className="member-table">
@@ -205,6 +481,18 @@ const PopUp = ({ action, member, onClose, onSave }) => {
                     <strong>Name:</strong>
                   </td>
                   <td>{formData.member_name}</td>
+                </tr>
+                <tr>
+                  <td className="label">
+                    <strong>Email:</strong>
+                  </td>
+                  <td>{formData.member_email || "Not provided"}</td>
+                </tr>
+                <tr>
+                  <td className="label">
+                    <strong>Phone:</strong>
+                  </td>
+                  <td>{formData.member_phone || "Not provided"}</td>
                 </tr>
                 <tr>
                   <td className="label">
@@ -231,7 +519,15 @@ const PopUp = ({ action, member, onClose, onSave }) => {
 
         <div className="popup-actions">
           <button className="btn btn-cancel" onClick={onClose}>Cancel</button>
-          {action !== "View" && <button className="btn btn-save" onClick={handleSubmit}>Save</button>}
+          {action !== "View" && (
+            <button
+              className="btn btn-save"
+              onClick={handleSubmit}
+              disabled={action === "Add" && activeTab === "search" && !selectedSearchResult}
+            >
+              {action === "Add" && activeTab === "search" && selectedSearchResult ? "Send Invitation" : "Save"}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -409,6 +705,7 @@ const DetailPopup = ({ member, onClose }) => {
 const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdown }) => {
   const [showDetailPopup, setShowDetailPopup] = useState(false);
   const isDropdownActive = activeDropdown === member.member_id;
+  const isPending = member.member_status === "Pending";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -422,9 +719,13 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
   }, [isDropdownActive, setActiveDropdown]);
 
   return (
-    <div className="member-card">
+    <div className={`member-card ${isPending ? 'pending-member' : ''}`}>
       <div className="status-indicator">
-        <span className={member.member_status === "Active" ? "available" : "assigned"}></span>
+        {isPending ? (
+          <span className="pending"></span>
+        ) : (
+          <span className={member.member_status === "Active" ? "available" : "assigned"}></span>
+        )}
         <div className="more-options-container">
           <button
             className="more-options"
@@ -452,7 +753,9 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
               <button
                 className="dropdown-item delete-btn"
                 onClick={() => {
-                  let is_confrom = window.confirm("You wont to remove member")
+                  let is_confrom = window.confirm(isPending
+                    ? "Cancel invitation to this member?"
+                    : "You want to remove member?")
                   if (is_confrom) {
                     onRemove(member.member_id, member.owner_email);
                   }
@@ -460,7 +763,7 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
                 }}
               >
                 <img src={Remove_icon} alt="Remove" />
-                <span>Delete</span>
+                <span>{isPending ? "Cancel Invitation" : "Delete"}</span>
               </button>
             </div>
           )}
@@ -472,18 +775,19 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
         </div>
         <h3>{member.member_name}</h3>
         <p className="role">{member.member_role}</p>
+        {isPending && <div className="pending-badge">Invitation Pending</div>}
       </div>
       <div className="divider"></div>
       <button
-        className={`details-btn ${member.member_status === "Available" ? "available" : "assigned"}`}
+        className={`details-btn ${isPending ? 'pending' : member.member_status === "Available" ? "available" : "assigned"}`}
         onClick={() => {
-          if (member.member_status === "Available") {
+          if (!isPending && member.member_status === "Available") {
             setShowDetailPopup(true);
           }
-
         }}
+        disabled={isPending}
       >
-        Details
+        {isPending ? "Awaiting Response" : "Details"}
       </button>
 
       {showDetailPopup && (
@@ -499,76 +803,27 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
 const TeamOverview = () => {
   const user = useSelector((state) => state.user);
   const [teamData, setTeamData] = useState([]);
-
-  // const fetchTeamMembers = async () => {
-  //   try {
-  //     // Fetch assigned members
-  //     const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         user_email: user.user_email,
-  //       }),
-  //     });
-
-  //     const statusData = await statusResponse.json();
-  //     console.log("Fetched Status Data:", statusData);
-
-  //     // Extract assigned members and their event details
-  //     let assignedMembersMap = new Map();
-
-  //     // Check if statusData has the expected structure
-  //     if (statusData && Array.isArray(statusData.assigned_team_member) && Array.isArray(statusData.event_details)) {
-  //       statusData.assigned_team_member.forEach((member, index) => {
-  //         if (member) {
-  //           assignedMembersMap.set(member, {
-  //             event_request_type: statusData.event_details[index]?.event_request_type || 'Unknown',
-  //             event_detail: statusData.event_details[index]?.event_detail || 'Unknown'
-  //           });
-  //         }
-  //       });
-  //     }
-
-  //     // Rest of the fetch logic remains the same
-  //     const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         user_email: user.user_email,
-  //       }),
-  //     });
-
-  //     const membersData = await membersResponse.json();
-  //     console.log("Fetched Members Data:", membersData);
-
-  //     // Update team members' status based on assignment
-  //     const updatedTeamData = membersData.map(member => {
-
-  //       const assignment = assignedMembersMap.get(member.member_name);
-
-  //       return {
-  //         ...member,
-  //         member_status: assignment ? "Available" : "Active",
-  //         member_event_assignment: assignment
-  //           ? `${assignment.event_request_type} - ${assignment.event_detail}`
-  //           : "Not Assigned",
-  //       };
-  //     });
-
-  //     setTeamData(updatedTeamData);
-
-  //   } catch (error) {
-  //     console.error("Error fetching team members:", error);
-  //   }
-  // };
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchTeamMembers = async () => {
     try {
-      // Fetch assigned members
+      setIsLoading(true);
+      console.log("Fetching team members...");
+      // Fetch all members (active, assigned, and pending)
+      const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_email: user.user_email,
+        }),
+      });
+
+      const membersData = await membersResponse.json();
+      console.log("Fetched members data:", membersData);
+
+      // Fetch assigned members status
       const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
         method: "POST",
         headers: {
@@ -580,6 +835,7 @@ const TeamOverview = () => {
       });
 
       const statusData = await statusResponse.json();
+      console.log("Fetched status data:", statusData);
 
       // Extract assigned members and their event details
       let assignedMembersMap = new Map();
@@ -604,29 +860,15 @@ const TeamOverview = () => {
             }
           });
         }
-        // else {
-        //   console.log("statusData has no valid assigned_team_member array");
-        // }
       }
-      // else {
-      //   console.log("No valid status data available");
-      // }
-
-      // Rest of the fetch logic remains the same
-      const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_email: user.user_email,
-        }),
-      });
-
-      const membersData = await membersResponse.json();
 
       // Update team members' status based on assignment
       const updatedTeamData = membersData.map(member => {
+        // If the member status is already "Pending", keep it
+        if (member.member_status === "Pending") {
+          return member;
+        }
+
         const assignment = assignedMembersMap.get(member.member_name);
 
         return {
@@ -639,97 +881,16 @@ const TeamOverview = () => {
       });
 
       setTeamData(updatedTeamData);
-
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching team members:", error);
       // Set empty array as fallback to prevent further errors
       setTeamData([]);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchTeamMembers = async () => {
-      try {
-        // Fetch assigned members
-        const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_email: user.user_email,
-          }),
-        });
-
-        const statusData = await statusResponse.json();
-        console.log("Fetched Status Data:", statusData);
-
-        // Extract assigned members and their event details
-        let assignedMembersMap = new Map();
-
-        // Safely check if statusData exists and has items
-        if (statusData && Array.isArray(statusData) && statusData.length > 0 && statusData[0]) {
-          // Now safely check for assigned_team_member
-          if (Array.isArray(statusData[0].assigned_team_member)) {
-            console.log("statusData available");
-
-            statusData.forEach((item) => {
-              if (item && Array.isArray(item.assigned_team_member)) {
-                item.assigned_team_member.forEach((member) => {
-                  if (member) {
-                    assignedMembersMap.set(member, {
-                      event_request_type: item.event_request_type || 'Unknown',
-                      event_detail: item.event_detail || 'Unknown'
-                    });
-                  }
-                });
-              } else {
-                console.warn("Skipping item with invalid assigned_team_member:", item);
-              }
-            });
-          }
-          //  else {
-          //   console.log("statusData has no valid assigned_team_member array");
-          // }
-        }
-        //  else {
-        //   console.log("No valid status data available");
-        // }
-
-        // Rest of the fetch logic remains the same
-        const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_email: user.user_email,
-          }),
-        });
-
-        const membersData = await membersResponse.json();
-
-        // Update team members' status based on assignment
-        const updatedTeamData = membersData.map(member => {
-          const assignment = assignedMembersMap.get(member.member_name);
-
-          return {
-            ...member,
-            member_status: assignment ? "Available" : "Active",
-            member_event_assignment: assignment
-              ? `${assignment.event_request_type} - ${assignment.event_detail}`
-              : "Not Assigned",
-          };
-        });
-
-        setTeamData(updatedTeamData);
-
-      } catch (error) {
-        console.error("Error fetching team members:", error);
-        // Set empty array as fallback to prevent further errors
-        setTeamData([]);
-      }
-    };
     fetchTeamMembers();
   }, [user.user_email]);
 
@@ -746,10 +907,6 @@ const TeamOverview = () => {
   const handleEditUser = (member) => {
     setPopupState({ show: true, action: "Edit", member: { ...member } }); // Spread the member data to make sure it's passed correctly
   };
-
-  // const handleViewUser = (member) => {
-  //   setPopupState({ show: true, action: "View", member });
-  // };
 
   const handleSave = (newData) => {
     if (popupState.action === "Add") {
@@ -783,9 +940,13 @@ const TeamOverview = () => {
     }
   };
 
-  const totalMemberStatusLength = teamData.reduce((total, item) => {
-    return item.member_status === "Active" ? total + 1 : total;
-  }, 0);
+  const getActiveMembersCount = () => {
+    return teamData.filter(member => member.member_status === "Active").length;
+  };
+
+  const getPendingMembersCount = () => {
+    return teamData.filter(member => member.member_status === "Pending").length;
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -813,7 +974,7 @@ const TeamOverview = () => {
         <div className="stat-card total-members">
           <div className="data-container">
             <h2>Total Member</h2>
-            <div className="count">{teamData.length}</div>
+            <div className="count">{isLoading ? "..." : teamData.length}</div>
           </div>
           <img src={ilasstion_2} alt="ilasstion_2" />
 
@@ -821,7 +982,7 @@ const TeamOverview = () => {
         <div className="stat-card active-members">
           <div className="data-container">
             <h2>Active Member</h2>
-            <div className="count">{totalMemberStatusLength}</div>
+            <div className="count">{isLoading ? "..." : getActiveMembersCount()}</div>
           </div>
           <img src={ilasstion_1} alt="ilasstion_1" />
         </div>
@@ -839,6 +1000,11 @@ const TeamOverview = () => {
               <span className="legend-item">
                 <span className="dot assigned"></span> Assigned
               </span>
+              {getPendingMembersCount() > 0 && (
+                <span className="legend-item">
+                  <span className="dot pending"></span> Pending
+                </span>
+              )}
             </div>
           </div>
           <button className={`add-member-btn_top ${teamData.length === 0 ? 'assigned' : 'available'}`} onClick={handleAddUser}>
@@ -847,7 +1013,12 @@ const TeamOverview = () => {
           </button>
         </div>
 
-        {teamData.length === 0 ? (
+        {isLoading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Loading team members...</p>
+          </div>
+        ) : teamData.length === 0 ? (
           <div className="empty-team-state">
             <div className="empty-profile-stack">
               <div className="profile-overlay">
@@ -859,10 +1030,6 @@ const TeamOverview = () => {
             </div>
             <h3>Build Your Dream Team</h3>
             <p>Start by adding your first team member. Expand your photography business with a talented crew!</p>
-            {/* <button className="add-member-btn empty-state-btn" onClick={handleAddUser}>
-              <span>Add Your First Team Member</span>
-              <span className="plus-icon">+</span>
-            </button> */}
           </div>
         ) : (
           <div className="members-grid">

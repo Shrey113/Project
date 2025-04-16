@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -7,6 +8,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import { CiCirclePlus, CiCircleMinus } from "react-icons/ci";
+import { FaBuilding, FaMapMarkerAlt, FaUser, FaArrowRight } from "react-icons/fa";
 import dayjs from "dayjs";
 
 import { Server_url, showAcceptToast, showRejectToast, showWarningToast } from "../../../../redux/AllData";
@@ -88,8 +90,9 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
   );
 };
 
-const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_package_data, set_receiver_equipment_data, set_receiver_service_data }) => {
+const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_package_data, set_receiver_equipment_data, set_receiver_service_data, profile_data }) => {
   const user = useSelector((state) => state.user);
+  const navigate = useNavigate();
   // const [showTeamModal, setShowTeamModal] = useState(false);
   const [teamMembers, setTeamMembers] = useState([]);
   const [assignedMembers, setAssignedMembers] = useState([]);
@@ -129,7 +132,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         prevData.map(item =>
           item.id === newEvent.id ? { ...item, event_status: "Accepted", reason } : item
         )
-
       );
     } else if (newEvent.event_request_type === "package") {
       set_receiver_package_data(prevData =>
@@ -511,6 +513,57 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     </div>
   );
 
+  const renderUserProfileSection = () => (
+    <div className="profile_page">
+      <div className="profile-header">
+        <div className="profile-image-container">
+          <img
+            src={profile_data?.user_profile_image_base64 || "https://via.placeholder.com/120"}
+            alt={profile_data?.user_name || "User"}
+            className="profile-image"
+          />
+        </div>
+        <h3 className="profile-name">{profile_data?.user_name || "Photography Professional"}</h3>
+      </div>
+
+      <div className="profile-details">
+        <div className="profile-detail-item">
+          <div className="profile-detail-icon">
+            <FaUser />
+          </div>
+          <span className="profile-detail-label">Name:</span>
+          <span className="profile-detail-value">{profile_data?.user_name || "Not provided"}</span>
+        </div>
+
+        <div className="profile-detail-item">
+          <div className="profile-detail-icon">
+            <FaBuilding />
+          </div>
+          <span className="profile-detail-label">Business:</span>
+          <span className="profile-detail-value">{profile_data?.business_name || "Not provided"}</span>
+        </div>
+
+        <div className="profile-detail-item">
+          <div className="profile-detail-icon">
+            <FaMapMarkerAlt />
+          </div>
+          <span className="profile-detail-label">Address:</span>
+          <span className="profile-detail-value">{profile_data?.business_address || "Not provided"}</span>
+        </div>
+      </div>
+
+      <button
+        className="profile-navigation-button"
+        onClick={() => {
+          document.documentElement.style.overflow = "auto";
+          navigate(`/Owner/search_photographer/${profile_data?.user_email}`);
+        }}
+      >
+        View Full Profile <FaArrowRight />
+      </button>
+    </div>
+  )
+
   return (
     <div className="modal-overlay_add_event"
       onClick={() => setShowEventModal(false)}
@@ -524,7 +577,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         <div className="modal-content-container">
           {renderEventForm()}
 
-          {newEvent.event_request_type === "equipment" ? null : renderTeamMemberSection()}
+          {newEvent.event_request_type === "equipment" ? renderUserProfileSection() : renderTeamMemberSection()}
         </div>
         <div className="modal-actions">
           <button type="submit" onClick={handleAddEvent}>Confirm Event</button>

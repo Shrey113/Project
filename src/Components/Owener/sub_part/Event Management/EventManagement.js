@@ -48,6 +48,8 @@ function EventManagement({ category }) {
   const [count_for_equipment, set_count_for_equipment] = useState(0);
   const [count_for_service, set_count_for_service] = useState(0);
 
+  const [profile_data, set_profile_data] = useState();
+
   const location = useLocation();
   // for calender
   const [newEvent, setNewEvent] = useState({
@@ -316,12 +318,12 @@ function EventManagement({ category }) {
     };
   }, []);
   useEffect(() => {
-    if (popupType) {
+    if (popupType || show_calender_popup || selected_sent_item) {
       document.documentElement.style.overflow = "hidden";
     } else {
       document.documentElement.style.overflow = "auto";
     }
-  }, [popupType]);
+  }, [popupType, show_calender_popup, selected_sent_item]);
 
   const handleClose = () => {
     set_selected_sent_item(false)
@@ -346,6 +348,18 @@ function EventManagement({ category }) {
       updateNotificationIsSeen("service")
     }
   })
+  const fetchProfileData = async (sender_email) => {
+    try {
+      const respose = await fetch(`${Server_url}/owner/fetch_profile_in_equipment/${sender_email}`,)
+      console.log("sender email", sender_email);
+      const data = await respose.json();
+      console.log("profile data", data)
+      set_profile_data(data)
+    } catch (e) {
+      console.error("error while fetching the profile data", e)
+      // showRejectToast()
+    }
+  }
 
   return (
     <div id="owner-main-container-EventManagement">
@@ -817,10 +831,10 @@ function EventManagement({ category }) {
                             <tr key={index}>
                               <td>{index + 1}</td>
                               <td>{item.sender_email}</td>
-                              <td>{item.equipment_name}</td>
+                              <td style={{ maxWidth: "180px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.equipment_name}</td>
                               <td>{item.equipment_company}</td>
                               <td>{item.days_required}</td>
-                              <td>{item.location}</td>
+                              <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
                               <td className={`status ${item.event_status?.toLowerCase()}`}>
                                 <span>{item.event_status}</span>
                               </td>
@@ -866,7 +880,7 @@ function EventManagement({ category }) {
                                   <>
                                     {item.event_status?.toLowerCase() === "pending" && (
                                       <>
-                                        <button className="approve-btn" onClick={() => set_data(item)}>
+                                        <button className="approve-btn" onClick={() => { fetchProfileData(item.sender_email); set_data(item) }}>
                                           Approve
                                         </button>
                                         <button className="reject-btn" onClick={() => handleRejectClick(item)}>
@@ -922,7 +936,7 @@ function EventManagement({ category }) {
                               <td>{item.sender_email}</td>
                               <td>{item.service_name}</td>
                               <td>{item.days_required}</td>
-                              <td>{item.location}</td>
+                              <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
                               <td className={`status ${item.event_status.toLowerCase()}`}>
                                 <span>{item.event_status}</span>
                               </td>
@@ -1004,6 +1018,7 @@ function EventManagement({ category }) {
                 set_receiver_package_data={set_receiver_package_data}
                 set_receiver_equipment_data={set_receiver_equipment_data}
                 set_receiver_service_data={set_receiver_service_data}
+                profile_data={profile_data}
               />
             )}
           </div>
