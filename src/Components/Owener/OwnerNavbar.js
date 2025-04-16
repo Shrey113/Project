@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import "./css/Owner_navbar.css";
+import "../Owener/sub_part/Search_photographer/Search_photographer.css"; // Import city selector CSS
 import { IoIosNotifications } from "react-icons/io";
 import { useNavigate, useLocation } from "react-router-dom";
 import burger_menu from "./img/burger-menu.png";
@@ -13,9 +14,48 @@ import no_notification from "./img/no_notification.png"
 import { useUIContext } from "../../redux/UIContext.js";
 import { IoClose } from "react-icons/io5"; // Import close icon
 import { IoArrowBack } from "react-icons/io5"; // Import back icon
-// import { Bell } from "lucide-react";
+// Import icons for city selector
+import { TfiLocationPin } from "react-icons/tfi";
+import { MdLocationCity, MdRefresh } from "react-icons/md";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
-function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
+// Import city images for the selector
+import ahd from "../Owener/sub_part/Search_photographer/small_data/ahd.png";
+import bang from "../Owener/sub_part/Search_photographer/small_data/bang.png";
+import chd from "../Owener/sub_part/Search_photographer/small_data/chd.png";
+import chen from "../Owener/sub_part/Search_photographer/small_data/chen.png";
+import hyd from "../Owener/sub_part/Search_photographer/small_data/hyd.png";
+import koch from "../Owener/sub_part/Search_photographer/small_data/koch.png";
+import kolk from "../Owener/sub_part/Search_photographer/small_data/kolk.png";
+import mumbai from "../Owener/sub_part/Search_photographer/small_data/mumbai.png";
+import ncr from "../Owener/sub_part/Search_photographer/small_data/ncr.png";
+import pune_2 from "../Owener/sub_part/Search_photographer/small_data/pune.png";
+
+// Popular cities data
+const popularCities = [
+  { name: "Mumbai", icon: mumbai },
+  { name: "Delhi-NCR", icon: ncr },
+  { name: "Bengaluru", icon: bang },
+  { name: "Hyderabad", icon: hyd },
+  { name: "Ahmedabad", icon: ahd},
+  { name: "Chandigarh", icon: chd },
+  { name: "Chennai", icon: chen },
+  { name: "Pune", icon:pune_2},
+  { name: "Kolkata", icon: kolk },
+  { name: "Kochi", icon: koch }
+];
+
+// Other cities data
+const otherCities = [
+  "Aalo", "Addanki", "Agar Malwa", "Ahmedgarh", "Akbarpur", "Alakode", "Alibaug",
+  "Abohar", "Adilabad", "Agartala", "Ahore", "Akividu", "Alangudi", "Aligarh",
+  "Abu Road", "Adimali", "Agiripalli", "Aizawl", "Akluj", "Alangulam", "Alipurduar",
+  "Achampet", "Adipur", "Agra", "Ajmer", "Akola", "Alappuzha", "Almora",
+  "Acharapakkam", "Adoni", "Ahilyanagar (Ahmednagar)", "Akalatara", "Akot", "Alathur", "Alisar (Rajasthan)"
+];
+
+function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
+ selectedLocation = 'all', setSelectedLocation = () => {} }) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state) => state.user);
@@ -29,6 +69,17 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const searchInputRef = useRef(null);
 
   const [temp_data, set_temp_data] = useState(null);
+  
+  // City selector states
+  const [showCitySelector, setShowCitySelector] = useState(false);
+
+  const [searchCity, setSearchCity] = useState("");
+  const [showAllOtherCities, setShowAllOtherCities] = useState(false);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState(null);
+  const [detectedCity, setDetectedCity] = useState(null);
+  const [detectedState, setDetectedState] = useState(null);
+  const [detectedLocations, setDetectedLocations] = useState([]);
 
   // const [realtime_notification, set_realtime_notification] = useState(false);
   const [is_show_notification_pop, set_is_show_notification_pop] = useState(false);
@@ -41,6 +92,179 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
   const [isChecked, setIsChecked] = useState(() => {
     return localStorage.getItem(`switchState_for_${user.user_email}`) === "true";
   });
+
+  // Toggle city selector popup
+  const toggleCitySelector = () => {
+    setShowCitySelector(!showCitySelector);
+    if (!showCitySelector) {
+      setIsLocationLoading(false);
+      setLocationError(null);
+      setSearchCity("");
+    }
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchCity("");
+    setSelectedLocation("all");
+    setShowCitySelector(false);
+  };
+
+  // Toggle show/hide all other cities
+  const toggleOtherCities = () => {
+    setShowAllOtherCities(!showAllOtherCities);
+  };
+
+  // Handle city selection
+  const handleCitySelect = (city) => {
+    setSelectedLocation(city);
+    setShowCitySelector(false);
+  };
+
+  // Select detected location (city or state)
+  const selectDetectedLocation = (location) => {
+    setSelectedLocation(location);
+    setShowCitySelector(false);
+  };
+
+  // Detect current location
+  const detectLocation = () => {
+    setIsLocationLoading(true);
+    setLocationError(null);
+    setDetectedCity(null);
+    setDetectedState(null);
+    setDetectedLocations([]);
+    
+    if (navigator.geolocation) {
+      try {
+        const locationTimeout = setTimeout(() => {
+          if (isLocationLoading) {
+            setIsLocationLoading(false);
+            setLocationError("Location request timed out. Please try again.");
+          }
+        }, 15000); // 15 second backup timeout
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            clearTimeout(locationTimeout);
+            const { latitude, longitude } = position.coords;
+            getCityName(latitude, longitude);
+          },
+          (error) => {
+            clearTimeout(locationTimeout);
+            console.error("Error getting location:", error);
+            setIsLocationLoading(false);
+            
+            // Set specific error message based on error code
+            switch(error.code) {
+              case 1: // PERMISSION_DENIED
+                setLocationError("Location permission denied. Please allow location access in your browser settings.");
+                break;
+              case 2: // POSITION_UNAVAILABLE
+                setLocationError("Location information is unavailable. Please check your device settings.");
+                break;
+              case 3: // TIMEOUT
+                setLocationError("Location request timed out. Please try again.");
+                break;
+              default:
+                setLocationError("Unable to detect your location. Please try again or select a city manually.");
+            }
+          },
+          {
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 60000 // Allow cached position up to 1 minute old
+          }
+        );
+      } catch (e) {
+        console.error("Geolocation error:", e);
+        setIsLocationLoading(false);
+        setLocationError("An unexpected error occurred with geolocation. Please select a city manually.");
+      }
+    } else {
+      setLocationError("Your browser doesn't support geolocation. Please select a city manually.");
+      setIsLocationLoading(false);
+    }
+  };
+
+  const getCityName = async (lat, lon) => {
+    try {
+      // Add a fallback in case the API call fails
+      const apiTimeout = setTimeout(() => {
+        if (isLocationLoading) {
+          setIsLocationLoading(false);
+          setLocationError("Couldn't retrieve your city. Please select manually.");
+        }
+      }, 10000);
+
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lon}`
+      );
+      
+      clearTimeout(apiTimeout);
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("Location data:", data);
+      
+      // Extract city and state information
+      const city = 
+        data.address?.city || 
+        data.address?.town || 
+        data.address?.village || 
+        data.address?.hamlet ||
+        data.address?.state_district || 
+        (data.display_name ? data.display_name.split(',')[0] : null) ||
+        "Unknown location";
+        
+      const state = 
+        data.address?.state || 
+        data.address?.province || 
+        data.address?.region ||
+        "Unknown state";
+
+      // Store both city and state
+      setDetectedCity(city);
+      setDetectedState(state);
+      setDetectedLocations([
+        { type: 'city', name: city },
+        { type: 'state', name: state }
+      ]);
+      
+      // Log for verification
+      console.log("City Name from location:", city);
+      console.log("State Name from location:", state);
+      
+    } catch (error) {
+      console.error("Error fetching city:", error);
+      setLocationError("Unable to determine your city. Please select manually.");
+    } finally {
+      setIsLocationLoading(false);
+    }
+  };
+
+  // Close city selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (showCitySelector && !e.target.closest('.city-selector') && !e.target.closest('.location-toggle-button')) {
+        setShowCitySelector(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showCitySelector]);
+
+  // Determine if we're in search mode for city selector
+  const isSearchActive = searchCity.trim().length > 0;
+  
+  // Filter other cities based on search
+  const filteredOtherCities = otherCities.filter(city => 
+    city.toLowerCase().includes(searchCity.toLowerCase())
+  );
 
   useEffect(() => {
     localStorage.setItem(`switchState_for_${user.user_email}`, isChecked);
@@ -561,6 +785,14 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
     setIsSearchVisible(!isSearchVisible);
   };
 
+  useEffect(() => {
+    if (showCitySelector) {
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "auto";
+    }
+  }, [showCitySelector]);
+
 
   return (
     <div className={`owner_navbar_main_con ${isMobile ? "for_mobile" : ""}`}>
@@ -589,6 +821,178 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { } }) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+              
+              {/* Location Selector Button */}
+              <div className="location-selector-container">
+                <button 
+                  className="location-toggle-button" 
+                  onClick={toggleCitySelector}
+                >
+                  {selectedLocation === 'all' ? 'Select Location' : selectedLocation}
+                </button>
+                
+                {/* City Selector Popup */}
+                {showCitySelector && (
+                  <div className="city-selector-overlay">
+                    <div className="city-selector">
+                      <div className="city-selector-header">
+                        <h2>Select City</h2>
+                        <div className="header-actions">
+                          {selectedLocation !== 'all' && (
+                            <button 
+                              className="clear-filter-btn" 
+                              onClick={clearFilters}
+                              title="Clear location filter"
+                            >
+                              Clear Filter
+                            </button>
+                          )}
+                          <button 
+                            className="close-city-selector" 
+                            onClick={() => setShowCitySelector(false)}
+                          >
+                            <IoClose />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <input 
+                        className="search-input" 
+                        placeholder="Search for your city"
+                        value={searchCity}
+                        onChange={(e) => setSearchCity(e.target.value)} 
+                      />
+                      
+                      {/* Show detect location button only when not in search mode and no locations detected */}
+                      {!isSearchActive && detectedLocations.length === 0 && (
+                        <div 
+                          className={`detect-location ${isLocationLoading ? 'loading' : ''} ${locationError ? 'error' : ''}`} 
+                          onClick={!isLocationLoading ? detectLocation : undefined}
+                        >
+                          <div className="location-icon">
+                            {isLocationLoading ? (
+                              <div className="loader-circle"></div>
+                            ) : (
+                              <TfiLocationPin />
+                            )}
+                          </div>
+                          <span>
+                            {isLocationLoading 
+                              ? "Detecting location..." 
+                              : locationError 
+                                ? "Location access denied" 
+                                : "Detect my location"}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {locationError && !isSearchActive && (
+                        <div className="location-error-message">
+                          {locationError}
+                        </div>
+                      )}
+
+                      {/* Detected Locations Section - show only when not searching */}
+                      {detectedLocations.length > 0 && !isSearchActive && (
+                        <div className="section detected-locations-section">
+                          <div className="section-header">
+                            <h2>Detected Locations</h2>
+                            <button 
+                              className="reload-location-btn" 
+                              onClick={detectLocation}
+                              title="Refresh location"
+                            >
+                              <MdRefresh />
+                            </button>
+                          </div>
+                          <div className="detected-locations">
+                            <div 
+                              className={`detected-location ${selectedLocation === detectedCity ? 'selected' : ''}`}
+                              onClick={() => selectDetectedLocation(detectedCity)}
+                            >
+                              <MdLocationCity className="location-type-icon" />
+                              <div className="location-details">
+                                <span className="location-label">City</span>
+                                <span className="location-value">{detectedCity}</span>
+                              </div>
+                            </div>
+                            
+                            <div 
+                              className={`detected-location ${selectedLocation === detectedState ? 'selected' : ''}`}
+                              onClick={() => selectDetectedLocation(detectedState)}
+                            >
+                              <FaMapMarkerAlt className="location-type-icon" />
+                              <div className="location-details">
+                                <span className="location-label">State</span>
+                                <span className="location-value">{detectedState}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Popular Cities Section - show only when not searching */}
+                      {!isSearchActive && (
+                        <div className="section">
+                          <h2>Popular Cities</h2>
+                          <div className="popular-cities">
+                            {popularCities.map((city) => (
+                              <div 
+                                className={`city-icon ${selectedLocation === city.name ? 'selected' : ''}`}
+                                key={city.name}
+                                onClick={() => handleCitySelect(city.name)}
+                              >
+                                <div className="icon">
+                                  <img src={city.icon} alt={city.name} />
+                                </div>
+                                <div>{city.name}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Cities Section - always show but change title based on search */}
+                      <div className="section">
+                        <h2>
+                          {isSearchActive 
+                            ? `Search results for "${searchCity}"` 
+                            : "Other Cities"}
+                        </h2>
+                        
+                        {/* No results message */}
+                        {isSearchActive && filteredOtherCities.length === 0 && (
+                          <div className="no-results-message">
+                            No cities found matching "{searchCity}"
+                          </div>
+                        )}
+                        
+                        <div className="other-cities">
+                          {(showAllOtherCities || isSearchActive ? filteredOtherCities : filteredOtherCities.slice(0, 20)).map((city) => (
+                            <div 
+                              className={`city-name ${selectedLocation === city ? 'selected' : ''}`}
+                              key={city}
+                              onClick={() => handleCitySelect(city)}
+                            >
+                              {city}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Show View All/Hide button only when not in search mode and there are more cities */}
+                      {!isSearchActive && filteredOtherCities.length > 20 && (
+                        <div 
+                          className="toggle-cities-btn"
+                          onClick={toggleOtherCities}
+                        >
+                          {showAllOtherCities ? "Hide All Cities" : "View All Cities"}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

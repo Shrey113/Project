@@ -120,6 +120,7 @@ function App() {
 
   const SetOwnerPage = ({ ActivePage, category }) => {
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState("all");
     const location = window.location.pathname;
     
     return OwnerStatus === "Accept" ? (
@@ -127,12 +128,16 @@ function App() {
         <OwnerNavbar
           searchTerm={location === "/Owner/search_photographer" ? searchTerm : ''}
           setSearchTerm={location === "/Owner/search_photographer" ? setSearchTerm : ''} 
+          selectedLocation={selectedLocation}
+          setSelectedLocation={setSelectedLocation}
         />
 
         <ActivePage
           category={category}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm} 
+          selectedLocation={selectedLocation}
+          setSelectedLocation={setSelectedLocation}
         />
 
         <div className="footer-bottom">
