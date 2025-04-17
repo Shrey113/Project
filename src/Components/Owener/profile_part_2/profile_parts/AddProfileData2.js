@@ -13,6 +13,7 @@ function AddProfileData({ onInputChange }) {
   const dispatch = useDispatch();
   const [profileImage, setProfileImage] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [imageKey, setImageKey] = useState(Date.now()); // Add a key to force image refresh
 
   const [formData, setFormData] = useState({
     userName: user.user_name,
@@ -44,7 +45,7 @@ function AddProfileData({ onInputChange }) {
   });
 
 
-
+ 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -137,55 +138,70 @@ function AddProfileData({ onInputChange }) {
       showWarningToast({ message: "Image size should be less than 5MB" });
       return;
     }
-
     try {
-      const reader = new FileReader();
+      // Create a temporary URL for the file to show immediate feedback
+      const tempURL = URL.createObjectURL(file);
+      setProfileImage(tempURL);
+      
+      // Create XHR request to track upload progress
+      const xhr = new XMLHttpRequest();
+      
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          console.log(`Upload progress: ${percentComplete}%`);
+        }
+      });
 
-      reader.onloadend = async () => {
-        const base64Image = reader.result;
-        setProfileImage(base64Image);
+      // Setup promise to handle the XHR
+      const uploadPromise = new Promise((resolve, reject) => {
+        xhr.open('POST', `${Server_url}/owner/update-user-profile-image`, true);
+        xhr.setRequestHeader('x-user-email', user.user_email);
+        xhr.setRequestHeader('Content-Type', file.type);
+        
+        xhr.onload = function() {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              resolve(data);
+            } catch (e) {
+              reject(new Error('Invalid JSON response'));
+            }
+          } else {
+            try {
+              const errorData = JSON.parse(xhr.responseText);
+              reject(errorData);
+            } catch (e) {
+              reject(new Error(`Server error: ${xhr.status}`));
+            }
+          }
+        };
+        
+        xhr.onerror = function() {
+          reject(new Error('Network error occurred'));
+        };
+        
+        // Send the file
+        xhr.send(file);
+      });
+
+      const data = await uploadPromise;
+
+      if (data.message === "User profile image updated successfully.") {
+        // Update Redux with the image path instead of base64
         dispatch({
-          type: "SET_USER_Owner", payload: {
-            user_profile_image_base64: base64Image
+          type: "SET_USER_Owner", 
+          payload: {
+            user_profile_image_base64: data.imagePath || true
           }
         });
-
-
-        try {
-          const response = await fetch(`${Server_url}/owner/update-user-profile-image`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              user_email: user.user_email,
-              userProfileImage: base64Image
-            })
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          if (data.message === "User profile image updated successfully.") {
-            showAcceptToast({ message: "Profile image updated successfully" });
-          }
-        } catch (error) {
-          console.error('Error updating profile image:', error);
-          showRejectToast({ message: "Failed to update profile image. Please try again." });
-        }
-      };
-
-      reader.onerror = () => {
-        showRejectToast({ message: "Error reading file. Please try again." });
-      };
-
-      reader.readAsDataURL(file);
-
+        
+        // Force image refresh by updating the key
+        setImageKey(Date.now());
+      }
     } catch (error) {
-      console.error('Error handling image upload:', error);
-      showRejectToast({ message: "An unexpected error occurred. Please try again." });
+      console.error('Error updating profile image:', error);
     }
   };
 
@@ -194,7 +210,7 @@ function AddProfileData({ onInputChange }) {
 
   const handleDeleteImage = async () => {
     // Show confirmation dialog
-    const isConfirmed = window.confirm("Are you sure you want to remove the business profile image?");
+    const isConfirmed = window.confirm("Are you sure you want to remove the profile image?");
 
     if (!isConfirmed) return;
 
@@ -214,22 +230,25 @@ function AddProfileData({ onInputChange }) {
         throw new Error('Failed to delete profile image');
       }
 
-      let data = await response.json();
+      let data = await response.json();  
       if (data.message === "user profile image removed successfully.") {
+        // Update UI
+        setProfileImage(null);
+        
+        // Update Redux store
         dispatch({
           type: "SET_USER_Owner",
           payload: {
             user_profile_image_base64: null
           }
         });
+        
+        // Force refresh by updating key
+        setImageKey(Date.now());
+        
       }
-
-      showAcceptToast({ message: "Profile image removed successfully" });
-
-
     } catch (error) {
       console.error('Error deleting profile image:', error);
-      showRejectToast({ message: "Failed to delete profile image" });
     }
   };
 
@@ -339,7 +358,7 @@ function AddProfileData({ onInputChange }) {
   };
 
   return (
-    <div className="profile-container" id='AddProfileDataPopup'>
+    <div className="profile-container" id='AddProfileDataPopup'>      
       <div className="profile-header">
         <h2>Personal Information</h2>
       </div>
@@ -348,7 +367,12 @@ function AddProfileData({ onInputChange }) {
         <div className="profile-avatar">
           {profileImage ? (
             <>
-              <img src={profileImage} alt="Profile" />
+              <img 
+                src={typeof profileImage === 'string' && profileImage.startsWith('data:') 
+                  ? profileImage 
+                  : `${Server_url}/owner/profile-image/${user.user_email}?t=${imageKey}`} 
+                alt="Profile" 
+              />
               <label htmlFor="profile-image-input" className="camera-overlay">
                 <FaCamera className="camera-icon" />
               </label>

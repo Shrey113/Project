@@ -3,13 +3,17 @@ import { useSelector } from 'react-redux';
 import './UserProfilePage.css'
 import { FaCamera } from 'react-icons/fa'
 
-import { Server_url, showWarningToast, showAcceptToast, showRejectToast } from './../../../../redux/AllData';
+import { Server_url, showWarningToast, showAcceptToast, showRejectToast, FileLoaderToast } from './../../../../redux/AllData';
 
 
 function UserProfilePage({ setIs_Page1, setCurrentStep }) {
 
   const user = useSelector((state) => state.user);
   const [profileImage, setProfileImage] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState({ total: 0, completed: 0 });
+  const [showUploadProgress, setShowUploadProgress] = useState(false);
+  const [imageKey, setImageKey] = useState(Date.now()); // Key to force image refresh
+  
   const [formData, setFormData] = useState({
     userName: '',
     firstName: '',
@@ -36,7 +40,8 @@ function UserProfilePage({ setIs_Page1, setCurrentStep }) {
         }
 
         const data = await response.json();
-        setProfileImage(data.owners.user_profile_image_base64);
+        
+        // Set form data first
         setFormData({
           userName: data.owners.user_name || '',
           firstName: data.owners.first_name || '',
@@ -46,6 +51,18 @@ function UserProfilePage({ setIs_Page1, setCurrentStep }) {
           location: data.owners.business_address || '',
           socialMedia: data.owners.social_media || ''
         });
+        
+        // Check if profile image is in base64 format or path format
+        if (data.owners.user_profile_image_base64) {
+          if (data.owners.user_profile_image_base64.startsWith('data:image')) {
+            // It's a base64 image
+            setProfileImage(data.owners.user_profile_image_base64);
+          } else {
+            // It's a path, load from the image serving endpoint
+            const imageUrl = `${Server_url}/owner/profile-image/${user.user_email}?t=${new Date().getTime()}`;
+            setProfileImage(imageUrl);
+          }
+        }
       } catch (error) {
         console.error('Error fetching owners:', error);
       }
@@ -89,57 +106,110 @@ function UserProfilePage({ setIs_Page1, setCurrentStep }) {
       return;
     }
 
+    // Start showing loader with at least 800ms display time
+    const startTime = Date.now();
+    setUploadProgress({ total: 1, completed: 0 });
+    setShowUploadProgress(true);
+
     try {
-      const reader = new FileReader();
-
-      reader.onloadend = async () => {
-        const base64Image = reader.result;
-        setProfileImage(base64Image);
-
-        try {
-          const response = await fetch(`${Server_url}/owner/update-user-profile-image`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              user_email: user.user_email,
-              userProfileImage: base64Image
-            })
+      // Display loading image or placeholder during upload
+      const tempURL = URL.createObjectURL(file);
+      setProfileImage(tempURL);
+      
+      // Create XHR request to track upload progress
+      const xhr = new XMLHttpRequest();
+      
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          console.log(`Upload progress: ${percentComplete}%`);
+          
+          setUploadProgress({ 
+            total: 1, 
+            completed: percentComplete >= 100 ? 1 : 0.5 
           });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          if (data.message === "User profile image updated successfully.") {
-            showAcceptToast({ message: "Profile image updated successfully" });
-          }
-        } catch (error) {
-          console.error('Error updating profile image:', error);
-          showRejectToast({ message: "Failed to update profile image. Please try again." });
         }
-      };
+      });
 
-      reader.onerror = () => {
-        showRejectToast({ message: "Error reading file. Please try again." });
-      };
+      // Setup promise to handle the XHR
+      const uploadPromise = new Promise((resolve, reject) => {
+        xhr.open('POST', `${Server_url}/owner/update-user-profile-image`, true);
+        xhr.setRequestHeader('x-user-email', user.user_email);
+        xhr.setRequestHeader('Content-Type', file.type);
+        
+        xhr.onload = function() {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              resolve(data);
+            } catch (e) {
+              reject(new Error('Invalid JSON response'));
+            }
+          } else {
+            try {
+              const errorData = JSON.parse(xhr.responseText);
+              reject(errorData);
+            } catch (e) {
+              reject(new Error(`Server error: ${xhr.status}`));
+            }
+          }
+        };
+        
+        xhr.onerror = function() {
+          reject(new Error('Network error occurred'));
+        };
+        
+        // Send the file
+        xhr.send(file);
+      });
+      
+      const data = await uploadPromise;
+      
+      // Mark upload as complete
+      setUploadProgress({ total: 1, completed: 1 });
 
-      reader.readAsDataURL(file);
-
+      if (data.message === "User profile image updated successfully.") {
+        // Force image refresh by updating the key
+        setImageKey(Date.now());
+        
+        // Ensure the loader is displayed for at least 800ms
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, 800 - elapsedTime);
+        
+        setTimeout(() => {
+          setShowUploadProgress(false);
+          // Load the image from the new endpoint that serves images
+          const imageUrl = `${Server_url}/owner/profile-image/${user.user_email}?t=${Date.now()}`;
+          setProfileImage(imageUrl);
+          showAcceptToast({ message: "Profile image updated successfully" });
+        }, remainingTime);
+      }
     } catch (error) {
-      console.error('Error handling image upload:', error);
-      showRejectToast({ message: "An unexpected error occurred. Please try again." });
+      console.error('Error updating profile image:', error);
+      
+      // Ensure the loader is displayed for at least 800ms before hiding
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, 800 - elapsedTime);
+      
+      setTimeout(() => {
+        setShowUploadProgress(false);
+        showRejectToast({ message: "Failed to update profile image. Please try again." });
+      }, remainingTime);
     }
   };
 
   const handleDeleteImage = async (e) => {
     e.preventDefault();
     // Show confirmation dialog
-    const isConfirmed = window.confirm("Are you sure you want to remove the business profile image?");
+    const isConfirmed = window.confirm("Are you sure you want to remove the profile image?");
 
     if (!isConfirmed) return;
+
+    // Start showing loader with at least 800ms display time
+    const startTime = Date.now();
+    setUploadProgress({ total: 1, completed: 0 });
+    setShowUploadProgress(true);
 
     try {
       const response = await fetch(`${Server_url}/owner/remove-profile-image-type`, {
@@ -153,21 +223,44 @@ function UserProfilePage({ setIs_Page1, setCurrentStep }) {
         })
       });
 
+      // Simulate progress 
+      setUploadProgress({ total: 1, completed: 0.5 });
+
       if (!response.ok) {
         throw new Error('Failed to delete profile image');
       }
 
       let data = await response.json();
+      
+      // Mark as complete
+      setUploadProgress({ total: 1, completed: 1 });
+      
       if (data.message === "user profile image removed successfully.") {
         setProfileImage(null);
+        
+        // Force image refresh by updating the key
+        setImageKey(Date.now());
+        
+        // Ensure the loader is displayed for at least 800ms
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, 800 - elapsedTime);
+        
+        setTimeout(() => {
+          setShowUploadProgress(false);
+          showAcceptToast({ message: "Profile image removed successfully" });
+        }, remainingTime);
       }
-
-      showAcceptToast({ message: "Profile image removed successfully" });
-
-
     } catch (error) {
       console.error('Error deleting profile image:', error);
-      showRejectToast({ message: "Failed to delete profile image" });
+      
+      // Ensure the loader is displayed for at least 800ms before hiding
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, 800 - elapsedTime);
+      
+      setTimeout(() => {
+        setShowUploadProgress(false);
+        showRejectToast({ message: "Failed to delete profile image" });
+      }, remainingTime);
     }
   };
 
@@ -287,6 +380,8 @@ function UserProfilePage({ setIs_Page1, setCurrentStep }) {
 
   return (
     <div className="profile-container" id='UserProfilePage'>
+      {showUploadProgress && <FileLoaderToast uploadProgress={uploadProgress} />}
+      
       {/* <div className="profile-header">
         <h2>Personal Information</h2>
       </div> */}
@@ -295,7 +390,10 @@ function UserProfilePage({ setIs_Page1, setCurrentStep }) {
         <div className="profile-avatar">
           {profileImage ? (
             <>
-              <img src={profileImage} alt="Profile" />
+              <img src={typeof profileImage === 'string' && profileImage.startsWith('data:') 
+                ? profileImage 
+                : `${Server_url}/owner/profile-image/${user.user_email}?t=${imageKey}`} 
+                alt="Profile" />
               <div className="camera-overlay">
                 <FaCamera className="camera-icon" />
               </div>

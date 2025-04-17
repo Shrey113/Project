@@ -22,7 +22,16 @@ function PortfolioPage({ setIs_Page3, setCurrentStep }) {
   };
   const fetchImages = async (user_email) => {
     setLoading(true);
+    setError("");
+    
+    if (!user_email) {
+      console.log("No user email provided, skipping fetch");
+      setLoading(false);
+      return;
+    }
+    
     try {
+      console.log(`Fetching images for user: ${user_email}`);
       const response = await fetch(`${Server_url}/owner_drive/get_portfolio`, {
         method: "POST",
         headers: {
@@ -33,20 +42,53 @@ function PortfolioPage({ setIs_Page3, setCurrentStep }) {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.success) {
-        const formattedImages = data.files.map((file) => ({
-          id: file.photo_id,
-          url: file.photo,
-          name: file.photo_name,
-          type: file.photo_type,
-        }));
+        console.log(`Retrieved ${data.files.length} images from server`);
+        
+        if (data.files.length === 0) {
+          console.log("No portfolio images found for this user");
+          setImages([]);
+          setLoading(false);
+          return;
+        }
+        
+        const formattedImages = data.files.map((file) => {
+          // Create proper URL for each image
+          const imageUrl = file.photo.startsWith('/root/') 
+            ? `${Server_url}/owner/portfolio-image/${file.photo_id}?t=${Date.now()}`
+            : file.photo;
+            
+          console.log(`Image ID ${file.photo_id} URL: ${imageUrl.substring(0, 60)}...`);
+          
+          return {
+            id: file.photo_id,
+            url: imageUrl,
+            name: file.photo_name,
+            type: file.photo_type,
+          };
+        });
+        
         setImages(formattedImages);
+      } else {
+        if (data.message && !data.message.includes("No portfolio")) {
+          setError(data.message);
+        } else {
+          setImages([]);
+        }
       }
     } catch (error) {
       console.error("Error fetching portfolio images:", error);
-      setError("Failed to load existing images.");
+      if (!error.message.includes("No portfolio")) {
+        setError("Failed to load images. Please refresh the page.");
+      } else {
+        setImages([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -67,84 +109,103 @@ function PortfolioPage({ setIs_Page3, setCurrentStep }) {
       return;
     }
 
-    files.forEach((file) => {
-      const reader = new FileReader();
+    // Show loading state
+    setLoading(true);
 
-      reader.onload = async (e) => {
-        const photoData = e.target.result;
+    // Process each file with streaming instead of base64
+    files.forEach(async (file) => {
+      try {
+        // Create preview for immediate display
+        const objectUrl = URL.createObjectURL(file);
+        
+        // Add to UI immediately with a temporary ID for better UX
+        const tempId = `temp-${Date.now()}-${Math.random()}`;
+        setImages(prev => [...prev, { 
+          id: tempId, 
+          url: objectUrl, 
+          name: file.name, 
+          type: file.type,
+          isUploading: true
+        }]);
+        
+        // Upload using the specified endpoint
+        const response = await fetch(`${Server_url}/owner/api/upload-photo`, {
+          method: "POST",
+          headers: {
+            "Content-Type": file.type,
+            "x-user-email": user.user_email,
+            "x-file-name": file.name
+          },
+          body: file // Stream the file directly
+        });
 
-        try {
-          // Upload to server
-          const response = await fetch(`${Server_url}/api/upload-photo`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              photoData,
+        const data = await response.json();
+
+        if (data.success) {
+          // Replace temp image with real one
+          setImages(prev => prev.map(img => 
+            img.id === tempId ? {
+              id: data.photo_id,
+              url: `${Server_url}/owner/portfolio-image/${data.photo_id}?t=${Date.now()}`,
               name: file.name,
               type: file.type,
-              user_email: user.user_email,
-            }),
-          });
-
-          const data = await response.json();
-
-          if (data.success) {
-            // Add to local state with the ID from server
-            setImages((prevImages) => [
-              ...prevImages,
-              {
-                id: data.photo_id, // Use ID from server
-                url: photoData,
-                name: file.name,
-                type: file.type,
-              },
-            ]);
-            fetchImages(user.user_email);
-          } else {
-            console.error("Failed to upload photo:", data.message);
-            setError("Failed to upload image. Please try again.");
-          }
-        } catch (error) {
-          console.error("Error uploading photo:", error);
-          setError("Failed to upload image. Please try again.");
+              isUploading: false
+            } : img
+          ));
+        } else {
+          // Remove failed upload from UI
+          setImages(prev => prev.filter(img => img.id !== tempId));
+          setError(`Failed to upload ${file.name}. ${data.message || 'Please try again.'}`);
         }
-      };
-
-      reader.readAsDataURL(file);
+      } catch (error) {
+        console.error("Error uploading photo:", error);
+        setError("Failed to upload image. Please try again.");
+      }
     });
+    
+    // Fetch all images again after uploads are done
+    setTimeout(() => fetchImages(user.user_email), 1000);
+    
+    // Clear input value to allow uploading the same file again
+    event.target.value = '';
   };
 
   const removeImage = async (id) => {
     try {
-      // Call the server endpoint to delete the photo
-      const response = await fetch(`${Server_url}/owner_drive/delete-photo`, {
-        method: "POST",
+      // Show loading state and reset error
+      setLoading(true);
+      setError("");
+      
+      console.log(`Attempting to delete image with ID: ${id}`);
+      
+      // Use the simplified delete-by-id endpoint
+      const response = await fetch(`${Server_url}/owner/api/delete-photo-by-id/${id}`, {
+        method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_email: user.user_email,
-          photo_id: id,
-        }),
+          "x-user-email": user.user_email
+        }
       });
 
       const data = await response.json();
+      console.log("Delete response:", data);
 
-      if (response.ok) {
-        setImages((prevImages) =>
-          prevImages.filter((image) => image.id !== id)
-        );
-        setError("");
+      if (data.success) {
+        console.log(`Successfully deleted image ID: ${id}`);
+        // Remove from local state (though we'll refresh from server anyway)
+        setImages((prevImages) => prevImages.filter((image) => image.id !== id));
+        showAcceptToast({message: "Image deleted successfully"});
       } else {
-        // Handle error cases
-        setError(data.error || "Failed to delete image");
-        console.error("Failed to delete image:", data.error);
+        const errorMsg = data.message || "Failed to delete image";
+        console.error(`Delete failed: ${errorMsg}`);
+        setError(errorMsg);
       }
     } catch (error) {
       console.error("Error deleting image:", error);
-      setError("Failed to delete image. Please try again.");
+      setError(`Error deleting image: ${error.message}`);
+    } finally {
+      setLoading(false);
+      // Refresh images list to ensure UI is in sync with server
+      fetchImages(user.user_email);
     }
   };
 
@@ -165,7 +226,14 @@ function PortfolioPage({ setIs_Page3, setCurrentStep }) {
           <>
             {images.map((image) => (
               <div key={image.id} className="image-card">
-                <img src={image.url} alt={image.name} />
+                <img 
+                  src={image.url} 
+                  alt={image.name} 
+                  onError={(e) => {
+                    console.error(`Failed to load image: ${image.id}`);
+                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiM5OTkiPkltYWdlIG5vdCBsb2FkZWQ8L3RleHQ+PC9zdmc+';
+                  }} 
+                />
                 <div className="image-overlay">
                   <button data-id={image.id} onClick={() => removeImage(image.id)}>
                     <MdDeleteOutline/>

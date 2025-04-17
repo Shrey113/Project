@@ -108,7 +108,6 @@ const OwnerDetails = () => {
   const [showSelectedCard, setShowSelectedCard] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
-  const [is_first, set_is_true] = useState(true);
   const [services, setServices] = useState([]);
 
 
@@ -283,7 +282,6 @@ const OwnerDetails = () => {
             setFolders(data.data);
             setActiveFolder(data.data[0]);
             setPhotos(data.data[0]?.photo_list || []);
-            set_is_true(true);
           } else {
             setFolders([]);
             setPhotos([]);
@@ -310,10 +308,8 @@ const OwnerDetails = () => {
     setLoading(true);
     if (index === 0) {
       setPhotos(folder.photo_list);
-      set_is_true(true);
       setLoading(false);
     } else {
-      set_is_true(false);
       handleFolderPhotoFetch(folder.folder_id);
     }
   };
@@ -385,6 +381,14 @@ const OwnerDetails = () => {
   }, [navigate, dispatch]);
 
 
+  useEffect(() => {
+    if(fullViewImage){
+      document.documentElement.style.overflow = "hidden";
+    }else{
+      document.documentElement.style.overflow = "auto";
+    }
+  }, [fullViewImage]);
+  
   useEffect(() => {
     if (ownerData?.packages?.length >= 4) {
       setpackagesMoreThan4(true);
@@ -684,6 +688,7 @@ const OwnerDetails = () => {
       return <MdPhotoCamera className="service-icon" />;
     }
   };
+  
 
 
   return (
@@ -701,7 +706,7 @@ const OwnerDetails = () => {
             <div className="owner_details_img_container">
               <img
                 src={
-                  selectedOwner?.user_profile_image_base64 ||
+                  `${Server_url}/owner/business-profile-image/${selectedOwner?.user_email}?t=${new Date().getTime()}` ||
                   "/default-user.jpg"
                 }
                 alt="Owner"
@@ -880,21 +885,30 @@ const OwnerDetails = () => {
                     <div className="photos_grid">
                       {photos.slice(0, 10).map((photoItem, index) => (
                         <div key={index} className="photo_card">
-                          <img
-                            style={{ cursor: "pointer" }}
-                            onClick={() => {
-                              const imageSrc = is_first
-                                ? photoItem.photo
-                                : photoItem.file_data;
-                              setFullViewImage(imageSrc);
+
+                          {activeFolder?.folder_name === "Portfolio" ? (
+                            <img
+                              style={{ cursor: "pointer" }}
+                            onClick={(e) => {
+                              setFullViewImage(e.target.src);
                             }}
-                            src={
-                              is_first ? photoItem.photo : photoItem.file_data
-                            }
+                            src={`${Server_url}/owner/portfolio-image/${photoItem.photo_id}?t=${Date.now()}`}
                             alt={photoItem.photo_name}
                             className="photo_image"
                           />
-
+                          ) : (
+                            <img
+                              style={{ cursor: "pointer" }}
+                              src={
+                                `${Server_url}/owner/portfolio-image-file?path=${encodeURIComponent(photoItem.file_data)}`
+                              }
+                              alt={photoItem.photo_name}
+                              className="photo_image"
+                              onClick={(e) => {
+                                setFullViewImage(e.target.src);
+                              }}
+                            />
+                          )}
                         </div>
                       ))}
                     </div>

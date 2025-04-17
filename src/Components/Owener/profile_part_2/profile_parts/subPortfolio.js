@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./subPortfolio.css";
-import { Server_url, showWarningToast } from "../../../../redux/AllData";
+import { Server_url, showWarningToast, FileLoaderToast } from "../../../../redux/AllData";
 import { useSelector } from "react-redux";
 
 import back_icon from "./../../img/back.png";
@@ -9,6 +9,8 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
   const user = useSelector((state) => state.user);
   // const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ total: 0, completed: 0 });
+  const [showUploadProgress, setShowUploadProgress] = useState(false);
 
   const [files, setFiles] = useState([]);
   const fileInputRef = React.useRef(null);
@@ -39,63 +41,121 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
 
   const handleFileUpload = async (event) => {
     setIsLoading(true);
-    const files = Array.from(event.target.files);
-    const filePromises = files.map((file) => {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          resolve({
-            name: file.name,
-            type: file.type,
-            data: reader.result,
-          });
-        };
-        reader.readAsDataURL(file);
-      });
+    const selectedFiles = Array.from(event.target.files);
+    
+    console.log("Selected files:", selectedFiles.map(f => f.name));
+    
+    if (selectedFiles.length === 0) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Initialize upload progress and show progress loader
+    setUploadProgress({ total: selectedFiles.length, completed: 0 });
+    setShowUploadProgress(true);
+
+    const formData = new FormData();
+    formData.append('folder_id', folder_id);
+    formData.append('user_email', user.user_email);
+    formData.append('folder_name', Folder_name);
+    
+    // Append each file to the FormData
+    selectedFiles.forEach(file => {
+      formData.append('files', file);
+    });
+    
+    // Log the form data (for debugging)
+    console.log("Form data entries:");
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]);
+    }
+
+    // Create XHR request to track upload progress
+    const xhr = new XMLHttpRequest();
+    
+    // Track upload progress
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable) {
+        const percentComplete = Math.round((event.loaded / event.total) * 100);
+        console.log(`Upload progress: ${percentComplete}%`);
+        
+        // Update progress based on percentage of total upload
+        // For multiple files, this shows overall upload progress
+        const filesComplete = Math.floor((percentComplete / 100) * selectedFiles.length);
+        setUploadProgress(prev => ({ 
+          ...prev, 
+          completed: filesComplete 
+        }));
+      }
     });
 
-    const processedFiles = await Promise.all(filePromises);
+    // Setup promise to handle the XHR
+    const uploadPromise = new Promise((resolve, reject) => {
+      xhr.open('POST', `${Server_url}/owner/owner-folders/upload-direct`, true);
+      
+      xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            resolve(data);
+          } catch (e) {
+            reject(new Error('Invalid JSON response'));
+          }
+        } else {
+          try {
+            const errorData = JSON.parse(xhr.responseText);
+            reject(errorData);
+          } catch (e) {
+            reject(new Error(`Server error: ${xhr.status}`));
+          }
+        }
+      };
+      
+      xhr.onerror = function() {
+        reject(new Error('Network error occurred'));
+      };
+      
+      // Send the form data
+      xhr.send(formData);
+    });
 
     try {
-      const response = await fetch(`${Server_url}/owner/owner-folders/upload`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          folder_id,
-          files: processedFiles.map((file) => ({
-            name: file.name,
-            type: file.type,
-            data: file.data,
-          })),
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        // setMessage('Files uploaded successfully');
+      console.log(`Uploading to ${Server_url}/owner/owner-folders/upload-direct`);
+      
+      const data = await uploadPromise;
+      console.log("Upload response:", data);
+      
+      // Ensure progress shows all files completed
+      setUploadProgress(prev => ({ ...prev, completed: prev.total }));
+      
+      // Wait a moment before hiding progress indicator
+      setTimeout(() => {
+        setShowUploadProgress(false);
         fetchFiles(folder_id);
-      } else {
-        console.log(data);
-
-        // setMessage(`Error: ${data.error}`);
-      }
+      }, 1000);
     } catch (error) {
-      // setMessage('Error uploading files');
       console.error("Upload error:", error);
+      setShowUploadProgress(false);
+      showWarningToast({ message: error.error || error.message || 'Error uploading files' });
     } finally {
       setIsLoading(false);
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
   const handleDelete = (fileId) => {
+    console.log(`Removing file with ID ${fileId} from UI`);
     setFiles((prevFiles) =>
       prevFiles.filter((file) => file.file_id !== fileId)
     );
   };
 
   const FileItem = ({ file, onDelete }) => {
+    const [isDeleting, setIsDeleting] = useState(false);
+
     const handleDelete = async () => {
       if (!file.file_id) {
         showWarningToast({ message: "File ID is missing." });
@@ -107,6 +167,8 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
       if (!confirm) {
         return;
       }
+
+      setIsDeleting(true);
 
       try {
         const response = await fetch(
@@ -126,39 +188,54 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
 
         if (response.ok) {
           const data = await response.json();
+          console.log("Delete response:", data);
+          
           if (data.deletedCount > 0) {
             onDelete(file.file_id);
+            // Optional: show success message
+            // showWarningToast({ message: "File deleted successfully" });
           } else {
-            // setMessage('No files were deleted.');
             console.error("No files were deleted.");
+            showWarningToast({ message: "Error: No files were deleted" });
           }
         } else {
           const data = await response.json();
           console.error("Failed to delete file:", data.error);
-          // setMessage(`Error: ${data.error}`);
+          showWarningToast({ message: data.error || "Error deleting file" });
         }
       } catch (error) {
         console.error("Error deleting file:", error);
-        // setMessage('Error deleting file');
+        showWarningToast({ message: "Network error while deleting file" });
+      } finally {
+        setIsDeleting(false);
       }
     };
+
+    // Determine if the file_data is a base64 string or a file path
+    const isBase64 = file.file_data && file.file_data.startsWith('data:');
+    
+    // For file paths, construct the URL to fetch the image
+    let imageUrl;
+    if (isBase64) {
+      imageUrl = file.file_data;
+    } else {
+      // Get full path to the image file on the server
+      imageUrl = `${Server_url}/owner/portfolio-image-file?path=${encodeURIComponent(file.file_data)}`;
+    }
 
     return (
       <div key={file.file_id} className="file-item">
         <button
-          className="delete-btn_on_sub"
+          className={`delete-btn_on_sub ${isDeleting ? 'deleting' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
-            handleDelete();
+            if (!isDeleting) handleDelete();
           }}
+          disabled={isDeleting}
         >
-          ×
+          {isDeleting ? '...' : '×'}
         </button>
-        <img src={file.file_data} alt={file.file_name} />
-        <div className="file-info">
-          <span>{file.file_name}</span>
-          <span>{new Date(file.created_at).toLocaleDateString()}</span>
-        </div>
+        <img src={imageUrl} alt={file.file_name} />
       </div>
     );
   };
@@ -182,6 +259,8 @@ function SubPortfolio({ Folder_name, folder_id, onBack }) {
 
   return (
     <div className="sub-portfolio">
+      {showUploadProgress && <FileLoaderToast uploadProgress={uploadProgress} />}
+      
       <div className="portfolio-header">
         <div className="header-left">
           <button className="back-btn" onClick={onBack}>

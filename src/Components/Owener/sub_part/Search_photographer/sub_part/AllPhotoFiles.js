@@ -21,7 +21,6 @@ function AllPhotoFiles() {
   const [folders, setFolders] = useState([]);
   const [activeFolder, setActiveFolder] = useState(null);
   const [photos, setPhotos] = useState([]);
-  const [is_first, set_is_true] = useState(true);
   const [loading, setLoading] = useState(true);
 
 
@@ -117,7 +116,6 @@ function AllPhotoFiles() {
             setFolders(data.data);
             setActiveFolder(data.data[0]);
             setPhotos(data.data[0]?.photo_list || []);
-            set_is_true(true);
           } else {
             setFolders([]);
             setPhotos([]);
@@ -160,13 +158,19 @@ function AllPhotoFiles() {
     setActiveFolder(folder);
     if (index === 0) {
       setPhotos(folder.photo_list);
-      set_is_true(true);
     } else {
-      set_is_true(false);
       handleFolderPhotoFetch(folder.folder_id);
     }
   };
 
+
+  useEffect(() => {
+    if(fullViewImage){
+      document.documentElement.style.overflow = "hidden";
+    }else{
+      document.documentElement.style.overflow = "auto";
+    }
+  }, [fullViewImage]);
   return (
     <div className="all_photos_and_folder_container">
       <div className="wrapper_folder_tabs">
@@ -193,17 +197,25 @@ function AllPhotoFiles() {
           <div className="photos_grid">
             {photos.map((photoItem, index) => (
               <div key={index} className="photo_card">
-                <img
-                  src={is_first ? photoItem.photo : photoItem.file_data}
-                  alt={photoItem.photo_name}
-                  className="photo_image"
-                  onClick={() => {
-                    const imageSrc = is_first
-                      ? photoItem.photo
-                      : photoItem.file_data;
-                    setFullViewImage(imageSrc);
+                {activeFolder?.folder_name === "Portfolio" ? (
+                  <img
+                    src={`${Server_url}/owner/portfolio-image/${photoItem.photo_id}?t=${Date.now()}`}
+                    alt={photoItem.photo_name}
+                    className="photo_image"
+                  onClick={(e) => {
+                    setFullViewImage(e.target.src);
                   }}
                 />
+                ) : (
+                  <img
+                  src={`${Server_url}/owner/portfolio-image-file?path=${encodeURIComponent(photoItem.file_data)}`}
+                  alt={photoItem.photo_name}
+                  className="photo_image"
+                  onClick={(e) => {
+                    setFullViewImage(e.target.src);
+                  }}
+              />
+                )}
               </div>
             ))}
           </div>
@@ -228,7 +240,8 @@ function AllPhotoFiles() {
               </div>
 
               <div className="image_content">
-                <img src={fullViewImage} className="full_view_image" alt="Full view" />
+                  <img src={fullViewImage} className="full_view_image" alt="Full view" />
+               
               </div>
 
               <div className="image_controls">

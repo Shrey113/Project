@@ -46,40 +46,77 @@ function AddBusinessData() {
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Image = reader.result;
-        setProfileImage(base64Image);
-        dispatch({ type: "SET_USER_Owner", payload: {
-          business_profile_base64: base64Image
-        }});
+    
+    // Validate file type
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!file || !validImageTypes.includes(file.type)) {
+      showWarningToast({ message: "Please select a valid image file (JPEG, PNG, or GIF)" });
+      return;
+    }
 
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      showWarningToast({ message: "Image size should be less than 5MB" });
+      return;
+    }
+
+    try {
+      // Create a temporary URL for the file to show immediate feedback
+      const tempURL = URL.createObjectURL(file);
+      setProfileImage(tempURL);
+      
+      // Create XHR request for direct file upload
+      const xhr = new XMLHttpRequest();
+      
+      // Setup promise to handle the XHR
+      const uploadPromise = new Promise((resolve, reject) => {
+        xhr.open('POST', `${Server_url}/owner/update-business-profile-image`, true);
+        xhr.setRequestHeader('x-user-email', user.user_email);
+        xhr.setRequestHeader('Content-Type', file.type);
         
-        try {
-          const response = await fetch(`${Server_url}/owner/update-business-profile-image`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              user_email: user.user_email,
-              businessProfileImage: base64Image
-            })
-          });
-
-
-
-          if (!response.ok) {
-            showRejectToast({message: 'Failed to update profile image' });
+        xhr.onload = function() {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              resolve(data);
+            } catch (e) {
+              reject(new Error('Invalid JSON response'));
+            }
+          } else {
+            try {
+              const errorData = JSON.parse(xhr.responseText);
+              reject(errorData);
+            } catch (e) {
+              reject(new Error(`Server error: ${xhr.status}`));
+            }
           }
-          showAcceptToast({message: 'Profile image updated' });
-        } catch (error) {
-          console.error('Error updating profile image:', error);
-          showRejectToast({message: 'Failed to update profile image' });
-        }
-      };
-      reader.readAsDataURL(file);
+        };
+        
+        xhr.onerror = function() {
+          reject(new Error('Network error occurred'));
+        };
+        
+        // Send the file
+        xhr.send(file);
+      });
+
+      const data = await uploadPromise;
+
+      if (data.message === "Business profile image updated successfully.") {
+        // Update Redux with the image path instead of base64
+        dispatch({
+          type: "SET_USER_Owner", 
+          payload: {
+            business_profile_base64: data.imagePath || true
+          }
+        });
+        
+        showAcceptToast({ message: "Business profile image updated successfully" });
+      }
+    } catch (error) {
+      console.error('Error updating business profile image:', error);
+      showRejectToast({ message: "Failed to update business profile image. Please try again." });
     }
   };
   const handleDeleteImage = () => {
@@ -231,18 +268,18 @@ function AddBusinessData() {
 
       let data = await response.json();
       if(data.message === "business profile image removed successfully."){
+        setProfileImage(null);
         dispatch({ 
           type: "SET_USER_Owner", 
           payload: {
             business_profile_base64: null
           }
         });
+        showAcceptToast({ message: "Business profile image removed successfully" });
       }
-
-
     } catch (error) {
       console.error('Error deleting profile image:', error);
-      showWarningToast({message: 'Failed to delete profile image' });
+      showWarningToast({ message: 'Failed to delete profile image' });
     }
   };
 
@@ -265,7 +302,12 @@ function AddBusinessData() {
             <div className="profile-avatar">
                 {profileImage ? (
                     <>
-                        <img src={profileImage} alt="Profile" />
+                        <img 
+                            src={typeof profileImage === 'string' && profileImage.startsWith('data:') 
+                                ? profileImage 
+                                : `${Server_url}/owner/business-profile-image/${user.user_email}?t=${new Date().getTime()}`} 
+                            alt="Profile" 
+                        />
                         <label htmlFor="profile-image-input" className="camera-overlay">
                             <FaCamera className="camera-icon" />
                         </label>

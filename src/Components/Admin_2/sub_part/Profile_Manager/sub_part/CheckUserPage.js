@@ -279,7 +279,7 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
             <div className="profile-avatar-container">
               <div className="profile-avatar">
                 {profileImage ? (
-                  <img src={profileImage} alt="Profile" />
+                  <img src={`${Server_url}/owner/profile-image/${email}?t=${new Date().getTime()}`} alt="Profile" />
                 ) : (
                   <span>{formData.first_name?.[0] || 'U'}</span>
                 )}
@@ -343,7 +343,7 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
             <div className="profile-avatar-container">
               <div className="profile-avatar">
                 {profileImage2 ? (
-                  <img src={profileImage2} alt="Business Logo" />
+                  <img src={`${Server_url}/owner/business-profile-image/${email}?t=${new Date().getTime()}`} alt="Business Logo" />
                 ) : (
                   <span>{formData.business_name?.[0] || 'B'}</span>
                 )}
@@ -431,7 +431,7 @@ function CheckUserPage({ closeOneOwnerData, email ,admin_email}) {
               <div key={item.photo_id} className="portfolio-item">
                 <div className="portfolio-image">
                   <img 
-                    src={item.photo} 
+                    src={`${Server_url}/owner/portfolio-image/${item.photo_id}?t=${new Date().getTime()}`} 
                     alt={item.photo_name || 'Portfolio image'} 
                   />
                 </div>

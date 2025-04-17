@@ -135,7 +135,7 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
           >
             <div className="image_container">
               <img
-                src={owner.user_profile_image_base64 || user1}
+                src={`${Server_url}/owner/business-profile-image/${owner.user_email}?t=${new Date().getTime()}` || user1}
                 alt="Owner Avatar"
                 className="owner-avatar"
               />
@@ -202,7 +202,7 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
         >
           <div className="image_container">
             <img
-              src={owner.user_profile_image_base64 || user1}
+              src={`${Server_url}/owner/business-profile-image/${owner.user_email}?t=${new Date().getTime()}` || user1}
               alt="Owner Avatar"
               className="owner-avatar"
             />

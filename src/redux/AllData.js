@@ -57,6 +57,8 @@ export const ConfirmMessage = ({
   );
 };
 
+
+
 export const showNeutralToast = (message) => {
   toast(message, {
     duration: 4000,
@@ -102,6 +104,35 @@ export const showWarningToast = ({ message }) => {
       fontWeight: "bold",
     },
   });
+};
+
+export const FileLoaderToast = ({ uploadProgress }) => {
+  return (
+    <div className="upload-overlay">
+          <div className="upload-loader-container">
+            <div className="upload-loader-content">
+              <div className="upload-spinner">
+                <svg viewBox="25 25 50 50">
+                  <circle r="20" cy="50" cx="50"></circle>
+                </svg>
+              </div>
+              <h3>Uploading Files</h3>
+              <div className="upload-progress-container">
+                <div 
+                  className="upload-progress-bar" 
+                  style={{ 
+                    width: `${uploadProgress.total ? (uploadProgress.completed / uploadProgress.total) * 100 : 0}%` 
+                  }}
+                ></div>
+              </div>
+              <p className="upload-progress-text">
+                {uploadProgress.completed} of {uploadProgress.total} files complete
+              </p>
+              <p className="upload-hint">Please don't close this window</p>
+            </div>
+          </div>
+        </div>
+  );
 };
 
 export { logoBlack, logoBlue, logoWithNameBlack, logoWithNameBlue }

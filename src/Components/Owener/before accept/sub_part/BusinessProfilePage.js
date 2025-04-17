@@ -4,7 +4,7 @@ import "./BusinessProfilePage.css"
 
 import { FaCamera } from 'react-icons/fa'
 
-import { Server_url, showRejectToast, showAcceptToast } from './../../../../redux/AllData';
+import { Server_url, showRejectToast, showAcceptToast, showWarningToast } from './../../../../redux/AllData';
 
 function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
   const user = useSelector((state) => state.user);
@@ -17,6 +17,8 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
       services: [],
       businessProfileImage: null
     });
+
+    const [imageKey, setImageKey] = useState(Date.now()); // Key to force image refresh
 
   useEffect(() => {
     const get_owners = async () => {
@@ -34,14 +36,34 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
         }
   
         const data = await response.json();
+        
+        // Set the form data fields except businessProfileImage
         setFormData({
-          businessName: data.owners.business_name,
-          businessEmail: data.owners.business_email,
-          gstNumber: data.owners.gst_number,
-          location: data.owners.business_address,
-          services: data.owners.services,
-          businessProfileImage: data.owners.business_profile_base64
+          businessName: data.owners.business_name || '',
+          businessEmail: data.owners.business_email || '',
+          gstNumber: data.owners.gst_number || '',
+          location: data.owners.business_address || '',
+          services: data.owners.services || [],
+          businessProfileImage: null // Will set this properly below
         });
+        
+        // Handle the business profile image properly based on format
+        if (data.owners.business_profile_base64) {
+          if (data.owners.business_profile_base64.startsWith('data:image')) {
+            // It's a base64 image, use as is
+            setFormData(prev => ({
+              ...prev,
+              businessProfileImage: data.owners.business_profile_base64
+            }));
+          } else if (data.owners.business_profile_base64.startsWith('/root/')) {
+            // It's a path, load from the image serving endpoint
+            const imageUrl = `${Server_url}/owner/business-profile-image/${user.user_email}?t=${new Date().getTime()}`;
+            setFormData(prev => ({
+              ...prev,
+              businessProfileImage: imageUrl
+            }));
+          }
+        }
       } catch (error) {
         console.error('Error fetching owners:', error);
       }
@@ -102,6 +124,10 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
           ...prev,
           businessProfileImage: null
         }));
+        
+        // Force refresh by updating key
+        setImageKey(Date.now());
+        
         showAcceptToast({message: "Profile image removed successfully" });
       }
     } catch (error) {
@@ -115,36 +141,81 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
   const handleImageUpload = async (event) => {
     event.preventDefault();
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Image = reader.result;  
-        try {
-          const response = await fetch(`${Server_url}/owner/update-business-profile-image`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              user_email: user.user_email,
-              businessProfileImage: base64Image
-            })
-          });
+    
+    // Validate file type
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!file || !validImageTypes.includes(file.type)) {
+      showWarningToast({ message: "Please select a valid image file (JPEG, PNG, or GIF)" });
+      return;
+    }
 
-          if (!response.ok) {
-            showRejectToast({message: 'Failed to update profile image' });
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      showWarningToast({ message: "Image size should be less than 5MB" });
+      return;
+    }
+
+    try {
+      // Set a temporary URL for immediate display during upload
+      setFormData(prev => ({
+        ...prev,
+        businessProfileImage: URL.createObjectURL(file)
+      }));
+      
+      // Create XHR request for direct file upload
+      const xhr = new XMLHttpRequest();
+      
+      // Setup promise to handle the XHR
+      const uploadPromise = new Promise((resolve, reject) => {
+        xhr.open('POST', `${Server_url}/owner/update-business-profile-image`, true);
+        xhr.setRequestHeader('x-user-email', user.user_email);
+        xhr.setRequestHeader('Content-Type', file.type);
+        
+        xhr.onload = function() {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              resolve(data);
+            } catch (e) {
+              reject(new Error('Invalid JSON response'));
+            }
+          } else {
+            try {
+              const errorData = JSON.parse(xhr.responseText);
+              reject(errorData);
+            } catch (e) {
+              reject(new Error(`Server error: ${xhr.status}`));
+            }
           }
-          setFormData(prev => ({
-            ...prev,
-            businessProfileImage: base64Image
-          }))
-          showAcceptToast({message: 'Profile image updated' });
-        } catch (error) {
-          console.error('Error updating profile image:', error);
-          showRejectToast({message: 'Failed to update profile image' });
-        }
-      };
-      reader.readAsDataURL(file);
+        };
+        
+        xhr.onerror = function() {
+          reject(new Error('Network error occurred'));
+        };
+        
+        // Send the file
+        xhr.send(file);
+      });
+      
+      const data = await uploadPromise;
+      
+      if (data.message === "Business profile image updated successfully.") {
+        // Force image refresh by updating the key
+        setImageKey(Date.now());
+        
+        // Load the image from the server with the new timestamp
+        const imageUrl = `${Server_url}/owner/business-profile-image/${user.user_email}?t=${imageKey}`;
+        setFormData(prev => ({
+          ...prev,
+          businessProfileImage: imageUrl
+        }));
+        
+        showAcceptToast({ message: 'Profile image updated successfully' });
+      }
+    } catch (error) {
+      console.error('Error updating profile image:', error);
+      showRejectToast({ message: 'Failed to update profile image' });
     }
   };
 
@@ -251,7 +322,12 @@ function BusinessProfilePage({setIs_Page2,setCurrentStep}) {
             <div className="profile-avatar">
                 {formData.businessProfileImage ? (
                     <>
-                        <img src={formData.businessProfileImage} alt="Profile" />
+                        <img 
+                            src={typeof formData.businessProfileImage === 'string' && formData.businessProfileImage.startsWith('data:') 
+                                ? formData.businessProfileImage 
+                                : `${Server_url}/owner/business-profile-image/${user.user_email}?t=${imageKey}`} 
+                            alt="Profile" 
+                        />
                         <div className="camera-overlay">
                             <FaCamera className="camera-icon" />
                         </div>

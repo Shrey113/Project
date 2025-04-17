@@ -793,6 +793,22 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
     }
   }, [showCitySelector]);
 
+  const UserPrfileGET = () => {
+    const response = `${Server_url}/owner/profile-image/${user.user_email}`;
+
+    if(response){
+      return  (<img
+      src={response}
+      alt="Profile"
+    />);
+    }
+      return  (<div className="show_user_profile_image">
+              <span>P</span>
+            </div>);
+    
+    
+  }
+
 
   return (
     <div className={`owner_navbar_main_con ${isMobile ? "for_mobile" : ""}`}>
@@ -1006,13 +1022,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
           </div>
 
           <div className="profile" onClick={() => navigate('/Owner/Profile')}>
-            <img
-              src={user.user_profile_image_base64 || "https://via.placeholder.com/40"}
-              alt="Profile"
-              onError={(e) => {
-                e.target.src = "https://via.placeholder.com/40";
-              }}
-            />
+           <UserPrfileGET/>
             <div className="profile_data">
               <div className="user_name">{user.user_name || "User"}</div>
               <div className="user_email">{user.user_email || "user@example.com"}</div>

@@ -8,6 +8,8 @@ import {
   showAcceptToast,
   showRejectToast,
   showWarningToast,
+  ConfirmMessage,
+  FileLoaderToast
 } from "../../../../redux/AllData";
 
 import not_find_data from "./../../img/not_find_data.jpg";
@@ -25,6 +27,9 @@ function AddPortfolio() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [uploadProgress, setUploadProgress] = useState({ total: 0, completed: 0 });
+  const [showImageDeleteConfirm, setShowImageDeleteConfirm] = useState(false);
+  const [imageToDelete, setImageToDelete] = useState(null);
 
   const fetchGalleryData = async (user_email) => {
     try {
@@ -139,58 +144,160 @@ function AddPortfolio() {
   };
 
   const handleAddToGallery = async (event) => {
-    const file = event.target.files[0];
-
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64Content = reader.result;
-
-        if (!file) {
-          showWarningToast({ message: "Please select an image to upload." });
-          return;
-        }
-
-        try {
-          const response = await fetch(`${Server_url}/api/upload-photo`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              photoData: base64Content,
-              name: file.name,
-              type: file.type,
-              user_email: user.user_email,
-            }),
-          });
-
-          const result = await response.json();
-
-          if (result.success) {
-            fetchGalleryData(user.user_email);
-
-            // Update gallery or perform other actions after successful upload
-          } else {
-            showRejectToast({ message: "Failed to add photo to database" });
-          }
-        } catch (error) {
-          console.error("Error uploading photo:", error);
-          showRejectToast({
-            message: "An error occurred while uploading the photo",
-          });
-        }
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(event.target.files);
+    
+    if (files.length === 0) {
+      showWarningToast({ message: "Please select an image to upload." });
+      return;
     }
+
+    // Show loading state with total count of files
+    setIsUploading(true);
+    setUploadProgress({ total: files.length, completed: 0 });
+
+    // Process each file using direct streaming instead of base64
+    const uploadPromises = files.map(async (file) => {
+      try {
+        // Create preview for immediate display
+        const objectUrl = URL.createObjectURL(file);
+        
+        // Add to UI immediately with a temporary ID for better UX
+        const tempId = `temp-${Date.now()}-${Math.random()}`;
+        setGalleryData(prev => [...prev, { 
+          photo_id: tempId, 
+          photo: objectUrl, 
+          photo_name: file.name, 
+          photo_type: file.type,
+          isUploading: true
+        }]);
+        
+        // Upload using the improved endpoint
+        const response = await fetch(`${Server_url}/owner/api/upload-photo`, {
+          method: "POST",
+          headers: {
+            "Content-Type": file.type,
+            "x-user-email": user.user_email,
+            "x-file-name": file.name
+          },
+          body: file // Stream the file directly
+        });
+
+        const data = await response.json();
+
+        // Update progress counter
+        setUploadProgress(prev => ({ ...prev, completed: prev.completed + 1 }));
+
+        if (data.success) {
+          // Replace temp image with real one
+          setGalleryData(prev => prev.map(img => 
+            img.photo_id === tempId ? {
+              photo_id: data.photo_id,
+              photo: `${Server_url}/owner/portfolio-image/${data.photo_id}?t=${Date.now()}`,
+              photo_name: file.name,
+              photo_type: file.type,
+              isUploading: false
+            } : img
+          ));
+          return { success: true };
+        } else {
+          // Remove failed upload from UI
+          setGalleryData(prev => prev.filter(img => img.photo_id !== tempId));
+          showRejectToast({ message: `Failed to upload ${file.name}. ${data.message || 'Please try again.'}` });
+          return { success: false, error: data.message };
+        }
+      } catch (error) {
+        console.error("Error uploading photo:", error);
+        showRejectToast({
+          message: "An error occurred while uploading the photo",
+        });
+        // Update progress even for errors
+        setUploadProgress(prev => ({ ...prev, completed: prev.completed + 1 }));
+        return { success: false, error: error.message };
+      }
+    });
+    
+    // Wait for all uploads to complete
+    const results = await Promise.all(uploadPromises);
+    
+    // Show a single success toast with count instead of multiple toasts
+    const successCount = results.filter(r => r.success).length;
+    if (successCount > 0) {
+      showAcceptToast({ 
+        message: `Successfully uploaded ${successCount} ${successCount === 1 ? 'image' : 'images'}` 
+      });
+    }
+    
+    // Fetch all images again after uploads are done
+    fetchGalleryData(user.user_email);
+    
+    // Clear the loading state after a short delay to ensure smooth transition
+    setTimeout(() => {
+      setIsUploading(false);
+      setUploadProgress({ total: 0, completed: 0 });
+    }, 500);
+    
+    // Clear input value to allow uploading the same file again
+    event.target.value = '';
   };
 
   const handleDeleteClick = (item, type) => {
-    setItemToDelete({
-      item: item,
-      type: type,
-    });
-    setShowDeleteConfirm(true);
+    if (type === "folder") {
+      setItemToDelete({
+        item: item,
+        type: type,
+      });
+      setShowDeleteConfirm(true);
+    } else if (type === "file") {
+      // Set the image to delete and show confirmation
+      setImageToDelete(item);
+      setShowImageDeleteConfirm(true);
+    }
+  };
+
+  const removeImage = async (id) => {
+    try {
+      // Show loading state
+      setIsLoading(true);
+      
+      console.log(`Attempting to delete image with ID: ${id}`);
+      
+      // Use the improved delete-by-id endpoint
+      const response = await fetch(`${Server_url}/owner/api/delete-photo-by-id/${id}`, {
+        method: "DELETE",
+        headers: {
+          "x-user-email": user.user_email
+        }
+      });
+
+      const data = await response.json();
+      console.log("Delete response:", data);
+
+      if (data.success) {
+        console.log(`Successfully deleted image ID: ${id}`);
+        // Remove from local state
+        setGalleryData((prevImages) => prevImages.filter((image) => image.photo_id !== id));
+        showAcceptToast({ message: "Image deleted successfully" });
+      } else {
+        const errorMsg = data.message || "Failed to delete image";
+        console.error(`Delete failed: ${errorMsg}`);
+        showRejectToast({ message: errorMsg });
+      }
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      showRejectToast({ message: `Error deleting image: ${error.message}` });
+    } finally {
+      setIsLoading(false);
+      // Refresh images to ensure UI is in sync with server
+      fetchGalleryData(user.user_email);
+    }
+  };
+
+  const handleConfirmImageDelete = () => {
+    if (imageToDelete) {
+      removeImage(imageToDelete.photo_id);
+      setImageToDelete(null);
+      setShowImageDeleteConfirm(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -221,31 +328,6 @@ function AddPortfolio() {
         } else {
           const errorMessage = await response.text();
           console.error("Failed to delete the folder:", errorMessage);
-        }
-      } else if (itemToDelete.type === "file") {
-        console.log("Deleting file:", itemToDelete.item);
-
-        const photo_id = itemToDelete.item.photo_id;
-
-        const response = await fetch(`${Server_url}/owner_drive/delete-photo`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_email: user.user_email,
-            photo_id: photo_id,
-          }),
-        });
-
-        if (response.ok) {
-          setGalleryData((prev) =>
-            prev.filter((photo) => photo.photo_id !== photo_id)
-          );
-          showAcceptToast({ message: "Photo deleted successfully!" });
-        } else {
-          const errorMessage = await response.text();
-          console.error("Failed to delete the photo:", errorMessage);
         }
       }
     } catch (error) {
@@ -279,6 +361,7 @@ function AddPortfolio() {
 
   return (
     <div className="AddPortfolio">
+
       {!selectedFolder && (
         <div className="media-stats">
           <span>
@@ -303,6 +386,7 @@ function AddPortfolio() {
             id="photo-upload"
             type="file"
             accept="image/*"
+            multiple
             onChange={handleAddToGallery}
             style={{ display: "none" }}
           />
@@ -345,12 +429,23 @@ function AddPortfolio() {
                         ×
                       </button>
                       <div className="folder-cover">
-                        {typeof folder.cover_page_base64 === "string" &&
-                        folder.cover_page_base64.startsWith("data:image") ? (
-                          <img
-                            src={folder.cover_page_base64}
-                            alt={folder.folder_name}
-                          />
+                        {folder.cover_page_base64 ? (
+                          typeof folder.cover_page_base64 === "string" &&
+                          folder.cover_page_base64.startsWith("data:image") ? (
+                            <img
+                              src={folder.cover_page_base64}
+                              alt={folder.folder_name}
+                            />
+                          ) : (
+                            <img
+                              src={`${Server_url}/owner/portfolio-image/folder-thumbnail/${folder.cover_page_base64}`}
+                              alt={folder.folder_name}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = not_find_data;
+                              }}
+                            />
+                          )
                         ) : (
                           <div className="folder-icon">📂</div>
                         )}
@@ -396,7 +491,7 @@ function AddPortfolio() {
                         ×
                       </button>
                       <img
-                        src={item.photo}
+                        src={`${Server_url}/owner/portfolio-image/${item.photo_id}?t=${Date.now()}`}
                         alt={item.photo_name}
                         onError={(e) => {
                           e.target.onerror = null;
@@ -491,14 +586,7 @@ function AddPortfolio() {
       )}
 
       {isUploading && (
-        <div className="upload-overlay">
-          <div className="loader-container">
-            <svg viewBox="25 25 50 50">
-              <circle r="20" cy="50" cx="50"></circle>
-            </svg>
-            <p>Uploading your file, please wait...</p>
-          </div>
-        </div>
+        <FileLoaderToast uploadProgress={uploadProgress} />
       )}
 
       {showDeleteConfirm && (
@@ -506,9 +594,8 @@ function AddPortfolio() {
           <div className="popup-content">
             <h3>Confirm Delete</h3>
             <p>
-              Are you sure you want to delete{" "}
-              {itemToDelete?.type === "folder" ? "folder" : "file"} "
-              {itemToDelete?.item?.folder_name || itemToDelete?.item?.name}"?
+              Are you sure you want to delete folder "
+              {itemToDelete?.item?.folder_name}"?
             </p>
             <div className="popup-buttons">
               <button onClick={() => setShowDeleteConfirm(false)}>
@@ -520,6 +607,17 @@ function AddPortfolio() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Image Delete Confirmation using ConfirmMessage component */}
+      {showImageDeleteConfirm && imageToDelete && (
+        <ConfirmMessage
+          message_title="Delete Image"
+          message={`Are you sure you want to delete this image?`}
+          onCancel={() => setShowImageDeleteConfirm(false)}
+          onConfirm={handleConfirmImageDelete}
+          button_text="Delete"
+        />
       )}
     </div>
   );

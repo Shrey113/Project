@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import './CustomToolbar.css'
 import { useSelector } from 'react-redux';
+import { Server_url } from '../../../../../redux/AllData';
 const CustomToolbar = (toolbar) => {
   const user = useSelector(state => state.user);
   const goToBack = () => {
@@ -84,7 +85,7 @@ const CustomToolbar = (toolbar) => {
         </div>
 
         <div className="user-avatar">
-          <img src={user.user_profile_image_base64} alt="" />
+          <img src={`${Server_url}/owner/profile-image/${user.user_email}`} alt="" />
             
         </div>
       </div>
