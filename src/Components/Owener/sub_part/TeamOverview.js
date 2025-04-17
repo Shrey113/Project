@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./TeamOverview.css";
+import socket from "./../../../redux/socket";
 import { useSelector } from "react-redux";
 // import add_icon from "./Team_overview/plus.png";
 import Edit_icon from "./Team_overview/pencil.png";
@@ -16,10 +17,11 @@ import ilasstion_2 from './../img/team_memeber/New team members-pana.png';
 
 // import all_user from './Team_overview/sigma.png';
 
-import { Server_url } from "../../../redux/AllData";
+import { Server_url, showAcceptToast, showRejectToast, ConfirmMessage } from "../../../redux/AllData";
 
 const PopUp = ({ action, member, onClose, onSave }) => {
   const user = useSelector((state) => state.user);
+  const [isSending, setIsSending] = useState(false);
 
   const [formData, setFormData] = useState({
     member_id: member?.member_id || "",
@@ -44,6 +46,8 @@ const PopUp = ({ action, member, onClose, onSave }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedSearchResult, setSelectedSearchResult] = useState(null);
+
+
 
   const validateForm = () => {
     const errors = {};
@@ -88,6 +92,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
 
         const data = await response.json();
         setSearchResults(data);
+        // console.log("this is the data", data[0].mobile_number);
       } catch (error) {
         console.error("Error searching photographers:", error);
         setSearchResults([]);
@@ -111,84 +116,94 @@ const PopUp = ({ action, member, onClose, onSave }) => {
 
 
   const handleSelectSearchResult = (result) => {
+    console.log("this is the result......................", result.mobile_number);
     setSelectedSearchResult(result);
     setFormData({
       ...formData,
       member_name: result.user_name || "",
       member_email: result.user_email || "",
-      member_phone: result.phone_number || "",
+      member_phone: result.mobile_number || "",
       member_profile_img: result.user_profile_image_base64 || profile_pic_user1,
     });
   };
 
-  const sendInvitation = async (email) => {
-    try {
-      const response = await fetch(`${Server_url}/team_members/send_invitation`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          owner_email: user.user_email,
-          member_email: email,
-          member_role: formData.member_role,
-          member_name: formData.member_name,
-          member_profile_img: formData.member_profile_img,
-          member_phone: formData.member_phone,
-        }),
-      });
+  // const sendInvitation = async (email) => {
+  //   try {
+  //     const response = await fetch(`${Server_url}/team_members/send_invitation`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         owner_email: user.user_email,
+  //         member_email: email,
+  //         member_role: formData.member_role,
+  //         member_name: formData.member_name,
+  //         member_profile_img: formData.member_profile_img,
+  //         member_phone: formData.member_phone,
+  //       }),
+  //     });
 
-      if (response.ok) {
-        return true;
-      } else {
-        console.error("Failed to send invitation");
-        return false;
-      }
-    } catch (error) {
-      console.error("Error sending invitation:", error);
-      return false;
-    }
-  };
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       console.log("this is the data invitation link/////........", data);
+  //       console.log("this is the data invitation link/////........", data.invitationLink);
+  //       return data.invitationLink;
+  //     } else {
+  //       console.error("Failed to send invitation");
+  //       return false;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error sending invitation:", error);
+  //     return false;
+  //   }
+  // };
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
     if (action === "Add") {
       if (activeTab === "search" && selectedSearchResult) {
-        // Send invitation if we're adding via search
-        const invitationSent = await sendInvitation(selectedSearchResult.user_email);
-        if (invitationSent) {
-          // Create a pending member
-          try {
-            const response = await fetch(`${Server_url}/team_members/add_pending_member`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                owner_email: user.user_email,
-                member_name: formData.member_name,
-                member_profile_img: formData.member_profile_img,
-                member_role: formData.member_role,
-                member_email: formData.member_email,
-                member_phone: formData.member_phone,
-                member_status: "Pending",
-              }),
-            });
+        try {
+          setIsSending(true);
+          const response = await fetch(`${Server_url}/team_members/invite_member`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              owner_email: user.user_email,
+              member_name: formData.member_name,
+              member_profile_img: formData.member_profile_img,
+              member_role: formData.member_role,
+              member_email: formData.member_email,
+              member_phone: formData.member_phone,
+            }),
+          });
 
-            if (response.ok) {
-              const data = await response.json();
-              onSave({ ...formData, ...data, member_status: "Pending" });
-            } else {
-              console.error("Failed to add pending member");
-            }
-          } catch (error) {
-            console.error("Error adding pending team member:", error);
+          if (response.ok) {
+            const data = await response.json();
+            const memberData = {
+              ...data,
+              member_email: data.team_member_email,
+              member_phone: data.team_member_phone,
+            };
+            onSave(memberData);
+          } else {
+            const errorData = await response.json();
+            console.error("Failed to add pending member:", errorData.error);
+            showRejectToast({ message: errorData.error || "Failed to add team member" });
           }
+          setIsSending(false);
+        } catch (error) {
+          console.error("Error adding pending team member:", error);
+          showRejectToast({ message: "Error adding team member. Please try again." });
+          setIsSending(false);
         }
       } else {
         // Handle regular manual add
         try {
+          setIsSending(true);
           const response = await fetch(`${Server_url}/team_members/add_members`, {
             method: "POST",
             headers: {
@@ -207,15 +222,18 @@ const PopUp = ({ action, member, onClose, onSave }) => {
           if (response.ok) {
             onSave(formData);
           } else {
-            console.error("Failed to add member");
+            showRejectToast({ message: "Failed to add member" });
           }
+          setIsSending(false);
         } catch (error) {
           console.error("Error adding team member:", error);
+          setIsSending(false);
         }
       }
     } else if (action === "Edit") {
       // Handle updating an existing member
       try {
+        setIsSending(true);
         const response = await fetch(
           `${Server_url}/team_members/update_member`,
           {
@@ -240,8 +258,10 @@ const PopUp = ({ action, member, onClose, onSave }) => {
         } else {
           console.error("Failed to update member");
         }
+        setIsSending(false);
       } catch (error) {
         console.error("Error updating team member:", error);
+        setIsSending(false);
       }
     }
     onClose();
@@ -372,71 +392,92 @@ const PopUp = ({ action, member, onClose, onSave }) => {
         <div className="search-hint">Enter at least 3 characters to search</div>
       )}
 
-      <div className="search-results">
-        {Array.isArray(searchResults) && searchResults.length === 0 && searchQuery.trim().length >= 3 && !isSearching ? (
-          <div className="no-results">No photographers found</div>
-        ) : (
-          Array.isArray(searchResults) && searchResults.map((result) => (
-            <div
-              key={result.user_email}
-              className={`search-result-item ${selectedSearchResult?.user_email === result.user_email ? 'selected' : ''}`}
-              onClick={() => handleSelectSearchResult(result)}
-            >
-              <div className="result-avatar">
-                <img src={result.user_profile_image_base64 || profile_pic_user1} alt={result.user_name} />
+      <div className="search_result_wrapper">
+        <div className="search-results">
+          {Array.isArray(searchResults) && searchResults.length === 0 && searchQuery.trim().length >= 3 && !isSearching ? (
+            <div className="no-results">No photographers found</div>
+          ) : (
+            Array.isArray(searchResults) && searchResults.map((result) => (
+              <div
+                key={result.user_email}
+                className={`search-result-item ${selectedSearchResult?.user_email === result.user_email ? 'selected' : ''}`}
+                onClick={() => handleSelectSearchResult(result)}
+              >
+                <div className="result-avatar">
+                  <img src={result.user_profile_image_base64 || profile_pic_user1} alt={result.user_name} />
+                </div>
+                <div className="result-info">
+                  <div className="result-name">{result.user_name}</div>
+                  <div className="result-email">{result.user_email}</div>
+                  {result.business_name && <div className="result-business">{result.business_name}</div>}
+                </div>
               </div>
-              <div className="result-info">
-                <div className="result-name">{result.user_name}</div>
-                <div className="result-email">{result.user_email}</div>
-                {result.business_name && <div className="result-business">{result.business_name}</div>}
-              </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
 
-      {selectedSearchResult && (
-        <div className="selected-result-details">
-          <h4>Selected Photographer</h4>
-          <div className="result-details-content">
-            <div className="result-avatar large">
-              <img src={selectedSearchResult.user_profile_image_base64 || profile_pic_user1} alt={selectedSearchResult.user_name} />
-            </div>
-            <div className="result-details">
-              <div className="detail-item">
-                <span className="detail-label">Name:</span>
-                <span className="detail-value">{selectedSearchResult.user_name}</span>
+      <div className="selectedResult_actionButton_wrpper">
+        {selectedSearchResult && (
+          <div className="selected-result-details">
+            <h4>Selected Photographer</h4>
+            <div className="result-details-content">
+              <div className="result-avatar large">
+                <img src={selectedSearchResult.user_profile_image_base64 || profile_pic_user1} alt={selectedSearchResult.user_name} />
               </div>
-              <div className="detail-item">
-                <span className="detail-label">Email:</span>
-                <span className="detail-value">{selectedSearchResult.user_email}</span>
-              </div>
-              {selectedSearchResult.business_name && (
+              <div className="result-details">
                 <div className="detail-item">
-                  <span className="detail-label">Business:</span>
-                  <span className="detail-value">{selectedSearchResult.business_name}</span>
+                  <span className="detail-label">Name:</span>
+                  <span className="detail-value">{selectedSearchResult.user_name}</span>
                 </div>
-              )}
-              <div className="form-group">
-                <label className="form-label">
-                  Assign Role:
-                  <input
-                    type="text"
-                    name="member_role"
-                    className="form-input"
-                    placeholder="Enter team member's role"
-                    value={formData.member_role}
-                    onChange={handleChange}
-                  />
-                  {formErrors.member_role && (
-                    <div className="error-message">{formErrors.member_role}</div>
-                  )}
-                </label>
+                <div className="detail-item">
+                  <span className="detail-label">Email:</span>
+                  <span className="detail-value">{selectedSearchResult.user_email}</span>
+                </div>
+                {selectedSearchResult.business_name && (
+                  <div className="detail-item">
+                    <span className="detail-label">Business:</span>
+                    <span className="detail-value">{selectedSearchResult.business_name}</span>
+                  </div>
+                )}
+                <div className="form-group">
+                  <label className="form-label">
+                    Assign Role:
+                    <input
+                      type="text"
+                      name="member_role"
+                      className="form-input"
+                      placeholder="Enter team member's role"
+                      value={formData.member_role}
+                      onChange={handleChange}
+                    />
+                    {formErrors.member_role && (
+                      <div className="error-message">{formErrors.member_role}</div>
+                    )}
+                  </label>
+                </div>
               </div>
             </div>
           </div>
+        )}
+        <div className="popup-actions">
+          <button className="btn btn-cancel" onClick={onClose}>Cancel</button>
+          {action !== "View" && (
+            <button
+              className="btn btn-save"
+              onClick={handleSubmit}
+              disabled={action === "Add" && activeTab === "search" && !selectedSearchResult || isSending}
+            >
+              {isSending ? (
+                <span className="loading-spinner-button"></span>
+              ) : (
+                action === "Add" && activeTab === "search" && selectedSearchResult ? "Send Invitation" : "Save"
+              )}
+            </button>
+          )}
         </div>
-      )}
+      </div>
+
     </div>
   );
 
@@ -517,136 +558,26 @@ const PopUp = ({ action, member, onClose, onSave }) => {
           </div>
         )}
 
-        <div className="popup-actions">
+        {activeTab === "manual" && <div className="popup-actions">
           <button className="btn btn-cancel" onClick={onClose}>Cancel</button>
           {action !== "View" && (
             <button
               className="btn btn-save"
               onClick={handleSubmit}
-              disabled={action === "Add" && activeTab === "search" && !selectedSearchResult}
+              disabled={(action === "Add" && activeTab === "search" && !selectedSearchResult) || isSending}
             >
-              {action === "Add" && activeTab === "search" && selectedSearchResult ? "Send Invitation" : "Save"}
+              {isSending ? (
+                <span className="loading-spinner-button"></span>
+              ) : (
+                action === "Add" && activeTab === "search" && selectedSearchResult ? "Send Invitation" : "Save"
+              )}
             </button>
           )}
-        </div>
+        </div>}
       </div>
     </div>
   );
 };
-
-// const ADDCard = ({ total_member }) => {
-//   return (
-//     <div className="card_for_a_owner_team">
-//       {/* <div className="icon">
-//         <img src={all_user} alt="" />
-//       </div> */}
-//       <h3 className="title">Total member</h3>
-//       <p className="description">{total_member}</p>
-//       <div className="avatars">
-//         <img src={profile_pic_user1} alt="Avatar 1" />
-//         <img src={profile_pic_user2} alt="Avatar 2" />
-//         <img src={profile_pic_user3} alt="Avatar 3" />
-//         <img src={profile_pic_user4} alt="Avatar 4" />
-//       </div>
-//     </div>
-//   );
-// };
-
-// const ADDCardForActive = ({ total_member }) => {
-//   return (
-//     <div className="card_for_a_owner_team">
-//       {/* <div className="icon">
-//         <img src={all_user} alt="" />
-//       </div> */}
-//       <h3 className="title">Active member</h3>
-//       <p className="description">{total_member}</p>
-//       <div className="avatars">
-//         <img src={profile_pic_user1} alt="Avatar 1" />
-//         <img src={profile_pic_user2} alt="Avatar 2" />
-//         <img src={profile_pic_user3} alt="Avatar 3" />
-//         <img src={profile_pic_user4} alt="Avatar 4" />
-//       </div>
-//     </div>
-//   );
-// };
-
-// const ActionMenu = ({ member, onEdit, onRemove, onView }) => {
-//   const [showMenu, setShowMenu] = useState(false);
-
-//   // Add useEffect for handling outside clicks
-//   useEffect(() => {
-//     const handleClickOutside = (event) => {
-//       if (showMenu && !event.target.closest(".action-menu-container")) {
-//         setShowMenu(false);
-//       }
-//     };
-
-//     document.addEventListener("mousedown", handleClickOutside);
-//     return () => {
-//       document.removeEventListener("mousedown", handleClickOutside);
-//     };
-//   }, [showMenu]);
-
-//   return (
-//     <div className="action-menu-container">
-//       {/* Show 3-dot menu button on mobile */}
-//       <button
-//         className="mobile-menu-trigger"
-//         onClick={() => setShowMenu(!showMenu)}
-//       >
-//         <span></span>
-//         <span></span>
-//         <span></span>
-//       </button>
-
-//       {/* Regular buttons for desktop */}
-//       <div className="desktop-actions">
-//         <button onClick={onEdit}>
-//           <img src={Edit_icon} alt="Edit Icon" />
-//         </button>
-//         <button onClick={onRemove}>
-//           <img src={Remove_icon} alt="Remove Icon" />
-//         </button>
-//         <button onClick={onView}>
-//           <img src={View_icon} alt="View Icon" />
-//         </button>
-//       </div>
-
-//       {/* Popup menu for mobile */}
-//       {showMenu && (
-//         <div className="mobile-action-menu">
-//           <button
-//             onClick={() => {
-//               onEdit();
-//               setShowMenu(false);
-//             }}
-//           >
-//             <img src={Edit_icon} alt="Edit Icon" />
-//             <span>Edit</span>
-//           </button>
-//           <button
-//             onClick={() => {
-//               onRemove();
-//               setShowMenu(false);
-//             }}
-//           >
-//             <img src={Remove_icon} alt="Remove Icon" />
-//             <span>Remove</span>
-//           </button>
-//           <button
-//             onClick={() => {
-//               onView();
-//               setShowMenu(false);
-//             }}
-//           >
-//             <img src={View_icon} alt="View Icon" />
-//             <span>View</span>
-//           </button>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
 
 const DetailPopup = ({ member, onClose }) => {
   // Add click handler for overlay
@@ -681,6 +612,14 @@ const DetailPopup = ({ member, onClose }) => {
                 <p>{member.member_role}</p>
               </div>
               <div className="info-item">
+                <label>Email</label>
+                <p>{member.member_email || member.team_member_email || "Not provided"}</p>
+              </div>
+              <div className="info-item">
+                <label>Phone</label>
+                <p>{member.member_phone || member.team_member_phone || "Not provided"}</p>
+              </div>
+              <div className="info-item">
                 <label>Event Assignment</label>
                 <p>{member.member_event_assignment || "No current assignment"}</p>
               </div>
@@ -689,23 +628,143 @@ const DetailPopup = ({ member, onClose }) => {
                 <p>{member.member_id}</p>
               </div>
               <div className="info-item">
-                <label>Join Date</label>
-                <p>{new Date().toLocaleDateString()}</p>
+                <label>Status</label>
+                <p>{member.member_status}</p>
               </div>
             </div>
           </div>
-
-
         </div>
       </div>
     </div>
   );
 };
 
+// const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdown }) => {
+//   const [showDetailPopup, setShowDetailPopup] = useState(false);
+//   const isDropdownActive = activeDropdown === member.member_id;
+//   const isPending = member.member_status === "Pending";
+//   const isRejected = member.member_status === "Rejected";
+//   const emailDisplay = member.member_email || member.team_member_email;
+
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       if (isDropdownActive && !event.target.closest('.more-options-container')) {
+//         setActiveDropdown(null);
+//       }
+//     };
+
+//     document.addEventListener('mousedown', handleClickOutside);
+//     return () => document.removeEventListener('mousedown', handleClickOutside);
+//   }, [isDropdownActive, setActiveDropdown]);
+
+//   return (
+//     <div className={`member-card ${isPending ? 'pending-member' : ''} ${isRejected ? 'rejected-member' : ''}`}>
+//       <div className="status-indicator">
+//         {isPending ? (
+//           <span className="pending"></span>
+//         ) : isRejected ? (
+//           <span className="rejected"></span>
+//         ) : (
+//           <span className={member.member_status === "Active" ? "available" : "assigned"}></span>
+//         )}
+//         <div className="more-options-container">
+//           <button
+//             className="more-options"
+//             onClick={() => {
+//               setActiveDropdown(isDropdownActive ? null : member.member_id);
+//             }}
+//           >
+//             <span></span>
+//             <span></span>
+//             <span></span>
+//           </button>
+//           {isDropdownActive && (
+//             <div className="dropdown-menu">
+//               <button
+//                 className="dropdown-item edit-btn"
+//                 onClick={() => {
+//                   onEdit(member);
+//                   setActiveDropdown(null);
+//                 }}
+//               >
+//                 <img src={Edit_icon} alt="Edit" />
+//                 <span>Edit</span>
+//               </button>
+//               <div className="dropdown-divider"></div>
+//               <button
+//                 className="dropdown-item delete-btn"
+//                 onClick={() => {
+//                   let is_confrom = window.confirm(isPending
+//                     ? "Cancel invitation to this member?"
+//                     : isRejected
+//                       ? "Remove rejected member from the list?"
+//                       : "You want to remove member?")
+//                   if (is_confrom) {
+//                     onRemove(member.member_id, member.owner_email);
+//                   }
+//                   setActiveDropdown(null);
+//                 }}
+//               >
+//                 <img src={Remove_icon} alt="Remove" />
+//                 <span style={{ textWrap: "nowrap" }}>
+//                   {isPending
+//                     ? "Cancel Invitation"
+//                     : isRejected
+//                       ? "Remove Member"
+//                       : "Delete"}
+//                 </span>
+//               </button>
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//       <div className="profile-section">
+//         <div className="profile-image">
+//           <img src={member.member_profile_img} alt={member.member_name} />
+//         </div>
+//         <h3>{member.member_name}</h3>
+//         {emailDisplay && <p className="email">{emailDisplay}</p>}
+//         <p className="role">{member.member_role}</p>
+//         {isPending && <div className="pending-badge">Invitation Pending</div>}
+//         {isRejected && <div className="rejected-badge">Invitation Rejected</div>}
+//       </div>
+//       <div className="divider"></div>
+//       <button
+//         className={`details-btn ${isPending
+//           ? 'pending'
+//           : isRejected
+//             ? 'rejected'
+//             : member.member_status === "Available"
+//               ? "available"
+//               : "assigned"
+//           }`}
+//         onClick={() => {
+//           setShowDetailPopup(true);
+//         }}
+//         disabled={isPending || isRejected}
+//       >
+//         {isPending
+//           ? "Awaiting Response"
+//           : isRejected
+//             ? "Rejected"
+//             : "Details"}
+//       </button>
+
+//       {showDetailPopup && (
+//         <DetailPopup
+//           member={member}
+//           onClose={() => setShowDetailPopup(false)}
+//         />
+//       )}
+//     </div>
+//   );
+// };
 const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdown }) => {
   const [showDetailPopup, setShowDetailPopup] = useState(false);
   const isDropdownActive = activeDropdown === member.member_id;
   const isPending = member.member_status === "Pending";
+  const isRejected = member.member_status === "Rejected";
+  const emailDisplay = member.member_email || member.team_member_email;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -717,12 +776,14 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isDropdownActive, setActiveDropdown]);
-
+  const [showConfirmation, setShowConfirmation] = useState(false);
   return (
-    <div className={`member-card ${isPending ? 'pending-member' : ''}`}>
+    <div className={`member-card ${isPending ? 'pending-member' : ''} ${isRejected ? 'rejected-member' : ''}`}>
       <div className="status-indicator">
         {isPending ? (
           <span className="pending"></span>
+        ) : isRejected ? (
+          <span className="rejected"></span>
         ) : (
           <span className={member.member_status === "Active" ? "available" : "assigned"}></span>
         )}
@@ -739,31 +800,45 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
           </button>
           {isDropdownActive && (
             <div className="dropdown-menu">
-              <button
-                className="dropdown-item edit-btn"
-                onClick={() => {
-                  onEdit(member);
-                  setActiveDropdown(null);
-                }}
-              >
-                <img src={Edit_icon} alt="Edit" />
-                <span>Edit</span>
-              </button>
-              <div className="dropdown-divider"></div>
+              {/* Conditionally render Edit button only if status is not Pending or Rejected */}
+              {!isPending && !isRejected && (
+                <>
+                  <button
+                    className="dropdown-item edit-btn"
+                    onClick={() => {
+                      onEdit(member);
+                      setActiveDropdown(null);
+                    }}
+                  >
+                    <img src={Edit_icon} alt="Edit" />
+                    <span>Edit</span>
+                  </button>
+                  <div className="dropdown-divider"></div>
+                </>
+              )}
               <button
                 className="dropdown-item delete-btn"
                 onClick={() => {
-                  let is_confrom = window.confirm(isPending
-                    ? "Cancel invitation to this member?"
-                    : "You want to remove member?")
-                  if (is_confrom) {
-                    onRemove(member.member_id, member.owner_email);
-                  }
-                  setActiveDropdown(null);
+                  // let is_confrom = window.confirm(isPending
+                  //   ? "Cancel invitation to this member?"
+                  //   : isRejected
+                  //     ? "Remove rejected member from the list?"
+                  //     : "You want to remove member?");
+                  // if (is_confrom) {
+                  //   onRemove(member.member_id, member.owner_email);
+                  // }
+                  // setActiveDropdown(null);
+                  setShowConfirmation(true);
                 }}
               >
                 <img src={Remove_icon} alt="Remove" />
-                <span>{isPending ? "Cancel Invitation" : "Delete"}</span>
+                <span style={{ textWrap: "nowrap" }}>
+                  {isPending
+                    ? "Cancel Invitation"
+                    : isRejected
+                      ? "Remove Member"
+                      : "Delete"}
+                </span>
               </button>
             </div>
           )}
@@ -774,26 +849,48 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
           <img src={member.member_profile_img} alt={member.member_name} />
         </div>
         <h3>{member.member_name}</h3>
+        {emailDisplay && <p className="email">{emailDisplay}</p>}
         <p className="role">{member.member_role}</p>
         {isPending && <div className="pending-badge">Invitation Pending</div>}
+        {isRejected && <div className="rejected-badge">Invitation Rejected</div>}
       </div>
       <div className="divider"></div>
       <button
-        className={`details-btn ${isPending ? 'pending' : member.member_status === "Available" ? "available" : "assigned"}`}
+        className={`details-btn ${isPending
+          ? 'pending'
+          : isRejected
+            ? 'rejected'
+            : member.member_status === "Available"
+              ? "available"
+              : "assigned"
+          }`}
         onClick={() => {
-          if (!isPending && member.member_status === "Available") {
-            setShowDetailPopup(true);
-          }
+          setShowDetailPopup(true);
         }}
-        disabled={isPending}
+        disabled={isPending || isRejected}
       >
-        {isPending ? "Awaiting Response" : "Details"}
+        {isPending
+          ? "Awaiting Response"
+          : isRejected
+            ? "Rejected"
+            : "Details"}
       </button>
 
       {showDetailPopup && (
         <DetailPopup
           member={member}
           onClose={() => setShowDetailPopup(false)}
+        />
+      )}
+      {showConfirmation && (
+        <ConfirmMessage
+          message_title="Remove Member"
+          message="Are you sure you want to remove this member?"
+          onCancel={() => setShowConfirmation(false)}
+          onConfirm={() => {
+            onRemove(member.member_id, member.owner_email);
+            setShowConfirmation(false);
+          }}
         />
       )}
     </div>
@@ -805,11 +902,30 @@ const TeamOverview = () => {
   const [teamData, setTeamData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Function to check and remove rejected members older than 5 days
+  const cleanupRejectedMembers = (members) => {
+    const currentTime = new Date().getTime();
+    const fiveDaysInMilliseconds = 5 * 24 * 60 * 60 * 1000; // 5 days in milliseconds
+
+    return members.filter(member => {
+      // Skip if not rejected
+      if (member.member_status !== "Rejected") return true;
+
+      // Check if rejection_date exists and is older than 5 days
+      if (member.rejection_date) {
+        const rejectionDate = new Date(member.rejection_date).getTime();
+        return (currentTime - rejectionDate) < fiveDaysInMilliseconds;
+      }
+
+      return true;
+    });
+  };
+
   const fetchTeamMembers = async () => {
     try {
       setIsLoading(true);
       console.log("Fetching team members...");
-      // Fetch all members (active, assigned, and pending)
+      // Fetch all members (active, assigned, pending, and rejected)
       const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
         method: "POST",
         headers: {
@@ -822,6 +938,13 @@ const TeamOverview = () => {
 
       const membersData = await membersResponse.json();
       console.log("Fetched members data:", membersData);
+
+      // Map the data to include member_email from team_member_email if available
+      const processedMembersData = membersData.map(member => ({
+        ...member,
+        member_email: member.team_member_email || member.member_email || "",
+        member_phone: member.team_member_phone || member.member_phone || ""
+      }));
 
       // Fetch assigned members status
       const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
@@ -844,7 +967,6 @@ const TeamOverview = () => {
       if (statusData && Array.isArray(statusData) && statusData.length > 0 && statusData[0]) {
         // Now safely check for assigned_team_member
         if (Array.isArray(statusData[0].assigned_team_member)) {
-
           statusData.forEach((item) => {
             if (item && Array.isArray(item.assigned_team_member)) {
               item.assigned_team_member.forEach((member) => {
@@ -863,9 +985,9 @@ const TeamOverview = () => {
       }
 
       // Update team members' status based on assignment
-      const updatedTeamData = membersData.map(member => {
-        // If the member status is already "Pending", keep it
-        if (member.member_status === "Pending") {
+      const updatedTeamData = processedMembersData.map(member => {
+        // If the member status is already "Pending" or "Rejected", keep it
+        if (member.member_status === "Pending" || member.member_status === "Rejected") {
           return member;
         }
 
@@ -880,7 +1002,10 @@ const TeamOverview = () => {
         };
       });
 
-      setTeamData(updatedTeamData);
+      // Filter out rejected members older than 5 days
+      const filteredTeamData = cleanupRejectedMembers(updatedTeamData);
+
+      setTeamData(filteredTeamData);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching team members:", error);
@@ -889,6 +1014,12 @@ const TeamOverview = () => {
       setIsLoading(false);
     }
   };
+  useEffect(() => {
+    console.log("user_confirmation_updated_team_member");
+    socket.on(`user_confirmation_updated_team_member`, () => {
+      fetchTeamMembers()
+    });
+  }, []);
 
   useEffect(() => {
     fetchTeamMembers();
@@ -948,6 +1079,10 @@ const TeamOverview = () => {
     return teamData.filter(member => member.member_status === "Pending").length;
   };
 
+  const getRejectedMembersCount = () => {
+    return teamData.filter(member => member.member_status === "Rejected").length;
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -1005,6 +1140,11 @@ const TeamOverview = () => {
                   <span className="dot pending"></span> Pending
                 </span>
               )}
+              {getRejectedMembersCount() > 0 && (
+                <span className="legend-item">
+                  <span className="dot rejected"></span> Rejected
+                </span>
+              )}
             </div>
           </div>
           <button className={`add-member-btn_top ${teamData.length === 0 ? 'assigned' : 'available'}`} onClick={handleAddUser}>
@@ -1059,5 +1199,6 @@ const TeamOverview = () => {
     </div>
   );
 };
+
 
 export default TeamOverview;

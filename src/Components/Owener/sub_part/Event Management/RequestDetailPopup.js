@@ -231,7 +231,7 @@ const RequestDetailPopup = ({
               onChange={(e) => setReason(e.target.value)}
               placeholder="Enter reason here"
             />
-            <div className="popup-actions">
+            <div className="popup-action">
               <button onClick={handleReject} className="reject-btn">
                 Reject
               </button>

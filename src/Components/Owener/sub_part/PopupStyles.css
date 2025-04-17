@@ -62,17 +62,17 @@
   margin-bottom: 25px;
 }
 
-.form-group {
+.user-form .form-group {
   margin-bottom: 20px;
 }
 
-.form-label {
+/* .form-label {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
   color: #555;
   font-size: 16px;
-}
+} */
 
 .form-input {
   width: 100%;
@@ -150,12 +150,12 @@
 
 
 /* Button Styles */
-.popup-actions {
+/* .popup-actions {
   display: flex;
   justify-content: space-between;
   gap: 15px;
   margin-top: 25px;
-}
+} */
 
 .popup-overlay .btn {
   flex: 1;

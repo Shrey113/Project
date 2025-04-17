@@ -86,20 +86,20 @@
   gap: 0.8rem;
 }
 
-.form-group {
+.compact-fields .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
 
-.form-group label {
+.compact-fields .form-group label {
   font-weight: 600;
   color: #444;
   font-size: 0.85rem;
 }
 
-.form-group input,
-.form-group textarea {
+.compact-fields .form-group input,
+.compact-fields .form-group textarea {
   padding: 0.75rem;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -108,8 +108,8 @@
   background: #f8fafc;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
+.compact-fields .form-group input:focus,
+.compact-fields .form-group textarea:focus {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
