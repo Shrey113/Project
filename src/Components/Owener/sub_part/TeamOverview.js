@@ -201,10 +201,10 @@ const PopUp = ({ action, member, onClose, onSave }) => {
           setIsSending(false);
         }
       } else {
-        // Handle regular manual add
+        // Use the same invite_member route for manual addition
         try {
           setIsSending(true);
-          const response = await fetch(`${Server_url}/team_members/add_members`, {
+          const response = await fetch(`${Server_url}/team_members/invite_member`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -220,13 +220,22 @@ const PopUp = ({ action, member, onClose, onSave }) => {
           });
 
           if (response.ok) {
-            onSave(formData);
+            const data = await response.json();
+            const memberData = {
+              ...data,
+              member_email: data.team_member_email,
+              member_phone: data.team_member_phone,
+            };
+            onSave(memberData);
           } else {
-            showRejectToast({ message: "Failed to add member" });
+            const errorData = await response.json();
+            console.error("Failed to add member:", errorData.error);
+            showRejectToast({ message: errorData.error || "Failed to add team member" });
           }
           setIsSending(false);
         } catch (error) {
           console.error("Error adding team member:", error);
+          showRejectToast({ message: "Error adding team member. Please try again." });
           setIsSending(false);
         }
       }
@@ -309,6 +318,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
             <div className="error-message">{formErrors.member_email}</div>
           )}
         </label>
+        <div className="info-message">An invitation email will be sent to this address</div>
       </div>
 
       <div className="form-group">
@@ -569,7 +579,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
               {isSending ? (
                 <span className="loading-spinner-button"></span>
               ) : (
-                action === "Add" && activeTab === "search" && selectedSearchResult ? "Send Invitation" : "Save"
+                action === "Add" ? "Send Invitation" : "Save"
               )}
             </button>
           )}
@@ -698,7 +708,7 @@ const DetailPopup = ({ member, onClose }) => {
 //                     ? "Cancel invitation to this member?"
 //                     : isRejected
 //                       ? "Remove rejected member from the list?"
-//                       : "You want to remove member?")
+//                       : "You want to remove member?");
 //                   if (is_confrom) {
 //                     onRemove(member.member_id, member.owner_email);
 //                   }
@@ -1031,17 +1041,17 @@ const TeamOverview = () => {
               user_email: user.user_email,
             }),
           });
-    
+
           const membersData = await membersResponse.json();
           console.log("Fetched members data:", membersData);
-    
+
           // Map the data to include member_email from team_member_email if available
           const processedMembersData = membersData.map(member => ({
             ...member,
             member_email: member.team_member_email || member.member_email || "",
             member_phone: member.team_member_phone || member.member_phone || ""
           }));
-    
+
           // Fetch assigned members status
           const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
             method: "POST",
@@ -1052,13 +1062,13 @@ const TeamOverview = () => {
               user_email: user.user_email,
             }),
           });
-    
+
           const statusData = await statusResponse.json();
           console.log("Fetched status data:", statusData);
-    
+
           // Extract assigned members and their event details
           let assignedMembersMap = new Map();
-    
+
           // Safely check if statusData exists and has items
           if (statusData && Array.isArray(statusData) && statusData.length > 0 && statusData[0]) {
             // Now safely check for assigned_team_member
@@ -1079,16 +1089,16 @@ const TeamOverview = () => {
               });
             }
           }
-    
+
           // Update team members' status based on assignment
           const updatedTeamData = processedMembersData.map(member => {
             // If the member status is already "Pending" or "Rejected", keep it
             if (member.member_status === "Pending" || member.member_status === "Rejected") {
               return member;
             }
-    
+
             const assignment = assignedMembersMap.get(member.member_name);
-    
+
             return {
               ...member,
               member_status: assignment ? "Available" : "Active",
@@ -1097,10 +1107,10 @@ const TeamOverview = () => {
                 : "Not Assigned",
             };
           });
-    
+
           // Filter out rejected members older than 5 days
           const filteredTeamData = cleanupRejectedMembers(updatedTeamData);
-    
+
           setTeamData(filteredTeamData);
           setIsLoading(false);
         } catch (error) {
@@ -1129,17 +1139,17 @@ const TeamOverview = () => {
             user_email: user.user_email,
           }),
         });
-  
+
         const membersData = await membersResponse.json();
         console.log("Fetched members data:", membersData);
-  
+
         // Map the data to include member_email from team_member_email if available
         const processedMembersData = membersData.map(member => ({
           ...member,
           member_email: member.team_member_email || member.member_email || "",
           member_phone: member.team_member_phone || member.member_phone || ""
         }));
-  
+
         // Fetch assigned members status
         const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
           method: "POST",
@@ -1150,13 +1160,13 @@ const TeamOverview = () => {
             user_email: user.user_email,
           }),
         });
-  
+
         const statusData = await statusResponse.json();
         console.log("Fetched status data:", statusData);
-  
+
         // Extract assigned members and their event details
         let assignedMembersMap = new Map();
-  
+
         // Safely check if statusData exists and has items
         if (statusData && Array.isArray(statusData) && statusData.length > 0 && statusData[0]) {
           // Now safely check for assigned_team_member
@@ -1177,16 +1187,16 @@ const TeamOverview = () => {
             });
           }
         }
-  
+
         // Update team members' status based on assignment
         const updatedTeamData = processedMembersData.map(member => {
           // If the member status is already "Pending" or "Rejected", keep it
           if (member.member_status === "Pending" || member.member_status === "Rejected") {
             return member;
           }
-  
+
           const assignment = assignedMembersMap.get(member.member_name);
-  
+
           return {
             ...member,
             member_status: assignment ? "Available" : "Active",
@@ -1195,10 +1205,10 @@ const TeamOverview = () => {
               : "Not Assigned",
           };
         });
-  
+
         // Filter out rejected members older than 5 days
         const filteredTeamData = cleanupRejectedMembers(updatedTeamData);
-  
+
         setTeamData(filteredTeamData);
         setIsLoading(false);
       } catch (error) {
