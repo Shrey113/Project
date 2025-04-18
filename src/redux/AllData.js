@@ -21,8 +21,8 @@ export const Server_url = 'http://192.168.29.34:4000';
 export const Socket_url = 'ws://192.168.29.34:4000';
 
 // Shrey11_ ---------------------------------------------------
-export const Server_url = 'http://192.168.29.193:4000';
-export const Socket_url = 'ws://192.168.29.193:4000';
+// export const Server_url = 'http://192.168.29.193:4000';
+// export const Socket_url = 'ws://192.168.29.193:4000';
 
 
 // Server at a build time   ---------------------------------------------------

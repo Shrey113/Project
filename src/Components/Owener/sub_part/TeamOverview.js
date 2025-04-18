@@ -649,132 +649,12 @@ const DetailPopup = ({ member, onClose }) => {
   );
 };
 
-// const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdown }) => {
-//   const [showDetailPopup, setShowDetailPopup] = useState(false);
-//   const isDropdownActive = activeDropdown === member.member_id;
-//   const isPending = member.member_status === "Pending";
-//   const isRejected = member.member_status === "Rejected";
-//   const emailDisplay = member.member_email || member.team_member_email;
-
-//   useEffect(() => {
-//     const handleClickOutside = (event) => {
-//       if (isDropdownActive && !event.target.closest('.more-options-container')) {
-//         setActiveDropdown(null);
-//       }
-//     };
-
-//     document.addEventListener('mousedown', handleClickOutside);
-//     return () => document.removeEventListener('mousedown', handleClickOutside);
-//   }, [isDropdownActive, setActiveDropdown]);
-
-//   return (
-//     <div className={`member-card ${isPending ? 'pending-member' : ''} ${isRejected ? 'rejected-member' : ''}`}>
-//       <div className="status-indicator">
-//         {isPending ? (
-//           <span className="pending"></span>
-//         ) : isRejected ? (
-//           <span className="rejected"></span>
-//         ) : (
-//           <span className={member.member_status === "Active" ? "available" : "assigned"}></span>
-//         )}
-//         <div className="more-options-container">
-//           <button
-//             className="more-options"
-//             onClick={() => {
-//               setActiveDropdown(isDropdownActive ? null : member.member_id);
-//             }}
-//           >
-//             <span></span>
-//             <span></span>
-//             <span></span>
-//           </button>
-//           {isDropdownActive && (
-//             <div className="dropdown-menu">
-//               <button
-//                 className="dropdown-item edit-btn"
-//                 onClick={() => {
-//                   onEdit(member);
-//                   setActiveDropdown(null);
-//                 }}
-//               >
-//                 <img src={Edit_icon} alt="Edit" />
-//                 <span>Edit</span>
-//               </button>
-//               <div className="dropdown-divider"></div>
-//               <button
-//                 className="dropdown-item delete-btn"
-//                 onClick={() => {
-//                   let is_confrom = window.confirm(isPending
-//                     ? "Cancel invitation to this member?"
-//                     : isRejected
-//                       ? "Remove rejected member from the list?"
-//                       : "You want to remove member?");
-//                   if (is_confrom) {
-//                     onRemove(member.member_id, member.owner_email);
-//                   }
-//                   setActiveDropdown(null);
-//                 }}
-//               >
-//                 <img src={Remove_icon} alt="Remove" />
-//                 <span style={{ textWrap: "nowrap" }}>
-//                   {isPending
-//                     ? "Cancel Invitation"
-//                     : isRejected
-//                       ? "Remove Member"
-//                       : "Delete"}
-//                 </span>
-//               </button>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//       <div className="profile-section">
-//         <div className="profile-image">
-//           <img src={member.member_profile_img} alt={member.member_name} />
-//         </div>
-//         <h3>{member.member_name}</h3>
-//         {emailDisplay && <p className="email">{emailDisplay}</p>}
-//         <p className="role">{member.member_role}</p>
-//         {isPending && <div className="pending-badge">Invitation Pending</div>}
-//         {isRejected && <div className="rejected-badge">Invitation Rejected</div>}
-//       </div>
-//       <div className="divider"></div>
-//       <button
-//         className={`details-btn ${isPending
-//           ? 'pending'
-//           : isRejected
-//             ? 'rejected'
-//             : member.member_status === "Available"
-//               ? "available"
-//               : "assigned"
-//           }`}
-//         onClick={() => {
-//           setShowDetailPopup(true);
-//         }}
-//         disabled={isPending || isRejected}
-//       >
-//         {isPending
-//           ? "Awaiting Response"
-//           : isRejected
-//             ? "Rejected"
-//             : "Details"}
-//       </button>
-
-//       {showDetailPopup && (
-//         <DetailPopup
-//           member={member}
-//           onClose={() => setShowDetailPopup(false)}
-//         />
-//       )}
-//     </div>
-//   );
-// };
 const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdown }) => {
   const [showDetailPopup, setShowDetailPopup] = useState(false);
   const isDropdownActive = activeDropdown === member.member_id;
   const isPending = member.member_status === "Pending";
   const isRejected = member.member_status === "Rejected";
-  const emailDisplay = member.member_email || member.team_member_email;
+  const emailDisplay = member.member_email || member.team_member_email || "";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -829,15 +709,6 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
               <button
                 className="dropdown-item delete-btn"
                 onClick={() => {
-                  // let is_confrom = window.confirm(isPending
-                  //   ? "Cancel invitation to this member?"
-                  //   : isRejected
-                  //     ? "Remove rejected member from the list?"
-                  //     : "You want to remove member?");
-                  // if (is_confrom) {
-                  //   onRemove(member.member_id, member.owner_email);
-                  // }
-                  // setActiveDropdown(null);
                   setShowConfirmation(true);
                 }}
               >
@@ -856,10 +727,16 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
       </div>
       <div className="profile-section">
         <div className="profile-image">
-          <img src={`${Server_url}/owner/profile-image/${emailDisplay}`} alt={member.member_name} />
+          <img
+            src={emailDisplay ? `${Server_url}/owner/profile-image/${emailDisplay}` : member.member_profile_img}
+            alt={member.member_name}
+            onError={(e) => {
+              e.target.src = member.member_profile_img || profile_pic_user1;
+            }}
+          />
         </div>
         <h3>{member.member_name}</h3>
-        {emailDisplay && <p className="email">{emailDisplay}</p>}
+        <p className="email">{emailDisplay || "No email provided"}</p>
         {isPending && <div className="pending-badge">Invitation Pending</div>}
         {isRejected && <div className="rejected-badge">Invitation Rejected</div>}
       </div>
@@ -933,7 +810,6 @@ const TeamOverview = () => {
   const fetchTeamMembers = async () => {
     try {
       setIsLoading(true);
-      console.log("Fetching team members...");
 
       // Fetch all members
       const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
@@ -947,7 +823,6 @@ const TeamOverview = () => {
       });
 
       const membersData = await membersResponse.json();
-      console.log("Fetched members data:", membersData);
 
       // Normalize fields
       const processedMembersData = membersData.map(member => ({
@@ -968,7 +843,6 @@ const TeamOverview = () => {
       });
 
       const statusData = await statusResponse.json();
-      console.log("Fetched status data:", statusData);
 
       // Build a map of assigned member IDs and event details
       const assignedMembersMap = new Map();
@@ -1019,12 +893,10 @@ const TeamOverview = () => {
 
 
   useEffect(() => {
-    console.log("user_confirmation_updated_team_member");
     socket.on(`user_confirmation_updated_team_member`, () => {
       const fetchTeamMembers = async () => {
         try {
           setIsLoading(true);
-          console.log("Fetching team members...");
 
           const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
             method: "POST",
@@ -1033,7 +905,6 @@ const TeamOverview = () => {
           });
 
           const membersData = await membersResponse.json();
-          console.log("Fetched members data:", membersData);
 
           // Map the data to include member_email from team_member_email if available
           const processedMembersData = membersData.map(member => ({
@@ -1050,7 +921,6 @@ const TeamOverview = () => {
           });
 
           const statusData = await statusResponse.json();
-          console.log("Fetched status data:", statusData);
 
           // Extract assigned members and their event details
           let assignedMembersMap = new Map();
@@ -1118,7 +988,6 @@ const TeamOverview = () => {
     const fetchTeamMembers = async () => {
       try {
         setIsLoading(true);
-        console.log("Fetching team members...");
 
         const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
           method: "POST",
@@ -1127,7 +996,6 @@ const TeamOverview = () => {
         });
 
         const membersData = await membersResponse.json();
-        console.log("Fetched members data:", membersData);
 
         // Map the data to include member_email from team_member_email if available
         const processedMembersData = membersData.map(member => ({
@@ -1144,7 +1012,6 @@ const TeamOverview = () => {
         });
 
         const statusData = await statusResponse.json();
-        console.log("Fetched status data:", statusData);
 
         // Extract assigned members and their event details
         let assignedMembersMap = new Map();
