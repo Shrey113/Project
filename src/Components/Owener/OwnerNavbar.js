@@ -741,7 +741,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
         <div className="notification-left">
           {profileImage ? (
             <img
-              src={profileImage}
+              src={`${Server_url}/owner/profile-image/${notification.sender_email}`}
               alt="profile"
               className="notification-profile-img"
             />

@@ -65,7 +65,6 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
     return 'available-member';
   };
 
-
   return (
     <li className={`team-member ${isDisabled ? "down_opacity" : ""}`}>
       <div className="member-avatar-container">
@@ -151,22 +150,29 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     }
   };
 
-  // Helper function to assign team members
-  const assignTeamMembers = async (eventId) => {
-    const response = await fetch(`${Server_url}/add-team-members`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_email: user.user_email,
-        team_members: assignedMembers,
-        event_id: eventId
-      })
-    });
-    const data = await response.json();
-    if (data.message !== "Team members assigned successfully") {
-      throw new Error("Failed to assign team members");
-    }
-  };
+// Helper function to assign team members
+const assignTeamMembers = async (eventId) => {
+  // Ensure you're only sending member_id in each object
+  const formattedMembers = assignedMembers.map((member) => ({
+    member_id: member.member_id,
+  }));
+
+  const response = await fetch(`${Server_url}/add-team-members`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_email: user.user_email,
+      team_members: formattedMembers,
+      event_id: eventId,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (data.message !== "Team members assigned successfully") {
+    throw new Error("Failed to assign team members");
+  }
+};
 
   const confirmEquipmentEvent = async (eventId) => {
     try {
@@ -299,47 +305,80 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
-        const response = await fetch(
-          `${Server_url}/team_members/get_inactive_members`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              user_email: user.user_email,
-            }),
-          }
-        );
-        const data = await response.json();
-        setTeamMembers(data);
+        // Format the dates first to ensure the correct format is passed
+        const formattedStartDate = formatDate(newEvent.start);
+        const formattedEndDate = formatDate(newEvent.end);
 
-        const filteredResponse = await fetch(
-          `${Server_url}/team_members/filtered_team_member`,
-          {
+        console.log("Fetching team members for date range:", formattedStartDate, "to", formattedEndDate);
+
+        // Make both API calls concurrently using Promise.all
+        const [inactiveResponse, filteredResponse] = await Promise.all([
+          fetch(`${Server_url}/team_members/get_inactive_members`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
               user_email: user.user_email,
-              start_date: formatDate(newEvent.start),
-              end_date: formatDate(newEvent.end),
             }),
-          }
-        );
+          }),
+          fetch(`${Server_url}/team_members/filtered_team_member`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_email: user.user_email,
+              start_date: formattedStartDate,
+              end_date: formattedEndDate,
+            }),
+          }),
+        ]);
+
+        // Parse the responses
+        const inactiveData = await inactiveResponse.json();
         const filteredData = await filteredResponse.json();
-        setDisabledTeamMembers(filteredData.assignedTeamMembers);
+
+        console.log("Available team members:", inactiveData);
+        console.log("Filtered data response:", filteredData);
+        console.log("Busy team members:", filteredData.assignedTeamMembers || []);
+
+        // Update states with the fetched data
+        setTeamMembers(inactiveData);
+        
+        // Make sure we handle all potential formats
+        let busyIds = [];
+        if (Array.isArray(filteredData.assignedTeamMembers)) {
+          busyIds = filteredData.assignedTeamMembers.map(id => {
+            // Make sure the ID is a number
+            return typeof id === 'number' ? id : parseInt(id);
+          }).filter(id => !isNaN(id)); // Remove any NaN values
+        }
+        
+        console.log("Final list of busy member IDs:", busyIds);
+        setDisabledTeamMembers(busyIds);
 
       } catch (error) {
-        console.error("Error f etching team members:", error);
+        console.error("Error fetching team members:", error);
+        showWarningToast({ message: "Failed to load team members. Please try again." });
       }
     };
 
+    // Call fetchTeamMembers whenever user email or event dates change
     fetchTeamMembers();
   }, [user.user_email, newEvent.start, newEvent.end]);
+  
 
 
+  // Helper function to check if a member is busy during the event time
+  const isMemberBusy = (member) => {
+    const memberId = typeof member.member_id === 'number' ? 
+      member.member_id : parseInt(member.member_id);
+      
+    const result = DisabledTeamMembers.includes(memberId);
+    console.log(`Checking if member ${member.member_name} (ID: ${memberId}) is busy:`, result);
+    return result;
+  };
 
   const removeAssignedMember = (member) => {
     setTeamMembers([...teamMembers, member]);
@@ -349,8 +388,9 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   };
 
   const assignMember = (member) => {
-    if (DisabledTeamMembers.includes(member.member_name)) {
-      console.log(`Cannot assign ${member.member_name}, they are disabled.`);
+    // Check if member is disabled by checking if their ID is in the DisabledTeamMembers array
+    if (isMemberBusy(member)) {
+      showWarningToast({ message: `${member.member_name} is not available during this time period.` });
       return;
     }
     setAssignedMembers([...assignedMembers, member]);
@@ -482,9 +522,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
 
           {/* Render available members */}
           {teamMembers.map((member) => {
-            const isDisabled = DisabledTeamMembers.includes(
-              member.member_name
-            );
+            const isDisabled = isMemberBusy(member);
 
             // Skip if this member is already assigned
             if (assignedMembers.some(m => m.member_id === member.member_id)) {
