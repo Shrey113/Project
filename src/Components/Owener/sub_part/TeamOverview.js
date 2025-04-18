@@ -414,7 +414,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
                 onClick={() => handleSelectSearchResult(result)}
               >
                 <div className="result-avatar">
-                  <img src={result.user_profile_image_base64 || profile_pic_user1} alt={result.user_name} />
+                  <img src={`${Server_url}/owner/profile-image/${result.user_email}` || profile_pic_user1} alt={result.user_name} />
                 </div>
                 <div className="result-info">
                   <div className="result-name">{result.user_name}</div>
@@ -433,7 +433,7 @@ const PopUp = ({ action, member, onClose, onSave }) => {
             <h4>Selected Photographer</h4>
             <div className="result-details-content">
               <div className="result-avatar large">
-                <img src={selectedSearchResult.user_profile_image_base64 || profile_pic_user1} alt={selectedSearchResult.user_name} />
+                <img src={`${Server_url}/owner/profile-image/${selectedSearchResult.user_email}` || profile_pic_user1} alt={selectedSearchResult.user_name} />
               </div>
               <div className="result-details">
                 <div className="detail-item">
@@ -856,11 +856,10 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
       </div>
       <div className="profile-section">
         <div className="profile-image">
-          <img src={member.member_profile_img} alt={member.member_name} />
+          <img src={`${Server_url}/owner/profile-image/${emailDisplay}`} alt={member.member_name} />
         </div>
         <h3>{member.member_name}</h3>
         {emailDisplay && <p className="email">{emailDisplay}</p>}
-        <p className="role">{member.member_role}</p>
         {isPending && <div className="pending-badge">Invitation Pending</div>}
         {isRejected && <div className="rejected-badge">Invitation Rejected</div>}
       </div>
@@ -935,7 +934,8 @@ const TeamOverview = () => {
     try {
       setIsLoading(true);
       console.log("Fetching team members...");
-      // Fetch all members (active, assigned, pending, and rejected)
+
+      // Fetch all members
       const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
         method: "POST",
         headers: {
@@ -949,11 +949,11 @@ const TeamOverview = () => {
       const membersData = await membersResponse.json();
       console.log("Fetched members data:", membersData);
 
-      // Map the data to include member_email from team_member_email if available
+      // Normalize fields
       const processedMembersData = membersData.map(member => ({
         ...member,
         member_email: member.team_member_email || member.member_email || "",
-        member_phone: member.team_member_phone || member.member_phone || ""
+        member_phone: member.team_member_phone || member.member_phone || "",
       }));
 
       // Fetch assigned members status
@@ -970,38 +970,31 @@ const TeamOverview = () => {
       const statusData = await statusResponse.json();
       console.log("Fetched status data:", statusData);
 
-      // Extract assigned members and their event details
-      let assignedMembersMap = new Map();
+      // Build a map of assigned member IDs and event details
+      const assignedMembersMap = new Map();
 
-      // Safely check if statusData exists and has items
-      if (statusData && Array.isArray(statusData) && statusData.length > 0 && statusData[0]) {
-        // Now safely check for assigned_team_member
-        if (Array.isArray(statusData[0].assigned_team_member)) {
-          statusData.forEach((item) => {
-            if (item && Array.isArray(item.assigned_team_member)) {
-              item.assigned_team_member.forEach((member) => {
-                if (member) {
-                  assignedMembersMap.set(member, {
-                    event_request_type: item.event_request_type || 'Unknown',
-                    event_detail: item.event_detail || 'Unknown'
-                  });
-                }
-              });
-            } else {
-              console.warn("Skipping item with invalid assigned_team_member:", item);
-            }
-          });
-        }
+      if (Array.isArray(statusData)) {
+        statusData.forEach(item => {
+          if (Array.isArray(item.assigned_team_member)) {
+            item.assigned_team_member.forEach(memberId => {
+              if (memberId !== null && memberId !== undefined) {
+                assignedMembersMap.set(memberId, {
+                  event_request_type: item.event_request_type || "Unknown",
+                  event_detail: item.event_detail || "Unknown",
+                });
+              }
+            });
+          }
+        });
       }
 
-      // Update team members' status based on assignment
+      // Update member statuses based on assignment (by member_id)
       const updatedTeamData = processedMembersData.map(member => {
-        // If the member status is already "Pending" or "Rejected", keep it
         if (member.member_status === "Pending" || member.member_status === "Rejected") {
           return member;
         }
 
-        const assignment = assignedMembersMap.get(member.member_name);
+        const assignment = assignedMembersMap.get(member.member_id); // ✅ Use member_id now
 
         return {
           ...member,
@@ -1012,18 +1005,19 @@ const TeamOverview = () => {
         };
       });
 
-      // Filter out rejected members older than 5 days
+      // Cleanup rejected members older than 5 days (your custom logic)
       const filteredTeamData = cleanupRejectedMembers(updatedTeamData);
 
       setTeamData(filteredTeamData);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching team members:", error);
-      // Set empty array as fallback to prevent further errors
       setTeamData([]);
       setIsLoading(false);
     }
   };
+
+
   useEffect(() => {
     console.log("user_confirmation_updated_team_member");
     socket.on(`user_confirmation_updated_team_member`, () => {
@@ -1031,15 +1025,11 @@ const TeamOverview = () => {
         try {
           setIsLoading(true);
           console.log("Fetching team members...");
-          // Fetch all members (active, assigned, pending, and rejected)
+
           const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              user_email: user.user_email,
-            }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_email: user.user_email }),
           });
 
           const membersData = await membersResponse.json();
@@ -1049,18 +1039,14 @@ const TeamOverview = () => {
           const processedMembersData = membersData.map(member => ({
             ...member,
             member_email: member.team_member_email || member.member_email || "",
-            member_phone: member.team_member_phone || member.member_phone || ""
+            member_phone: member.team_member_phone || member.member_phone || "",
           }));
 
           // Fetch assigned members status
           const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              user_email: user.user_email,
-            }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_email: user.user_email }),
           });
 
           const statusData = await statusResponse.json();
@@ -1092,7 +1078,6 @@ const TeamOverview = () => {
 
           // Update team members' status based on assignment
           const updatedTeamData = processedMembersData.map(member => {
-            // If the member status is already "Pending" or "Rejected", keep it
             if (member.member_status === "Pending" || member.member_status === "Rejected") {
               return member;
             }
@@ -1115,13 +1100,18 @@ const TeamOverview = () => {
           setIsLoading(false);
         } catch (error) {
           console.error("Error fetching team members:", error);
-          // Set empty array as fallback to prevent further errors
           setTeamData([]);
           setIsLoading(false);
         }
       };
-      fetchTeamMembers()
+
+      fetchTeamMembers();
     });
+
+    // Cleanup on unmount (optional but good practice)
+    return () => {
+      socket.off(`user_confirmation_updated_team_member`);
+    };
   }, [user.user_email]);
 
   useEffect(() => {
@@ -1129,15 +1119,11 @@ const TeamOverview = () => {
       try {
         setIsLoading(true);
         console.log("Fetching team members...");
-        // Fetch all members (active, assigned, pending, and rejected)
+
         const membersResponse = await fetch(`${Server_url}/team_members/get_members`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_email: user.user_email,
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_email: user.user_email }),
         });
 
         const membersData = await membersResponse.json();
@@ -1147,18 +1133,14 @@ const TeamOverview = () => {
         const processedMembersData = membersData.map(member => ({
           ...member,
           member_email: member.team_member_email || member.member_email || "",
-          member_phone: member.team_member_phone || member.member_phone || ""
+          member_phone: member.team_member_phone || member.member_phone || "",
         }));
 
         // Fetch assigned members status
         const statusResponse = await fetch(`${Server_url}/team_members/get_all_members_status`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_email: user.user_email,
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_email: user.user_email }),
         });
 
         const statusData = await statusResponse.json();
@@ -1190,7 +1172,6 @@ const TeamOverview = () => {
 
         // Update team members' status based on assignment
         const updatedTeamData = processedMembersData.map(member => {
-          // If the member status is already "Pending" or "Rejected", keep it
           if (member.member_status === "Pending" || member.member_status === "Rejected") {
             return member;
           }
@@ -1213,13 +1194,14 @@ const TeamOverview = () => {
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching team members:", error);
-        // Set empty array as fallback to prevent further errors
         setTeamData([]);
         setIsLoading(false);
       }
     };
+
     fetchTeamMembers();
   }, [user.user_email]);
+
 
   const [popupState, setPopupState] = useState({
     show: false,
