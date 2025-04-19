@@ -13,7 +13,12 @@ import AddDetailsPop from "./AddDetailsPop";
 import socket from "../../../../redux/socket";
 import { IoCloseOutline } from "react-icons/io5";
 import { IoInformation } from "react-icons/io5";
+<<<<<<< HEAD
 import PaginatedTable from "./PaginatedTable";
+=======
+// import { HiOutlineChevronUpDown } from "react-icons/hi2";
+// import { add } from "date-fns";
+>>>>>>> 452b3f66cae3e93cc47b17d3f00b07b232f22c99
 function EventManagement({ category }) {
   const user = useSelector((state) => state.user);
   const [events, setEvents] = useState([]);
@@ -404,9 +409,15 @@ function EventManagement({ category }) {
 
                 <div className="modal-header-container">
                   <h3 className="modal-header">Request Details</h3>
-                  <span className={`status ${selected_sent_item?.event_status?.toLowerCase()}`}>
-                    {selected_sent_item?.event_status || "Pending"}
-                  </span>
+                  {selected_sent_item?.event_status?.toLowerCase() === 'waiting on team' ? (
+                    <span className="waiting-status">
+                       Team Confirmation
+                    </span>
+                  ) : (
+                    <span className={`status ${selected_sent_item?.event_status?.toLowerCase()}`}>
+                      {selected_sent_item?.event_status || "Pending"}
+                    </span>
+                  )}
                 </div>
                 <div className="modal-content-container">
                   {/* Left Side: Main Request Details */}
@@ -885,6 +896,7 @@ function EventManagement({ category }) {
                   {receiver_service_data?.filter(
                     (item) => serviceFilter === "all" || item.event_status === serviceFilter
                   ).length > 0 ? (
+<<<<<<< HEAD
                     <PaginatedTable
                       data={receiver_service_data?.filter(
                         (item) => serviceFilter === "all" || item.event_status === serviceFilter
@@ -926,6 +938,53 @@ function EventManagement({ category }) {
                                       onApprove={() => {
                                         set_data(item);
                                         setIsMenuOpen(null);
+=======
+                    <table className="received_service_table">
+                      <thead>
+                        <tr>
+                          <th>NO.</th>
+                          <th>Sender Email</th>
+                          <th>Service Name</th>
+                          <th>Days</th>
+                          <th>Location</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {receiver_service_data
+                          ?.filter(
+                            (item) =>
+                              serviceFilter === "all" || item.event_status === serviceFilter
+                          )
+                          .map((item, index) => (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{item.sender_email}</td>
+                              <td>{item.service_name}</td>
+                              <td>{item.days_required}</td>
+                              <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
+                              {item.event_status?.toLowerCase() === 'waiting on team' ? (
+                                <td className="waiting-status">
+                                  <span>
+                                    Team Confirmation
+                                  </span>
+                                </td>
+                              ) : (
+                                <td className={`status ${item.event_status.toLowerCase()}`}>
+                                  <span>{item.event_status}</span>
+                                </td>
+                              )}
+                              
+                              <td className="action-buttons">
+                                {window.innerWidth <= 660 ? (
+                                  <div style={{ position: "relative" }}>
+                                    <button
+                                      className="mobile-action-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
+>>>>>>> 452b3f66cae3e93cc47b17d3f00b07b232f22c99
                                       }}
                                       onReject={() => {
                                         handleRejectClick(item);

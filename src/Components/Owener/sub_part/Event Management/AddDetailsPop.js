@@ -8,14 +8,46 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import { CiCirclePlus, CiCircleMinus } from "react-icons/ci";
-import { FaBuilding, FaMapMarkerAlt, FaUser, FaArrowRight } from "react-icons/fa";
+import { FaBuilding, FaMapMarkerAlt, FaUser, FaArrowRight, FaClock, FaCheck, FaTimes } from "react-icons/fa";
 import dayjs from "dayjs";
 
 import user_backicon from "./../../../Owener/img/user_backicon.png"
 import { Server_url, showAcceptToast, showRejectToast, showWarningToast } from "../../../../redux/AllData";
 import "./../Calendar/part/AddDetailsPop.css";
 
-// import socket from "../../../../redux/socket";
+import socket from "../../../../redux/socket";
+
+// Add styles for status tags
+const statusTagStyles = {
+  accepted: {
+    backgroundColor: "#22C55E",
+    color: "white",
+    padding: "3px 8px",
+    borderRadius: "4px",
+    fontWeight: "bold",
+  },
+  pending: {
+    backgroundColor: "#F59E0B",
+    color: "white",
+    padding: "3px 8px",
+    borderRadius: "4px",
+    fontWeight: "bold",
+  },
+  declined: {
+    backgroundColor: "#EF4444",
+    color: "white",
+    padding: "3px 8px",
+    borderRadius: "4px",
+    fontWeight: "bold",
+  },
+  "waiting-on-team": {
+    backgroundColor: "#F59E0B",
+    color: "white",
+    padding: "3px 8px",
+    borderRadius: "4px",
+    fontWeight: "bold",
+  }
+};
 
 const COLOR_OPTIONS = [
   { id: "purple", value: "#6366F1", label: "Purple", default: true },
@@ -59,21 +91,34 @@ const formatDate = (isoString) => {
 };
 
 const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, actionButtonClass }) => {
-  // Determine status class based on member status
-  const getStatusClass = () => {
-    if (member.status === 'assigned') return 'assigned-member';
-    if (member.status === 'busy') return 'busy-member';
-    return 'available-member';
+  // Determine status icon based on member's confirmation status
+  const getMemberStatusIcon = () => {
+    if (!member.confirmation_status || member.confirmation_status === 'Pending') {
+      return <FaClock style={{ color: "#F59E0B" }} title="Awaiting response" />;
+    } else if (member.confirmation_status === 'Accepted' || member.confirmation_status === 'Accepted') {
+      return <FaCheck style={{ color: "#22C55E" }} title="Accepted" />;
+    } else if (member.confirmation_status === 'Declined') {
+      return <FaTimes style={{ color: "#EF4444" }} title="Declined" />;
+    }
+    return null;
   };
 
   return (
     <li className={`team-member ${isDisabled ? "down_opacity" : ""}`}>
       <div className="member-avatar-container">
-        <img src={member.member_profile_img} alt={member.member_name} className="member-img" />
-        <span className={`status-badge ${getStatusClass()}`}></span>
+        {member.team_member_email ? (
+          <img src={`${Server_url}/owner/profile-image/${member.team_member_email}`} alt={member.member_name} className="member-img" />
+        ) : (
+          <img src={member.member_profile_img} alt={member.member_name} className="member-img" />
+        )}
       </div>
       <div className="member-info">
         <strong title={member.member_name}>{member.member_name}</strong>
+        {member.confirmation_status && (
+          <div className="member-status-indicator">
+            {getMemberStatusIcon()}
+          </div>
+        )}
       </div>
       <button
         className={actionButtonClass}
@@ -93,13 +138,10 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
 const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_package_data, set_receiver_equipment_data, set_receiver_service_data, profile_data }) => {
   const user = useSelector((state) => state.user);
   const navigate = useNavigate();
-  // const [showTeamModal, setShowTeamModal] = useState(false);
   const [teamMembers, setTeamMembers] = useState([]);
   const [assignedMembers, setAssignedMembers] = useState([]);
   const [DisabledTeamMembers, setDisabledTeamMembers] = useState([]);
-
-
-  // Set default color
+  const [teamResponseStatus, setTeamResponseStatus] = useState(null);
 
   useEffect(() => {
     const defaultColor = COLOR_OPTIONS.find(color => color.default).value;
@@ -124,7 +166,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     return true;
   };
 
-  // Helper function to update request data status
   const updateRequestStatus = (data) => {
     const { reason } = data;
     if (newEvent.event_request_type === "equipment") {
@@ -139,7 +180,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           item.id === newEvent.id ? { ...item, assigned_team_member: teamMembers, event_status: "Accepted", reason } : item
         )
       );
-      // window.location.reload();
     } else if (newEvent.event_request_type === "service") {
       set_receiver_service_data(prevData =>
         prevData.map(item =>
@@ -177,7 +217,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
 
   const confirmEquipmentEvent = async (eventId) => {
     try {
-      // First confirm the equipment event
       const response = await fetch(`${Server_url}/confirm-equipment-event`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -194,7 +233,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         throw new Error("Failed to confirm equipment event");
       }
 
-      // Then create the calendar event
       const calendarResponse = await fetch(`${Server_url}/calendar/add-event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -232,23 +270,17 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     }
   };
 
-
-
-
-
   const handleAddEvent = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
-    // Add check for assigned team members
     if (assignedMembers.length === 0 && newEvent.event_request_type === "package") {
       showWarningToast({ message: "Please assign at least one team member before confirming the event." });
       return;
     }
 
     try {
-      // Create event
       const response = await fetch(`${Server_url}/calendar/add-event-with-success`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -261,30 +293,27 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           backgroundColor: newEvent.backgroundColor,
           sender_email: newEvent.sender_email,
           event_location: newEvent.event_location
-
         })
       });
-
 
       const data = await response.json();
 
       if (data.message === "Event created successfully") {
-        // Update request status
+        const eventId = data.event_id || newEvent.id;
+
         updateRequestStatus(data);
 
-        // Assign team members
-        if (newEvent.event_request_type === "package") {
-          await assignTeamMembers(newEvent.id);
+        if ((newEvent.event_request_type === "package" || newEvent.event_request_type === "service")
+          && assignedMembers.length > 0) {
+          const eventStatus = await assignTeamMembers(eventId);
+          showAcceptToast({
+            message: `Event created and team members notified. Status: ${eventStatus}`
+          });
         } else if (newEvent.event_request_type === "equipment") {
           await confirmEquipmentEvent(newEvent.id);
-        } else if (newEvent.event_request_type === "service") {
-          await assignTeamMembers(newEvent.id);
+        } else {
+          showAcceptToast({ message: "Event created successfully!" });
         }
-
-
-
-        // Reset form and close modal
-        showAcceptToast({ message: "Event and team members assigned successfully!" });
 
         setShowEventModal(false);
         setNewEvent({
@@ -302,17 +331,14 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     }
   };
 
-
   useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
-        // Format the dates first to ensure the correct format is passed
         const formattedStartDate = formatDate(newEvent.start);
         const formattedEndDate = formatDate(newEvent.end);
 
         console.log("Fetching team members for date range:", formattedStartDate, "to", formattedEndDate);
 
-        // Make both API calls concurrently using Promise.all
         const [inactiveResponse, filteredResponse] = await Promise.all([
           fetch(`${Server_url}/team_members/get_inactive_members`, {
             method: "POST",
@@ -336,7 +362,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           }),
         ]);
 
-        // Parse the responses
         const inactiveData = await inactiveResponse.json();
         const filteredData = await filteredResponse.json();
 
@@ -344,20 +369,41 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         console.log("Filtered data response:", filteredData);
         console.log("Busy team members:", filteredData.assignedTeamMembers || []);
 
-        // Update states with the fetched data
         setTeamMembers(inactiveData);
 
         // Make sure we handle all potential formats
         let busyIds = [];
         if (Array.isArray(filteredData.assignedTeamMembers)) {
           busyIds = filteredData.assignedTeamMembers.map(id => {
-            // Make sure the ID is a number
             return typeof id === 'number' ? id : parseInt(id);
-          }).filter(id => !isNaN(id)); // Remove any NaN values
+          }).filter(id => !isNaN(id));
         }
 
         console.log("Final list of busy member IDs:", busyIds);
         setDisabledTeamMembers(busyIds);
+
+        if (newEvent.id) {
+          try {
+            const assignedResponse = await fetch(`${Server_url}/team_members/get-event-team-members`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ event_id: newEvent.id }),
+            });
+
+            const assignedData = await assignedResponse.json();
+            console.log("Currently assigned members:", assignedData);
+
+            if (Array.isArray(assignedData) && assignedData.length > 0) {
+              setAssignedMembers(assignedData);
+
+              setTeamMembers(prev =>
+                prev.filter(member => !assignedData.some(m => m.member_id === member.member_id))
+              );
+            }
+          } catch (error) {
+            console.error("Error fetching assigned members:", error);
+          }
+        }
 
       } catch (error) {
         console.error("Error fetching team members:", error);
@@ -365,13 +411,10 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       }
     };
 
-    // Call fetchTeamMembers whenever user email or event dates change
     fetchTeamMembers();
   }, [user.user_email, newEvent.start, newEvent.end]);
 
 
-
-  // Helper function to check if a member is busy during the event time
   const isMemberBusy = (member) => {
     const memberId = typeof member.member_id === 'number' ?
       member.member_id : parseInt(member.member_id);
@@ -389,7 +432,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   };
 
   const assignMember = (member) => {
-    // Check if member is disabled by checking if their ID is in the DisabledTeamMembers array
     if (isMemberBusy(member)) {
       showWarningToast({ message: `${member.member_name} is not available during this time period.` });
       return;
@@ -410,7 +452,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           value={newEvent.title + " from " + newEvent.sender_email}
           readOnly
         />
-
 
         {newEvent.titleError && (
           <p className="error-text">{newEvent.titleError}</p>
@@ -501,16 +542,49 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         </div>
       </div>
 
-
     </form>
   );
+
+  const renderTeamStatusOverview = () => {
+    if (!teamResponseStatus) return null;
+
+    return (
+      <div className="team-status-overview">
+        <h4>Team Member Responses</h4>
+        <div className="status-counts">
+          <div className="status-item">
+            <span className="status-label">Accepted:</span>
+            <span className="status-count confirmed-count">{teamResponseStatus.confirmed}</span>
+          </div>
+          <div className="status-item">
+            <span className="status-label">Pending:</span>
+            <span className="status-count pending-count">{teamResponseStatus.pending}</span>
+          </div>
+          <div className="status-item">
+            <span className="status-label">Declined:</span>
+            <span className="status-count declined-count">{teamResponseStatus.declined}</span>
+          </div>
+        </div>
+        <div className="event-status">
+          <strong>Event Status: </strong>
+          <span
+            className={`status-tag status-${newEvent.event_status?.toLowerCase().replace(/\s+/g, '-')}`}
+            style={statusTagStyles[newEvent.event_status === "Accepted" ? "accepted" :
+              newEvent.event_status?.toLowerCase().replace(/\s+/g, '-')] || {}}
+          >
+            {newEvent.event_status === "Accepted" ? "Accepted" : newEvent.event_status || "Pending"}
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   const renderTeamMemberSection = () => (
     <div className="assign_team_member_section">
       <h3>Team Members</h3>
+      {newEvent.event_status === "Waiting on Team" && renderTeamStatusOverview()}
       <div className="team-members-section">
         <ul className="team-list">
-          {/* Render assigned members first */}
           {assignedMembers.map((member) => (
             <TeamMember
               key={member.member_id}
@@ -521,11 +595,9 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
             />
           ))}
 
-          {/* Render available members */}
           {teamMembers.map((member) => {
             const isDisabled = isMemberBusy(member);
 
-            // Skip if this member is already assigned
             if (assignedMembers.some(m => m.member_id === member.member_id)) {
               return null;
             }
@@ -619,16 +691,24 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           {newEvent.event_request_type === "equipment" ? renderUserProfileSection() : renderTeamMemberSection()}
         </div>
         <div className="modal-actions">
-          <button type="submit" onClick={handleAddEvent}>Confirm Event</button>
+          <button
+            type="submit"
+            onClick={handleAddEvent}
+            disabled={newEvent.event_status === "Waiting on Team"}
+            className={newEvent.event_status === "Waiting on Team" ? "disabled-btn" : ""}
+          >
+            {newEvent.event_status === "Waiting on Team" ? (
+              <span className="waiting-status">
+                <FaClock /> Team Confirmation
+              </span>
+            ) : "Confirm Event"}
+          </button>
           <button type="button" onClick={() => setShowEventModal(false)}>
             Cancel
           </button>
         </div>
-
-
       </div>
     </div>
-
   );
 };
 
