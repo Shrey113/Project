@@ -37,7 +37,7 @@ function DraftInvoices() {
         : [];
       setDraftInvoices(with_draft);
       setDraftCount(with_draft.length);
-      console.log("Fetched draft invoices:", with_draft);
+      // console.log("Fetched draft invoices:", with_draft);
     } catch (error) {
       console.error("Error fetching invoices with draft:", error);
       // setError("Failed to load invoices. Please try again later.");

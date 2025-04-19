@@ -269,6 +269,38 @@
   border: 1px solid #d03033;
   color: #d03033;
 }
+.details-modal .status.waiting_on_team {
+  background: #feeacc;
+  border: 1px solid #fba949;
+  color: #fba949;
+}
+.waiting-status {
+  gap: 5px;
+  color: #F59E0B;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+.waiting-status span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff; 
+  border-radius: 20px;
+  padding: 2px 10px;
+  background: #fba949; 
+  border: 1px solid #fba949; 
+  text-align: center;
+  display: inline-block;
+  width: 100%;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
 
 .details-modal .modal-header {
   font-size: 1.7rem;
@@ -564,49 +596,194 @@
 
 #owner-main-container-EventManagement .action-buttons {
   display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#owner-main-container-EventManagement .action-buttons-wrapper {
+  display: flex;
   gap: 8px;
   justify-content: center;
+  align-items: center;
 }
 
 #owner-main-container-EventManagement .action-buttons button {
   border: none;
-  background: none;
   cursor: pointer;
-  padding: 4px;
   border-radius: 4px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
 }
 
-
-#owner-main-container-EventManagement .action-buttons img {
-  width: 20px;
+#owner-main-container-EventManagement .action-buttons .action-icon {
   height: 20px;
+  width: 20px;
 }
 
 #owner-main-container-EventManagement .action-buttons .approve-btn {
-  background-color: #4f46e5;
+  background-color: #4361ee;
   font-size: 12px;
   font-weight: 500;
   color: white;
-  padding: 5px 8px;
+  padding: 5px 10px;
   font-family: var(--Heading);
+  box-shadow: 0 2px 4px rgba(67, 97, 238, 0.15);
+  transition: all 0.2s ease;
+}
+
+#owner-main-container-EventManagement .action-buttons .approve-btn:hover {
+  background-color: #3a56d4;
+  box-shadow: 0 3px 6px rgba(67, 97, 238, 0.25);
 }
 
 #owner-main-container-EventManagement .action-buttons .reject-btn {
-  border: 1px solid #3d3d3d8e;
-  color: black;
+  background-color: #ffffff;
+  color: #666;
+  border: 1px solid #ddd;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 #owner-main-container-EventManagement .action-buttons .info-btn {
-  border: 1px solid #3d3d3d8e;
+  background-color: #ffffff;
+  color: #666;
+  border: 1px solid #ddd;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-#owner-main-container-EventManagement .reject-btn:hover {
-  background-color: #fed8da;
+#owner-main-container-EventManagement .action-buttons .reject-btn:hover {
+  background-color: #ffe5e5;
+  border-color: #ffb8b8;
+  color: #e53935;
 }
 
-#owner-main-container-EventManagement .info-btn:hover {
+#owner-main-container-EventManagement .action-buttons .info-btn:hover {
   background-color: #e3f2fd;
+  border-color: #90caf9;
+  color: #1976d2;
+}
+
+/* Mobile action button styling */
+#owner-main-container-EventManagement .mobile-action-btn {
+  font-size: 20px;
+  padding: 4px 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+#owner-main-container-EventManagement .mobile-action-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #c4c4c4;
+}
+
+#owner-main-container-EventManagement .mobile-action-btn .dots-icon {
+  display: inline-block;
+  font-weight: bold;
+  line-height: 1;
+  color: #666;
+}
+
+/* Action menu styling */
+.action-menu {
+  position: absolute;
+  right: 0;
+  top: 110%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px;
+  min-width: 160px;
+  z-index: 1000;
+  transform: translateX(-100%);
+  border: 1px solid #eaeaea;
+  animation: menuFadeIn 0.2s ease forwards;
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-100%) translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-100%) translateY(0);
+  }
+}
+
+.action-menu-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--Heading);
+}
+
+.action-menu-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.action-menu-btn .icon {
+  margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  font-size: 15px;
+}
+
+.action-menu-btn.approve .icon {
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+.action-menu-btn.reject .icon {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.action-menu-btn.info .icon {
+  color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.action-menu-btn.approve:hover {
+  background-color: rgba(34, 197, 94, 0.05);
+}
+
+.action-menu-btn.reject:hover {
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.action-menu-btn.info:hover {
+  background-color: rgba(59, 130, 246, 0.05);
 }
 
 #owner-main-container-EventManagement td:nth-last-child(2) {
@@ -709,66 +886,6 @@
   font-weight: bold;
   color: #495057;
   padding: 20px;
-}
-
-
-
-
-.action-menu {
-  position: absolute;
-  right: 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 8px;
-  min-width: 150px;
-  z-index: 1000;
-  transform: translateX(-100%);
-}
-
-.action-menu-btn {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-  color: #333;
-  font-size: 14px;
-}
-
-.action-menu-btn:hover {
-  background-color: #f5f5f5;
-}
-
-.action-menu-btn .icon {
-  margin-right: 8px;
-  font-size: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-}
-
-.action-menu-btn.approve .icon {
-  color: #22c55e;
-}
-
-.action-menu-btn.reject .icon {
-  color: #ef4444;
-}
-
-.action-menu-btn.info .icon {
-  color: #3b82f6;
-}
-
-/* Update the mobile action button styles */
-.action-buttons button {
-  position: relative;
 }
 
 /* Ensure the menu stays within viewport */

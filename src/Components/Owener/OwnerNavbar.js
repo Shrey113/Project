@@ -37,10 +37,10 @@ const popularCities = [
   { name: "Delhi-NCR", icon: ncr },
   { name: "Bengaluru", icon: bang },
   { name: "Hyderabad", icon: hyd },
-  { name: "Ahmedabad", icon: ahd},
+  { name: "Ahmedabad", icon: ahd },
   { name: "Chandigarh", icon: chd },
   { name: "Chennai", icon: chen },
-  { name: "Pune", icon:pune_2},
+  { name: "Pune", icon: pune_2 },
   { name: "Kolkata", icon: kolk },
   { name: "Kochi", icon: koch }
 ];
@@ -55,7 +55,7 @@ const otherCities = [
 ];
 
 function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
- selectedLocation = 'all', setSelectedLocation = () => {} }) {
+  selectedLocation = 'all', setSelectedLocation = () => { } }) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state) => state.user);
@@ -69,7 +69,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
   const searchInputRef = useRef(null);
 
   const [temp_data, set_temp_data] = useState(null);
-  
+
   // City selector states
   const [showCitySelector, setShowCitySelector] = useState(false);
 
@@ -134,7 +134,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
     setDetectedCity(null);
     setDetectedState(null);
     setDetectedLocations([]);
-    
+
     if (navigator.geolocation) {
       try {
         const locationTimeout = setTimeout(() => {
@@ -154,9 +154,9 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
             clearTimeout(locationTimeout);
             console.error("Error getting location:", error);
             setIsLocationLoading(false);
-            
+
             // Set specific error message based on error code
-            switch(error.code) {
+            switch (error.code) {
               case 1: // PERMISSION_DENIED
                 setLocationError("Location permission denied. Please allow location access in your browser settings.");
                 break;
@@ -200,29 +200,28 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lon}`
       );
-      
+
       clearTimeout(apiTimeout);
-      
+
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      console.log("Location data:", data);
-      
+
       // Extract city and state information
-      const city = 
-        data.address?.city || 
-        data.address?.town || 
-        data.address?.village || 
+      const city =
+        data.address?.city ||
+        data.address?.town ||
+        data.address?.village ||
         data.address?.hamlet ||
-        data.address?.state_district || 
+        data.address?.state_district ||
         (data.display_name ? data.display_name.split(',')[0] : null) ||
         "Unknown location";
-        
-      const state = 
-        data.address?.state || 
-        data.address?.province || 
+
+      const state =
+        data.address?.state ||
+        data.address?.province ||
         data.address?.region ||
         "Unknown state";
 
@@ -233,11 +232,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
         { type: 'city', name: city },
         { type: 'state', name: state }
       ]);
-      
-      // Log for verification
-      console.log("City Name from location:", city);
-      console.log("State Name from location:", state);
-      
+
     } catch (error) {
       console.error("Error fetching city:", error);
       setLocationError("Unable to determine your city. Please select manually.");
@@ -260,9 +255,9 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
 
   // Determine if we're in search mode for city selector
   const isSearchActive = searchCity.trim().length > 0;
-  
+
   // Filter other cities based on search
-  const filteredOtherCities = otherCities.filter(city => 
+  const filteredOtherCities = otherCities.filter(city =>
     city.toLowerCase().includes(searchCity.toLowerCase())
   );
 
@@ -276,8 +271,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
         !event.target.closest("#notification_popup") &&
         !event.target.closest(".bell_icon")
       ) {
-        
-        console.log("auto")
+
         set_navbar_open(false);
       }
     }
@@ -288,14 +282,14 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
     };
   }, [navbar_open]);
 
-  useEffect(()=>{
-    if(navbar_open){
+  useEffect(() => {
+    if (navbar_open) {
       document.documentElement.style.overflow = "hidden";
-    }else{
+    } else {
       document.documentElement.style.overflow = "auto";
-      
+
     }
-  },[navbar_open]);
+  }, [navbar_open]);
 
   // Add useEffect for handling click outside search bar
   useEffect(() => {
@@ -317,7 +311,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
 
   // Toggle sidebar function with explicit state
   const handleBurgerMenuClick = () => {
-    console.log("Burger menu clicked, current state:", isSidebarOpen);
     // Force sidebar open on mobile, especially on first click
     if (isMobile) {
       setIsSidebarOpen(true);
@@ -553,11 +546,8 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
 
   // Create callbacks for socket notifications with updated dependencies
   const showNotification = useCallback((data, type) => {
-    console.log("this is package notification id:", data, type);
     if (!isChecked) {
-      console.log("running package notification", isChecked)
       set_temp_notification(data, type);
-      console.log("running dot ", isChecked);
       set_is_new_notification(true);
     }
     fetchNotificationData();
@@ -567,7 +557,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
   }, [isChecked, navbar_open, set_temp_notification, set_is_new_notification, fetchNotificationData]);
 
   const showNotificationService = useCallback((data, type) => {
-    console.log("this is service notification id:", data, type);
     if (!isChecked) {
       set_temp_notification(data, type);
       set_is_new_notification(true);
@@ -579,7 +568,6 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
   }, [isChecked, navbar_open, set_temp_notification, set_is_new_notification, fetchNotificationData]);
 
   const showNotificationEquipment = useCallback((data, type) => {
-    console.log("this is equipment notification id:", data, type);
     if (!isChecked) {
       set_temp_notification(data, type);
       set_is_new_notification(true);
@@ -710,9 +698,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
     const updateNotificationIsSeen = async (notification_type) => {
       try {
         const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_type}`);
-        console.log("notification type ", notification_type)
-        const data = await response.json();
-        console.log("Notification marked as seen:", data);
+        await response.json();
       } catch (error) {
         console.error("Failed to update notification:", error);
       }
@@ -796,17 +782,17 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
   const UserPrfileGET = () => {
     const response = `${Server_url}/owner/profile-image/${user.user_email}`;
 
-    if(response){
-      return  (<img
-      src={response}
-      alt="Profile"
-    />);
+    if (response) {
+      return (<img
+        src={response}
+        alt="Profile"
+      />);
     }
-      return  (<div className="show_user_profile_image">
-              <span>P</span>
-            </div>);
-    
-    
+    return (<div className="show_user_profile_image">
+      <span>P</span>
+    </div>);
+
+
   }
 
 
@@ -837,16 +823,16 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              
+
               {/* Location Selector Button */}
               <div className="location-selector-container">
-                <button 
-                  className="location-toggle-button" 
+                <button
+                  className="location-toggle-button"
                   onClick={toggleCitySelector}
                 >
                   {selectedLocation === 'all' ? 'Select Location' : selectedLocation}
                 </button>
-                
+
                 {/* City Selector Popup */}
                 {showCitySelector && (
                   <div className="city-selector-overlay">
@@ -855,34 +841,34 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
                         <h2>Select City</h2>
                         <div className="header-actions">
                           {selectedLocation !== 'all' && (
-                            <button 
-                              className="clear-filter-btn" 
+                            <button
+                              className="clear-filter-btn"
                               onClick={clearFilters}
                               title="Clear location filter"
                             >
                               Clear Filter
                             </button>
                           )}
-                          <button 
-                            className="close-city-selector" 
+                          <button
+                            className="close-city-selector"
                             onClick={() => setShowCitySelector(false)}
                           >
                             <IoClose />
                           </button>
                         </div>
                       </div>
-                      
-                      <input 
-                        className="search-input" 
+
+                      <input
+                        className="search-input"
                         placeholder="Search for your city"
                         value={searchCity}
-                        onChange={(e) => setSearchCity(e.target.value)} 
+                        onChange={(e) => setSearchCity(e.target.value)}
                       />
-                      
+
                       {/* Show detect location button only when not in search mode and no locations detected */}
                       {!isSearchActive && detectedLocations.length === 0 && (
-                        <div 
-                          className={`detect-location ${isLocationLoading ? 'loading' : ''} ${locationError ? 'error' : ''}`} 
+                        <div
+                          className={`detect-location ${isLocationLoading ? 'loading' : ''} ${locationError ? 'error' : ''}`}
                           onClick={!isLocationLoading ? detectLocation : undefined}
                         >
                           <div className="location-icon">
@@ -893,15 +879,15 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
                             )}
                           </div>
                           <span>
-                            {isLocationLoading 
-                              ? "Detecting location..." 
-                              : locationError 
-                                ? "Location access denied" 
+                            {isLocationLoading
+                              ? "Detecting location..."
+                              : locationError
+                                ? "Location access denied"
                                 : "Detect my location"}
                           </span>
                         </div>
                       )}
-                      
+
                       {locationError && !isSearchActive && (
                         <div className="location-error-message">
                           {locationError}
@@ -913,8 +899,8 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
                         <div className="section detected-locations-section">
                           <div className="section-header">
                             <h2>Detected Locations</h2>
-                            <button 
-                              className="reload-location-btn" 
+                            <button
+                              className="reload-location-btn"
                               onClick={detectLocation}
                               title="Refresh location"
                             >
@@ -922,7 +908,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
                             </button>
                           </div>
                           <div className="detected-locations">
-                            <div 
+                            <div
                               className={`detected-location ${selectedLocation === detectedCity ? 'selected' : ''}`}
                               onClick={() => selectDetectedLocation(detectedCity)}
                             >
@@ -932,8 +918,8 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
                                 <span className="location-value">{detectedCity}</span>
                               </div>
                             </div>
-                            
-                            <div 
+
+                            <div
                               className={`detected-location ${selectedLocation === detectedState ? 'selected' : ''}`}
                               onClick={() => selectDetectedLocation(detectedState)}
                             >
@@ -953,7 +939,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
                           <h2>Popular Cities</h2>
                           <div className="popular-cities">
                             {popularCities.map((city) => (
-                              <div 
+                              <div
                                 className={`city-icon ${selectedLocation === city.name ? 'selected' : ''}`}
                                 key={city.name}
                                 onClick={() => handleCitySelect(city.name)}
@@ -971,21 +957,21 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
                       {/* Cities Section - always show but change title based on search */}
                       <div className="section">
                         <h2>
-                          {isSearchActive 
-                            ? `Search results for "${searchCity}"` 
+                          {isSearchActive
+                            ? `Search results for "${searchCity}"`
                             : "Other Cities"}
                         </h2>
-                        
+
                         {/* No results message */}
                         {isSearchActive && filteredOtherCities.length === 0 && (
                           <div className="no-results-message">
                             No cities found matching "{searchCity}"
                           </div>
                         )}
-                        
+
                         <div className="other-cities">
                           {(showAllOtherCities || isSearchActive ? filteredOtherCities : filteredOtherCities.slice(0, 20)).map((city) => (
-                            <div 
+                            <div
                               className={`city-name ${selectedLocation === city ? 'selected' : ''}`}
                               key={city}
                               onClick={() => handleCitySelect(city)}
@@ -998,7 +984,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
 
                       {/* Show View All/Hide button only when not in search mode and there are more cities */}
                       {!isSearchActive && filteredOtherCities.length > 20 && (
-                        <div 
+                        <div
                           className="toggle-cities-btn"
                           onClick={toggleOtherCities}
                         >
@@ -1022,7 +1008,7 @@ function OwnerNavbar({ searchTerm = "", setSearchTerm = () => { },
           </div>
 
           <div className="profile" onClick={() => navigate('/Owner/Profile')}>
-           <UserPrfileGET/>
+            <UserPrfileGET />
             <div className="profile_data">
               <div className="user_name">{user.user_name || "User"}</div>
               <div className="user_email">{user.user_email || "user@example.com"}</div>

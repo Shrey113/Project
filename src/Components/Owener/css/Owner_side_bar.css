@@ -149,6 +149,7 @@
   height: 50px;
   display: flex;
   align-items: center;
+  gap: 10px;
   padding: 0 20px 0 40px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -162,7 +163,7 @@
 }
 
 .submenu-item.active {
-  background-color:rgba(0, 0, 255, 0.063);
+  background-color: rgba(0, 0, 255, 0.063);
 
 }
 
@@ -175,6 +176,7 @@
   display: flex;
   align-items: center;
 }
+
 /* .user_profile {
   height: 70px;
   width: 100%;
@@ -750,7 +752,7 @@
   background-color: transparent !important;
 }
 
-.profile-section-active .icon, 
+.profile-section-active .icon,
 .profile-section-active .text {
   color: white !important;
   z-index: 3;

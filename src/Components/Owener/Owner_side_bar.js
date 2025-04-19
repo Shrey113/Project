@@ -18,6 +18,8 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import SearchIcon from "@mui/icons-material/Search";
+
+import AddToDriveIcon from '@mui/icons-material/AddToDrive';
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from '@mui/icons-material/Person';
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
@@ -35,15 +37,15 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 function OwnerSideBar() {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Use the UI context instead of Redux
-  const { 
-    isMobile, 
-    isSidebarOpen, 
-    activeIndex, 
+  const {
+    isMobile,
+    isSidebarOpen,
+    activeIndex,
     activeProfileSection,
     profileSections,
-    setIsSidebarOpen, 
+    setIsSidebarOpen,
     setActiveIndex,
     setActiveProfileSection
   } = useUIContext();
@@ -56,6 +58,7 @@ function OwnerSideBar() {
   });
 
   const isProfilePage = location.pathname === "/Owner/Profile";
+  const isDrive = location.pathname === "/Owner/drive";
 
   const sliderRef = React.useRef(null);
   const profileSliderRef = React.useRef(null);
@@ -63,7 +66,7 @@ function OwnerSideBar() {
 
   const menuItemsRef = useRef([]);
   const profileItemsRef = useRef([]);
-  
+
   // Add this to handle refs for menu items
   const setMenuItemRef = (index) => (element) => {
     menuItemsRef.current[index] = element;
@@ -125,11 +128,16 @@ function OwnerSideBar() {
       icon: (<SearchIcon className={`menu-icon ${activeIndex === 5 ? "active" : ""}`} />),
       path: "/Owner/search_photographer",
     },
+    {
+      name: "Drive",
+      icon: (<AddToDriveIcon className={`menu-icon ${activeIndex === 6 ? "active" : ""}`} />),
+      path: "/Owner/drive",
+    },
   ], [activeIndex]);
 
   // Get profile section icon based on section name
   const getProfileSectionIcon = (sectionName) => {
-    switch(sectionName) {
+    switch (sectionName) {
       case 'User Profile':
         return <PersonIcon className="menu-icon" />;
       case 'Business Profile':
@@ -154,11 +162,11 @@ function OwnerSideBar() {
     if (activeIndex !== null && sliderRef.current) {
       const activeMenuIndex = Math.floor(activeIndex);
       const activeMenuItemElement = menuItemsRef.current[activeMenuIndex];
-      
+
       if (activeMenuItemElement) {
         const itemTop = activeMenuItemElement.offsetTop;
         const itemHeight = activeMenuItemElement.offsetHeight;
-        
+
         sliderRef.current.style.top = `${itemTop}px`;
         sliderRef.current.style.height = `${itemHeight}px`;
       }
@@ -185,12 +193,12 @@ function OwnerSideBar() {
         const activeProfileSectionIndex = profileSections.findIndex(
           section => section === activeProfileSection
         );
-        
+
         if (activeProfileSectionIndex !== -1 && profileItemsRef.current[activeProfileSectionIndex]) {
           const itemElement = profileItemsRef.current[activeProfileSectionIndex];
           const itemTop = itemElement.offsetTop;
           const itemHeight = itemElement.offsetHeight;
-          
+
           profileSliderRef.current.style.top = `${itemTop}px`;
           profileSliderRef.current.style.height = `${itemHeight}px`;
         }
@@ -202,7 +210,7 @@ function OwnerSideBar() {
 
   const handleItemClick = useCallback((index) => {
     const item = menuItems[index];
-    
+
     if (item.name === 'Event') {
       // Toggle the sub-menu visibility for Event
       setActiveIndex(activeIndex === 1 ? null : 1);
@@ -259,9 +267,9 @@ function OwnerSideBar() {
         style={{ display: isMobile && isSidebarOpen ? "block" : "none" }}
         onClick={() => setIsSidebarOpen(false)}
       ></div>
-      
+
       {/* Sidebar - simplified class logic */}
-      <div 
+      <div
         className={`side_bar ${isMobile ? "for_mobile" : ""} ${isMobile && isSidebarOpen ? "open_side_bar" : !isMobile && !isSidebarOpen ? "open_side_bar" : ""}`}
         style={{ transform: isMobile && !isSidebarOpen ? "translateX(-250px)" : !isMobile && isSidebarOpen ? "translateX(0)" : isMobile && isSidebarOpen ? "translateX(0)" : !isMobile && !isSidebarOpen ? "translateX(-250px)" : "" }}
       >
@@ -308,11 +316,49 @@ function OwnerSideBar() {
             ></div>
           )}
 
-          {!isProfilePage ? (
+          {isDrive ? (
+            // Show drive-specific menu or component
+            <div className="drive-menu">
+              <div
+                className="item profile-back-button"
+                onClick={handleBackButtonClick}
+              >
+                <div className="icon">
+                  <ArrowBackIcon className="menu-icon" />
+                </div>
+                <div className="text">Back to Dashboard</div>
+              </div>
+              <div className="profile-sections-container">
+                <div
+                  className="active_me_slider profile-active-slider"
+                  ref={profileSliderRef}
+                  style={{
+                    transition: "all 0.2s ease-in-out",
+                    position: "absolute",
+                    left: 0,
+                    width: "100%",
+                    zIndex: 0
+                  }}
+                ></div>
+
+                {profileSections.map((section, index) => (
+                  <div
+                    key={index}
+                    ref={setProfileItemRef(index)}
+                    className={`item ${section === activeProfileSection ? "active profile-section-active" : "profile-section"}`}
+                    onClick={() => handleProfileSectionClick(section)}
+                  >
+                    <div className="icon">{getProfileSectionIcon(section)}</div>
+                    <div className="text">{section}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : !isProfilePage ? (
             // Show regular menu items when not on profile page
             menuItems.map((item, index) => (
               <div key={index}>
-                <div 
+                <div
                   ref={setMenuItemRef(index)}
                   className={`item ${index === Math.floor(activeIndex) ? "active" : ""}`}
                   onClick={() => handleItemClick(index)}
@@ -321,14 +367,15 @@ function OwnerSideBar() {
                   <div className="text">{item.name}</div>
                   {item.subMenu && (
                     <div className={`submenu-arrow ${index === Math.floor(activeIndex) ? "open" : ""}`}>
-                      {index === Math.floor(activeIndex) ? 
-                        <KeyboardArrowDownIcon className="arrow-icon" /> : 
+                      {index === Math.floor(activeIndex) ? (
+                        <KeyboardArrowDownIcon className="arrow-icon" />
+                      ) : (
                         <KeyboardArrowRightIcon className="arrow-icon" />
-                      }
+                      )}
                     </div>
                   )}
                 </div>
-                
+
                 {/* Show sub-menu if item has sub-menu and is active */}
                 {item.subMenu && index === Math.floor(activeIndex) && (
                   <div className="submenu">
@@ -338,7 +385,6 @@ function OwnerSideBar() {
                         className={`submenu-item ${location.pathname === subItem.path ? "active" : ""}`}
                         onClick={() => {
                           navigate(subItem.path);
-                          // Update activeIndex to identify which sub-menu item is active
                           setActiveIndex(index + (subIndex + 1) / 10);
                           if (isMobile) {
                             setIsSidebarOpen(false);
@@ -356,8 +402,7 @@ function OwnerSideBar() {
           ) : (
             // Show profile sections when on profile page
             <>
-              {/* Back button for profile page */}
-              <div 
+              <div
                 className="item profile-back-button"
                 onClick={handleBackButtonClick}
               >
@@ -366,11 +411,8 @@ function OwnerSideBar() {
                 </div>
                 <div className="text">Back to Dashboard</div>
               </div>
-              
 
-              {/* Profile sections container with active slider */}
               <div className="profile-sections-container">
-                {/* Profile sections slider */}
                 <div
                   className="active_me_slider profile-active-slider"
                   ref={profileSliderRef}
@@ -382,10 +424,9 @@ function OwnerSideBar() {
                     zIndex: 0
                   }}
                 ></div>
-                
-                {/* Profile sections items */}
+
                 {profileSections.map((section, index) => (
-                  <div 
+                  <div
                     key={index}
                     ref={setProfileItemRef(index)}
                     className={`item ${section === activeProfileSection ? "active profile-section-active" : "profile-section"}`}
@@ -398,6 +439,7 @@ function OwnerSideBar() {
               </div>
             </>
           )}
+
 
           <div className="logout_button" onClick={handleLogout}>
             <div className="icon">

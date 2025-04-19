@@ -12,9 +12,9 @@ const RequestDetailPopup = ({
 }) => {
   const [reason, setReason] = useState("");
 
-  useState(() => {
-    console.log("requestData", requestData)
-  }, [requestData])
+  // useState(() => {
+  //   console.log("requestData", requestData)
+  // }, [requestData])
 
   // Function to handle rejection and update database
   const handleReject = async () => {
@@ -186,7 +186,7 @@ const RequestDetailPopup = ({
           <div className="popup-header">
             <h2>Request Details</h2>
             <button onClick={onClose} className="close-btn">
-              X
+              &times;
             </button>
           </div>
           <div className="popup-body">
@@ -212,31 +212,40 @@ const RequestDetailPopup = ({
           <div className="popup-header">
             <h2>Reject Request</h2>
             <button onClick={onClose} className="close-btn">
-              X
+              &times;
             </button>
           </div>
           <div className="popup-body">
-            {/* <h3>ID: {requestData.id}</h3> */}
-            <p>
-              <strong>
-                {requestData.package_name ? "Package Name" : "Equipment Name"}:
-              </strong>{" "}
-              {requestData.package_name || requestData.equipment_name}
-            </p>
-            <p>
-              <strong>Reason for Rejection:</strong>
-            </p>
+            <div style={{ marginBottom: "20px" }}>
+              <p style={{ fontSize: "15px", color: "#555" }}>
+                <strong>
+                  {requestData.package_name
+                    ? "Package Name"
+                    : requestData.equipment_name
+                      ? "Equipment Name"
+                      : "Service Name"}:
+                </strong>{" "}
+                <span style={{ fontWeight: "500", color: "#333" }}>
+                  {requestData.package_name || requestData.equipment_name || requestData.service_name}
+                </span>
+              </p>
+            </div>
+
+            <label htmlFor="rejection-reason" style={{ display: "block", marginBottom: "10px", color: "#555", fontWeight: "500" }}>
+              Reason for Rejection:
+            </label>
             <textarea
+              id="rejection-reason"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Enter reason here"
+              placeholder="Please provide a detailed reason for rejecting this request..."
             />
             <div className="popup-action">
-              <button onClick={handleReject} className="reject-btn">
-                Reject
-              </button>
               <button onClick={onClose} className="cancel-btn">
                 Cancel
+              </button>
+              <button onClick={handleReject} className="reject-btn">
+                Reject Request
               </button>
             </div>
           </div>
