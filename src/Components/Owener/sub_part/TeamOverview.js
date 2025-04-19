@@ -658,6 +658,20 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
   const isRejected = member.member_status === "Rejected";
   const emailDisplay = member.member_email || member.team_member_email || "";
 
+  function getTeamMemberProfilePic(value) {
+    if (value.includes("1")) {
+      return profile_pic_user1;
+    } else if (value.includes("2")) {
+      return profile_pic_user2;
+    } else if (value.includes("3")) {
+      return profile_pic_user3;
+    } else if (value.includes("4")) {
+      return profile_pic_user4;
+    } else {
+      return profile_pic_user1;
+    }
+  }
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isDropdownActive && !event.target.closest('.more-options-container')) {
@@ -729,13 +743,19 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
       </div>
       <div className="profile-section">
         <div className="profile-image">
+        {["1", "2", "3", "4"].includes(member.member_profile_img) ? (
           <img
-            src={emailDisplay ? `${Server_url}/owner/profile-image/${emailDisplay}` : member.member_profile_img}
+            src={getTeamMemberProfilePic(member.member_profile_img)}
             alt={member.member_name}
-            onError={(e) => {
-              e.target.src = member.member_profile_img || profile_pic_user1;
-            }}
+            className="member-img"
           />
+        ) : (
+          <img
+            src={`${Server_url}/owner/profile-image/${member.team_member_email}`}
+            alt={member.member_name}
+            className="member-img"
+          />
+        )}
         </div>
         <h3>{member.member_name}</h3>
         <p className="email" style={{ maxWidth: "100%", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{emailDisplay || "No email provided"}</p>
