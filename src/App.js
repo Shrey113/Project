@@ -75,7 +75,7 @@ import AllPhotoFiles from "./Components/Owener/sub_part/Search_photographer/sub_
 import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_part/AllServices .js";
 import StackingCards from "./Components/BeforeLogin/new_design/StackingCards/StackingCards.js";
 import OwnerLayout from "./Components/Owener/OwnerLayout.js";
-
+import DriveMainPage from "./Components/Owener/sub_part/DrivePart/drive_main_page.js";
 
 
 function App() {
@@ -122,12 +122,12 @@ function App() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedLocation, setSelectedLocation] = useState("all");
     const location = window.location.pathname;
-    
+
     return OwnerStatus === "Accept" ? (
       <OwnerLayout>
         <OwnerNavbar
           searchTerm={location === "/Owner/search_photographer" ? searchTerm : ''}
-          setSearchTerm={location === "/Owner/search_photographer" ? setSearchTerm : ''} 
+          setSearchTerm={location === "/Owner/search_photographer" ? setSearchTerm : ''}
           selectedLocation={selectedLocation}
           setSelectedLocation={setSelectedLocation}
         />
@@ -135,7 +135,7 @@ function App() {
         <ActivePage
           category={category}
           searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm} 
+          setSearchTerm={setSearchTerm}
           selectedLocation={selectedLocation}
           setSelectedLocation={setSelectedLocation}
         />
@@ -204,17 +204,17 @@ function App() {
           if (data.user) {
             // Create a payload with only the fields that have changed
             const userFields = [
-              'client_id', 'user_name', 'user_email', 'user_password', 
-              'business_name', 'business_address', 'mobile_number', 
+              'client_id', 'user_name', 'user_email', 'user_password',
+              'business_name', 'business_address', 'mobile_number',
               'gst_number', 'user_Status', 'admin_message',
               'set_status_by_admin', 'first_name', 'last_name', 'gender',
               'social_media', 'website', 'services', 'business_email',
               'business_profile_base64', 'user_profile_image_base64'
             ];
-            
+
             const payload = {};
             let hasChanges = false;
-            
+
             userFields.forEach(field => {
               const newValue = data.user[field] || null;
               if (user[field] !== newValue) {
@@ -222,7 +222,7 @@ function App() {
                 hasChanges = true;
               }
             });
-            
+
             // Only dispatch if there are actual changes
             if (hasChanges) {
               dispatch({
@@ -495,6 +495,16 @@ function App() {
             element={
               authStatus.owner ? (
                 <SetOwnerPage ActivePage={Profile} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
+          <Route
+            path="/Owner/drive"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={DriveMainPage} />
               ) : (
                 <LoginRegisterOwener />
               )

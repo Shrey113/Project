@@ -11,6 +11,7 @@ import { CiCirclePlus, CiCircleMinus } from "react-icons/ci";
 import { FaBuilding, FaMapMarkerAlt, FaUser, FaArrowRight } from "react-icons/fa";
 import dayjs from "dayjs";
 
+import user_backicon from "./../../../Owener/img/user_backicon.png"
 import { Server_url, showAcceptToast, showRejectToast, showWarningToast } from "../../../../redux/AllData";
 import "./../Calendar/part/AddDetailsPop.css";
 
@@ -150,29 +151,29 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     }
   };
 
-// Helper function to assign team members
-const assignTeamMembers = async (eventId) => {
-  // Ensure you're only sending member_id in each object
-  const formattedMembers = assignedMembers.map((member) => ({
-    member_id: member.member_id,
-  }));
+  // Helper function to assign team members
+  const assignTeamMembers = async (eventId) => {
+    // Ensure you're only sending member_id in each object
+    const formattedMembers = assignedMembers.map((member) => ({
+      member_id: member.member_id,
+    }));
 
-  const response = await fetch(`${Server_url}/add-team-members`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      user_email: user.user_email,
-      team_members: formattedMembers,
-      event_id: eventId,
-    }),
-  });
+    const response = await fetch(`${Server_url}/add-team-members`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_email: user.user_email,
+        team_members: formattedMembers,
+        event_id: eventId,
+      }),
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (data.message !== "Team members assigned successfully") {
-    throw new Error("Failed to assign team members");
-  }
-};
+    if (data.message !== "Team members assigned successfully") {
+      throw new Error("Failed to assign team members");
+    }
+  };
 
   const confirmEquipmentEvent = async (eventId) => {
     try {
@@ -345,7 +346,7 @@ const assignTeamMembers = async (eventId) => {
 
         // Update states with the fetched data
         setTeamMembers(inactiveData);
-        
+
         // Make sure we handle all potential formats
         let busyIds = [];
         if (Array.isArray(filteredData.assignedTeamMembers)) {
@@ -354,7 +355,7 @@ const assignTeamMembers = async (eventId) => {
             return typeof id === 'number' ? id : parseInt(id);
           }).filter(id => !isNaN(id)); // Remove any NaN values
         }
-        
+
         console.log("Final list of busy member IDs:", busyIds);
         setDisabledTeamMembers(busyIds);
 
@@ -367,14 +368,14 @@ const assignTeamMembers = async (eventId) => {
     // Call fetchTeamMembers whenever user email or event dates change
     fetchTeamMembers();
   }, [user.user_email, newEvent.start, newEvent.end]);
-  
+
 
 
   // Helper function to check if a member is busy during the event time
   const isMemberBusy = (member) => {
-    const memberId = typeof member.member_id === 'number' ? 
+    const memberId = typeof member.member_id === 'number' ?
       member.member_id : parseInt(member.member_id);
-      
+
     const result = DisabledTeamMembers.includes(memberId);
     console.log(`Checking if member ${member.member_name} (ID: ${memberId}) is busy:`, result);
     return result;
@@ -556,7 +557,7 @@ const assignTeamMembers = async (eventId) => {
       <div className="profile-header">
         <div className="profile-image-container">
           <img
-            src={profile_data?.user_profile_image_base64 || "https://via.placeholder.com/120"}
+            src={`${Server_url}/owner/profile-image/${profile_data?.user_email}` || user_backicon}
             alt={profile_data?.user_name || "User"}
             className="profile-image"
           />

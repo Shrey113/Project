@@ -736,7 +736,7 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
           />
         </div>
         <h3>{member.member_name}</h3>
-        <p className="email">{emailDisplay || "No email provided"}</p>
+        <p className="email" style={{ maxWidth: "100%", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{emailDisplay || "No email provided"}</p>
         {isPending && <div className="pending-badge">Invitation Pending</div>}
         {isRejected && <div className="rejected-badge">Invitation Rejected</div>}
       </div>

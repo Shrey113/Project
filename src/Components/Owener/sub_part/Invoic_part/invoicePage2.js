@@ -78,10 +78,10 @@ function InvoicePage2() {
           throw new Error("Failed to upload image.");
         }
 
-        const data = await response.json();
-        if (data.message === "Signature uploaded successfully") {
-          console.log("Signature uploaded successfully");
-        }
+        await response.json();
+        // if (data.message === "Signature uploaded successfully") {
+        //   console.log("Signature uploaded successfully");
+        // }
       } catch (error) {
         console.error("Error uploading signature:", error);
       }
@@ -134,7 +134,7 @@ function InvoicePage2() {
           }
         );
         const data = await response.json();
-        console.log("services", data);
+        // console.log("services", data);
 
         set_services(data);
         // set_filter_services(data);
@@ -968,7 +968,7 @@ function InvoicePage2() {
         terms: terms,
       };
 
-      console.log("Draft Invoice id :", draftInvoice);
+      // console.log("Draft Invoice id :", draftInvoice);
       const response = await fetch(`${Server_url}/save-draft`, {
         method: "POST",
         headers: {
@@ -1087,8 +1087,8 @@ function InvoicePage2() {
         throw new Error("Failed to upload image.");
       }
 
-      const data = await response.json();
-      console.log(data);
+      await response.json();
+      // console.log(data);
       showAcceptToast({ message: "Image uploaded successfully!" });
     } catch (error) {
       console.error("Error uploading image:", error);
