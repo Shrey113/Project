@@ -357,25 +357,25 @@ const PopUp = ({ action, member, onClose, onSave }) => {
         <div className="profile-pic-selection">
           <div
             className={`profile-option ${formData.member_profile_img === profile_pic_user1 ? "selected" : ""}`}
-            onClick={() => handleProfilePicChange(profile_pic_user1)}
+            onClick={() => handleProfilePicChange("1")}
           >
             <img src={profile_pic_user1} alt="User 1" />
           </div>
           <div
             className={`profile-option ${formData.member_profile_img === profile_pic_user2 ? "selected" : ""}`}
-            onClick={() => handleProfilePicChange(profile_pic_user2)}
+            onClick={() => handleProfilePicChange("2")}
           >
             <img src={profile_pic_user2} alt="User 2" />
           </div>
           <div
             className={`profile-option ${formData.member_profile_img === profile_pic_user3 ? "selected" : ""}`}
-            onClick={() => handleProfilePicChange(profile_pic_user3)}
+            onClick={() => handleProfilePicChange("3")}
           >
             <img src={profile_pic_user3} alt="User 3" />
           </div>
           <div
             className={`profile-option ${formData.member_profile_img === profile_pic_user4 ? "selected" : ""}`}
-            onClick={() => handleProfilePicChange(profile_pic_user4)}
+            onClick={() => handleProfilePicChange("4")}
           >
             <img src={profile_pic_user4} alt="User 4" />
           </div>
@@ -568,22 +568,24 @@ const PopUp = ({ action, member, onClose, onSave }) => {
           </div>
         )}
 
-        {activeTab === "manual" && <div className="popup-actions">
-          <button className="btn btn-cancel" onClick={onClose}>Cancel</button>
-          {action !== "View" && (
-            <button
-              className="btn btn-save"
-              onClick={handleSubmit}
-              disabled={(action === "Add" && activeTab === "search" && !selectedSearchResult) || isSending}
-            >
-              {isSending ? (
-                <span className="loading-spinner-button"></span>
-              ) : (
-                action === "Add" ? "Send Invitation" : "Save"
-              )}
-            </button>
-          )}
-        </div>}
+        {activeTab === "manual" &&
+          <div className="popup-actions">
+            <button className="btn btn-cancel" onClick={onClose}>Cancel</button>
+            {action !== "View" && (
+              <button
+                className="btn btn-save"
+                onClick={handleSubmit}
+                disabled={(action === "Add" && activeTab === "search" && !selectedSearchResult) || isSending}
+              >
+                {isSending ? (
+                  <span className="loading-spinner-button"></span>
+                ) : (
+                  action === "Add" ? "Send Invitation" : "Save"
+                )}
+              </button>
+            )}
+          </div>
+        }
       </div>
     </div>
   );

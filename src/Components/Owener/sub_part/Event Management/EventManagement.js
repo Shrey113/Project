@@ -285,17 +285,22 @@ function EventManagement({ category }) {
     set_count_for_service(service_count);
   }, [receiver_equipment_data, receiver_package_data, receiver_service_data])
 
-  const ActionMenu = ({ onApprove, onReject, onInfo }) => {
+  const ActionMenu = ({ onApprove, onReject, onInfo, eventStatus }) => {
+    const isFinal = eventStatus === "Accepted" || eventStatus === "Rejected";
     return (
       <div className="action-menu">
-        <button onClick={onApprove} className="action-menu-btn approve">
-          <span className="icon">✓</span>
-          <span className="text">Approve</span>
-        </button>
-        <button onClick={onReject} className="action-menu-btn reject">
-          <span className="icon">✕</span>
-          <span className="text">Reject</span>
-        </button>
+        {!isFinal && (
+          <>
+            <button onClick={onApprove} className="action-menu-btn approve">
+              <span className="icon">✓</span>
+              <span className="text">Approve</span>
+            </button>
+            <button onClick={onReject} className="action-menu-btn reject">
+              <span className="icon">✕</span>
+              <span className="text">Reject</span>
+            </button>
+          </>
+        )}
         <button onClick={onInfo} className="action-menu-btn info">
           <span className="icon">ℹ</span>
           <span className="text">Info</span>
@@ -333,9 +338,7 @@ function EventManagement({ category }) {
     const updateNotificationIsSeen = async (notification_type) => {
       try {
         const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_type}`);
-        console.log("notification type ", notification_type)
-        const data = await response.json();
-        console.log("Notification marked as seen:", data);
+        await response.json();
       } catch (error) {
         console.error("Failed to update notification:", error);
       }
@@ -757,6 +760,7 @@ function EventManagement({ category }) {
                                     {isMenuOpen === item.id && (
                                       <div ref={menuRef}>
                                         <ActionMenu
+                                          eventStatus={item.event_status}
                                           onApprove={() => {
                                             set_data(item);
                                             setIsMenuOpen(null);
@@ -860,6 +864,7 @@ function EventManagement({ category }) {
                                     {isMenuOpen === item.id && (
                                       <div ref={menuRef}>
                                         <ActionMenu
+                                          eventStatus={item.event_status}
                                           onApprove={() => {
                                             set_data(item);
                                             setIsMenuOpen(null);
@@ -962,6 +967,7 @@ function EventManagement({ category }) {
                                     {isMenuOpen === item.id && (
                                       <div ref={menuRef}>
                                         <ActionMenu
+                                          eventStatus={item.event_status}
                                           onApprove={() => {
                                             set_data(item);
                                             setIsMenuOpen(null);

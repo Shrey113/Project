@@ -15,6 +15,11 @@ import user_backicon from "./../../../Owener/img/user_backicon.png"
 import { Server_url, showAcceptToast, showRejectToast, showWarningToast } from "../../../../redux/AllData";
 import "./../Calendar/part/AddDetailsPop.css";
 
+import profile_pic_user1 from "./profile_pic/user1.jpg";
+import profile_pic_user2 from "./profile_pic/user2.jpg";
+import profile_pic_user3 from "./profile_pic/user3.jpg";
+import profile_pic_user4 from "./profile_pic/user4.jpg";
+
 import socket from "../../../../redux/socket";
 
 // Add styles for status tags
@@ -91,7 +96,21 @@ const formatDate = (isoString) => {
 };
 
 const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, actionButtonClass }) => {
+  function getTeamMemberProfilePic(value) {
+    if (value.includes("1")) {
+      return profile_pic_user1;
+    } else if (value.includes("2")) {
+      return profile_pic_user2;
+    } else if (value.includes("3")) {
+      return profile_pic_user3;
+    } else if (value.includes("4")) {
+      return profile_pic_user4;
+    } else {
+      return profile_pic_user1;
+    }
+  }
   // Determine status icon based on member's confirmation status
+  // console.log("member", member)
   const getMemberStatusIcon = () => {
     if (!member.confirmation_status || member.confirmation_status === 'Pending') {
       return <FaClock style={{ color: "#F59E0B" }} title="Awaiting response" />;
@@ -106,10 +125,18 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
   return (
     <li className={`team-member ${isDisabled ? "down_opacity" : ""}`}>
       <div className="member-avatar-container">
-        {member.team_member_email ? (
-          <img src={`${Server_url}/owner/profile-image/${member.team_member_email}`} alt={member.member_name} className="member-img" />
+        {["1", "2", "3", "4"].includes(member.member_profile_img) ? (
+          <img
+            src={getTeamMemberProfilePic(member.member_profile_img)}
+            alt={member.member_name}
+            className="member-img"
+          />
         ) : (
-          <img src={member.member_profile_img} alt={member.member_name} className="member-img" />
+          <img
+            src={`${Server_url}/owner/profile-image/${member.team_member_email}`}
+            alt={member.member_name}
+            className="member-img"
+          />
         )}
       </div>
       <div className="member-info">
