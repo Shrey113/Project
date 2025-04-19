@@ -54,8 +54,13 @@ function AllServices() {
     };
 
 
-    const handleBooking = (serviceId) => {
-        console.log(`Booking service with ID: ${serviceId}`);
+    const handleBooking = (serviceId, event) => {
+        event.stopPropagation(); // Prevent triggering handleItemClick
+        const service = services.find(service => service.id === serviceId);
+        if (service) {
+            setSelectedData(service);
+            setShowSelectedCard(true);
+        }
     };
 
     return (
@@ -83,7 +88,7 @@ function AllServices() {
                                 <span className="per_day">/Day</span>
                             </div>
                             <hr style={{ width: "98%", marginTop: "5px" }} />
-                            <button onClick={() => handleBooking(service.id)}>Book Service</button>
+                            <button onClick={(e) => handleBooking(service.id, e)}>Book Service</button>
                         </div>
                     </div>
                 ))}

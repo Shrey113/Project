@@ -122,6 +122,13 @@
     }
 }
 
+@media (max-width: 650px) {
+
+    #owner-main-container-EventManagement .action-buttons button {
+        justify-content: flex-start;
+    }
+}
+
 @media (max-width: 575px) {
 
     #owner-main-container-EventManagement .received_package_table th:nth-child(4),

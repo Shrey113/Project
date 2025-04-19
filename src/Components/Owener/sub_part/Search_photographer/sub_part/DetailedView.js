@@ -32,7 +32,7 @@ function DetailedView() {
   useEffect(() => {
     if (selectedData) {
       setSelectedOwner({
-        user_email: selectedData.user_email,
+        user_email: selectedData.user_email || selectedData.photographer_email || "",
       });
     }
   }, [selectedData]);
@@ -321,7 +321,7 @@ function DetailedView() {
 
       {showSelectedCard && selectedData && (
         <SeletedCard
-          type={type === "packages" ? "package" : "equipment"}
+          type={type === "packages" ? "package" : type === "service" ? "service" : "equipment"}
           onClose={() => {
             setShowSelectedCard(false);
             setSelectedData(null);

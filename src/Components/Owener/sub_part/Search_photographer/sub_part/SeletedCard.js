@@ -67,10 +67,10 @@ const theme = createTheme({
 // Collapsible section component
 const CollapsibleSection = ({ title, children, icon, defaultOpen = false }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  
+
   return (
     <div className="booking-section">
-      <div 
+      <div
         className={`collapsible-header ${isOpen ? 'collapsible-header-active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -78,9 +78,9 @@ const CollapsibleSection = ({ title, children, icon, defaultOpen = false }) => {
           {icon}
           <span>{title}</span>
         </div>
-        <BsChevronDown 
-          className={`collapsible-icon ${isOpen ? 'collapsible-icon-open' : ''}`} 
-          size={16} 
+        <BsChevronDown
+          className={`collapsible-icon ${isOpen ? 'collapsible-icon-open' : ''}`}
+          size={16}
         />
       </div>
       <div className={`collapsible-content ${isOpen ? 'collapsible-content-open' : ''}`}>
@@ -97,6 +97,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
   useEffect(() => {
     console.log("selectedData", selectedData);
+    console.log("selectedOwner", selectedOwner);
     if (type === "equipment" && selectedData.equipment_id) {
       fetch(`${Server_url}/get_equpment_by_time`, {
         method: "POST",
@@ -190,11 +191,21 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
   };
 
   const add_equipment_request = async () => {
+    if (!user || !user.user_email) {
+      showRejectToast({ message: "User information is missing" });
+      return;
+    }
+
+    if (!selectedOwner || !selectedOwner.user_email) {
+      showRejectToast({ message: "Owner information is missing" });
+      return;
+    }
+
     const data = {
       ...formData,
       event_name: type,
       sender_email: user.user_email,
-      receiver_email: selectedOwner.user_email,
+      receiver_email: selectedOwner,
     };
     console.log("form data", data);
 
@@ -219,10 +230,21 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       onClose();
     } catch (error) {
       console.error("Error adding equipment request:", error);
+      showRejectToast({ message: `Error: ${error.message}` });
     }
   };
 
   const add_package_request = async () => {
+    if (!user || !user.user_email) {
+      showRejectToast({ message: "User information is missing" });
+      return;
+    }
+
+    if (!selectedOwner || !selectedOwner.user_email) {
+      showRejectToast({ message: "Owner information is missing" });
+      return;
+    }
+
     const data = {
       ...formData,
       event_name: type,
@@ -247,15 +269,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       onClose();
     } catch (error) {
       console.error("Error adding package request:", error);
+      showRejectToast({ message: `Error: ${error.message}` });
     }
   };
 
   const add_service_request = async () => {
+    console.log("add_service_request", selectedOwner);
+    if (!user || !user.user_email) {
+      showRejectToast({ message: "User information is missing" });
+      return;
+    }
+
+    if (!selectedOwner || !selectedOwner) {
+      showRejectToast({ message: "Owner information is missing" });
+      return;
+    }
+
     const data = {
       ...formData,
       event_name: type,
       sender_email: user.user_email,
-      receiver_email: selectedOwner.user_email,
+      receiver_email: selectedOwner,
     };
     console.log("Service form data", data);
 
@@ -277,6 +311,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       onClose();
     } catch (error) {
       console.error("Error adding service request:", error);
+      showRejectToast({ message: `Error: ${error.message}` });
     }
   };
 
@@ -462,8 +497,8 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
             </div>
             <form onSubmit={handleSubmit} className="booking-form">
               {/* Information Display Section */}
-              <CollapsibleSection 
-                title="Equipment Details" 
+              <CollapsibleSection
+                title="Equipment Details"
                 icon={<MdBusinessCenter size={16} />}
               >
                 <div className="info-section">
@@ -598,7 +633,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="form-group">
                     <label>
                       <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
@@ -628,7 +663,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                     placeholder="Any specific requirements for your booking"
                   />
                 </div>
-                
+
                 <div className="info-group total-amount">
                   <label>Total Amount</label>
                   <div className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -649,8 +684,8 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
             <div className="package-card-title-selected">Package Booking</div>
             <form onSubmit={handleSubmit} className="booking-form">
               {/* Information Display Section */}
-              <CollapsibleSection 
-                title="Package Details" 
+              <CollapsibleSection
+                title="Package Details"
                 icon={<MdBusinessCenter size={16} />}
               >
                 <div className="info-section">
@@ -674,7 +709,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                   </div>
                 </div>
               </CollapsibleSection>
-              
+
               {/* Combined Booking Details Section */}
               <div className="booking-section">
 
@@ -777,7 +812,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="form-group">
                     <label>
                       <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
@@ -796,7 +831,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="form-group">
                   <label>Requirements (Optional)</label>
                   <textarea
@@ -807,7 +842,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                     placeholder="Any specific requirements for your package"
                   />
                 </div>
-                
+
                 <div className="info-group total-amount">
                   <label>Total Amount</label>
                   <div className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -828,8 +863,8 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
             <div className="service-card-title-selected">Service Booking</div>
             <form onSubmit={handleSubmit} className="booking-form">
               {/* Information Display Section */}
-              <CollapsibleSection 
-                title="Service Details" 
+              <CollapsibleSection
+                title="Service Details"
                 icon={<MdCategory size={16} />}
               >
                 <div className="info-section">
@@ -849,7 +884,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                   </div>
                 </div>
               </CollapsibleSection>
-              
+
               {/* Combined Booking Details Section */}
               <div className="booking-section">
 
@@ -952,7 +987,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="form-group">
                     <label>
                       <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
@@ -971,7 +1006,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="form-group">
                   <label>Requirements (Optional)</label>
                   <textarea
@@ -982,7 +1017,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                     placeholder="Any specific requirements for this service"
                   />
                 </div>
-                
+
                 <div className="info-group total-amount">
                   <label>Total Amount</label>
                   <div className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
