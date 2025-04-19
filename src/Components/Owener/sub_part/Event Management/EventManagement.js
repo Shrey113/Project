@@ -13,12 +13,9 @@ import AddDetailsPop from "./AddDetailsPop";
 import socket from "../../../../redux/socket";
 import { IoCloseOutline } from "react-icons/io5";
 import { IoInformation } from "react-icons/io5";
-<<<<<<< HEAD
-import PaginatedTable from "./PaginatedTable";
-=======
 // import { HiOutlineChevronUpDown } from "react-icons/hi2";
 // import { add } from "date-fns";
->>>>>>> 452b3f66cae3e93cc47b17d3f00b07b232f22c99
+
 function EventManagement({ category }) {
   const user = useSelector((state) => state.user);
   const [events, setEvents] = useState([]);
@@ -288,24 +285,20 @@ function EventManagement({ category }) {
     set_count_for_service(service_count);
   }, [receiver_equipment_data, receiver_package_data, receiver_service_data])
 
-  const ActionMenu = ({ onApprove, onReject, onInfo, status }) => {
+  const ActionMenu = ({ onApprove, onReject, onInfo }) => {
     return (
       <div className="action-menu">
-        {status === "Pending" && (
-          <>
-            <button onClick={onApprove} className="action-menu-btn approve">
-              <span className="icon">✓</span>
-              <span className="text">Approve</span>
-            </button>
-            <button onClick={onReject} className="action-menu-btn reject">
-              <span className="icon">✕</span>
-              <span className="text">Reject</span>
-            </button>
-          </>
-        )}
+        <button onClick={onApprove} className="action-menu-btn approve">
+          <span className="icon">✓</span>
+          <span className="text">Approve</span>
+        </button>
+        <button onClick={onReject} className="action-menu-btn reject">
+          <span className="icon">✕</span>
+          <span className="text">Reject</span>
+        </button>
         <button onClick={onInfo} className="action-menu-btn info">
           <span className="icon">ℹ</span>
-          <span className="text">View Details</span>
+          <span className="text">Info</span>
         </button>
       </div>
     );
@@ -340,7 +333,9 @@ function EventManagement({ category }) {
     const updateNotificationIsSeen = async (notification_type) => {
       try {
         const response = await fetch(`${Server_url}/owner/update-Notification-is-seen/${notification_type}`);
-        await response.json();
+        console.log("notification type ", notification_type)
+        const data = await response.json();
+        console.log("Notification marked as seen:", data);
       } catch (error) {
         console.error("Failed to update notification:", error);
       }
@@ -356,7 +351,9 @@ function EventManagement({ category }) {
   const fetchProfileData = async (sender_email) => {
     try {
       const respose = await fetch(`${Server_url}/owner/fetch_profile_in_equipment/${sender_email}`,)
+      console.log("sender email", sender_email);
       const data = await respose.json();
+      console.log("profile data", data)
       set_profile_data(data)
     } catch (e) {
       console.error("error while fetching the profile data", e)
@@ -409,15 +406,9 @@ function EventManagement({ category }) {
 
                 <div className="modal-header-container">
                   <h3 className="modal-header">Request Details</h3>
-                  {selected_sent_item?.event_status?.toLowerCase() === 'waiting on team' ? (
-                    <span className="waiting-status">
-                       Team Confirmation
-                    </span>
-                  ) : (
-                    <span className={`status ${selected_sent_item?.event_status?.toLowerCase()}`}>
-                      {selected_sent_item?.event_status || "Pending"}
-                    </span>
-                  )}
+                  <span className={`status ${selected_sent_item?.event_status?.toLowerCase()}`}>
+                    {selected_sent_item?.event_status || "Pending"}
+                  </span>
                 </div>
                 <div className="modal-content-container">
                   {/* Left Side: Main Request Details */}
@@ -591,32 +582,34 @@ function EventManagement({ category }) {
               <div className="section-container">
                 <div className="table-container">
                   {sent_package_data.length > 0 ? (
-                    <PaginatedTable
-                      data={sent_package_data}
-                      columns={[
-                        { header: 'NO.', style: { width: "10px" } },
-                        { header: 'Package Name' },
-                        { header: 'Service' },
-                        { header: 'Requirements' },
-                        { header: 'Price' },
-                        { header: 'Receiver' },
-                        { header: 'Status' }
-                      ]}
-                      renderRow={(item, index) => (
-                        <tr key={index} onClick={() => set_selected_sent_item(item)}>
-                          <td>{index + 1}</td>
-                          <td className="package_name">{item.package_name}</td>
-                          <td>{item.service}</td>
-                          <td className="description">{item.requirements}</td>
-                          <td>₹{item.price}</td>
-                          <td>{item.receiver_email}</td>
-                          <td className={`status ${item.event_status?.toLowerCase()}`}>
-                            <span>{item.event_status}</span>
-                          </td>
+                    <table className="sent_package_table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: "10px" }}>NO.</th>
+                          <th>Package Name</th>
+                          <th>Service</th>
+                          <th>Requirements</th>
+                          <th>Price</th>
+                          <th>Receiver</th>
+                          <th>Status</th>
                         </tr>
-                      )}
-                      emptyMessage="No Sent Package Requests"
-                    />
+                      </thead>
+                      <tbody>
+                        {sent_package_data.map((item, index) => (
+                          <tr key={index} onClick={() => set_selected_sent_item(item)}>
+                            <td>{index + 1}</td>
+                            <td className="package_name">{item.package_name}</td>
+                            <td>{item.service}</td>
+                            <td className="description">{item.requirements}</td>
+                            <td>₹{item.price}</td>
+                            <td>{item.receiver_email}</td>
+                            <td className={`status ${item.event_status?.toLowerCase()}`}>
+                              <span>{item.event_status}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   ) : (
                     <p className="no-data-message">No Sent Package Requests</p>
                   )}
@@ -629,32 +622,34 @@ function EventManagement({ category }) {
               <div className="section-container">
                 <div className="table-container">
                   {sent_equipment_data.length > 0 ? (
-                    <PaginatedTable
-                      data={sent_equipment_data}
-                      columns={[
-                        { header: 'No.' },
-                        { header: 'Equipment Name' },
-                        { header: 'Company' },
-                        { header: 'Type' },
-                        { header: 'Days' },
-                        { header: 'Receiver' },
-                        { header: 'Status' }
-                      ]}
-                      renderRow={(item, index) => (
-                        <tr key={index} onClick={() => set_selected_sent_item(item)}>
-                          <td>{index + 1}</td>
-                          <td>{item.equipment_name}</td>
-                          <td>{item.equipment_company}</td>
-                          <td>{item.equipment_type}</td>
-                          <td>{item.days_required}</td>
-                          <td>{item.receiver_email}</td>
-                          <td className={`status ${item.event_status?.toLowerCase()}`}>
-                            <span>{item.event_status}</span>
-                          </td>
+                    <table className="sent_equipment_table">
+                      <thead>
+                        <tr>
+                          <th>No.</th>
+                          <th>Equipment Name</th>
+                          <th>Company</th>
+                          <th>Type</th>
+                          <th>Days</th>
+                          <th>Receiver</th>
+                          <th>Status</th>
                         </tr>
-                      )}
-                      emptyMessage="No Sent Equipment Requests"
-                    />
+                      </thead>
+                      <tbody>
+                        {sent_equipment_data.map((item, index) => (
+                          <tr key={index} onClick={() => set_selected_sent_item(item)}>
+                            <td>{index + 1}</td>
+                            <td>{item.equipment_name}</td>
+                            <td>{item.equipment_company}</td>
+                            <td>{item.equipment_type}</td>
+                            <td>{item.days_required}</td>
+                            <td>{item.receiver_email}</td>
+                            <td className={`status ${item.event_status?.toLowerCase()}`}>
+                              <span>{item.event_status}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   ) : (
                     <p className="no-data-message">No Sent Equipment Requests</p>
                   )}
@@ -666,30 +661,32 @@ function EventManagement({ category }) {
               <div className="section-container">
                 <div className="table-container">
                   {sent_service_data.length > 0 ? (
-                    <PaginatedTable
-                      data={sent_service_data}
-                      columns={[
-                        { header: 'NO.' },
-                        { header: 'Service Name' },
-                        { header: 'Price' },
-                        { header: 'Days' },
-                        { header: 'Receiver' },
-                        { header: 'Status' }
-                      ]}
-                      renderRow={(item, index) => (
-                        <tr key={index} onClick={() => set_selected_sent_item(item)}>
-                          <td>{index + 1}</td>
-                          <td>{item.service_name}</td>
-                          <td>₹{item.total_amount}</td>
-                          <td>{item.days_required}</td>
-                          <td>{item.receiver_email}</td>
-                          <td className={`status ${item.event_status?.toLowerCase()}`}>
-                            <span>{item.event_status}</span>
-                          </td>
+                    <table className="sent_service_table">
+                      <thead>
+                        <tr>
+                          <th>NO.</th>
+                          <th>Service Name</th>
+                          <th>Price</th>
+                          <th>Days</th>
+                          <th>Receiver</th>
+                          <th>Status</th>
                         </tr>
-                      )}
-                      emptyMessage="No Sent Service Requests"
-                    />
+                      </thead>
+                      <tbody>
+                        {sent_service_data.map((item, index) => (
+                          <tr key={index} onClick={() => set_selected_sent_item(item)}>
+                            <td>{index + 1}</td>
+                            <td>{item.service_name}</td>
+                            <td>₹{item.total_amount}</td>
+                            <td>{item.days_required}</td>
+                            <td>{item.receiver_email}</td>
+                            <td className={`status ${item.event_status?.toLowerCase()}`}>
+                              <span>{item.event_status}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   ) : (
                     <p className="no-data-message">No Sent Service Requests</p>
                   )}
@@ -711,83 +708,93 @@ function EventManagement({ category }) {
                   {receiver_package_data?.filter(
                     (item) => packageFilter === "all" || item.event_status === packageFilter
                   ).length > 0 ? (
-                    <PaginatedTable
-                      data={receiver_package_data?.filter(
-                        (item) => packageFilter === "all" || item.event_status === packageFilter
-                      )}
-                      columns={[
-                        { header: 'NO.' },
-                        { header: 'Sender Email' },
-                        { header: 'Package Name' },
-                        { header: 'Price' },
-                        { header: 'Location' },
-                        { header: 'Status' },
-                        { header: 'Action' }
-                      ]}
-                      renderRow={(item, index) => (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
-                          <td>{item.sender_email}</td>
-                          <td>{item.package_name}</td>
-                          <td>₹{item.price}</td>
-                          <td style={{ maxWidth: "180px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                          <td className={`status ${item.event_status?.toLowerCase()}`}>
-                            <span>{item.event_status}</span>
-                          </td>
-                          <td className="action-buttons">
-                            {window.innerWidth <= 660 ? (
-                              <div style={{ position: "relative" }}>
-                                <button
-                                  className="mobile-action-btn"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
-                                  }}
-                                >
-                                  <span className="dots-icon">⋮</span>
-                                </button>
-                                {isMenuOpen === item.id && (
-                                  <div ref={menuRef}>
-                                    <ActionMenu
-                                      onApprove={() => {
-                                        set_data(item);
-                                        setIsMenuOpen(null);
+                    <table className="received_package_table">
+                      <thead>
+                        <tr>
+                          <th>NO.</th>
+                          <th>Sender Email</th>
+                          <th>Package Name</th>
+                          <th>Price</th>
+                          <th>Location</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {receiver_package_data
+                          ?.filter(
+                            (item) => packageFilter === "all" || item.event_status === packageFilter
+                          )
+                          .map((item, index) => (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{item.sender_email}</td>
+                              <td>{item.package_name}</td>
+                              <td>₹{item.price}</td>
+                              <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
+                              <td className={`status ${item.event_status?.toLowerCase()}`}>
+                                <span>{item.event_status}</span>
+                              </td>
+                              <td className="action-buttons">
+                                {window.innerWidth <= 660 ? (
+                                  <div style={{ position: "relative" }}>
+                                    <button
+                                      className="mobile-action-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
                                       }}
-                                      onReject={() => {
-                                        handleRejectClick(item);
-                                        setIsMenuOpen(null);
+                                      style={{
+                                        fontSize: "20px",
+                                        padding: "4px 12px",
+                                        borderRadius: "4px",
+                                        background: "transparent",
+                                        border: "1px solid #ddd",
                                       }}
-                                      onInfo={() => {
-                                        handleInfoClick(item);
-                                        setIsMenuOpen(null);
-                                      }}
-                                      status={item.event_status}
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="action-buttons-wrapper">
-                                {item.event_status?.toLowerCase() === "pending" && (
-                                  <>
-                                    <button className="approve-btn" onClick={() => set_data(item)}>
-                                      Approve
+                                    >
+                                      ⋮
                                     </button>
-                                    <button className="reject-btn" onClick={() => handleRejectClick(item)}>
-                                      <IoCloseOutline className="action-icon" />
+                                    {isMenuOpen === item.id && (
+                                      <div ref={menuRef}>
+                                        <ActionMenu
+                                          onApprove={() => {
+                                            set_data(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onReject={() => {
+                                            handleRejectClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onInfo={() => {
+                                            handleInfoClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <>
+                                    {item.event_status?.toLowerCase() === "pending" && (
+                                      <>
+                                        <button className="approve-btn" onClick={() => set_data(item)}>
+                                          Approve
+                                        </button>
+                                        <button className="reject-btn" onClick={() => handleRejectClick(item)}>
+                                          <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                        </button>
+                                      </>
+                                    )}
+                                    <button className="info-btn" onClick={() => handleInfoClick(item)}>
+                                      <IoInformation style={{ height: "20px", width: "20px" }} />
                                     </button>
                                   </>
                                 )}
-                                <button className="info-btn" onClick={() => handleInfoClick(item)}>
-                                  <IoInformation className="action-icon" />
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      )}
-                      emptyMessage="No Package Data Available"
-                    />
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
                   ) : (
                     <p className="no-data-message">No Data Available</p>
                   )}
@@ -802,86 +809,95 @@ function EventManagement({ category }) {
                   {receiver_equipment_data?.filter(
                     (item) => equipmentFilter === "all" || item.event_status === equipmentFilter
                   ).length > 0 ? (
-                    <PaginatedTable
-                      data={receiver_equipment_data?.filter(
-                        (item) => equipmentFilter === "all" || item.event_status === equipmentFilter
-                      )}
-                      columns={[
-                        { header: 'NO.', style: { width: "100px" } },
-                        { header: 'Sender Email' },
-                        { header: 'Equipment Name' },
-                        { header: 'Company' },
-                        { header: 'Days' },
-                        { header: 'Location' },
-                        { header: 'Status' },
-                        { header: 'Action' }
-                      ]}
-                      renderRow={(item, index) => (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
-                          <td>{item.sender_email}</td>
-                          <td style={{ maxWidth: "180px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.equipment_name}</td>
-                          <td style={{ maxWidth: "120px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.equipment_company}</td>
-                          <td>{item.days_required}</td>
-                          <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                          <td className={`status ${item.event_status?.toLowerCase()}`}>
-                            <span>{item.event_status}</span>
-                          </td>
-                          <td className="action-buttons">
-                            {window.innerWidth <= 660 ? (
-                              <div style={{ position: "relative" }}>
-                                <button
-                                  className="mobile-action-btn"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
-                                  }}
-                                >
-                                  <span className="dots-icon">⋮</span>
-                                </button>
-                                {isMenuOpen === item.id && (
-                                  <div ref={menuRef}>
-                                    <ActionMenu
-                                      onApprove={() => {
-                                        fetchProfileData(item.sender_email);
-                                        set_data(item);
-                                        setIsMenuOpen(null);
+                    <table className="received_equipment_table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: "100px" }}>NO.</th>
+                          <th>Sender Email</th>
+                          <th>Equipment Name</th>
+                          <th>Company</th>
+                          <th>Days</th>
+                          <th>Location</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {receiver_equipment_data
+                          ?.filter(
+                            (item) => equipmentFilter === "all" || item.event_status === equipmentFilter
+                          )
+                          .map((item, index) => (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{item.sender_email}</td>
+                              <td style={{ maxWidth: "180px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.equipment_name}</td>
+                              <td>{item.equipment_company}</td>
+                              <td>{item.days_required}</td>
+                              <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
+                              <td className={`status ${item.event_status?.toLowerCase()}`}>
+                                <span>{item.event_status}</span>
+                              </td>
+                              <td className="action-buttons">
+                                {window.innerWidth <= 660 ? (
+                                  <div style={{ position: "relative" }}>
+                                    <button
+                                      className="mobile-action-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
                                       }}
-                                      onReject={() => {
-                                        handleRejectClick(item);
-                                        setIsMenuOpen(null);
+                                      style={{
+                                        fontSize: "20px",
+                                        padding: "4px 12px",
+                                        borderRadius: "4px",
+                                        background: "transparent",
+                                        border: "1px solid #ddd",
                                       }}
-                                      onInfo={() => {
-                                        handleInfoClick(item);
-                                        setIsMenuOpen(null);
-                                      }}
-                                      status={item.event_status}
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="action-buttons-wrapper">
-                                {item.event_status?.toLowerCase() === "pending" && (
-                                  <>
-                                    <button className="approve-btn" onClick={() => { fetchProfileData(item.sender_email); set_data(item) }}>
-                                      Approve
+                                    >
+                                      ⋮
                                     </button>
-                                    <button className="reject-btn" onClick={() => handleRejectClick(item)}>
-                                      <IoCloseOutline className="action-icon" />
+                                    {isMenuOpen === item.id && (
+                                      <div ref={menuRef}>
+                                        <ActionMenu
+                                          onApprove={() => {
+                                            set_data(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onReject={() => {
+                                            handleRejectClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onInfo={() => {
+                                            handleInfoClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <>
+                                    {item.event_status?.toLowerCase() === "pending" && (
+                                      <>
+                                        <button className="approve-btn" onClick={() => { fetchProfileData(item.sender_email); set_data(item) }}>
+                                          Approve
+                                        </button>
+                                        <button className="reject-btn" onClick={() => handleRejectClick(item)}>
+                                          <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                        </button>
+                                      </>
+                                    )}
+                                    <button className="info-btn" onClick={() => handleInfoClick(item)}>
+                                      <IoInformation style={{ height: "20px", width: "20px" }} />
                                     </button>
                                   </>
                                 )}
-                                <button className="info-btn" onClick={() => handleInfoClick(item)}>
-                                  <IoInformation className="action-icon" />
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      )}
-                      emptyMessage="No Equipment Data Available"
-                    />
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
                   ) : (
                     <p className="no-data-message">No Data Available</p>
                   )}
@@ -896,49 +912,6 @@ function EventManagement({ category }) {
                   {receiver_service_data?.filter(
                     (item) => serviceFilter === "all" || item.event_status === serviceFilter
                   ).length > 0 ? (
-<<<<<<< HEAD
-                    <PaginatedTable
-                      data={receiver_service_data?.filter(
-                        (item) => serviceFilter === "all" || item.event_status === serviceFilter
-                      )}
-                      columns={[
-                        { header: 'NO.' },
-                        { header: 'Sender Email' },
-                        { header: 'Service Name' },
-                        { header: 'Days' },
-                        { header: 'Location' },
-                        { header: 'Status' },
-                        { header: 'Action' }
-                      ]}
-                      renderRow={(item, index) => (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
-                          <td>{item.sender_email}</td>
-                          <td style={{ maxWidth: "170px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.service_name}</td>
-                          <td>{item.days_required}</td>
-                          <td style={{ maxWidth: "170px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                          <td className={`status ${item.event_status.toLowerCase()}`}>
-                            <span>{item.event_status}</span>
-                          </td>
-                          <td className="action-buttons">
-                            {window.innerWidth <= 660 ? (
-                              <div style={{ position: "relative" }}>
-                                <button
-                                  className="mobile-action-btn"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
-                                  }}
-                                >
-                                  <span className="dots-icon">⋮</span>
-                                </button>
-                                {isMenuOpen === item.id && (
-                                  <div ref={menuRef}>
-                                    <ActionMenu
-                                      onApprove={() => {
-                                        set_data(item);
-                                        setIsMenuOpen(null);
-=======
                     <table className="received_service_table">
                       <thead>
                         <tr>
@@ -964,18 +937,9 @@ function EventManagement({ category }) {
                               <td>{item.service_name}</td>
                               <td>{item.days_required}</td>
                               <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                              {item.event_status?.toLowerCase() === 'waiting on team' ? (
-                                <td className="waiting-status">
-                                  <span>
-                                    Team Confirmation
-                                  </span>
-                                </td>
-                              ) : (
-                                <td className={`status ${item.event_status.toLowerCase()}`}>
-                                  <span>{item.event_status}</span>
-                                </td>
-                              )}
-                              
+                              <td className={`status ${item.event_status.toLowerCase()}`}>
+                                <span>{item.event_status}</span>
+                              </td>
                               <td className="action-buttons">
                                 {window.innerWidth <= 660 ? (
                                   <div style={{ position: "relative" }}>
@@ -984,43 +948,58 @@ function EventManagement({ category }) {
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
->>>>>>> 452b3f66cae3e93cc47b17d3f00b07b232f22c99
                                       }}
-                                      onReject={() => {
-                                        handleRejectClick(item);
-                                        setIsMenuOpen(null);
+                                      style={{
+                                        fontSize: "20px",
+                                        padding: "4px 12px",
+                                        borderRadius: "4px",
+                                        background: "transparent",
+                                        border: "1px solid #ddd",
                                       }}
-                                      onInfo={() => {
-                                        handleInfoClick(item);
-                                        setIsMenuOpen(null);
-                                      }}
-                                      status={item.event_status}
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="action-buttons-wrapper">
-                                {item.event_status.toLowerCase() === "pending" && (
-                                  <>
-                                    <button className="approve-btn" onClick={() => set_data(item)}>
-                                      Approve
+                                    >
+                                      ⋮
                                     </button>
-                                    <button className="reject-btn" onClick={() => handleRejectClick(item)}>
-                                      <IoCloseOutline className="action-icon" />
+                                    {isMenuOpen === item.id && (
+                                      <div ref={menuRef}>
+                                        <ActionMenu
+                                          onApprove={() => {
+                                            set_data(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onReject={() => {
+                                            handleRejectClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                          onInfo={() => {
+                                            handleInfoClick(item);
+                                            setIsMenuOpen(null);
+                                          }}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <>
+                                    {item.event_status.toLowerCase() === "pending" && (
+                                      <>
+                                        <button className="approve-btn" onClick={() => set_data(item)}>
+                                          Approve
+                                        </button>
+                                        <button className="reject-btn" onClick={() => handleRejectClick(item)}>
+                                          <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                        </button>
+                                      </>
+                                    )}
+                                    <button className="info-btn" onClick={() => handleInfoClick(item)}>
+                                      <IoInformation style={{ height: "20px", width: "20px" }} />
                                     </button>
                                   </>
                                 )}
-                                <button className="info-btn" onClick={() => handleInfoClick(item)}>
-                                  <IoInformation className="action-icon" />
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      )}
-                      emptyMessage="No Service Data Available"
-                    />
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
                   ) : (
                     <p className="no-data-message">No Data Available</p>
                   )}
