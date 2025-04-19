@@ -225,7 +225,9 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       member_id: member.member_id,
     }));
 
-    const response = await fetch(`${Server_url}/add-team-members`, {
+    console.log("Assigning team members to event ID:", eventId, "Members:", formattedMembers);
+
+    const response = await fetch(`${Server_url}/team_members/add-team-members`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -235,11 +237,16 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       }),
     });
 
-    const data = await response.json();
-
-    if (data.message !== "Team members assigned successfully") {
-      throw new Error("Failed to assign team members");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error assigning team members:", response.status, errorText);
+      throw new Error(`Failed to assign team members: ${response.status} ${errorText}`);
     }
+
+    const data = await response.json();
+    console.log("Team assignment response:", data);
+
+    return data.status || "Waiting on Team";
   };
 
   const confirmEquipmentEvent = async (eventId) => {
@@ -411,11 +418,18 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
 
         if (newEvent.id) {
           try {
+            console.log("Fetching assigned team members for event ID:", newEvent.id);
             const assignedResponse = await fetch(`${Server_url}/team_members/get-event-team-members`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ event_id: newEvent.id }),
             });
+
+            if (!assignedResponse.ok) {
+              const errorText = await assignedResponse.text();
+              console.error("Error fetching assigned members, status:", assignedResponse.status, "Response:", errorText);
+              throw new Error(`Failed to fetch assigned members: ${assignedResponse.status} ${errorText}`);
+            }
 
             const assignedData = await assignedResponse.json();
             console.log("Currently assigned members:", assignedData);
