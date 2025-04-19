@@ -33,6 +33,9 @@ import ReviewsIcon from '@mui/icons-material/Reviews';
 import ShareIcon from '@mui/icons-material/Share';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import HomeIcon from '@mui/icons-material/Home';
+import FolderSharedIcon from '@mui/icons-material/FolderShared';
+import StarIcon from '@mui/icons-material/Star';
 
 function OwnerSideBar() {
   const navigate = useNavigate();
@@ -45,6 +48,7 @@ function OwnerSideBar() {
     activeIndex,
     activeProfileSection,
     profileSections,
+    driveProfileSections,
     setIsSidebarOpen,
     setActiveIndex,
     setActiveProfileSection
@@ -58,7 +62,7 @@ function OwnerSideBar() {
   });
 
   const isProfilePage = location.pathname === "/Owner/Profile";
-  const isDrive = location.pathname === "/Owner/drive";
+  const isDrive = location.pathname.includes("/Owner/drive");
 
   const sliderRef = React.useRef(null);
   const profileSliderRef = React.useRef(null);
@@ -157,6 +161,20 @@ function OwnerSideBar() {
     }
   };
 
+  // Get drive section icon based on section name
+  const getDriveSectionIcon = (sectionName) => {
+    switch (sectionName) {
+      case 'Drive Home':
+        return <HomeIcon className="menu-icon" />;
+      case 'Shared Files':
+        return <FolderSharedIcon className="menu-icon" />;
+      case 'Starred Items':
+        return <StarIcon className="menu-icon" />;
+      default:
+        return <AddToDriveIcon className="menu-icon" />;
+    }
+  };
+
   // Update slider position for main menu
   useEffect(() => {
     if (activeIndex !== null && sliderRef.current) {
@@ -188,9 +206,10 @@ function OwnerSideBar() {
 
   // Update slider position for profile sections - simplified
   useEffect(() => {
-    if (isProfilePage && profileSliderRef.current) {
+    if ((isProfilePage || isDrive) && profileSliderRef.current) {
       try {
-        const activeProfileSectionIndex = profileSections.findIndex(
+        const sections = isProfilePage ? profileSections : driveProfileSections;
+        const activeProfileSectionIndex = sections.findIndex(
           section => section === activeProfileSection
         );
 
@@ -206,7 +225,31 @@ function OwnerSideBar() {
         console.log("Error updating profile slider:", error);
       }
     }
-  }, [activeProfileSection, isProfilePage, profileSections]);
+  }, [activeProfileSection, isProfilePage, isDrive, profileSections, driveProfileSections]);
+
+  // Handle drive section click
+  const handleDriveSectionClick = useCallback((section) => {
+    setActiveProfileSection(section);
+    
+    // Navigate to the appropriate section
+    switch (section) {
+      case 'Drive Home':
+        navigate('/Owner/drive/home');
+        break;
+      case 'Shared Files':
+        navigate('/Owner/drive/shared');
+        break;
+      case 'Starred Items':
+        navigate('/Owner/drive/starred');
+        break;
+      default:
+        navigate('/Owner/drive');
+    }
+    
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  }, [setActiveProfileSection, navigate, isMobile, setIsSidebarOpen]);
 
   const handleItemClick = useCallback((index) => {
     const item = menuItems[index];
@@ -302,7 +345,7 @@ function OwnerSideBar() {
           ref={catRef}
         >
           {/* Active slider positioned at the beginning */}
-          {activeIndex <= menuItems.length && !isProfilePage && (
+          {activeIndex <= menuItems.length && !isProfilePage && !isDrive && (
             <div
               className={`active_me_slider ${isMobile ? "for_mobile" : ""}`}
               ref={sliderRef}
@@ -317,7 +360,7 @@ function OwnerSideBar() {
           )}
 
           {isDrive ? (
-            // Show drive-specific menu or component
+            // Show drive-specific menu
             <div className="drive-menu">
               <div
                 className="item profile-back-button"
@@ -341,14 +384,14 @@ function OwnerSideBar() {
                   }}
                 ></div>
 
-                {profileSections.map((section, index) => (
+                {driveProfileSections.map((section, index) => (
                   <div
                     key={index}
                     ref={setProfileItemRef(index)}
                     className={`item ${section === activeProfileSection ? "active profile-section-active" : "profile-section"}`}
-                    onClick={() => handleProfileSectionClick(section)}
+                    onClick={() => handleDriveSectionClick(section)}
                   >
-                    <div className="icon">{getProfileSectionIcon(section)}</div>
+                    <div className="icon">{getDriveSectionIcon(section)}</div>
                     <div className="text">{section}</div>
                   </div>
                 ))}

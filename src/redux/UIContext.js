@@ -43,6 +43,13 @@ export const UIProvider = ({ children }) => {
     "Reviews"
   ], []);
 
+  // Add drive sections
+  const driveProfileSections = useMemo(() => [
+    'Drive Home',
+    'Shared Files',
+    'Starred Items'
+  ], []);
+  
   // Update localStorage when activeProfileSection changes
   useEffect(() => {
     localStorage.setItem('activeSection_for_profile_page', activeProfileSection);
@@ -113,6 +120,12 @@ export const UIProvider = ({ children }) => {
         case "/Owner/Profile":
           newActiveIndex = 8;
           break;
+        case "/Owner/drive":
+        case "/Owner/drive/home":
+        case "/Owner/drive/shared":
+        case "/Owner/drive/starred":
+          newActiveIndex = 6;
+          break;
         default:
           if (location.pathname.includes("/Owner/search_photographer")) {
             newActiveIndex = 5;
@@ -136,11 +149,12 @@ export const UIProvider = ({ children }) => {
     activeIndex,
     activeProfileSection,
     profileSections,
+    driveProfileSections,
     setIsSidebarOpen,
     setActiveIndex,
     setActiveProfileSection,
     toggleSidebar
-  }), [isMobile, isSidebarOpen, activeIndex, activeProfileSection, profileSections, toggleSidebar]);
+  }), [isMobile, isSidebarOpen, activeIndex, activeProfileSection, profileSections, driveProfileSections, toggleSidebar]);
 
   return (
     <UIContext.Provider value={contextValue}>

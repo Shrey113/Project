@@ -76,6 +76,9 @@ import AllServices from "./Components/Owener/sub_part/Search_photographer/sub_pa
 import StackingCards from "./Components/BeforeLogin/new_design/StackingCards/StackingCards.js";
 import OwnerLayout from "./Components/Owener/OwnerLayout.js";
 import DriveMainPage from "./Components/Owener/sub_part/DrivePart/drive_main_page.js";
+import DriveHome from "./Components/Owener/sub_part/DrivePart/DriveHome.js";
+import SharedFilesPage from "./Components/Owener/sub_part/DrivePart/SharedFiles/SharedFilesPage.js";
+import StarredItems from "./Components/Owener/sub_part/DrivePart/StarredItems.js";
 
 
 function App() {
@@ -505,6 +508,38 @@ function App() {
             element={
               authStatus.owner ? (
                 <SetOwnerPage ActivePage={DriveMainPage} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
+
+          {/* Owner Drive Routes */}
+          <Route
+            path="/Owner/drive/home"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={DriveHome} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
+          <Route
+            path="/Owner/drive/shared"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={SharedFilesPage} />
+              ) : (
+                <LoginRegisterOwener />
+              )
+            }
+          />
+          <Route
+            path="/Owner/drive/starred"
+            element={
+              authStatus.owner ? (
+                <SetOwnerPage ActivePage={StarredItems} />
               ) : (
                 <LoginRegisterOwener />
               )
