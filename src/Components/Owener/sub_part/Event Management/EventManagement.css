@@ -269,6 +269,38 @@
   border: 1px solid #d03033;
   color: #d03033;
 }
+.details-modal .status.waiting_on_team {
+  background: #feeacc;
+  border: 1px solid #fba949;
+  color: #fba949;
+}
+.waiting-status {
+  gap: 5px;
+  color: #F59E0B;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+.waiting-status span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff; 
+  border-radius: 20px;
+  padding: 2px 10px;
+  background: #fba949; 
+  border: 1px solid #fba949; 
+  text-align: center;
+  display: inline-block;
+  width: 100%;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
 
 .details-modal .modal-header {
   font-size: 1.7rem;

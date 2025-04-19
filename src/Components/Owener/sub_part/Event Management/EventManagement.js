@@ -15,7 +15,6 @@ import { IoCloseOutline } from "react-icons/io5";
 import { IoInformation } from "react-icons/io5";
 // import { HiOutlineChevronUpDown } from "react-icons/hi2";
 // import { add } from "date-fns";
-
 function EventManagement({ category }) {
   const user = useSelector((state) => state.user);
   const [events, setEvents] = useState([]);
@@ -406,9 +405,15 @@ function EventManagement({ category }) {
 
                 <div className="modal-header-container">
                   <h3 className="modal-header">Request Details</h3>
-                  <span className={`status ${selected_sent_item?.event_status?.toLowerCase()}`}>
-                    {selected_sent_item?.event_status || "Pending"}
-                  </span>
+                  {selected_sent_item?.event_status?.toLowerCase() === 'waiting on team' ? (
+                    <span className="waiting-status">
+                       Team Confirmation
+                    </span>
+                  ) : (
+                    <span className={`status ${selected_sent_item?.event_status?.toLowerCase()}`}>
+                      {selected_sent_item?.event_status || "Pending"}
+                    </span>
+                  )}
                 </div>
                 <div className="modal-content-container">
                   {/* Left Side: Main Request Details */}
@@ -937,9 +942,18 @@ function EventManagement({ category }) {
                               <td>{item.service_name}</td>
                               <td>{item.days_required}</td>
                               <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                              <td className={`status ${item.event_status.toLowerCase()}`}>
-                                <span>{item.event_status}</span>
-                              </td>
+                              {item.event_status?.toLowerCase() === 'waiting on team' ? (
+                                <td className="waiting-status">
+                                  <span>
+                                    Team Confirmation
+                                  </span>
+                                </td>
+                              ) : (
+                                <td className={`status ${item.event_status.toLowerCase()}`}>
+                                  <span>{item.event_status}</span>
+                                </td>
+                              )}
+                              
                               <td className="action-buttons">
                                 {window.innerWidth <= 660 ? (
                                   <div style={{ position: "relative" }}>
