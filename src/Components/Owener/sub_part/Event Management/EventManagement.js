@@ -664,10 +664,7 @@ function EventManagement({ category }) {
                   </div>
                 </div>
 
-                <button
-                  className="close-button"
-                  onClick={() => set_selected_sent_item(null)}
-                >
+                <button className="close-button" onClick={() => set_selected_sent_item(null)} >
                   Close
                 </button>
               </div>

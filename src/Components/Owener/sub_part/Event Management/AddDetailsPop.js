@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -21,43 +21,7 @@ import profile_pic_user2 from "./profile_pic/user2.jpg";
 import profile_pic_user3 from "./profile_pic/user3.jpg";
 import profile_pic_user4 from "./profile_pic/user4.jpg";
 
-// Add CSS styles for the role tags
-const roleTagStyles = `
-  .member-role-tag {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    margin-top: 4px;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .owner-tag {
-    background-color: #bfdbfe;
-    color: #1e40af;
-    border: 1px solid #93c5fd;
-  }
-  
-  .handler-tag {
-    background-color: #e9d5ff;
-    color: #6b21a8;
-    border: 1px solid #d8b4fe;
-  }
-`;
 
-// Inject the styles into a style element
-const injectRoleTagStyles = () => {
-  if (!document.getElementById('role-tag-styles')) {
-    const styleElement = document.createElement('style');
-    styleElement.id = 'role-tag-styles';
-    styleElement.innerHTML = roleTagStyles;
-    document.head.appendChild(styleElement);
-  }
-};
 
 const COLOR_OPTIONS = [
   { id: "purple", value: "#6366F1", label: "Purple", default: true },
@@ -151,12 +115,14 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
             {getMemberStatusIcon()}
           </div>
         )}
-        {member.isEventOwner && (
+        {member.isEventOwner  ? (
           <span className="member-role-tag owner-tag">Owner of event</span>
-        )}
-        {member.isEventHandler && (
+        ): member.isMemberBusyPending ? (
+          <span className="member-role-tag busy-tag">Pending Approval</span>
+        ): member.isEventHandler ? (
           <span className="member-role-tag handler-tag">Event handler</span>
-        )}
+        ):''}
+
       </div>
       {!member.isEventOwner && !member.isEventHandler && (
         <button
@@ -433,7 +399,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   };
 
   useEffect(() => {
-    injectRoleTagStyles(); // Inject the CSS for role tags
     
     const fetchTeamMembers = async () => {
       try {
@@ -479,11 +444,13 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           
           // Check if the team member is the event receiver (handler)
           const isEventHandler = member.team_member_email === user.user_email;
-          
+          const isMemberBusyPending = member.member_status === "Pending";
+
           return {
             ...member,
             isEventOwner,
-            isEventHandler
+            isEventHandler,
+            isMemberBusyPending
           };
         });
 
@@ -523,11 +490,13 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
               const processedAssignedMembers = assignedData.map(member => {
                 const isEventOwner = member.team_member_email === newEvent.sender_email;
                 const isEventHandler = member.team_member_email === user.user_email;
+                const isMemberBusyPending = member.member_status === "Pending";
                 
                 return {
                   ...member,
                   isEventOwner,
-                  isEventHandler
+                  isEventHandler,
+                  isMemberBusyPending
                 };
               });
               
