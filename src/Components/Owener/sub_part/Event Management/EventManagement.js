@@ -11,12 +11,12 @@ import { useSelector } from "react-redux";
 import RequestDetailPopup from "./RequestDetailPopup";
 import AddDetailsPop from "./AddDetailsPop";
 import socket from "../../../../redux/socket";
-import { IoCloseOutline } from "react-icons/io5";
+import { IoCloseOutline, IoInformationCircleOutline } from "react-icons/io5";
 import { IoInformation } from "react-icons/io5";
 import EventStatusUpdater from "./EventStatusUpdater";
 // import { HiOutlineChevronUpDown } from "react-icons/hi2";
 // import { add } from "date-fns";
-
+import { IoFilter } from "react-icons/io5";
 function EventManagement({ category }) {
   const user = useSelector((state) => state.user);
   const [events, setEvents] = useState([]);
@@ -25,7 +25,7 @@ function EventManagement({ category }) {
   // chage a type
   const [packageFilter] = useState("all");
   const [equipmentFilter] = useState("all");
-  const [serviceFilter] = useState("all");
+  // const [serviceFilter] = useState("all");
   // const [selectedCategory, setSelectedCategory] = useState("packages");
 
   const [sent_request, set_sent_request] = useState(false);
@@ -245,6 +245,17 @@ function EventManagement({ category }) {
     get_sent_all_details();
   }, [user.user_email]);
 
+  const EmptyState = ({ title = "No data available", subtitle, icon }) => {
+    return (
+      <div className="empty-state">
+        {icon && <div className="empty-icon">{icon}</div>}
+        <h3>{title}</h3>
+        {subtitle && <p>{subtitle}</p>}
+      </div>
+    );
+  };
+
+  
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -285,6 +296,28 @@ function EventManagement({ category }) {
     set_count_for_equipment(equipment_count);
     set_count_for_service(service_count);
   }, [receiver_equipment_data, receiver_package_data, receiver_service_data])
+
+  const [selected_service_data, setSelected_service_data] = useState("All");
+  const [isOpen_service_data, setIsOpen_service_data] = useState(false);
+  const dropdownRef_service_data = useRef(null);
+
+  const options = ["All", "Pending", "Accepted", "Rejected", "Completed", "Event Expired"];
+
+  const handleSelect = (value) => {
+    setSelected_service_data(value);
+    setIsOpen_service_data(false);
+  };
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef_service_data.current && !dropdownRef_service_data.current.contains(event.target)) {
+      setIsOpen_service_data(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const ActionMenu = ({ onApprove, onReject, onInfo, eventStatus }) => {
     const isFinal = eventStatus === "Accepted" || eventStatus === "Rejected" || 
@@ -974,101 +1007,151 @@ function EventManagement({ category }) {
 
             {category === "Service" && (
               <div className="section-container">
-                <div className="table-container">
-                  {receiver_service_data?.filter(
-                    (item) => serviceFilter === "all" || item.event_status === serviceFilter
-                  ).length > 0 ? (
-                    <table className="received_service_table">
-                      <thead>
-                        <tr>
-                          <th>NO.</th>
-                          <th>Sender Email</th>
-                          <th>Service Name</th>
-                          <th>Days</th>
-                          <th>Location</th>
-                          <th>Status</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {receiver_service_data
-                          ?.filter(
-                            (item) =>
-                              serviceFilter === "all" || item.event_status === serviceFilter
-                          )
-                          .map((item, index) => (
-                            <tr key={index}>
-                              <td>{index + 1}</td>
-                              <td>{item.sender_email}</td>
-                              <td>{item.service_name}</td>
-                              <td>{item.days_required}</td>
-                              <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                              <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
-                                <span>{getDisplayStatus(item)}</span>
-                              </td>
-                              <td className="action-buttons">
-                                {window.innerWidth <= 660 ? (
-                                  <div style={{ position: "relative" }}>
-                                    <button
-                                      className="mobile-action-btn"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
-                                      }}
-                                      style={{
-                                        fontSize: "20px",
-                                        padding: "4px 12px",
-                                        borderRadius: "4px",
-                                        background: "transparent",
-                                        border: "1px solid #ddd",
-                                      }}
+                        {category === "Service" && (
+                            <div className="service-filter-container">
+                            <div className="dropdown" ref={dropdownRef_service_data}>
+                              <button className="dropdown-toggle" onClick={() => setIsOpen_service_data(!isOpen_service_data)}>
+                              <IoFilter /> <span>{selected_service_data}</span>
+                              </button>
+                              {isOpen_service_data && (
+                                <div className="dropdown-menu">
+                                  {options.map((option) => (
+                                    <div
+                                      key={option}
+                                      className={`dropdown-item ${option === selected_service_data ? "selected" : ""}`}
+                                      onClick={() => handleSelect(option)}
                                     >
-                                      ⋮
-                                    </button>
-                                    {isMenuOpen === item.id && (
-                                      <div ref={menuRef}>
-                                        <ActionMenu
-                                          eventStatus={getDisplayStatus(item)}
-                                          onApprove={() => {
-                                            set_data(item);
-                                            setIsMenuOpen(null);
-                                          }}
-                                          onReject={() => {
-                                            handleRejectClick(item);
-                                            setIsMenuOpen(null);
-                                          }}
-                                          onInfo={() => {
-                                            handleInfoClick(item);
-                                            setIsMenuOpen(null);
-                                          }}
-                                        />
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <>
-                                    {getDisplayStatus(item).toLowerCase() === "pending" && (
-                                      <>
-                                        <button className="approve-btn" onClick={() => set_data(item)}>
-                                          Approve
-                                        </button>
-                                        <button className="reject-btn" onClick={() => handleRejectClick(item)}>
-                                          <IoCloseOutline style={{ height: "20px", width: "20px" }} />
-                                        </button>
-                                      </>
-                                    )}
-                                    <button className="info-btn" onClick={() => handleInfoClick(item)}>
-                                      <IoInformation style={{ height: "20px", width: "20px" }} />
-                                    </button>
-                                  </>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
+                                      {option}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                            )}
+
+                <div className="table-container">
+                  {receiver_service_data?.length > 0 ? (
+                    <>
+                      <table className="received_service_table">
+                        <thead>
+                          <tr>
+                            <th>NO.</th>
+                            <th>Sender Email</th>
+                            <th>Service Name</th>
+                            <th>Days</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {receiver_service_data
+                            .filter(
+                              (item) =>
+                                selected_service_data === "All" ||
+                                getDisplayStatus(item) === selected_service_data
+                            )
+                            .map((item, index) => (
+                              <tr key={item.id || index}>
+                                <td>{index + 1}</td>
+                                <td>{item.sender_email}</td>
+                                <td>{item.service_name}</td>
+                                <td>{item.days_required}</td>
+                                <td
+                                  style={{
+                                    maxWidth: "240px",
+                                    overflow: "hidden",
+                                    whiteSpace: "nowrap",
+                                    textOverflow: "ellipsis",
+                                  }}
+                                >
+                                  {item.location}
+                                </td>
+                                <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                                  <span>{getDisplayStatus(item)}</span>
+                                </td>
+                                <td className="action-buttons">
+                                  {window.innerWidth <= 660 ? (
+                                    <div style={{ position: "relative" }}>
+                                      <button
+                                        className="mobile-action-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
+                                        }}
+                                        style={{
+                                          fontSize: "20px",
+                                          padding: "4px 12px",
+                                          borderRadius: "4px",
+                                          background: "transparent",
+                                          border: "1px solid #ddd",
+                                        }}
+                                      >
+                                        ⋮
+                                      </button>
+                                      {isMenuOpen === item.id && (
+                                        <div ref={menuRef}>
+                                          <ActionMenu
+                                            eventStatus={getDisplayStatus(item)}
+                                            onApprove={() => {
+                                              set_data(item);
+                                              setIsMenuOpen(null);
+                                            }}
+                                            onReject={() => {
+                                              handleRejectClick(item);
+                                              setIsMenuOpen(null);
+                                            }}
+                                            onInfo={() => {
+                                              handleInfoClick(item);
+                                              setIsMenuOpen(null);
+                                            }}
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <>
+                                      {getDisplayStatus(item).toLowerCase() === "pending" && (
+                                        <>
+                                          <button className="approve-btn" onClick={() => set_data(item)}>
+                                            Approve
+                                          </button>
+                                          <button className="reject-btn" onClick={() => handleRejectClick(item)}>
+                                            <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                          </button>
+                                        </>
+                                      )}
+                                      <button className="info-btn" onClick={() => handleInfoClick(item)}>
+                                        <IoInformation style={{ height: "20px", width: "20px" }} />
+                                      </button>
+                                    </>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+
+                      {/* Show fallback message when filtered results are empty */}
+                      {receiver_service_data.filter(
+                        (item) =>
+                          selected_service_data === "All" ||
+                          getDisplayStatus(item) === selected_service_data
+                      ).length === 0 && (
+                        <EmptyState
+                        title={
+                          <>
+                            No <span className="highlight">{selected_service_data.toLowerCase()}</span> service available
+                          </>
+                        }
+                        subtitle="Try selecting a different filter or check back later."
+                        icon={<IoInformationCircleOutline size={48} color="#888" />}
+                      />
+                      )}
+                    </>
                   ) : (
-                    <p className="no-data-message">No Data Available</p>
+                    <p className="no-data-message">No data available</p>
                   )}
                 </div>
               </div>

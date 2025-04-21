@@ -208,7 +208,7 @@
 #owner-main-container-EventManagement .sent_request #EventManagement .section-container {
   min-width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   flex-direction: column;
 }
@@ -1312,4 +1312,120 @@
 #owner-main-container-EventManagement tbody tr,
 #owner-main-container-EventManagement .action-buttons button {
   transition: all 0.2s ease;
+}
+.service-filter-container {
+  display: flex;
+  justify-content: flex-start;
+  /* padding: 12px 16px; */
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  /* margin: 20px auto; */
+  margin-bottom: 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown-toggle {
+  padding: 10px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  background-color: #f7f9fc;
+  color: #333;
+  font-size: 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dropdown-toggle:hover {
+  background-color: #eef3f7;
+  border-color: #d0dbe5;
+}
+
+.arrow {
+  font-size: 12px;
+  color: #888;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  min-width: 180px;
+  overflow: hidden;
+  z-index: 20;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.dropdown-item {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f4f6f8;
+}
+
+.dropdown-item.selected {
+  background-color: #e0f3ff;
+  font-weight: 600;
+  color: #007acc;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f9fbfc;
+  border: 1px dashed #d0d0d0;
+  border-radius: 10px;
+  color: #555;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 12px 0 6px;
+  color: #333;
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: #777;
+  margin: 0;
+}
+
+.empty-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #bbb;
+}
+
+.empty-state .highlight {
+  background-color: #e6f3ff;
+  color: #007acc;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 4px;
 }
