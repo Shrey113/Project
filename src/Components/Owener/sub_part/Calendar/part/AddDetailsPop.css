@@ -527,10 +527,7 @@
   align-items: center;
   justify-content: center;
   color: #6b7280;
-  width: 30px;
-  height: 30px;
   transition: background-color 0.2s ease;
-  margin-top: 0.3rem;
 }
 
 /* Ensure both buttons have the same icon size */
@@ -872,10 +869,6 @@
   font-size: 12px;
 }
 
-.status-waiting-on-team {
-  background-color: #F59E0B;
-  color: white;
-}
 
 .status-team-incomplete {
   background-color: #EF4444;
@@ -922,7 +915,6 @@
 
 .member-avatar-container {
   position: relative;
-  margin-right: 12px;
 }
 
 .member-img {
@@ -968,4 +960,158 @@
   padding: 20px;
   font-style: italic;
   color: #94a3b8;
+}
+
+/* Email Sending Loader Styles */
+.email-sending-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.email-sending-loader-container {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  position: relative;
+  text-align: center;
+}
+
+.email-loader-icon {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.envelope-icon {
+  font-size: 3rem;
+  color: #4f46e5;
+  z-index: 2;
+  position: relative;
+}
+
+.email-sending-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(79, 70, 229, 0.2);
+  z-index: 1;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.email-sending-loader-container h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.email-progress-container {
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.email-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5 0%, #6366F1 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.email-progress-text {
+  margin-bottom: 0.5rem;
+  color: #4b5563;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.email-sending-hint {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.email-progress-bar {
+  background-image: linear-gradient(
+    to right,
+    #4f46e5 0%,
+    #6366F1 20%,
+    #4f46e5 40%,
+    #6366F1 100%
+  );
+  background-size: 900px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Media queries for email loader responsiveness */
+@media (max-width: 480px) {
+  .email-sending-loader-container {
+    padding: 1.5rem;
+    max-width: 320px;
+  }
+  
+  .envelope-icon {
+    font-size: 2.5rem;
+  }
+  
+  .email-sending-pulse {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .email-sending-loader-container h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .email-progress-text,
+  .email-sending-hint {
+    font-size: 0.75rem;
+  }
 }

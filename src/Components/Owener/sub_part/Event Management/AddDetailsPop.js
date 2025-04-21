@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -8,11 +8,12 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import { CiCirclePlus, CiCircleMinus } from "react-icons/ci";
-import { FaBuilding, FaMapMarkerAlt, FaUser, FaArrowRight, FaClock, FaCheck, FaTimes } from "react-icons/fa";
+import { FaBuilding, FaMapMarkerAlt, FaUser, FaArrowRight, FaClock, FaCheck, FaTimes, FaEnvelope } from "react-icons/fa";
 import dayjs from "dayjs";
 
 import user_backicon from "./../../../Owener/img/user_backicon.png"
 import { Server_url, showAcceptToast, showRejectToast, showWarningToast } from "../../../../redux/AllData";
+import socket from "../../../../redux/socket";
 import "./../Calendar/part/AddDetailsPop.css";
 
 import profile_pic_user1 from "./profile_pic/user1.jpg";
@@ -20,37 +21,41 @@ import profile_pic_user2 from "./profile_pic/user2.jpg";
 import profile_pic_user3 from "./profile_pic/user3.jpg";
 import profile_pic_user4 from "./profile_pic/user4.jpg";
 
-import socket from "../../../../redux/socket";
+// Add CSS styles for the role tags
+const roleTagStyles = `
+  .member-role-tag {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 4px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .owner-tag {
+    background-color: #bfdbfe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+  }
+  
+  .handler-tag {
+    background-color: #e9d5ff;
+    color: #6b21a8;
+    border: 1px solid #d8b4fe;
+  }
+`;
 
-// Add styles for status tags
-const statusTagStyles = {
-  accepted: {
-    backgroundColor: "#22C55E",
-    color: "white",
-    padding: "3px 8px",
-    borderRadius: "4px",
-    fontWeight: "bold",
-  },
-  pending: {
-    backgroundColor: "#F59E0B",
-    color: "white",
-    padding: "3px 8px",
-    borderRadius: "4px",
-    fontWeight: "bold",
-  },
-  declined: {
-    backgroundColor: "#EF4444",
-    color: "white",
-    padding: "3px 8px",
-    borderRadius: "4px",
-    fontWeight: "bold",
-  },
-  "waiting-on-team": {
-    backgroundColor: "#F59E0B",
-    color: "white",
-    padding: "3px 8px",
-    borderRadius: "4px",
-    fontWeight: "bold",
+// Inject the styles into a style element
+const injectRoleTagStyles = () => {
+  if (!document.getElementById('role-tag-styles')) {
+    const styleElement = document.createElement('style');
+    styleElement.id = 'role-tag-styles';
+    styleElement.innerHTML = roleTagStyles;
+    document.head.appendChild(styleElement);
   }
 };
 
@@ -146,19 +151,53 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
             {getMemberStatusIcon()}
           </div>
         )}
+        {member.isEventOwner && (
+          <span className="member-role-tag owner-tag">Owner of event</span>
+        )}
+        {member.isEventHandler && (
+          <span className="member-role-tag handler-tag">Event handler</span>
+        )}
       </div>
-      <button
-        className={actionButtonClass}
-        onClick={() => onAction(member)}
-        disabled={isDisabled}
-        title={isDisabled ? "This team member is not available" : actionButtonClass === "assign-btn" ? "Assign Member" : "Remove Member"}
-        style={{
-          cursor: isDisabled ? "not-allowed" : "pointer",
-        }}
-      >
-        <ActionIcon style={{ width: "20px", height: "20px", display: "block" }} />
-      </button>
+      {!member.isEventOwner && !member.isEventHandler && (
+        <button
+          className={actionButtonClass}
+          onClick={() => onAction(member)}
+          disabled={isDisabled || member.isEventOwner || member.isEventHandler}
+          title={isDisabled ? "This team member is not available" : 
+            member.isEventOwner ? "Event owner cannot be assigned" :
+            member.isEventHandler ? "Event handler cannot be assigned" :
+            actionButtonClass === "assign-btn" ? "Assign Member" : "Remove Member"}
+      style={{
+        cursor: (isDisabled || member.isEventOwner || member.isEventHandler) ? "not-allowed" : "pointer",
+      }}
+    >
+      <ActionIcon style={{ width: "20px", height: "20px", display: "block" }} />
+    </button>
+      )}
+
     </li>
+  );
+};
+
+// Add EmailSendingLoader component
+const EmailSendingLoader = () => {
+  return (
+    <div className="email-sending-loader-overlay">
+      <div className="email-sending-loader-container">
+        <div className="email-loader-icon">
+          <FaEnvelope className="envelope-icon" />
+          <div className="email-sending-pulse"></div>
+        </div>
+        <h3>Processing Event</h3>
+        <div className="email-progress-container">
+          <div className="email-progress-bar" style={{ width: '100%' }}></div>
+        </div>
+        <p className="email-progress-text">
+          Sending team notifications
+        </p>
+        <p className="email-sending-hint">Please don't close this window</p>
+      </div>
+    </div>
   );
 };
 
@@ -168,12 +207,66 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   const [teamMembers, setTeamMembers] = useState([]);
   const [assignedMembers, setAssignedMembers] = useState([]);
   const [DisabledTeamMembers, setDisabledTeamMembers] = useState([]);
-  const [teamResponseStatus, setTeamResponseStatus] = useState(null);
+  const [teamResponseStatus] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const defaultColor = COLOR_OPTIONS.find(color => color.default).value;
     setNewEvent(prev => ({ ...prev, backgroundColor: defaultColor }));
   }, [setNewEvent]);
+
+  // Helper function to assign team members - simplified version
+  const assignTeamMembers = async (eventId) => {
+    // Show loading overlay
+    setIsLoading(true);
+
+    // Ensure you're only sending member_id in each object
+    const formattedMembers = assignedMembers.map((member) => ({
+      member_id: member.member_id,
+    }));
+
+    console.log("Assigning team members to event ID:", eventId, "Members:", formattedMembers);
+
+    try {
+      const response = await fetch(`${Server_url}/team_members/add-team-members`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_email: user.user_email,
+          team_members: formattedMembers,
+          event_id: eventId,
+          socket_id: socket.id || null
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error assigning team members:", response.status, errorText);
+        throw new Error(`Failed to assign team members: ${response.status} ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log("Team assignment response:", data);
+      
+      // Hide loader and close modal only after API call completes successfully
+      setIsLoading(false);
+      setShowEventModal(false);
+      setNewEvent({
+        title: "",
+        start: new Date(),
+        end: new Date(),
+        description: "",
+        backgroundColor: "#6366F1",
+        titleError: "",
+      });
+
+      return data.status || "Waiting on Team";
+    } catch (error) {
+      // Hide loader on error
+      setIsLoading(false);
+      throw error;
+    }
+  };
 
   const validateForm = () => {
     if (!newEvent.title.trim()) {
@@ -204,49 +297,18 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     } else if (newEvent.event_request_type === "package") {
       set_receiver_package_data(prevData =>
         prevData.map(item =>
-          item.id === newEvent.id ? { ...item, assigned_team_member: teamMembers, event_status: "Accepted", reason } : item
+          item.id === newEvent.id ? { ...item, assigned_team_member: teamMembers, event_status: "Waiting on Team", reason } : item
         )
       );
     } else if (newEvent.event_request_type === "service") {
       set_receiver_service_data(prevData =>
         prevData.map(item =>
-          item.id === newEvent.id ? { ...item, event_status: "Accepted", reason } : item
+          item.id === newEvent.id ? { ...item, event_status: "Waiting on Team", reason } : item
         )
       );
     } else {
       throw new Error(`Invalid event type: ${newEvent.event_request_type}`);
     }
-  };
-
-  // Helper function to assign team members
-  const assignTeamMembers = async (eventId) => {
-    // Ensure you're only sending member_id in each object
-    const formattedMembers = assignedMembers.map((member) => ({
-      member_id: member.member_id,
-    }));
-
-    console.log("Assigning team members to event ID:", eventId, "Members:", formattedMembers);
-
-    const response = await fetch(`${Server_url}/team_members/add-team-members`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_email: user.user_email,
-        team_members: formattedMembers,
-        event_id: eventId,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Error assigning team members:", response.status, errorText);
-      throw new Error(`Failed to assign team members: ${response.status} ${errorText}`);
-    }
-
-    const data = await response.json();
-    console.log("Team assignment response:", data);
-
-    return data.status || "Waiting on Team";
   };
 
   const confirmEquipmentEvent = async (eventId) => {
@@ -349,23 +411,30 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           showAcceptToast({ message: "Event created successfully!" });
         }
 
-        setShowEventModal(false);
-        setNewEvent({
-          title: "",
-          start: new Date(),
-          end: new Date(),
-          description: "",
-          backgroundColor: "#6366F1",
-          titleError: "",
-        });
+        // Only close the modal after the process is complete and if loader is not showing
+        if (!isLoading) {
+          setShowEventModal(false);
+          setNewEvent({
+            title: "",
+            start: new Date(),
+            end: new Date(),
+            description: "",
+            backgroundColor: "#6366F1",
+            titleError: "",
+            event_status: "Waiting on Team",
+          });
+        }
       }
     } catch (error) {
-      console.error("Error in handleAddEvent:", error);
+      setIsLoading(false);
+      console.error("Error in handle Add Event:", error);
       showRejectToast({ message: error.message || "Failed to create event or assign team members." });
     }
   };
 
   useEffect(() => {
+    injectRoleTagStyles(); // Inject the CSS for role tags
+    
     const fetchTeamMembers = async () => {
       try {
         const formattedStartDate = formatDate(newEvent.start);
@@ -403,7 +472,22 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         console.log("Filtered data response:", filteredData);
         console.log("Busy team members:", filteredData.assignedTeamMembers || []);
 
-        setTeamMembers(inactiveData);
+        // Mark team members who are event owners or handlers
+        const processedTeamMembers = inactiveData.map(member => {
+          // Check if the team member is the event sender (owner)
+          const isEventOwner = member.team_member_email === newEvent.sender_email;
+          
+          // Check if the team member is the event receiver (handler)
+          const isEventHandler = member.team_member_email === user.user_email;
+          
+          return {
+            ...member,
+            isEventOwner,
+            isEventHandler
+          };
+        });
+
+        setTeamMembers(processedTeamMembers);
 
         // Make sure we handle all potential formats
         let busyIds = [];
@@ -435,7 +519,19 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
             console.log("Currently assigned members:", assignedData);
 
             if (Array.isArray(assignedData) && assignedData.length > 0) {
-              setAssignedMembers(assignedData);
+              // Mark assigned members who are event owners or handlers
+              const processedAssignedMembers = assignedData.map(member => {
+                const isEventOwner = member.team_member_email === newEvent.sender_email;
+                const isEventHandler = member.team_member_email === user.user_email;
+                
+                return {
+                  ...member,
+                  isEventOwner,
+                  isEventHandler
+                };
+              });
+              
+              setAssignedMembers(processedAssignedMembers);
 
               setTeamMembers(prev =>
                 prev.filter(member => !assignedData.some(m => m.member_id === member.member_id))
@@ -453,7 +549,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     };
 
     fetchTeamMembers();
-  }, [user.user_email, newEvent.start, newEvent.end]);
+  }, [user.user_email, newEvent.start, newEvent.end, newEvent.id, newEvent.sender_email]);
 
 
   const isMemberBusy = (member) => {
@@ -477,6 +573,18 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       showWarningToast({ message: `${member.member_name} is not available during this time period.` });
       return;
     }
+    
+    // Prevent assigning members who are event owners or handlers
+    if (member.isEventOwner) {
+      showWarningToast({ message: `${member.member_name} is the owner of this event and cannot be assigned.` });
+      return;
+    }
+    
+    if (member.isEventHandler) {
+      showWarningToast({ message: `${member.member_name} is the event handler and cannot be assigned.` });
+      return;
+    }
+    
     setAssignedMembers([...assignedMembers, member]);
     setTeamMembers(teamMembers.filter((m) => m.member_id !== member.member_id));
   };
@@ -609,9 +717,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         <div className="event-status">
           <strong>Event Status: </strong>
           <span
-            className={`status-tag status-${newEvent.event_status?.toLowerCase().replace(/\s+/g, '-')}`}
-            style={statusTagStyles[newEvent.event_status === "Accepted" ? "accepted" :
-              newEvent.event_status?.toLowerCase().replace(/\s+/g, '-')] || {}}
+            className={`status-tag ${newEvent.event_status === "Accepted" ? "status-accepted" : newEvent.event_status === "Waiting on Team" ? "status-waiting-on-team" : newEvent.event_status === "Declined" ? "status-declined" : "status-pending"}`}
           >
             {newEvent.event_status === "Accepted" ? "Accepted" : newEvent.event_status || "Pending"}
           </span>
@@ -735,20 +841,24 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           <button
             type="submit"
             onClick={handleAddEvent}
-            disabled={newEvent.event_status === "Waiting on Team"}
-            className={newEvent.event_status === "Waiting on Team" ? "disabled-btn" : ""}
+            disabled={newEvent.event_status === "Waiting on Team" || isLoading}
+            className={newEvent.event_status === "Waiting on Team" || isLoading ? "disabled-btn" : ""}
           >
             {newEvent.event_status === "Waiting on Team" ? (
               <span className="waiting-status">
                 <FaClock /> Team Confirmation
               </span>
-            ) : "Confirm Event"}
+            ) : isLoading ? "Processing..." : "Confirm Event"}
           </button>
           <button type="button" onClick={() => setShowEventModal(false)}>
             Cancel
           </button>
         </div>
       </div>
+      
+      {isLoading && (
+        <EmailSendingLoader />
+      )}
     </div>
   );
 };

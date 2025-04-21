@@ -276,6 +276,18 @@
   color: #fba949;
 }
 
+.details-modal .status.completed {
+  background: #a5d6a7;
+  color: #1b5e20;
+  border: 1px solid #2e7d32;
+}
+
+.details-modal .status.event_expired {
+  background: #e0e0e0;
+  color: #616161;
+  border: 1px solid #9e9e9e;
+}
+
 .waiting-status {
   gap: 5px;
   color: #F59E0B;
@@ -534,6 +546,9 @@
   width: 100%;
   border-collapse: collapse;
   background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 #owner-main-container-EventManagement thead tr {
@@ -557,6 +572,9 @@
   color: #666;
   text-align: left;
   font-family: var(--Heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .status {
@@ -593,15 +611,33 @@
   border: 1px solid #d03033;
 }
 
+#owner-main-container-EventManagement .table-container .status.waiting_on_team span {
+  background: #feeacc;
+  color: #fba949;
+  border: 1px solid #fba949;
+}
+
+#owner-main-container-EventManagement .table-container .status.completed span {
+  background: #cdeed8;
+  color: #2ea252;
+  border: 1px solid #2ea252;
+}
+
+#owner-main-container-EventManagement .table-container .status.event_expired span {
+  background: #e0e0e0;
+  color: #616161;
+  border: 1px solid #9e9e9e;
+}
+
 #owner-main-container-EventManagement tbody tr:hover {
   background-color: #f8f9fa;
 }
 
 #owner-main-container-EventManagement .action-buttons {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 5px;
+  justify-content: flex-start;
+  gap: 8px;
 }
 
 #owner-main-container-EventManagement .action-buttons-wrapper {
@@ -629,18 +665,19 @@
 
 #owner-main-container-EventManagement .action-buttons .approve-btn {
   background-color: #4361ee;
-  font-size: 12px;
-  font-weight: 500;
   color: white;
-  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
   font-family: var(--Heading);
-  box-shadow: 0 2px 4px rgba(67, 97, 238, 0.15);
-  transition: all 0.2s ease;
 }
 
 #owner-main-container-EventManagement .action-buttons .approve-btn:hover {
   background-color: #3a56d4;
-  box-shadow: 0 3px 6px rgba(67, 97, 238, 0.25);
 }
 
 #owner-main-container-EventManagement .action-buttons .reject-btn {
@@ -1029,4 +1066,250 @@
   #owner-main-container-EventManagement .requests_count .received_request_count .numbers_of_package_request {
     font-size: 30px;
   }
+}
+
+/* Table styling improvements */
+#owner-main-container-EventManagement table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+#owner-main-container-EventManagement td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #dee2e6;
+  color: #666;
+  text-align: left;
+  font-family: var(--Heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#owner-main-container-EventManagement tbody tr {
+  transition: background-color 0.2s;
+}
+
+#owner-main-container-EventManagement tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Consistent column widths */
+#owner-main-container-EventManagement .received_service_table th:nth-child(1),
+#owner-main-container-EventManagement .received_equipment_table th:nth-child(1),
+#owner-main-container-EventManagement .received_package_table th:nth-child(1) {
+  width: 50px;
+}
+
+#owner-main-container-EventManagement .received_service_table th:nth-child(2),
+#owner-main-container-EventManagement .received_equipment_table th:nth-child(2),
+#owner-main-container-EventManagement .received_package_table th:nth-child(2) {
+  width: 220px;
+}
+
+#owner-main-container-EventManagement .received_service_table th:nth-child(6),
+#owner-main-container-EventManagement .received_equipment_table th:nth-child(7),
+#owner-main-container-EventManagement .received_package_table th:nth-child(6) {
+  width: 100px;
+}
+
+#owner-main-container-EventManagement .received_service_table th:nth-child(7),
+#owner-main-container-EventManagement .received_equipment_table th:nth-child(8),
+#owner-main-container-EventManagement .received_package_table th:nth-child(7) {
+  width: 120px;
+}
+
+/* Specific fix for 'i' info buttons */
+#owner-main-container-EventManagement .info-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Approve button styling improvements */
+#owner-main-container-EventManagement .approve-btn {
+  background-color: #4361ee;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: var(--Heading);
+}
+
+#owner-main-container-EventManagement .approve-btn:hover {
+  background-color: #3a56d4;
+}
+
+/* Better action buttons alignment */
+#owner-main-container-EventManagement .action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+/* Service table specific fixes */
+#owner-main-container-EventManagement .received_service_table,
+#owner-main-container-EventManagement .received_equipment_table,
+#owner-main-container-EventManagement .received_package_table,
+#owner-main-container-EventManagement .sent_service_table,
+#owner-main-container-EventManagement .sent_equipment_table,
+#owner-main-container-EventManagement .sent_package_table {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #eaeaea;
+}
+
+/* Consistent header styling */
+#owner-main-container-EventManagement thead tr {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+#owner-main-container-EventManagement th {
+  padding: 15px;
+  text-align: left;
+  color: #495057;
+  font-weight: 600;
+  border-bottom: 1px solid #dee2e6;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: var(--Heading);
+  position: relative;
+}
+
+
+
+#owner-main-container-EventManagement .table-container .status span {
+  padding: 4px 12px;
+  width: auto;
+  min-width: 80px;
+  border-radius: 20px;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  display: inline-block;
+  font-family: var(--Heading);
+}
+
+#owner-main-container-EventManagement .table-container .status.pending span {
+  background: #feeacc;
+  color: #fba949;
+  border: 1px solid #fba949;
+}
+
+#owner-main-container-EventManagement .table-container .status.accepted span {
+  background: #cdeed8;
+  color: #2ea252;
+  border: 1px solid #2ea252;
+}
+
+#owner-main-container-EventManagement .table-container .status.rejected span {
+  background: #fed8da;
+  color: #d03033;
+  border: 1px solid #d03033;
+}
+
+#owner-main-container-EventManagement .table-container .status.waiting_on_team span {
+  background: #feeacc;
+  color: #fba949;
+  border: 1px solid #fba949;
+}
+
+#owner-main-container-EventManagement .table-container .status.completed span {
+  background: #cdeed8;
+  color: #2ea252;
+  border: 1px solid #2ea252;
+}
+
+#owner-main-container-EventManagement .table-container .status.event_expired span {
+  background: #e0e0e0;
+  color: #616161;
+  border: 1px solid #9e9e9e;
+}
+
+/* Fixed action button styling */
+#owner-main-container-EventManagement .action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+/* Improve button design */
+#owner-main-container-EventManagement .action-buttons .approve-btn {
+  background-color: #4361ee;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: var(--Heading);
+  box-shadow: 0 2px 4px rgba(67, 97, 238, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+}
+
+#owner-main-container-EventManagement .action-buttons .approve-btn:hover {
+  background-color: #3a56d4;
+  box-shadow: 0 3px 6px rgba(67, 97, 238, 0.25);
+}
+
+/* Common button styles for reject and info */
+#owner-main-container-EventManagement .action-buttons .reject-btn,
+#owner-main-container-EventManagement .action-buttons .info-btn {
+  background-color: #ffffff;
+  color: #666;
+  border: 1px solid #e0e0e0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+#owner-main-container-EventManagement .action-buttons .reject-btn:hover {
+  background-color: #ffebeb;
+  border-color: #ffbdbd;
+  color: #e53935;
+}
+
+#owner-main-container-EventManagement .action-buttons .info-btn:hover {
+  background-color: #e3f2fd;
+  border-color: #90caf9;
+  color: #1976d2;
+}
+
+/* Consistent row height */
+#owner-main-container-EventManagement tr {
+  height: 56px;
+}
+
+/* Better row hover effect */
+#owner-main-container-EventManagement tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Added transitions for smoother UI */
+#owner-main-container-EventManagement tbody tr,
+#owner-main-container-EventManagement .action-buttons button {
+  transition: all 0.2s ease;
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./EventManagement.css";
 import "./EventManagement_Responsive.css";
 import axios from "axios";
@@ -13,6 +13,7 @@ import AddDetailsPop from "./AddDetailsPop";
 import socket from "../../../../redux/socket";
 import { IoCloseOutline } from "react-icons/io5";
 import { IoInformation } from "react-icons/io5";
+import EventStatusUpdater from "./EventStatusUpdater";
 // import { HiOutlineChevronUpDown } from "react-icons/hi2";
 // import { add } from "date-fns";
 
@@ -286,7 +287,8 @@ function EventManagement({ category }) {
   }, [receiver_equipment_data, receiver_package_data, receiver_service_data])
 
   const ActionMenu = ({ onApprove, onReject, onInfo, eventStatus }) => {
-    const isFinal = eventStatus === "Accepted" || eventStatus === "Rejected";
+    const isFinal = eventStatus === "Accepted" || eventStatus === "Rejected" || 
+                   eventStatus === "Completed" || eventStatus === "Event Expired";
     return (
       <div className="action-menu">
         {!isFinal && (
@@ -364,8 +366,76 @@ function EventManagement({ category }) {
     }
   }
 
+  // Utility function to determine if an event has passed
+  const isEventPassed = (endDate) => {
+    if (!endDate) return false;
+    const eventEndTime = new Date(endDate).getTime();
+    const currentTime = new Date().getTime();
+    return eventEndTime < currentTime;
+  };
+
+  // Get display status based on event status and time
+  const getDisplayStatus = (item) => {
+    // If event has passed (end time < current time)
+    if (isEventPassed(item.end_date)) {
+      if (item.event_status === "Accepted") {
+        return "Completed";
+      } else if (item.event_status !== "Rejected") {
+        return "Event Expired";
+      }
+    }
+    
+    // Return original status if not passed
+    return item.event_status;
+  };
+
+  // Function to refresh data after status updates
+  const refreshReceivedData = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `${Server_url}/owner/get-equipment-details-by/${user.user_email}`
+      );
+      if (response.data) {
+        set_receiver_package_data(response.data.package);
+        set_receiver_equipment_data(response.data.equipment);
+        set_receiver_service_data(response.data.service);
+      }
+    } catch (error) {
+      console.error("Error refreshing event data:", error);
+    }
+  }, [user.user_email]);
+
+  // Function to get status class for CSS styling
+  const getStatusClass = (status) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'completed';
+      case 'event expired':
+        return 'event_expired';
+      default:
+        return status.toLowerCase().replace(/\s+/g, '_');
+    }
+  };
+
+  // Add the EventStatusUpdater component to handle background status updates
+  useEffect(() => {
+    // Initial check for past events when component mounts
+    const checkInitialPastEvents = async () => {
+      try {
+        await axios.get(`${Server_url}/owner/check-past-events/${user.user_email}`);
+        refreshReceivedData();
+      } catch (error) {
+        console.error("Error checking past events on mount:", error);
+      }
+    };
+    
+    checkInitialPastEvents();
+  }, [user.user_email, refreshReceivedData]);
+
   return (
     <div id="owner-main-container-EventManagement">
+      {/* Include the status updater component */}
+      <EventStatusUpdater user_email={user.user_email} updateReceivedData={refreshReceivedData} />
 
       {/* received request count  */}
       <div className="requests_count">
@@ -409,7 +479,7 @@ function EventManagement({ category }) {
 
                 <div className="modal-header-container">
                   <h3 className="modal-header">Request Details</h3>
-                  <span className={`status ${selected_sent_item?.event_status?.toLowerCase()}`}>
+                  <span className={`status ${selected_sent_item?.event_status === "Waiting on Team" ? "status-waiting-on-team" : selected_sent_item?.event_status === "Accepted" ? "status-accepted" : selected_sent_item?.event_status === "Rejected" ? "status-rejected" : "status-pending"}`}>
                     {selected_sent_item?.event_status || "Pending"}
                   </span>
                 </div>
@@ -519,16 +589,7 @@ function EventManagement({ category }) {
                               label="Location"
                               value={selected_sent_item.location}
                             />
-                            {/* <TRow
-                              label="Status"
-                              value={
-                                <span
-                                  className={`status ${selected_sent_item.event_status?.toLowerCase()}`}
-                                >
-                                  {selected_sent_item.event_status}
-                                </span>
-                              }
-                            /> */}
+
 
                             {selected_sent_item.event_status === "Accepted" &&
                               selected_sent_item.assigned_team_member?.length >
@@ -606,8 +667,8 @@ function EventManagement({ category }) {
                             <td className="description">{item.requirements}</td>
                             <td>₹{item.price}</td>
                             <td>{item.receiver_email}</td>
-                            <td className={`status ${item.event_status?.toLowerCase()}`}>
-                              <span>{item.event_status}</span>
+                            <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                              <span>{getDisplayStatus(item)}</span>
                             </td>
                           </tr>
                         ))}
@@ -646,8 +707,8 @@ function EventManagement({ category }) {
                             <td>{item.equipment_type}</td>
                             <td>{item.days_required}</td>
                             <td>{item.receiver_email}</td>
-                            <td className={`status ${item.event_status?.toLowerCase()}`}>
-                              <span>{item.event_status}</span>
+                            <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                              <span>{getDisplayStatus(item)}</span>
                             </td>
                           </tr>
                         ))}
@@ -683,8 +744,8 @@ function EventManagement({ category }) {
                             <td>₹{item.total_amount}</td>
                             <td>{item.days_required}</td>
                             <td>{item.receiver_email}</td>
-                            <td className={`status ${item.event_status?.toLowerCase()}`}>
-                              <span>{item.event_status}</span>
+                            <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                              <span>{getDisplayStatus(item)}</span>
                             </td>
                           </tr>
                         ))}
@@ -735,8 +796,8 @@ function EventManagement({ category }) {
                               <td>{item.package_name}</td>
                               <td>₹{item.price}</td>
                               <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                              <td className={`status ${item.event_status?.toLowerCase()}`}>
-                                <span>{item.event_status}</span>
+                              <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                                <span>{getDisplayStatus(item)}</span>
                               </td>
                               <td className="action-buttons">
                                 {window.innerWidth <= 660 ? (
@@ -760,7 +821,7 @@ function EventManagement({ category }) {
                                     {isMenuOpen === item.id && (
                                       <div ref={menuRef}>
                                         <ActionMenu
-                                          eventStatus={item.event_status}
+                                          eventStatus={getDisplayStatus(item)}
                                           onApprove={() => {
                                             set_data(item);
                                             setIsMenuOpen(null);
@@ -779,7 +840,7 @@ function EventManagement({ category }) {
                                   </div>
                                 ) : (
                                   <>
-                                    {item.event_status?.toLowerCase() === "pending" && (
+                                    {getDisplayStatus(item).toLowerCase() === "pending" && (
                                       <>
                                         <button className="approve-btn" onClick={() => set_data(item)}>
                                           Approve
@@ -839,8 +900,8 @@ function EventManagement({ category }) {
                               <td>{item.equipment_company}</td>
                               <td>{item.days_required}</td>
                               <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                              <td className={`status ${item.event_status?.toLowerCase()}`}>
-                                <span>{item.event_status}</span>
+                              <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                                <span>{getDisplayStatus(item)}</span>
                               </td>
                               <td className="action-buttons">
                                 {window.innerWidth <= 660 ? (
@@ -864,7 +925,7 @@ function EventManagement({ category }) {
                                     {isMenuOpen === item.id && (
                                       <div ref={menuRef}>
                                         <ActionMenu
-                                          eventStatus={item.event_status}
+                                          eventStatus={getDisplayStatus(item)}
                                           onApprove={() => {
                                             set_data(item);
                                             setIsMenuOpen(null);
@@ -883,7 +944,7 @@ function EventManagement({ category }) {
                                   </div>
                                 ) : (
                                   <>
-                                    {item.event_status?.toLowerCase() === "pending" && (
+                                    {getDisplayStatus(item).toLowerCase() === "pending" && (
                                       <>
                                         <button className="approve-btn" onClick={() => { fetchProfileData(item.sender_email); set_data(item) }}>
                                           Approve
@@ -942,8 +1003,8 @@ function EventManagement({ category }) {
                               <td>{item.service_name}</td>
                               <td>{item.days_required}</td>
                               <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                              <td className={`status ${item.event_status.toLowerCase()}`}>
-                                <span>{item.event_status}</span>
+                              <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                                <span>{getDisplayStatus(item)}</span>
                               </td>
                               <td className="action-buttons">
                                 {window.innerWidth <= 660 ? (
@@ -967,7 +1028,7 @@ function EventManagement({ category }) {
                                     {isMenuOpen === item.id && (
                                       <div ref={menuRef}>
                                         <ActionMenu
-                                          eventStatus={item.event_status}
+                                          eventStatus={getDisplayStatus(item)}
                                           onApprove={() => {
                                             set_data(item);
                                             setIsMenuOpen(null);
@@ -986,7 +1047,7 @@ function EventManagement({ category }) {
                                   </div>
                                 ) : (
                                   <>
-                                    {item.event_status.toLowerCase() === "pending" && (
+                                    {getDisplayStatus(item).toLowerCase() === "pending" && (
                                       <>
                                         <button className="approve-btn" onClick={() => set_data(item)}>
                                           Approve
