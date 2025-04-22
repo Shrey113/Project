@@ -38,39 +38,60 @@ function DriveHome() {
     }, [activeProfileSection, setActiveProfileSection])
 
     const fetchFilesAndFolders = async () => {
-        setIsLoading(true)
+        setIsLoading(true);
+        console.log("Fetching files and folders, currentFolder:", currentFolder);
+
         try {
             // Fetch folders
-            const folderResponse = await fetch(`${Server_url}/drive/folders?user_email=${user_email}`)
-            const folderData = await folderResponse.json()
+            const folderResponse = await fetch(`${Server_url}/drive/folders?user_email=${user_email}`);
+            if (!folderResponse.ok) {
+                throw new Error(`Failed to fetch folders: ${folderResponse.status} ${folderResponse.statusText}`);
+            }
+            const folderData = await folderResponse.json();
+            console.log("Folders fetched:", folderData);
 
             // Fetch files - if currentFolder is set use that, otherwise fetch root files
-            const fileUrl = `${Server_url}/drive/files?user_email=${user_email}${currentFolder ? `&parent_folder_id=${currentFolder}` : '&is_root=true'
-                }`
-            const fileResponse = await fetch(fileUrl)
-            const fileData = await fileResponse.json()
+            const fileUrl = new URL(`${Server_url}/drive/files`);
+            fileUrl.searchParams.append('user_email', user_email);
+
+            if (currentFolder) {
+                fileUrl.searchParams.append('parent_folder_id', currentFolder);
+            } else {
+                fileUrl.searchParams.append('is_root', 'true');
+            }
+
+            console.log("Fetching files from:", fileUrl.toString());
+            const fileResponse = await fetch(fileUrl.toString());
+            if (!fileResponse.ok) {
+                throw new Error(`Failed to fetch files: ${fileResponse.status} ${fileResponse.statusText}`);
+            }
+            const fileData = await fileResponse.json();
+            console.log("Files fetched:", fileData);
 
             // Filter for current location
             const currentFolders = folderData.filter(folder =>
-                currentFolder ? folder.parent_folder_id === currentFolder : folder.is_root)
+                currentFolder ? folder.parent_folder_id === currentFolder : folder.is_root);
 
-            setFolders(currentFolders)
-            setFiles(fileData)
+            console.log("Current folders for display:", currentFolders);
+            setFolders(currentFolders);
+            setFiles(fileData);
         } catch (error) {
-            console.error('Error fetching files and folders:', error)
+            console.error('Error fetching files and folders:', error);
+            alert('Error loading files: ' + error.message);
+
             // For demo purposes, set sample data
             setFolders([
                 { folder_id: 1, folder_name: 'Documents', created_at: new Date().toISOString() },
                 { folder_id: 2, folder_name: 'Images', created_at: new Date().toISOString() }
-            ])
+            ]);
             setFiles([
                 { file_id: 1, file_name: 'Report.pdf', file_size: 2.4, file_type: 'pdf', created_at: new Date().toISOString() },
                 { file_id: 2, file_name: 'Presentation.pptx', file_size: 5.7, file_type: 'pptx', created_at: new Date().toISOString() }
-            ])
+            ]);
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
-    }
+    };
 
     const fetchStorageInfo = async () => {
         try {
@@ -95,69 +116,60 @@ function DriveHome() {
         setUploadProgress({ completed: 0, total: totalFiles });
 
         try {
+            console.log("Starting upload of", totalFiles, "files");
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
+                console.log(`Processing file ${i + 1}/${totalFiles}:`, file.name, "size:", file.size);
 
-                // Read file as base64
-                const reader = new FileReader();
+                // Create FormData for direct file upload
+                const formData = new FormData();
+                formData.append('file', file);
 
-                await new Promise((resolve, reject) => {
-                    reader.onload = async (e) => {
-                        try {
-                            const base64Data = e.target.result;
+                // Construct upload URL with proper parameters
+                const uploadUrl = new URL(`${Server_url}/drive/upload-file`);
+                uploadUrl.searchParams.append('user_email', user_email);
 
-                            // Prepare file data for API
-                            const fileData = {
-                                file_name: file.name,
-                                file_data: base64Data,
-                                file_size: file.size / (1024 * 1024), // Convert to MB
-                                file_type: file.name.split('.').pop(),
-                                parent_folder_id: currentFolder || null,
-                                is_root: !currentFolder,
-                                is_shared: false,
-                                created_by: user_email,
-                                modified_by: user_email
-                            };
+                if (currentFolder) {
+                    console.log("Uploading to folder ID:", currentFolder);
+                    uploadUrl.searchParams.append('parent_folder_id', currentFolder);
+                } else {
+                    console.log("Uploading to root folder");
+                    uploadUrl.searchParams.append('is_root', 'true');
+                }
 
-                            // Send file to server
-                            const response = await fetch(`${Server_url}/drive/upload-file?user_email=${user_email}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(fileData)
-                            });
+                console.log("Sending request to:", uploadUrl.toString());
 
-                            if (response.ok) {
-                                completedFiles++;
-                                setUploadProgress({ completed: completedFiles, total: totalFiles });
-                            } else {
-                                const errorText = await response.text();
-                                console.error(`Upload failed for ${file.name}:`, errorText);
-                            }
-
-                            resolve();
-                        } catch (error) {
-                            reject(error);
-                        }
-                    };
-
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
+                // Send file to server using FormData
+                const response = await fetch(uploadUrl.toString(), {
+                    method: 'POST',
+                    body: formData,
                 });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log("Upload successful:", result);
+                    completedFiles++;
+                    setUploadProgress({ completed: completedFiles, total: totalFiles });
+                } else {
+                    const errorText = await response.text();
+                    console.error(`Upload failed for ${file.name}:`, errorText);
+                    alert(`Failed to upload ${file.name}: ${errorText}`);
+                }
             }
 
             // All uploads completed
+            console.log("All uploads completed");
             setUploadProgress({ completed: 0, total: 0 });
             fetchFilesAndFolders();
             fetchStorageInfo();
         } catch (error) {
             console.error('Upload error:', error);
+            alert('Upload failed: ' + error.message);
         } finally {
             setIsLoading(false);
         }
     };
-
 
     const handleCreateFolder = async () => {
         if (!newFolderName.trim()) return
