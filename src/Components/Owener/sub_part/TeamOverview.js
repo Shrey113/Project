@@ -201,7 +201,6 @@ const PopUp = ({ action, member, onClose, onSave }) => {
           setIsSending(false);
         }
       } else {
-        // Use the same invite_member route for manual addition
         try {
           setIsSending(true);
           const response = await fetch(`${Server_url}/team_members/invite_member`, {
@@ -743,19 +742,19 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
       </div>
       <div className="profile-section">
         <div className="profile-image">
-        {["1", "2", "3", "4"].includes(member.member_profile_img) ? (
-          <img
-            src={getTeamMemberProfilePic(member.member_profile_img)}
-            alt={member.member_name}
-            className="member-img"
-          />
-        ) : (
-          <img
-            src={`${Server_url}/owner/profile-image/${member.team_member_email}`}
-            alt={member.member_name}
-            className="member-img"
-          />
-        )}
+          {["1", "2", "3", "4"].includes(member.member_profile_img) ? (
+            <img
+              src={getTeamMemberProfilePic(member.member_profile_img)}
+              alt={member.member_name}
+              className="member-img"
+            />
+          ) : (
+            <img
+              src={`${Server_url}/owner/profile-image/${member.team_member_email}`}
+              alt={member.member_name}
+              className="member-img"
+            />
+          )}
         </div>
         <h3>{member.member_name}</h3>
         <p className="email" style={{ maxWidth: "100%", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{emailDisplay || "No email provided"}</p>
