@@ -87,54 +87,42 @@ function DriveHome() {
     }
     
     const handleFileUpload = async (event) => {
-        const files = event.target.files
-        if (!files.length) return
-        
-        const formData = new FormData()
+        const files = event.target.files;
+        if (!files.length) return;
+    
+        const formData = new FormData();
         for (let i = 0; i < files.length; i++) {
-            formData.append('files', files[i])
+            formData.append('files', files[i]);
         }
-        
-        formData.append('user_email', user_email)
+    
+        formData.append('user_email', user_email);
         if (currentFolder) {
-            formData.append('parent_folder_id', currentFolder)
+            formData.append('parent_folder_id', currentFolder);
         } else {
-            formData.append('is_root', true)
+            formData.append('is_root', true);
         }
-        
+    
         try {
-            const xhr = new XMLHttpRequest()
-            xhr.open('POST', `${Server_url}/drive/upload`, true)
-            
-            xhr.upload.onprogress = (event) => {
-                if (event.lengthComputable) {
-                    const percentCompleted = Math.round((event.loaded * 100) / event.total)
-                    setUploadProgress(percentCompleted)
-                }
+            const response = await fetch(`${Server_url}/drive/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+    
+            if (response.ok) {
+                setUploadProgress(0);
+                fetchFilesAndFolders();
+                fetchStorageInfo();
+            } else {
+                const errorText = await response.text();
+                console.error('Upload failed:', errorText);
+                setUploadProgress(0);
             }
-            
-            xhr.onload = () => {
-                if (xhr.status === 200 || xhr.status === 201) {
-                    setUploadProgress(0)
-                    fetchFilesAndFolders()
-                    fetchStorageInfo()
-                } else {
-                    console.error('Upload failed:', xhr.responseText)
-                    setUploadProgress(0)
-                }
-            }
-            
-            xhr.onerror = () => {
-                console.error('Upload error')
-                setUploadProgress(0)
-            }
-            
-            xhr.send(formData)
         } catch (error) {
-            console.error('Upload error:', error)
-            setUploadProgress(0)
+            console.error('Upload error:', error);
+            setUploadProgress(0);
         }
-    }
+    };
+    
     
     const handleCreateFolder = async () => {
         if (!newFolderName.trim()) return
