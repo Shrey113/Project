@@ -289,10 +289,21 @@ function DriveHome() {
         }
     }
 
-    const formatFileSize = (size) => {
-        if (size < 1) return `${(size * 1024).toFixed(0)} KB`
-        return `${size.toFixed(1)} MB`
+    // const formatFileSize = (size) => {
+    //     if (size < 1) return `${(size * 1024).toFixed(0)} KB`
+    //     return `${size.toFixed(1)} MB`
+    // }
+    function formatFileSize(size) {
+        const num = Number(size);
+        if (isNaN(num)) return '0 B';
+
+        const kb = num / 1024;
+        const mb = kb / 1024;
+        if (mb >= 1) return `${mb.toFixed(2)} MB`;
+        if (kb >= 1) return `${kb.toFixed(2)} KB`;
+        return `${num} B`;
     }
+
 
     const getFileIcon = (fileType) => {
         // Add more file type icons as needed
