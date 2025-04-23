@@ -261,11 +261,6 @@ function SharedFilesPage() {
         }
     }
 
-    const formatFileSize = (size) => {
-        if (size < 1) return `${(size * 1024).toFixed(0)} KB`
-        return `${size.toFixed(1)} MB`
-    }
-
     const getFileIcon = (fileType) => {
         // Add more file type icons as needed
         return <FontAwesomeIcon icon={faFile} className={`file-icon file-${fileType}`} />
