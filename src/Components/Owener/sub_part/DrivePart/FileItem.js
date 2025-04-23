@@ -38,7 +38,8 @@ const FileItem = ({
     onShare,
     onEdit,
     formatFileSize,
-    onClick
+    onClick,
+    onPreview
 }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [showOptions, setShowOptions] = useState(false);
@@ -129,6 +130,8 @@ const FileItem = ({
             onClick(item, type);
         } else if (type === 'folder' && onNavigate) {
             onNavigate(item.folder_id, item.folder_name);
+        } else if (type === 'file' && onPreview) {
+            onPreview(item);
         }
     };
 

@@ -6,11 +6,12 @@ import './DriveStyles.css'
 import { Server_url, FileLoaderToast } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
 import FileItem from './FileItem'
+import FilePreview from './FilePreview'
 
 function DriveHome() {
     const user = useSelector((state) => state.user);
     const created_by = user.user_email;
-    const user_email = user.user_email; // Keep both variables for compatibility
+    const user_email = user.user_email;
     const { activeProfileSection, setActiveProfileSection } = useUIContext()
     const [files, setFiles] = useState([])
     const [folders, setFolders] = useState([])
@@ -33,6 +34,8 @@ function DriveHome() {
     const [renameItemOldName, setRenameItemOldName] = useState('')
     const [renameItemNewName, setRenameItemNewName] = useState('') // Initialize with empty string
     const [dialogMode, setDialogMode] = useState('rename') // 'rename' or 'create'
+
+    const [previewFile, setPreviewFile] = useState(null);
 
     // Function to trigger a refresh
     const refreshDrive = () => {
@@ -600,15 +603,27 @@ function DriveHome() {
         if (type === 'folder') {
             navigateToFolder(item.folder_id, item.folder_name);
         } else {
-            // Preview file or perform default action for files
-            handleDownloadFile(item.file_id, item.file_name);
+            // Show file preview instead of downloading
+            setPreviewFile(item);
         }
+    };
+
+    // Close file preview
+    const closePreview = () => {
+        setPreviewFile(null);
     };
 
     return (
         <div className="drive-home-container">
             {uploadProgress.total > 0 && <FileLoaderToast uploadProgress={uploadProgress} />}
 
+            {/* File Preview Component */}
+            {previewFile && (
+                <FilePreview
+                    file={previewFile}
+                    onClose={closePreview}
+                />
+            )}
 
             {/* Rename/Create Dialog */}
             {showRenameDialog && (
