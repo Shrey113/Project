@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFile, faFolder, faStar, faTrash, faUpload, faShare, faPlusSquare, faDownload, faEdit } from '@fortawesome/free-solid-svg-icons'
+import { faFile, faFolder, faStar, faTrash, faUpload, faShare, faPlusSquare, faDownload, faEdit, faSync } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
 import { Server_url, FileLoaderToast } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
 
 function DriveHome() {
     const user = useSelector((state) => state.user);
-    const user_email = user.user_email;
+    const created_by = user.user_email;
+    const user_email = user.user_email; // Keep both variables for compatibility
     const { activeProfileSection, setActiveProfileSection } = useUIContext()
     const [files, setFiles] = useState([])
     const [folders, setFolders] = useState([])
@@ -24,6 +25,13 @@ function DriveHome() {
     const [searchTerm, setSearchTerm] = useState('')
     const [storageUsed, setStorageUsed] = useState(0)
     const [storageLimit, setStorageLimit] = useState(1024) // 1GB in MB
+    const [refreshKey, setRefreshKey] = useState(0) // Add a refresh key to force re-renders
+
+    // Function to trigger a refresh
+    const refreshDrive = () => {
+        console.log("Refreshing drive content...");
+        setRefreshKey(prevKey => prevKey + 1);
+    };
 
     useEffect(() => {
         if (activeProfileSection !== 'Drive Home') {
@@ -35,51 +43,44 @@ function DriveHome() {
 
         // Get storage info
         fetchStorageInfo()
-    }, [activeProfileSection, setActiveProfileSection])
+    }, [activeProfileSection, setActiveProfileSection, refreshKey]) // Add refreshKey to dependencies
 
     const fetchFilesAndFolders = async () => {
         setIsLoading(true);
         console.log("Fetching files and folders, currentFolder:", currentFolder);
 
         try {
-            // Fetch folders
-            const folderResponse = await fetch(`${Server_url}/drive/folders?user_email=${user_email}`);
-            if (!folderResponse.ok) {
-                throw new Error(`Failed to fetch folders: ${folderResponse.status} ${folderResponse.statusText}`);
+            // Use query parameters for both user_email and created_by
+            const url = new URL(`${Server_url}/drive/get_all_files_and_folders/${created_by}`);
+            url.searchParams.append('user_email', user_email);
+            
+            const response = await fetch(url.toString());
+            
+            // Check if response is OK
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server error:', response.status, errorText);
+                throw new Error(`Server responded with ${response.status}: ${errorText}`);
             }
-            const folderData = await folderResponse.json();
-            console.log("Folders fetched:", folderData);
+            
+            const data = await response.json();
+            console.log("Files and folders fetched:", data);
 
-            // Fetch files - if currentFolder is set use that, otherwise fetch root files
-            const fileUrl = new URL(`${Server_url}/drive/files`);
-            fileUrl.searchParams.append('user_email', user_email);
-
-            if (currentFolder) {
-                fileUrl.searchParams.append('parent_folder_id', currentFolder);
-            } else {
-                fileUrl.searchParams.append('is_root', 'true');
+            // Handle the updated response format that now contains both files and folders
+            if (data.files) {
+                console.log("Filessssssssss:", data.files);
+                
+                setFiles(data.files);
             }
-
-            console.log("Fetching files from:", fileUrl.toString());
-            const fileResponse = await fetch(fileUrl.toString());
-            if (!fileResponse.ok) {
-                throw new Error(`Failed to fetch files: ${fileResponse.status} ${fileResponse.statusText}`);
+            
+            if (data.folders) {
+                console.log("Folderssssssssssssssss:", data.folders);
+                
+                setFolders(data.folders);
             }
-            const fileData = await fileResponse.json();
-            console.log("Files fetched:", fileData);
-
-            // Filter for current location
-            const currentFolders = folderData.filter(folder =>
-                currentFolder ? folder.parent_folder_id === currentFolder : folder.is_root);
-
-            console.log("Current folders for display:", currentFolders);
-            setFolders(currentFolders);
-            setFiles(fileData);
         } catch (error) {
             console.error('Error fetching files and folders:', error);
-            alert('Error loading files: ' + error.message);
-
-            // For demo purposes, set sample data
+            // Fallback to sample data
             setFolders([
                 { folder_id: 1, folder_name: 'Documents', created_at: new Date().toISOString() },
                 { folder_id: 2, folder_name: 'Images', created_at: new Date().toISOString() }
@@ -95,7 +96,7 @@ function DriveHome() {
 
     const fetchStorageInfo = async () => {
         try {
-            const response = await fetch(`${Server_url}/drive/storage?user_email=${user_email}`)
+            const response = await fetch(`${Server_url}/drive/storage?created_by=${created_by}&user_email=${user_email}`)
             const data = await response.json()
             setStorageUsed(data.used || 125) // MB used
             setStorageLimit(data.limit || 1024) // MB total
@@ -122,25 +123,21 @@ function DriveHome() {
                 const file = files[i];
                 console.log(`Processing file ${i + 1}/${totalFiles}:`, file.name, "size:", file.size);
 
-                // Create FormData for direct file upload
+                // Create FormData for each file
                 const formData = new FormData();
                 formData.append('file', file);
 
                 // Construct upload URL with proper parameters
                 const uploadUrl = new URL(`${Server_url}/drive/upload-file`);
+                uploadUrl.searchParams.append('created_by', created_by);
                 uploadUrl.searchParams.append('user_email', user_email);
-
-                if (currentFolder) {
-                    console.log("Uploading to folder ID:", currentFolder);
-                    uploadUrl.searchParams.append('parent_folder_id', currentFolder);
-                } else {
-                    console.log("Uploading to root folder");
-                    uploadUrl.searchParams.append('is_root', 'true');
-                }
+                
+                // All files are now uploaded directly to user's drive folder
+                console.log("Uploading to user's drive folder");
 
                 console.log("Sending request to:", uploadUrl.toString());
 
-                // Send file to server using FormData
+                // Send file to server using FormData with proper headers for Busboy
                 const response = await fetch(uploadUrl.toString(), {
                     method: 'POST',
                     body: formData,
@@ -161,8 +158,7 @@ function DriveHome() {
             // All uploads completed
             console.log("All uploads completed");
             setUploadProgress({ completed: 0, total: 0 });
-            fetchFilesAndFolders();
-            fetchStorageInfo();
+            refreshDrive(); // Use the refresh function instead of direct fetch calls
         } catch (error) {
             console.error('Upload error:', error);
             alert('Upload failed: ' + error.message);
@@ -174,7 +170,10 @@ function DriveHome() {
     const handleCreateFolder = async () => {
         if (!newFolderName.trim()) return
 
+        setIsLoading(true);
         try {
+            console.log(`Creating folder: ${newFolderName}`);
+            
             const response = await fetch(`${Server_url}/drive/create-folder`, {
                 method: 'POST',
                 headers: {
@@ -182,47 +181,55 @@ function DriveHome() {
                 },
                 body: JSON.stringify({
                     folder_name: newFolderName,
+                    created_by: created_by,
                     user_email: user_email,
-                    created_by: user_email,
-                    modified_by: user_email,
-                    is_root: !currentFolder,
-                    parent_folder_id: currentFolder || null,
-                    is_shared: false
+                    modified_by: created_by
                 })
             })
 
             if (!response.ok) {
-                throw new Error(`Server responded with ${response.status}: ${response.statusText}`)
+                const errorText = await response.text();
+                console.error(`Server error: ${response.status}`, errorText);
+                throw new Error(`Server responded with ${response.status}: ${errorText}`)
             }
+
+            const result = await response.json();
+            console.log("Folder created successfully:", result);
 
             setNewFolderName('')
             setShowCreateFolder(false)
-            fetchFilesAndFolders()
+            refreshDrive(); // Use the refresh function
         } catch (error) {
             console.error('Error creating folder:', error)
+            alert(`Failed to create folder: ${error.message}`);
+        } finally {
+            setIsLoading(false);
         }
     }
 
     const navigateToFolder = (folderId, folderName) => {
+        // We're not actually navigating between folders since our system now just shows all files
+        // But we'll update the path for display purposes
         setCurrentFolder(folderId)
         setCurrentPath(currentPath === '/' ? `/${folderName}` : `${currentPath}/${folderName}`)
-        // Refetch files and folders for this folder
-        fetchFilesAndFolders()
+        
+        // Just reload the files list - the backend will return all files regardless
+        refreshDrive();
     }
 
     const navigateUp = () => {
         if (currentPath === '/') return
 
-        // Get parent folder ID
+        // Just for display purposes
         const pathParts = currentPath.split('/')
         pathParts.pop() // Remove current folder name
         const newPath = pathParts.join('/') || '/'
 
-        setCurrentFolder(null) // This would need to be the actual parent ID in a real app
+        setCurrentFolder(null) 
         setCurrentPath(newPath)
-
-        // Refetch files and folders for parent folder
-        fetchFilesAndFolders()
+        
+        // Just reload the files list
+        refreshDrive();
     }
 
     const toggleSelectItem = (id, type) => {
@@ -235,76 +242,182 @@ function DriveHome() {
         }
     }
 
-    const handleDeleteSelected = async () => {
-        if (!selectedItems.length) return
+    const handleDeleteFile = async (fileId, fileName) => {
+        const confirmed = window.confirm(`Are you sure you want to delete the file "${fileName}"?`);
+        if (!confirmed) return;
+        
+        setIsLoading(true);
+        try {
+            console.log(`Deleting file: ${fileName} (ID: ${fileId})`);
+            
+            const endpoint = `${Server_url}/drive/files/${fileId}?created_by=${created_by}&user_email=${user_email}`;
+            console.log(`Sending delete request to: ${endpoint}`);
+            
+            const response = await fetch(endpoint, {
+                method: 'DELETE'
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Failed to delete file: ${errorText}`);
+                throw new Error(`Server error: ${response.status} ${errorText}`);
+            }
+            
+            const result = await response.json();
+            console.log("Delete successful:", result);
+            
+            alert(`File "${fileName}" deleted successfully`);
+            refreshDrive();
+        } catch (error) {
+            console.error("Error deleting file:", error);
+            alert(`Failed to delete file: ${error.message}`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-        const confirmed = window.confirm(`Are you sure you want to delete ${selectedItems.length} item(s)?`)
-        if (!confirmed) return
+    const handleDeleteSelected = async () => {
+        if (!selectedItems.length) return;
+
+        const confirmed = window.confirm(`Are you sure you want to delete ${selectedItems.length} item(s)?`);
+        if (!confirmed) return;
+
+        setIsLoading(true);
+        let successCount = 0;
+        let failCount = 0;
+        let deletedItemNames = [];
 
         for (const item of selectedItems) {
             try {
+                console.log(`Deleting ${item.type} with ID: ${item.id}`);
+                let endpoint;
+                let itemName = '';
+                
+                // Find the name of the item for better logging
                 if (item.type === 'file') {
-                    await fetch(`${Server_url}/drive/files/${item.id}?user_email=${user_email}`, {
-                        method: 'DELETE'
-                    })
+                    const fileObj = files.find(f => f.file_id === item.id);
+                    itemName = fileObj ? fileObj.file_name : `file #${item.id}`;
+                    endpoint = `${Server_url}/drive/files/${item.id}?created_by=${created_by}&user_email=${user_email}`;
                 } else {
-                    await fetch(`${Server_url}/drive/folders/${item.id}?user_email=${user_email}`, {
-                        method: 'DELETE'
-                    })
+                    const folderObj = folders.find(f => f.folder_id === item.id);
+                    itemName = folderObj ? folderObj.folder_name : `folder #${item.id}`;
+                    endpoint = `${Server_url}/drive/folders/${item.id}?created_by=${created_by}&user_email=${user_email}`;
+                }
+                
+                console.log(`Deleting ${item.type}: "${itemName}" - sending request to: ${endpoint}`);
+                
+                const response = await fetch(endpoint, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log(`Successfully deleted ${item.type} "${itemName}":`, result);
+                    successCount++;
+                    deletedItemNames.push(itemName);
+                } else {
+                    const errorText = await response.text();
+                    console.error(`Failed to delete ${item.type} "${itemName}":`, errorText);
+                    failCount++;
                 }
             } catch (error) {
-                console.error(`Error deleting ${item.type}:`, error)
+                console.error(`Error deleting ${item.type}:`, error);
+                failCount++;
             }
         }
 
-        setSelectedItems([])
-        fetchFilesAndFolders()
-        fetchStorageInfo()
-    }
+        if (failCount > 0) {
+            if (successCount > 0) {
+                alert(`Deleted ${successCount} items (${deletedItemNames.join(', ')}), but failed to delete ${failCount} items.`);
+            } else {
+                alert(`Failed to delete all ${failCount} items. Please try again.`);
+            }
+        } else if (successCount > 0) {
+            if (successCount === 1) {
+                alert(`Successfully deleted "${deletedItemNames[0]}"`);
+            } else {
+                alert(`Successfully deleted ${successCount} items`);
+            }
+        }
+
+        setSelectedItems([]);
+        setIsLoading(false);
+        refreshDrive();
+    };
 
     const handleDownloadFile = async (fileId, fileName) => {
         try {
-            const response = await fetch(`${Server_url}/drive/files/${fileId}?user_email=${user_email}&download=true`)
-            const blob = await response.blob()
+            console.log(`Downloading file: ${fileName} (ID: ${fileId})`);
+            
+            const response = await fetch(`${Server_url}/drive/files/${fileId}?created_by=${created_by}&user_email=${user_email}&download=true`);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Download error:', errorText);
+                throw new Error(`Download failed: ${errorText}`);
+            }
+            
+            const blob = await response.blob();
+            console.log(`File downloaded, size: ${blob.size} bytes`);
 
             // Create download link
-            const url = window.URL.createObjectURL(blob)
-            const link = document.createElement('a')
-            link.href = url
-            link.setAttribute('download', fileName)
-            document.body.appendChild(link)
-            link.click()
-            link.remove()
-            window.URL.revokeObjectURL(url)
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
         } catch (error) {
-            console.error('Download error:', error)
+            console.error('Download error:', error);
+            alert(`Failed to download file: ${error.message}`);
         }
     }
 
     const handleStar = async (itemId, itemType, isStarred) => {
-        try {
-            await fetch(`${Server_url}/drive/${itemType === 'file' ? 'files' : 'folders'}/${itemId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    is_starred: !isStarred,
-                    modified_by: user_email
-                })
+        console.log(`Starring ${itemType} with ID: ${itemId}, current starred status: ${isStarred}`);
+    try {
+        const response = await fetch(`${Server_url}/starred/drive/${itemType === 'file' ? 'files' : 'folders'}/${itemId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                is_starred: !isStarred,
             })
+        });
 
-            // Refresh data
-            fetchFilesAndFolders()
-        } catch (error) {
-            console.error('Error starring item:', error)
+        const data = await response.json();
+
+        if (response.ok) {
+            // Update local state immediately for real-time feedback
+            if (itemType === 'file') {
+                setFiles(prevFiles =>
+                    prevFiles.map(file =>
+                        file.file_id === itemId
+                            ? { ...file, is_starred: !isStarred }
+                            : file
+                    )
+                );
+            } else {
+                setFolders(prevFolders =>
+                    prevFolders.map(folder =>
+                        folder.folder_id === itemId
+                            ? { ...folder, is_starred: !isStarred }
+                            : folder
+                    )
+                );
+            }
+            // No need to fetch all files and folders again
+        } else {
+            console.error("Error starring item:", data?.error || "Unknown error");
         }
+    } catch (error) {
+        console.error('Error starring item:', error);
     }
+};
 
-    // const formatFileSize = (size) => {
-    //     if (size < 1) return `${(size * 1024).toFixed(0)} KB`
-    //     return `${size.toFixed(1)} MB`
-    // }
     function formatFileSize(size) {
         const num = Number(size);
         if (isNaN(num)) return '0 B';
@@ -315,7 +428,6 @@ function DriveHome() {
         if (kb >= 1) return `${kb.toFixed(2)} KB`;
         return `${num} B`;
     }
-
 
     const getFileIcon = (fileType) => {
         // Add more file type icons as needed
@@ -342,6 +454,104 @@ function DriveHome() {
         : []
 
     const percentUsed = (storageUsed / storageLimit) * 100
+
+    const renderFileItems = () => {
+        return (
+            <>
+                {sortedFolders.map(folder => (
+                    <div key={folder.folder_id} className="file-item folder">
+                        <div className="file-select">
+                            <input
+                                type="checkbox"
+                                checked={selectedItems.some(item =>
+                                    item.id === folder.folder_id && item.type === 'folder'
+                                )}
+                                onChange={() => toggleSelectItem(folder.folder_id, 'folder')}
+                            />
+                        </div>
+                        <div
+                            className="file-name"
+                            onClick={() => navigateToFolder(folder.folder_id, folder.folder_name)}
+                        >
+                            <FontAwesomeIcon icon={faFolder} className="folder-icon" />
+                            <span>{folder.folder_name}</span>
+                        </div>
+                        <div className="file-date">
+                            {new Date(folder.created_at || folder.created_date).toLocaleDateString()}
+                        </div>
+                        <div className="file-size">—</div>
+                        <div className="file-actions">
+                            <button className="action-btn">
+                                <FontAwesomeIcon icon={faEdit} />
+                            </button>
+                            <button
+                                className="action-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleStar(folder.folder_id, 'folder', folder.is_starred);
+                                }}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faStar}
+                                    style={{ color: folder.is_starred ? '#FFD700' : '#666' }}
+                                />
+                            </button>
+                            <button className="action-btn">
+                                <FontAwesomeIcon icon={faShare} />
+                            </button>
+                        </div>
+                    </div>
+                ))}
+
+                {sortedFiles.map(file => (
+                    <div key={file.file_id} className="file-item">
+                        <div className="file-select">
+                            <input
+                                type="checkbox"
+                                checked={selectedItems.some(item =>
+                                    item.id === file.file_id && item.type === 'file'
+                                )}
+                                onChange={() => toggleSelectItem(file.file_id, 'file')}
+                            />
+                        </div>
+                        <div className="file-name">
+                            {getFileIcon(file.file_type)}
+                            <span>{file.file_name}</span>
+                        </div>
+                        <div className="file-date">
+                            {new Date(file.created_at || file.created_date).toLocaleDateString()}
+                        </div>
+                        <div className="file-size">
+                            {formatFileSize(file.file_size)}
+                        </div>
+                        <div className="file-actions">
+                            <button
+                                className="action-btn"
+                                onClick={() => handleDownloadFile(file.file_id, file.file_name)}
+                            >
+                                <FontAwesomeIcon icon={faDownload} />
+                            </button>
+                            <button
+                                className="action-btn"
+                                onClick={() => handleStar(file.file_id, 'file', file.is_starred)}
+                            >
+                               <FontAwesomeIcon icon={faStar} style={{ color: file.is_starred ? '#FFD700' : '#666' }} />
+                            </button>
+                            <button 
+                                className="action-btn"
+                                onClick={() => handleDeleteFile(file.file_id, file.file_name)}
+                            >
+                                <FontAwesomeIcon icon={faTrash} style={{ color: '#ff6b6b' }} />
+                            </button>
+                            <button className="action-btn" title="Share">
+                                <FontAwesomeIcon icon={faShare} />
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </>
+        )
+    }
 
     return (
         <div className="drive-home-container">
@@ -380,6 +590,10 @@ function DriveHome() {
                             <FontAwesomeIcon icon={faTrash} /> Delete
                         </button>
                     )}
+                    
+                    <button className="btn-refresh" onClick={refreshDrive} title="Refresh">
+                        <FontAwesomeIcon icon={faSync} spin={isLoading} />
+                    </button>
                 </div>
             </div>
 
@@ -391,7 +605,9 @@ function DriveHome() {
                         value={newFolderName}
                         onChange={(e) => setNewFolderName(e.target.value)}
                     />
-                    <button onClick={handleCreateFolder}>Create</button>
+                    <button onClick={handleCreateFolder} disabled={isLoading}>
+                        {isLoading ? 'Creating...' : 'Create'}
+                    </button>
                     <button onClick={() => setShowCreateFolder(false)}>Cancel</button>
                 </div>
             )}
@@ -407,7 +623,7 @@ function DriveHome() {
             </div>
 
             <div className="path-navigation">
-                <button onClick={navigateUp} disabled={currentPath === '/'}>Up</button>
+                <button onClick={navigateUp} disabled={currentPath === '/' || isLoading}>Up</button>
                 <span className="current-path">{currentPath}</span>
             </div>
 
@@ -445,94 +661,7 @@ function DriveHome() {
                             </div>
                         ) : (
                             <>
-                                {sortedFolders.map(folder => (
-                                    <div key={folder.folder_id} className="file-item folder">
-                                        <div className="file-select">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedItems.some(item =>
-                                                    item.id === folder.folder_id && item.type === 'folder'
-                                                )}
-                                                onChange={() => toggleSelectItem(folder.folder_id, 'folder')}
-                                            />
-                                        </div>
-                                        <div
-                                            className="file-name"
-                                            onClick={() => navigateToFolder(folder.folder_id, folder.folder_name)}
-                                        >
-                                            <FontAwesomeIcon icon={faFolder} className="folder-icon" />
-                                            <span>{folder.folder_name}</span>
-                                        </div>
-                                        <div className="file-date">
-                                            {new Date(folder.created_at || folder.created_date).toLocaleDateString()}
-                                        </div>
-                                        <div className="file-size">—</div>
-                                        <div className="file-actions">
-                                            <button className="action-btn">
-                                                <FontAwesomeIcon icon={faEdit} />
-                                            </button>
-                                            <button
-                                                className="action-btn"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleStar(folder.folder_id, 'folder', folder.is_starred);
-                                                }}
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={faStar}
-                                                    style={{ color: folder.is_starred ? '#FFD700' : '#666' }}
-                                                />
-                                            </button>
-                                            <button className="action-btn">
-                                                <FontAwesomeIcon icon={faShare} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {sortedFiles.map(file => (
-                                    <div key={file.file_id} className="file-item">
-                                        <div className="file-select">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedItems.some(item =>
-                                                    item.id === file.file_id && item.type === 'file'
-                                                )}
-                                                onChange={() => toggleSelectItem(file.file_id, 'file')}
-                                            />
-                                        </div>
-                                        <div className="file-name">
-                                            {getFileIcon(file.file_type)}
-                                            <span>{file.file_name}</span>
-                                        </div>
-                                        <div className="file-date">
-                                            {new Date(file.created_at || file.created_date).toLocaleDateString()}
-                                        </div>
-                                        <div className="file-size">
-                                            {formatFileSize(file.file_size)}
-                                        </div>
-                                        <div className="file-actions">
-                                            <button
-                                                className="action-btn"
-                                                onClick={() => handleDownloadFile(file.file_id, file.file_name)}
-                                            >
-                                                <FontAwesomeIcon icon={faDownload} />
-                                            </button>
-                                            <button
-                                                className="action-btn"
-                                                onClick={() => handleStar(file.file_id, 'file', file.is_starred)}
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={faStar}
-                                                    style={{ color: file.is_starred ? '#FFD700' : '#666' }}
-                                                />
-                                            </button>
-                                            <button className="action-btn">
-                                                <FontAwesomeIcon icon={faShare} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
+                                {renderFileItems()}
                             </>
                         )}
                     </div>
