@@ -22,8 +22,7 @@
   aspect-ratio: 1;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
+  padding: 10px;
 }
 
 .file-item:hover {
@@ -36,9 +35,10 @@
   object-fit: cover;
 }
 
-.file-item:hover > .delete-btn_on_sub {
+.file-item:hover>.delete-btn_on_sub {
   display: flex;
 }
+
 .delete-btn_on_sub {
   position: absolute;
   top: 5px;
@@ -73,9 +73,11 @@
   0% {
     opacity: 0.6;
   }
+
   50% {
     opacity: 1;
   }
+
   100% {
     opacity: 0.6;
   }

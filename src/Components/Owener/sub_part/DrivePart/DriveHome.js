@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFile, faFolder, faStar, faTrash, faUpload, faShare, faPlusSquare, faDownload, faEdit, faSync } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faUpload, faPlusSquare, faSync } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
 import { Server_url, FileLoaderToast } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
+import FileItem from './FileItem'
 
 function DriveHome() {
     const user = useSelector((state) => state.user);
@@ -17,8 +18,6 @@ function DriveHome() {
     const [currentFolder, setCurrentFolder] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [uploadProgress, setUploadProgress] = useState({ completed: 0, total: 0 })
-    const [showCreateFolder, setShowCreateFolder] = useState(false)
-    const [newFolderName, setNewFolderName] = useState('')
     const [selectedItems, setSelectedItems] = useState([])
     const [sortBy, setSortBy] = useState('name')
     const [sortOrder, setSortOrder] = useState('asc')
@@ -27,85 +26,241 @@ function DriveHome() {
     const [storageLimit, setStorageLimit] = useState(1024) // 1GB in MB
     const [refreshKey, setRefreshKey] = useState(0) // Add a refresh key to force re-renders
 
+    // Rename dialog state variables
+    const [showRenameDialog, setShowRenameDialog] = useState(false)
+    const [renameItemType, setRenameItemType] = useState('') // 'file' or 'folder'
+    const [renameItemId, setRenameItemId] = useState(null)
+    const [renameItemOldName, setRenameItemOldName] = useState('')
+    const [renameItemNewName, setRenameItemNewName] = useState('') // Initialize with empty string
+    const [dialogMode, setDialogMode] = useState('rename') // 'rename' or 'create'
+
     // Function to trigger a refresh
     const refreshDrive = () => {
         console.log("Refreshing drive content...");
         setRefreshKey(prevKey => prevKey + 1);
     };
 
+
     useEffect(() => {
         if (activeProfileSection !== 'Drive Home') {
             setActiveProfileSection('Drive Home')
         }
 
+        const fetchFilesAndFolders = async () => {
+            setIsLoading(true);
+            console.log("Fetching files and folders, currentFolder:", currentFolder);
+
+            try {
+                // Use query parameters for both user_email and created_by
+                const url = new URL(`${Server_url}/drive/get_all_files_and_folders/${created_by}`);
+                url.searchParams.append('user_email', user_email);
+
+                const response = await fetch(url.toString());
+
+                // Check if response is OK
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error:', response.status, errorText);
+                    throw new Error(`Server responded with ${response.status}: ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log("Files and folders fetched:", data);
+
+                // Handle the updated response format that now contains both files and folders
+                if (data.files) {
+                    console.log("Filessssssssss:", data.files);
+
+                    setFiles(data.files);
+                }
+
+                if (data.folders) {
+                    console.log("Folderssssssssssssssss:", data.folders);
+
+                    setFolders(data.folders);
+                }
+            } catch (error) {
+                console.error('Error fetching files and folders:', error);
+                // Fallback to sample data
+                setFolders([
+                    { folder_id: 1, folder_name: 'Documents', created_at: new Date().toISOString() },
+                    { folder_id: 2, folder_name: 'Images', created_at: new Date().toISOString() }
+                ]);
+                setFiles([
+                    { file_id: 1, file_name: 'Report.pdf', file_size: 2.4, file_type: 'pdf', created_at: new Date().toISOString() },
+                    { file_id: 2, file_name: 'Presentation.pptx', file_size: 5.7, file_type: 'pptx', created_at: new Date().toISOString() }
+                ]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         // Load initial files and folders
-        fetchFilesAndFolders()
+        fetchFilesAndFolders();
+
+        const fetchStorageInfo = async () => {
+            try {
+                const response = await fetch(`${Server_url}/drive/storage?created_by=${created_by}&user_email=${user_email}`)
+                const data = await response.json()
+                setStorageUsed(data.used || 125) // MB used
+                setStorageLimit(data.limit || 1024) // MB total
+            } catch (error) {
+                console.error('Error fetching storage info:', error)
+                // Set demo data
+                setStorageUsed(125)
+            }
+        }
+
 
         // Get storage info
         fetchStorageInfo()
-    }, [activeProfileSection, setActiveProfileSection, refreshKey]) // Add refreshKey to dependencies
+    }, [activeProfileSection, setActiveProfileSection, refreshKey, currentFolder, created_by, user_email]) // Add refreshKey to dependencies
 
-    const fetchFilesAndFolders = async () => {
+    // Add handleOpenRenameDialog function
+    const handleOpenRenameDialog = (id, type, currentName) => {
+        console.log("Opening rename dialog:", { id, type, currentName });
+
+        // Ensure we have the current name
+        if (!currentName) {
+            // Try to find the name from the items based on ID and type
+            if (type === 'folder') {
+                const folder = folders.find(f => f.folder_id === id);
+                currentName = folder ? folder.folder_name : '';
+                console.log("Found folder name from state:", currentName);
+            } else if (type === 'file') {
+                const file = files.find(f => f.file_id === id);
+                currentName = file ? file.file_name : '';
+                console.log("Found file name from state:", currentName);
+            }
+        }
+
+        console.log("Setting rename dialog values:", {
+            id,
+            type,
+            oldName: currentName,
+            newName: currentName
+        });
+
+        setRenameItemId(id);
+        setRenameItemType(type);
+        setRenameItemOldName(currentName);
+        setRenameItemNewName(currentName);
+        setDialogMode('rename');
+        setShowRenameDialog(true);
+
+        // The text will be selected when the input gets focus (using onFocus handler)
+    };
+
+    // Function to open the dialog in create folder mode
+    const handleOpenCreateFolderDialog = () => {
+        setRenameItemType('folder');
+        setRenameItemId(null);
+        setRenameItemOldName('');
+        setRenameItemNewName('');
+        setDialogMode('create');
+        setShowRenameDialog(true);
+    };
+
+    // Combined function for both rename and create folder operations
+    const handleDialogSubmit = async () => {
+        // Validate input - safely check if the value exists and is not empty
+        if (!renameItemNewName || !renameItemNewName.trim()) {
+            setShowRenameDialog(false);
+            return;
+        }
+
+        // If renaming and name hasn't changed, just close dialog
+        if (dialogMode === 'rename' && renameItemNewName === renameItemOldName) {
+            setShowRenameDialog(false);
+            return;
+        }
+
         setIsLoading(true);
-        console.log("Fetching files and folders, currentFolder:", currentFolder);
 
         try {
-            // Use query parameters for both user_email and created_by
-            const url = new URL(`${Server_url}/drive/get_all_files_and_folders/${created_by}`);
-            url.searchParams.append('user_email', user_email);
-            
-            const response = await fetch(url.toString());
-            
-            // Check if response is OK
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Server error:', response.status, errorText);
-                throw new Error(`Server responded with ${response.status}: ${errorText}`);
-            }
-            
-            const data = await response.json();
-            console.log("Files and folders fetched:", data);
+            if (dialogMode === 'rename') {
+                // RENAME OPERATION
+                const endpoint = renameItemType === 'file'
+                    ? `${Server_url}/drive/files/${renameItemId}?created_by=${created_by}&user_email=${user_email}`
+                    : `${Server_url}/drive/folders/${renameItemId}?created_by=${created_by}&user_email=${user_email}`;
 
-            // Handle the updated response format that now contains both files and folders
-            if (data.files) {
-                console.log("Filessssssssss:", data.files);
-                
-                setFiles(data.files);
+                console.log(`Renaming ${renameItemType} from "${renameItemOldName}" to "${renameItemNewName}"`);
+
+                const response = await fetch(endpoint, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        [renameItemType === 'file' ? 'file_name' : 'folder_name']: renameItemNewName,
+                        modified_by: created_by,
+                        is_shared: false // Maintain current sharing status
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to rename ${renameItemType}: ${errorText}`);
+                }
+
+                const result = await response.json();
+                console.log("Rename successful:", result);
+
+                // Update local state to reflect the change immediately
+                if (renameItemType === 'file') {
+                    setFiles(prevFiles =>
+                        prevFiles.map(file =>
+                            file.file_id === renameItemId
+                                ? { ...file, file_name: renameItemNewName }
+                                : file
+                        )
+                    );
+                } else {
+                    setFolders(prevFolders =>
+                        prevFolders.map(folder =>
+                            folder.folder_id === renameItemId
+                                ? { ...folder, folder_name: renameItemNewName }
+                                : folder
+                        )
+                    );
+                }
+            } else {
+                // CREATE FOLDER OPERATION
+                console.log(`Creating folder: ${renameItemNewName}`);
+
+                const response = await fetch(`${Server_url}/drive/create-folder`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        folder_name: renameItemNewName,
+                        created_by: created_by,
+                        user_email: user_email,
+                        modified_by: created_by
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to create folder: ${errorText}`);
+                }
+
+                const result = await response.json();
+                console.log("Folder created successfully:", result);
             }
-            
-            if (data.folders) {
-                console.log("Folderssssssssssssssss:", data.folders);
-                
-                setFolders(data.folders);
-            }
+
+            // Close the dialog and refresh to get updated data
+            setShowRenameDialog(false);
+            refreshDrive();
+
         } catch (error) {
-            console.error('Error fetching files and folders:', error);
-            // Fallback to sample data
-            setFolders([
-                { folder_id: 1, folder_name: 'Documents', created_at: new Date().toISOString() },
-                { folder_id: 2, folder_name: 'Images', created_at: new Date().toISOString() }
-            ]);
-            setFiles([
-                { file_id: 1, file_name: 'Report.pdf', file_size: 2.4, file_type: 'pdf', created_at: new Date().toISOString() },
-                { file_id: 2, file_name: 'Presentation.pptx', file_size: 5.7, file_type: 'pptx', created_at: new Date().toISOString() }
-            ]);
+            console.error(`Error ${dialogMode === 'rename' ? 'renaming' : 'creating'} item:`, error);
+            alert(`Failed to ${dialogMode === 'rename' ? 'rename' : 'create'} ${renameItemType}: ${error.message}`);
         } finally {
             setIsLoading(false);
         }
     };
-
-    const fetchStorageInfo = async () => {
-        try {
-            const response = await fetch(`${Server_url}/drive/storage?created_by=${created_by}&user_email=${user_email}`)
-            const data = await response.json()
-            setStorageUsed(data.used || 125) // MB used
-            setStorageLimit(data.limit || 1024) // MB total
-        } catch (error) {
-            console.error('Error fetching storage info:', error)
-            // Set demo data
-            setStorageUsed(125)
-        }
-    }
 
     const handleFileUpload = async (event) => {
         const files = event.target.files;
@@ -131,7 +286,7 @@ function DriveHome() {
                 const uploadUrl = new URL(`${Server_url}/drive/upload-file`);
                 uploadUrl.searchParams.append('created_by', created_by);
                 uploadUrl.searchParams.append('user_email', user_email);
-                
+
                 // All files are now uploaded directly to user's drive folder
                 console.log("Uploading to user's drive folder");
 
@@ -167,52 +322,12 @@ function DriveHome() {
         }
     };
 
-    const handleCreateFolder = async () => {
-        if (!newFolderName.trim()) return
-
-        setIsLoading(true);
-        try {
-            console.log(`Creating folder: ${newFolderName}`);
-            
-            const response = await fetch(`${Server_url}/drive/create-folder`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    folder_name: newFolderName,
-                    created_by: created_by,
-                    user_email: user_email,
-                    modified_by: created_by
-                })
-            })
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`Server error: ${response.status}`, errorText);
-                throw new Error(`Server responded with ${response.status}: ${errorText}`)
-            }
-
-            const result = await response.json();
-            console.log("Folder created successfully:", result);
-
-            setNewFolderName('')
-            setShowCreateFolder(false)
-            refreshDrive(); // Use the refresh function
-        } catch (error) {
-            console.error('Error creating folder:', error)
-            alert(`Failed to create folder: ${error.message}`);
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
     const navigateToFolder = (folderId, folderName) => {
         // We're not actually navigating between folders since our system now just shows all files
         // But we'll update the path for display purposes
         setCurrentFolder(folderId)
         setCurrentPath(currentPath === '/' ? `/${folderName}` : `${currentPath}/${folderName}`)
-        
+
         // Just reload the files list - the backend will return all files regardless
         refreshDrive();
     }
@@ -225,9 +340,9 @@ function DriveHome() {
         pathParts.pop() // Remove current folder name
         const newPath = pathParts.join('/') || '/'
 
-        setCurrentFolder(null) 
+        setCurrentFolder(null)
         setCurrentPath(newPath)
-        
+
         // Just reload the files list
         refreshDrive();
     }
@@ -245,27 +360,27 @@ function DriveHome() {
     const handleDeleteFile = async (fileId, fileName) => {
         const confirmed = window.confirm(`Are you sure you want to delete the file "${fileName}"?`);
         if (!confirmed) return;
-        
+
         setIsLoading(true);
         try {
             console.log(`Deleting file: ${fileName} (ID: ${fileId})`);
-            
+
             const endpoint = `${Server_url}/drive/files/${fileId}?created_by=${created_by}&user_email=${user_email}`;
             console.log(`Sending delete request to: ${endpoint}`);
-            
+
             const response = await fetch(endpoint, {
                 method: 'DELETE'
             });
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error(`Failed to delete file: ${errorText}`);
                 throw new Error(`Server error: ${response.status} ${errorText}`);
             }
-            
+
             const result = await response.json();
             console.log("Delete successful:", result);
-            
+
             alert(`File "${fileName}" deleted successfully`);
             refreshDrive();
         } catch (error) {
@@ -292,7 +407,7 @@ function DriveHome() {
                 console.log(`Deleting ${item.type} with ID: ${item.id}`);
                 let endpoint;
                 let itemName = '';
-                
+
                 // Find the name of the item for better logging
                 if (item.type === 'file') {
                     const fileObj = files.find(f => f.file_id === item.id);
@@ -303,13 +418,13 @@ function DriveHome() {
                     itemName = folderObj ? folderObj.folder_name : `folder #${item.id}`;
                     endpoint = `${Server_url}/drive/folders/${item.id}?created_by=${created_by}&user_email=${user_email}`;
                 }
-                
+
                 console.log(`Deleting ${item.type}: "${itemName}" - sending request to: ${endpoint}`);
-                
+
                 const response = await fetch(endpoint, {
                     method: 'DELETE'
                 });
-                
+
                 if (response.ok) {
                     const result = await response.json();
                     console.log(`Successfully deleted ${item.type} "${itemName}":`, result);
@@ -348,15 +463,15 @@ function DriveHome() {
     const handleDownloadFile = async (fileId, fileName) => {
         try {
             console.log(`Downloading file: ${fileName} (ID: ${fileId})`);
-            
+
             const response = await fetch(`${Server_url}/drive/files/${fileId}?created_by=${created_by}&user_email=${user_email}&download=true`);
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Download error:', errorText);
                 throw new Error(`Download failed: ${errorText}`);
             }
-            
+
             const blob = await response.blob();
             console.log(`File downloaded, size: ${blob.size} bytes`);
 
@@ -377,46 +492,46 @@ function DriveHome() {
 
     const handleStar = async (itemId, itemType, isStarred) => {
         console.log(`Starring ${itemType} with ID: ${itemId}, current starred status: ${isStarred}`);
-    try {
-        const response = await fetch(`${Server_url}/starred/drive/${itemType === 'file' ? 'files' : 'folders'}/${itemId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                is_starred: !isStarred,
-            })
-        });
+        try {
+            const response = await fetch(`${Server_url}/starred/drive/${itemType === 'file' ? 'files' : 'folders'}/${itemId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    is_starred: !isStarred,
+                })
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (response.ok) {
-            // Update local state immediately for real-time feedback
-            if (itemType === 'file') {
-                setFiles(prevFiles =>
-                    prevFiles.map(file =>
-                        file.file_id === itemId
-                            ? { ...file, is_starred: !isStarred }
-                            : file
-                    )
-                );
+            if (response.ok) {
+                // Update local state immediately for real-time feedback
+                if (itemType === 'file') {
+                    setFiles(prevFiles =>
+                        prevFiles.map(file =>
+                            file.file_id === itemId
+                                ? { ...file, is_starred: !isStarred }
+                                : file
+                        )
+                    );
+                } else {
+                    setFolders(prevFolders =>
+                        prevFolders.map(folder =>
+                            folder.folder_id === itemId
+                                ? { ...folder, is_starred: !isStarred }
+                                : folder
+                        )
+                    );
+                }
+                // No need to fetch all files and folders again
             } else {
-                setFolders(prevFolders =>
-                    prevFolders.map(folder =>
-                        folder.folder_id === itemId
-                            ? { ...folder, is_starred: !isStarred }
-                            : folder
-                    )
-                );
+                console.error("Error starring item:", data?.error || "Unknown error");
             }
-            // No need to fetch all files and folders again
-        } else {
-            console.error("Error starring item:", data?.error || "Unknown error");
+        } catch (error) {
+            console.error('Error starring item:', error);
         }
-    } catch (error) {
-        console.error('Error starring item:', error);
-    }
-};
+    };
 
     function formatFileSize(size) {
         const num = Number(size);
@@ -429,133 +544,116 @@ function DriveHome() {
         return `${num} B`;
     }
 
-    const getFileIcon = (fileType) => {
-        // Add more file type icons as needed
-        return <FontAwesomeIcon icon={faFile} className={`file-icon file-${fileType}`} />
-    }
+    // Update the sorting logic to always show folders on top
+    const sortItems = (items, type, sortKey, order) => {
+        return [...items].sort((a, b) => {
+            // Get values to compare
+            const aValue = a[sortKey] || '';
+            const bValue = b[sortKey] || '';
+
+            // Determine sort direction
+            const direction = order === 'asc' ? 1 : -1;
+
+            // Compare values
+            let result;
+            if (typeof aValue === 'string' && typeof bValue === 'string') {
+                result = aValue.localeCompare(bValue) * direction;
+            } else {
+                result = (aValue < bValue ? -1 : aValue > bValue ? 1 : 0) * direction;
+            }
+
+            return result;
+        });
+    };
 
     // Sort and filter files and folders
     const sortedFolders = Array.isArray(folders)
-        ? [...folders].sort((a, b) => {
-            const aValue = a[sortBy] || ''
-            const bValue = b[sortBy] || ''
-            const compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0
-            return sortOrder === 'asc' ? compareResult : -compareResult
-        }).filter(folder => folder.folder_name.toLowerCase().includes(searchTerm.toLowerCase()))
-        : []
+        ? sortItems(
+            folders.filter(folder => folder.folder_name.toLowerCase().includes(searchTerm.toLowerCase())),
+            'folder',
+            sortBy,
+            sortOrder
+        )
+        : [];
 
     const sortedFiles = Array.isArray(files)
-        ? [...files].sort((a, b) => {
-            const aValue = a[sortBy] || ''
-            const bValue = b[sortBy] || ''
-            const compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0
-            return sortOrder === 'asc' ? compareResult : -compareResult
-        }).filter(file => file.file_name.toLowerCase().includes(searchTerm.toLowerCase()))
-        : []
+        ? sortItems(
+            files.filter(file => file.file_name.toLowerCase().includes(searchTerm.toLowerCase())),
+            'file',
+            sortBy,
+            sortOrder
+        )
+        : [];
+
+    // Create a function to get sort icon
+    const getSortIcon = (field) => {
+        if (sortBy !== field) return null;
+        return sortOrder === 'asc'
+            ? <span className="sort-icon">↑</span>
+            : <span className="sort-icon">↓</span>;
+    };
 
     const percentUsed = (storageUsed / storageLimit) * 100
 
-    const renderFileItems = () => {
-        return (
-            <>
-                {sortedFolders.map(folder => (
-                    <div key={folder.folder_id} className="file-item folder">
-                        <div className="file-select">
-                            <input
-                                type="checkbox"
-                                checked={selectedItems.some(item =>
-                                    item.id === folder.folder_id && item.type === 'folder'
-                                )}
-                                onChange={() => toggleSelectItem(folder.folder_id, 'folder')}
-                            />
-                        </div>
-                        <div
-                            className="file-name"
-                            onClick={() => navigateToFolder(folder.folder_id, folder.folder_name)}
-                        >
-                            <FontAwesomeIcon icon={faFolder} className="folder-icon" />
-                            <span>{folder.folder_name}</span>
-                        </div>
-                        <div className="file-date">
-                            {new Date(folder.created_at || folder.created_date).toLocaleDateString()}
-                        </div>
-                        <div className="file-size">—</div>
-                        <div className="file-actions">
-                            <button className="action-btn">
-                                <FontAwesomeIcon icon={faEdit} />
-                            </button>
-                            <button
-                                className="action-btn"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleStar(folder.folder_id, 'folder', folder.is_starred);
-                                }}
-                            >
-                                <FontAwesomeIcon
-                                    icon={faStar}
-                                    style={{ color: folder.is_starred ? '#FFD700' : '#666' }}
-                                />
-                            </button>
-                            <button className="action-btn">
-                                <FontAwesomeIcon icon={faShare} />
-                            </button>
-                        </div>
-                    </div>
-                ))}
-
-                {sortedFiles.map(file => (
-                    <div key={file.file_id} className="file-item">
-                        <div className="file-select">
-                            <input
-                                type="checkbox"
-                                checked={selectedItems.some(item =>
-                                    item.id === file.file_id && item.type === 'file'
-                                )}
-                                onChange={() => toggleSelectItem(file.file_id, 'file')}
-                            />
-                        </div>
-                        <div className="file-name">
-                            {getFileIcon(file.file_type)}
-                            <span>{file.file_name}</span>
-                        </div>
-                        <div className="file-date">
-                            {new Date(file.created_at || file.created_date).toLocaleDateString()}
-                        </div>
-                        <div className="file-size">
-                            {formatFileSize(file.file_size)}
-                        </div>
-                        <div className="file-actions">
-                            <button
-                                className="action-btn"
-                                onClick={() => handleDownloadFile(file.file_id, file.file_name)}
-                            >
-                                <FontAwesomeIcon icon={faDownload} />
-                            </button>
-                            <button
-                                className="action-btn"
-                                onClick={() => handleStar(file.file_id, 'file', file.is_starred)}
-                            >
-                               <FontAwesomeIcon icon={faStar} style={{ color: file.is_starred ? '#FFD700' : '#666' }} />
-                            </button>
-                            <button 
-                                className="action-btn"
-                                onClick={() => handleDeleteFile(file.file_id, file.file_name)}
-                            >
-                                <FontAwesomeIcon icon={faTrash} style={{ color: '#ff6b6b' }} />
-                            </button>
-                            <button className="action-btn" title="Share">
-                                <FontAwesomeIcon icon={faShare} />
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </>
-        )
-    }
+    // Add a click handler for file items
+    const handleItemClick = (item, type) => {
+        if (type === 'folder') {
+            navigateToFolder(item.folder_id, item.folder_name);
+        } else {
+            // Preview file or perform default action for files
+            handleDownloadFile(item.file_id, item.file_name);
+        }
+    };
 
     return (
         <div className="drive-home-container">
             {uploadProgress.total > 0 && <FileLoaderToast uploadProgress={uploadProgress} />}
+
+
+            {/* Rename/Create Dialog */}
+            {showRenameDialog && (
+                <div className="rename-dialog-overlay">
+                    <div className="rename-dialog">
+                        <h3>{dialogMode === 'rename' ? `Rename ${renameItemType}` : 'Create new folder'}</h3>
+                        <input
+                            type="text"
+                            placeholder={dialogMode === 'rename' ? "New name" : "Folder name"}
+                            value={renameItemNewName || (dialogMode === 'rename' ? renameItemOldName : '')}
+                            onChange={(e) => setRenameItemNewName(e.target.value)}
+                            autoFocus
+                            onFocus={(e) => {
+                                // Select all text when focused for easier editing
+                                if (dialogMode === 'rename') {
+                                    e.target.select();
+                                }
+                            }}
+                        />
+                        <div className="rename-dialog-buttons">
+                            <button
+                                onClick={() => setShowRenameDialog(false)}
+                                className="cancel-btn"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDialogSubmit}
+                                className="rename-btn"
+                                disabled={
+                                    !renameItemNewName ||
+                                    !renameItemNewName.trim() ||
+                                    (dialogMode === 'rename' && renameItemNewName === renameItemOldName) ||
+                                    isLoading
+                                }
+                            >
+                                {isLoading ?
+                                    (dialogMode === 'rename' ? 'Renaming...' : 'Creating...') :
+                                    (dialogMode === 'rename' ? 'Rename' : 'Create')
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="drive-header">
                 <h1>{activeProfileSection}</h1>
@@ -581,7 +679,7 @@ function DriveHome() {
                         onChange={handleFileUpload}
                     />
 
-                    <button className="btn-create-folder" onClick={() => setShowCreateFolder(true)}>
+                    <button className="btn-create-folder" onClick={handleOpenCreateFolderDialog}>
                         <FontAwesomeIcon icon={faPlusSquare} /> New Folder
                     </button>
 
@@ -590,27 +688,14 @@ function DriveHome() {
                             <FontAwesomeIcon icon={faTrash} /> Delete
                         </button>
                     )}
-                    
+
                     <button className="btn-refresh" onClick={refreshDrive} title="Refresh">
                         <FontAwesomeIcon icon={faSync} spin={isLoading} />
                     </button>
                 </div>
             </div>
 
-            {showCreateFolder && (
-                <div className="create-folder-form">
-                    <input
-                        type="text"
-                        placeholder="Folder name"
-                        value={newFolderName}
-                        onChange={(e) => setNewFolderName(e.target.value)}
-                    />
-                    <button onClick={handleCreateFolder} disabled={isLoading}>
-                        {isLoading ? 'Creating...' : 'Create'}
-                    </button>
-                    <button onClick={() => setShowCreateFolder(false)}>Cancel</button>
-                </div>
-            )}
+
 
             <div className="drive-stats">
                 <div className="stat-card">
@@ -629,25 +714,40 @@ function DriveHome() {
 
             <div className="files-container">
                 <div className="files-header">
-                    <div className="header-item" onClick={() => {
-                        setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc')
-                        setSortBy('name')
-                    }}>
-                        Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                    <div className="header-select"></div>
+                    <div
+                        className="header-item header-name"
+                        onClick={() => {
+                            setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc');
+                            setSortBy('name');
+                        }}
+                    >
+                        <span>Name</span>
+                        {getSortIcon('name')}
                     </div>
-                    <div className="header-item" onClick={() => {
-                        setSortOrder(sortBy === 'created_at' && sortOrder === 'asc' ? 'desc' : 'asc')
-                        setSortBy('created_at')
-                    }}>
-                        Date {sortBy === 'created_at' && (sortOrder === 'asc' ? '↑' : '↓')}
+                    <div
+                        className="header-item header-date"
+                        onClick={() => {
+                            setSortOrder(sortBy === 'created_at' && sortOrder === 'asc' ? 'desc' : 'asc');
+                            setSortBy('created_at');
+                        }}
+                    >
+                        <span>Last modified</span>
+                        {getSortIcon('created_at')}
                     </div>
-                    <div className="header-item" onClick={() => {
-                        setSortOrder(sortBy === 'file_size' && sortOrder === 'asc' ? 'desc' : 'asc')
-                        setSortBy('file_size')
-                    }}>
-                        Size {sortBy === 'file_size' && (sortOrder === 'asc' ? '↑' : '↓')}
+                    <div
+                        className="header-item header-size"
+                        onClick={() => {
+                            setSortOrder(sortBy === 'file_size' && sortOrder === 'asc' ? 'desc' : 'asc');
+                            setSortBy('file_size');
+                        }}
+                    >
+                        <span>File size</span>
+                        {getSortIcon('file_size')}
                     </div>
-                    <div className="header-item">Actions</div>
+                    <div className="header-item header-actions">
+                        Actions
+                    </div>
                 </div>
 
                 {isLoading ? (
@@ -660,8 +760,36 @@ function DriveHome() {
                                 <p>Upload files or create folders to get started</p>
                             </div>
                         ) : (
+                            // Render all items in one list
                             <>
-                                {renderFileItems()}
+                                {/* Combine folders and files into a single list */}
+                                {[...sortedFolders, ...sortedFiles].map(item => {
+                                    // Determine if it's a folder or file
+                                    const itemType = 'folder_id' in item ? 'folder' : 'file';
+
+                                    return (
+                                        <FileItem
+                                            key={itemType === 'folder' ? item.folder_id : item.file_id}
+                                            item={item}
+                                            type={itemType}
+                                            isSelected={selectedItems.some(selectedItem =>
+                                                selectedItem.id === (itemType === 'folder' ? item.folder_id : item.file_id) &&
+                                                selectedItem.type === itemType
+                                            )}
+                                            onSelect={toggleSelectItem}
+                                            onNavigate={navigateToFolder}
+                                            onDownload={itemType === 'file' ? handleDownloadFile : null}
+                                            onStar={handleStar}
+                                            onDelete={itemType === 'file' ? handleDeleteFile : null}
+                                            onShare={(id, type, name) => {
+                                                console.log(`Sharing ${type}: ${name}`);
+                                            }}
+                                            onEdit={itemType === 'folder' ? handleOpenRenameDialog : null}
+                                            formatFileSize={formatFileSize}
+                                            onClick={handleItemClick}
+                                        />
+                                    );
+                                })}
                             </>
                         )}
                     </div>
