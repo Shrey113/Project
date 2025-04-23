@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useUIContext } from '../../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFile, faFolder, faDownload, faShare, faStar, faUserFriends, faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { faFile, faFolder, faDownload, faShare, faStar, faUserFriends } from '@fortawesome/free-solid-svg-icons'
 import '../DriveStyles.css'
 import { Server_url } from '../../../../../redux/AllData'
 import { useSelector } from 'react-redux'
@@ -29,9 +29,80 @@ function SharedFilesPage() {
             setActiveProfileSection('Shared Files')
         }
 
+        const fetchSharedItems = async () => {
+            setIsLoading(true)
+            try {
+                if (activeTab === 'shared-with-me') {
+                    const response = await fetch(`${Server_url}/owner/drive/shared-with-me?user_email=${user_email}`)
+                    if (!response.ok) {
+                        throw new Error(`Server responded with ${response.status}`)
+                    }
+                    const data = await response.json()
+                    setSharedWithMe(data)
+                } else {
+                    const response = await fetch(`${Server_url}/drive/shared-by-me?user_email=${user_email}`)
+                    if (!response.ok) {
+                        throw new Error(`Server responded with ${response.status}`)
+                    }
+                    const data = await response.json()
+                    setSharedByMe(data)
+                }
+            } catch (error) {
+                console.error(`Error fetching ${activeTab} items:`, error)
+                // Set demo data
+                if (activeTab === 'shared-with-me') {
+                    setSharedWithMe([
+                        {
+                            id: 1,
+                            name: 'Team Project Plan.pdf',
+                            type: 'file',
+                            file_type: 'pdf',
+                            size: 3.2,
+                            shared_by: 'manager@example.com',
+                            permission: 'READ',
+                            created_at: new Date().toISOString(),
+                            shared_at: new Date().toISOString()
+                        },
+                        {
+                            id: 2,
+                            name: 'Marketing Assets',
+                            type: 'folder',
+                            shared_by: 'design@example.com',
+                            permission: 'WRITE',
+                            created_at: new Date().toISOString(),
+                            shared_at: new Date().toISOString()
+                        }
+                    ])
+                } else {
+                    setSharedByMe([
+                        {
+                            id: 3,
+                            name: 'Financial Report.xlsx',
+                            type: 'file',
+                            file_type: 'xlsx',
+                            size: 1.7,
+                            shared_with: ['finance@example.com', 'ceo@example.com'],
+                            created_at: new Date().toISOString(),
+                            shared_at: new Date().toISOString()
+                        },
+                        {
+                            id: 4,
+                            name: 'Client Presentations',
+                            type: 'folder',
+                            shared_with: ['sales@example.com'],
+                            created_at: new Date().toISOString(),
+                            shared_at: new Date().toISOString()
+                        }
+                    ])
+                }
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
         // Fetch shared items based on active tab
         fetchSharedItems()
-    }, [activeProfileSection, setActiveProfileSection, activeTab])
+    }, [activeProfileSection, setActiveProfileSection, activeTab,user_email])
 
     const fetchSharedItems = async () => {
         setIsLoading(true)
