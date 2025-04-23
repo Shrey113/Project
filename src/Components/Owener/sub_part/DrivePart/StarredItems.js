@@ -15,20 +15,20 @@ function StarredItems() {
     const [sortBy, setSortBy] = useState('name')
     const [sortOrder, setSortOrder] = useState('asc')
     const [searchTerm, setSearchTerm] = useState('')
-    
+
     useEffect(() => {
         if (activeProfileSection !== 'Starred Items') {
             setActiveProfileSection('Starred Items')
         }
-        
+
         // Fetch starred items
         fetchStarredItems()
     }, [activeProfileSection, setActiveProfileSection])
-    
+
     const fetchStarredItems = async () => {
         setIsLoading(true)
         try {
-            const response = await fetch(`${Server_url}/drive/starred?user_email=${user_email}`)
+            const response = await fetch(`${Server_url}/starred/drive/starred?user_email=${user_email}`)
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}`)
             }
@@ -37,29 +37,33 @@ function StarredItems() {
         } catch (error) {
             console.error('Error fetching starred items:', error)
             // Set demo data for now
-            setStarredItems([
-                { 
-                    id: 1, 
-                    name: 'Important Document.pdf', 
-                    type: 'file', 
-                    file_type: 'pdf',
-                    size: 2.4, 
-                    created_at: new Date().toISOString(),
-                    starred_at: new Date().toISOString() 
-                },
-                { 
-                    id: 2, 
-                    name: 'Project Materials', 
-                    type: 'folder',
-                    created_at: new Date().toISOString(),
-                    starred_at: new Date().toISOString() 
-                }
-            ])
+            setStarredItems(
+                [
+                    {
+                        id: 1,
+                        name: 'Important Document.pdf',
+                        type: 'file',
+                        file_type: 'pdf',
+                        size: 2.4,
+                        created_at: new Date().toISOString(),
+                        starred_at: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        name: 'Project Materials',
+                        type: 'folder',
+                        file_type: 'pdf',
+                        size: 10.5,
+                        created_at: new Date().toISOString(),
+                        starred_at: new Date().toISOString()
+                    }
+                ]
+            )
         } finally {
             setIsLoading(false)
         }
     }
-    
+
     const handleUnstar = async (itemId, itemType) => {
         try {
             const response = await fetch(`${Server_url}/drive/${itemType === 'file' ? 'files' : 'folders'}/${itemId}`, {
@@ -72,29 +76,29 @@ function StarredItems() {
                     modified_by: user_email
                 })
             })
-            
+
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}`)
             }
-            
+
             // Remove from list
-            setStarredItems(starredItems.filter(item => 
+            setStarredItems(starredItems.filter(item =>
                 !(item.id === itemId && item.type === itemType)
             ))
         } catch (error) {
             console.error('Error unstarring item:', error)
         }
     }
-    
+
     const handleDownloadFile = async (fileId, fileName) => {
         try {
             const response = await fetch(`${Server_url}/drive/files/${fileId}?user_email=${user_email}&download=true`)
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}`)
             }
-            
+
             const blob = await response.blob()
-            
+
             // Create download link
             const url = window.URL.createObjectURL(blob)
             const link = document.createElement('a')
@@ -108,42 +112,42 @@ function StarredItems() {
             console.error('Download error:', error)
         }
     }
-    
+
     const formatFileSize = (size) => {
         if (size < 1) return `${(size * 1024).toFixed(0)} KB`
         return `${size.toFixed(1)} MB`
     }
-    
+
     const getFileIcon = (fileType) => {
         // Add more file type icons as needed
         return <FontAwesomeIcon icon={faFile} className={`file-icon file-${fileType}`} />
     }
-    
+
     // Sort and filter starred items
-    const sortedItems = Array.isArray(starredItems) 
+    const sortedItems = Array.isArray(starredItems)
         ? [...starredItems].sort((a, b) => {
             const aValue = a[sortBy] || ''
             const bValue = b[sortBy] || ''
             const compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0
             return sortOrder === 'asc' ? compareResult : -compareResult
-          }).filter(item => item.name?.toLowerCase().includes(searchTerm.toLowerCase()))
+        }).filter(item => item.name?.toLowerCase().includes(searchTerm.toLowerCase()))
         : []
-    
+
     return (
         <div className="starred-items-container">
             <div className="drive-header">
                 <h1>{activeProfileSection}</h1>
-                
+
                 <div className="search-bar">
-                    <input 
-                        type="text" 
-                        placeholder="Search starred items..." 
+                    <input
+                        type="text"
+                        placeholder="Search starred items..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
-            
+
             <div className="files-container">
                 <div className="files-header">
                     <div className="header-item" onClick={() => {
@@ -166,7 +170,7 @@ function StarredItems() {
                     </div>
                     <div className="header-item">Actions</div>
                 </div>
-                
+
                 {isLoading ? (
                     <div className="loading">Loading starred items...</div>
                 ) : (
@@ -196,18 +200,18 @@ function StarredItems() {
                                     </div>
                                     <div className="file-actions">
                                         {item.type === 'file' && (
-                                            <button 
+                                            <button
                                                 className="action-btn"
                                                 onClick={() => handleDownloadFile(item.id, item.name)}
                                             >
                                                 <FontAwesomeIcon icon={faDownload} />
                                             </button>
                                         )}
-                                        <button 
+                                        <button
                                             className="action-btn"
                                             onClick={() => handleUnstar(item.id, item.type)}
                                         >
-                                            <FontAwesomeIcon icon={faStar} style={{color: '#FFD700'}} />
+                                            <FontAwesomeIcon icon={faStar} style={{ color: '#FFD700' }} />
                                         </button>
                                         <button className="action-btn">
                                             <FontAwesomeIcon icon={faShare} />

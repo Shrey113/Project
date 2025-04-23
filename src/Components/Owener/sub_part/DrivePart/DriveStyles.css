@@ -392,11 +392,47 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
 .action-btn:hover {
   background-color: #f0f0f0;
   color: #4285f4;
+}
+
+/* Star icon specific styles */
+.action-btn svg[data-icon="star"] {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.action-btn:hover svg[data-icon="star"] {
+  transform: scale(1.2);
+  color: #FFD700 !important;
+}
+
+/* Animation for star when clicked */
+@keyframes star-pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.5);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.action-btn:active svg[data-icon="star"] {
+  animation: star-pulse 0.5s ease;
+}
+
+/* Star icon when starred */
+.action-btn svg[data-icon="star"][style*="color: #FFD700"] {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
 }
 
 /* Empty state */
