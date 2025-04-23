@@ -12,17 +12,17 @@ function DriveMainPage() {
     const { setActiveProfileSection } = useUIContext()
     const location = useLocation()
     const navigate = useNavigate()
-    
+
     useEffect(() => {
         // Set default section when drive page loads
         setActiveProfileSection('Drive Home')
-        
+
         // If we're at the root drive URL, redirect to the home page
         if (location.pathname === '/Owner/drive') {
             navigate('/Owner/drive/home')
         }
     }, [setActiveProfileSection, location.pathname, navigate])
-    
+
     // Determine which sidebar item is active
     const getActiveMenuItem = () => {
         const path = location.pathname
@@ -33,65 +33,65 @@ function DriveMainPage() {
         if (path.includes('/upload')) return 'upload'
         return ''
     }
-    
+
     const activeMenuItem = getActiveMenuItem()
-    
+
     return (
         <div className="drive-main-layout">
             <div className="drive-sidebar">
                 <div className="sidebar-header">
                     <h2><FontAwesomeIcon icon={faCloud} /> My Drive</h2>
                 </div>
-                
+
                 <nav className="sidebar-nav">
-                    <Link 
-                        to="/Owner/drive/home" 
+                    <Link
+                        to="/Owner/drive/home"
                         className={`sidebar-item ${activeMenuItem === 'home' ? 'active' : ''}`}
                     >
                         <FontAwesomeIcon icon={faHome} />
                         <span>Drive Home</span>
                     </Link>
-                    
-                    <Link 
-                        to="/Owner/drive/starred" 
+
+                    <Link
+                        to="/Owner/drive/starred"
                         className={`sidebar-item ${activeMenuItem === 'starred' ? 'active' : ''}`}
                     >
                         <FontAwesomeIcon icon={faStar} />
                         <span>Starred Items</span>
                     </Link>
-                    
-                    <Link 
-                        to="/Owner/drive/shared" 
+
+                    <Link
+                        to="/Owner/drive/shared"
                         className={`sidebar-item ${activeMenuItem === 'shared' ? 'active' : ''}`}
                     >
                         <FontAwesomeIcon icon={faShare} />
                         <span>Shared Files</span>
                     </Link>
-                    
-                    <Link 
-                        to="/Owner/drive/trash" 
+
+                    <Link
+                        to="/Owner/drive/trash"
                         className={`sidebar-item ${activeMenuItem === 'trash' ? 'active' : ''}`}
                     >
                         <FontAwesomeIcon icon={faTrash} />
                         <span>Trash</span>
                     </Link>
-                    
-                    <Link 
-                        to="/Owner/drive/upload" 
+
+                    <Link
+                        to="/Owner/drive/upload"
                         className={`sidebar-item ${activeMenuItem === 'upload' ? 'active' : ''}`}
                     >
                         <FontAwesomeIcon icon={faUpload} />
                         <span>Quick Upload</span>
                     </Link>
                 </nav>
-                
+
                 <div className="sidebar-footer">
                     <button className="btn-upgrade">
                         Upgrade Storage
                     </button>
                 </div>
             </div>
-            
+
             <div className="drive-content">
                 <Routes>
                     <Route path="home" element={<DriveHome />} />

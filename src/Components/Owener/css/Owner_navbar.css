@@ -10,7 +10,8 @@
   z-index: 999;
   background-color: white;
 }
-.show_user_profile_image{
+
+.show_user_profile_image {
   height: 45px;
   width: 45px;
   border-radius: 50%;
@@ -1668,7 +1669,7 @@ input:checked+.switch::after {
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .location-toggle-button:hover {
@@ -1843,15 +1844,15 @@ input:checked+.switch::after {
     max-height: 85vh;
     padding: 15px;
   }
-  
+
   .popular-cities {
     gap: 15px;
   }
-  
+
   .city-icon {
     width: 70px;
   }
-  
+
   .other-cities {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
@@ -1865,24 +1866,24 @@ input:checked+.switch::after {
     margin-top: auto;
     margin-bottom: 0;
   }
-  
+
   .city-selector-overlay {
     align-items: flex-end;
   }
-  
+
   .popular-cities {
     gap: 10px;
   }
-  
+
   .city-icon {
     width: 60px;
   }
-  
+
   .city-icon .icon {
     width: 40px;
     height: 40px;
   }
-  
+
   .other-cities {
     grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
   }

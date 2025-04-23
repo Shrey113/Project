@@ -230,7 +230,7 @@ function OwnerSideBar() {
   // Handle drive section click
   const handleDriveSectionClick = useCallback((section) => {
     setActiveProfileSection(section);
-    
+
     // Navigate to the appropriate section
     switch (section) {
       case 'Drive Home':
@@ -245,7 +245,7 @@ function OwnerSideBar() {
       default:
         navigate('/Owner/drive');
     }
-    
+
     if (isMobile) {
       setIsSidebarOpen(false);
     }

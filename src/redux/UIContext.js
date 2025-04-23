@@ -16,30 +16,30 @@ export const useUIContext = () => {
 // Provider component for UI state
 export const UIProvider = ({ children }) => {
   const location = useLocation();
-  
+
   // Initialize state based on window size
   // On mobile: sidebar is closed by default
   // On desktop: sidebar is open by default
   const isMobileDevice = window.innerWidth <= 1200;
   const [isMobile, setIsMobile] = useState(isMobileDevice);
-  
+
   // Always start with the sidebar closed on mobile
   const [isSidebarOpen, setIsSidebarOpen] = useState(isMobileDevice ? false : true);
-  
+
   const [activeIndex, setActiveIndex] = useState(0);
-  
+
   // Add state for profile sections
   const storedProfileSection = localStorage.getItem('activeSection_for_profile_page') || 'User Profile';
   const [activeProfileSection, setActiveProfileSection] = useState(storedProfileSection);
-  
+
   // Use useMemo for profileSections to avoid recreating the array on every render
   const profileSections = useMemo(() => [
-    'User Profile', 
-    'Business Profile', 
-    "Business Services", 
-    'Portfolio', 
-    "Equipment's", 
-    "Social Media Links", 
+    'User Profile',
+    'Business Profile',
+    "Business Services",
+    'Portfolio',
+    "Equipment's",
+    "Social Media Links",
     "Reviews"
   ], []);
 
@@ -49,7 +49,7 @@ export const UIProvider = ({ children }) => {
     'Shared Files',
     'Starred Items'
   ], []);
-  
+
   // Update localStorage when activeProfileSection changes
   useEffect(() => {
     localStorage.setItem('activeSection_for_profile_page', activeProfileSection);
@@ -69,7 +69,7 @@ export const UIProvider = ({ children }) => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 1200;
       setIsMobile(mobile);
-      
+
       // On mobile devices, sidebar should be closed by default
       // On desktop devices, sidebar should be open by default
       if (mobile !== isMobile) {
@@ -91,7 +91,7 @@ export const UIProvider = ({ children }) => {
   useEffect(() => {
     const updateActiveIndex = () => {
       let newActiveIndex;
-      
+
       switch (location.pathname) {
         case "/Owner":
           newActiveIndex = 0;
@@ -132,13 +132,13 @@ export const UIProvider = ({ children }) => {
           }
           break;
       }
-      
+
       // Only update if the activeIndex actually changed
       if (newActiveIndex !== undefined && newActiveIndex !== activeIndex) {
         setActiveIndex(newActiveIndex);
       }
     };
-    
+
     updateActiveIndex();
   }, [location.pathname, activeIndex]);
 

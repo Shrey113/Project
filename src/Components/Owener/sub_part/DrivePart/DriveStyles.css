@@ -180,9 +180,9 @@ h3 {
   transition: background-color 0.2s;
 }
 
-button:hover {
+/* button:hover {
   background-color: #3367d6;
-}
+} */
 
 button:disabled {
   background-color: #b7b7b7;
