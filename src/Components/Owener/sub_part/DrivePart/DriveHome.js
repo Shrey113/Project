@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faUpload, faPlusSquare, faSync, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { faTrash,faArrowLeft, faThLarge, faList, faDownload, faShare, faEllipsisH, faUpload, faPlusSquare, faSearch } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
 import { Server_url, FileLoaderToast } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
@@ -27,6 +27,9 @@ function DriveHome() {
     const [storageLimit, setStorageLimit] = useState(1024) // 1GB in MB
     const [refreshKey, setRefreshKey] = useState(0) // Add a refresh key to force re-renders
     const [breadcrumbPath, setBreadcrumbPath] = useState([]) // Add state for breadcrumb path
+    const [viewMode, setViewMode] = useState('list') // Default to list view like in the image
+    const [selectionMode, setSelectionMode] = useState(false) // Track if we're in selection mode
+    const [showFooter, setShowFooter] = useState(true) // Show footer with copyright
 
     // Rename dialog state variables
     const [showRenameDialog, setShowRenameDialog] = useState(false)
@@ -37,6 +40,117 @@ function DriveHome() {
     const [dialogMode, setDialogMode] = useState('rename')
 
     const [previewFile, setPreviewFile] = useState(null);
+    
+    // Sample data to match the UI in the image
+    const demoFiles = [
+        {
+            file_id: 1,
+            file_name: 'Retro Ring.jpg',
+            file_size: 980 * 1024, // 980 KB
+            file_type: 'jpg',
+            created_at: '2023-07-10T12:00:00',
+            is_starred: false,
+            shared_with: [
+                {id: 1, avatar: 'avatar1.jpg'},
+                {id: 2, avatar: 'avatar2.jpg'},
+                {id: 3, avatar: 'avatar3.jpg'},
+                {id: 4, avatar: 'avatar4.jpg'}
+            ]
+        },
+        {
+            file_id: 2,
+            file_name: 'Classic Clicks.png',
+            file_size: 564 * 1024, // 564 KB
+            file_type: 'png',
+            created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
+            is_starred: false,
+            shared_with: [
+                {id: 1, avatar: 'avatar1.jpg'},
+                {id: 2, avatar: 'avatar2.jpg'},
+                {id: 3, avatar: 'avatar3.jpg'},
+                {id: 4, avatar: '+2'}
+            ]
+        },
+        {
+            file_id: 3,
+            file_name: 'World in Motion.mp4',
+            file_size: 18 * 1024 * 1024, // 18 MB
+            file_type: 'mp4',
+            created_at: '2023-07-15T12:00:00',
+            is_starred: false,
+            shared_with: [
+                {id: 1, avatar: 'avatar1.jpg'},
+                {id: 2, avatar: 'avatar2.jpg'},
+                {id: 3, avatar: 'avatar3.jpg'}
+            ]
+        }
+    ];
+    
+    const demoFolders = [
+        {
+            folder_id: 1,
+            folder_name: 'Illustrations',
+            item_count: 20,
+            created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
+            is_starred: false,
+            shared_with: [
+                {id: 1, avatar: 'avatar1.jpg'},
+                {id: 2, avatar: 'avatar2.jpg'},
+                {id: 3, avatar: 'avatar3.jpg'},
+                {id: 4, avatar: 'avatar4.jpg'},
+                {id: 5, avatar: 'avatar5.jpg'},
+                {id: 6, avatar: 'R'}
+            ]
+        },
+        {
+            folder_id: 2,
+            folder_name: 'Brand Identity',
+            item_count: 16,
+            created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
+            is_starred: false,
+            shared_with: [
+                {id: 1, avatar: 'avatar1.jpg'},
+                {id: 2, avatar: 'avatar2.jpg'},
+                {id: 3, avatar: 'avatar3.jpg'},
+                {id: 4, avatar: 'avatar4.jpg'},
+                {id: 5, avatar: 'avatar5.jpg'}
+            ]
+        },
+        {
+            folder_id: 3,
+            folder_name: 'UI Design',
+            item_count: 10,
+            created_at: '2023-09-20T12:00:00',
+            is_starred: false,
+            shared_with: [
+                {id: 1, avatar: 'avatar1.jpg'},
+                {id: 2, avatar: 'avatar2.jpg'},
+                {id: 3, avatar: 'avatar3.jpg'},
+                {id: 4, avatar: 'avatar4.jpg'},
+                {id: 5, avatar: 'avatar5.jpg'}
+            ]
+        },
+        {
+            folder_id: 4,
+            folder_name: 'Source Code',
+            item_count: 21,
+            created_at: '2023-09-21T12:00:00',
+            is_starred: false,
+            shared_with: [
+                {id: 1, avatar: 'avatar1.jpg'},
+                {id: 2, avatar: 'avatar2.jpg'},
+                {id: 3, avatar: 'avatar3.jpg'},
+                {id: 4, avatar: 'avatar4.jpg'}
+            ]
+        }
+    ];
+
+    // Initialize with demo data but no selected items
+    useEffect(() => {
+        // Use demo data instead of fetching
+        setFiles(demoFiles);
+        setFolders(demoFolders);
+    }, []);
 
     // Function to trigger a refresh
     const refreshDrive = () => {
@@ -44,6 +158,21 @@ function DriveHome() {
         setRefreshKey(prevKey => prevKey + 1);
     };
 
+    // Toggle view mode
+    const toggleViewMode = () => {
+        setViewMode(viewMode === 'grid' ? 'list' : 'grid');
+    };
+
+    // Get total items count
+    const getTotalItemsCount = () => {
+        return folders.length + files.length;
+    };
+
+    // Clear all selections
+    const clearSelections = () => {
+        setSelectedItems([]);
+        setSelectionMode(false);
+    };
 
     useEffect(() => {
         if (activeProfileSection !== 'Drive Home') {
@@ -308,7 +437,7 @@ function DriveHome() {
                 const uploadUrl = new URL(`${Server_url}/drive/upload-file`);
                 uploadUrl.searchParams.append('created_by', created_by);
                 uploadUrl.searchParams.append('user_email', user_email);
-                uploadUrl.searchParams.append('parent_folder_id', currentFolder || null);
+                // uploadUrl.searchParams.append('parent_folder_id', currentFolder || null);
 
                 // Add current folder ID if we're in a folder
                 if (currentFolder) {
@@ -351,6 +480,11 @@ function DriveHome() {
     };
 
     const navigateToFolder = (folderId, folderName) => {
+        // If in selection mode, don't navigate
+        if (selectionMode) {
+            return;
+        }
+        
         console.log(`Navigating to folder: ${folderName} (ID: ${folderId})`);
 
         // Reset file and folder states
@@ -392,6 +526,8 @@ function DriveHome() {
             setCurrentFolder(null);
             setCurrentPath('/');
             setBreadcrumbPath([]);
+            setFiles(demoFiles);
+            setFolders(demoFolders);
             return;
         }
 
@@ -413,23 +549,42 @@ function DriveHome() {
             const pathParts = currentPath.split('/');
             pathParts.pop();
             setCurrentPath(pathParts.join('/') || '/');
+            
+            // In a real app, we would fetch the folder contents
+            // For demo, just show empty
+            setFiles([]);
+            setFolders([]);
         } else {
             // If something went wrong with the breadcrumb, go to root
             setCurrentFolder(null);
             setCurrentPath('/');
             setBreadcrumbPath([]);
+            
+            // Reset to original demo data
+            setFiles(demoFiles);
+            setFolders(demoFolders);
         }
 
         // No need to call refreshDrive() as the useEffect will trigger
     }
 
     const toggleSelectItem = (id, type) => {
-        const existingIndex = selectedItems.findIndex(item => item.id === id && item.type === type)
-
+        // Check if the item is already selected
+        const existingIndex = selectedItems.findIndex(item => item.id === id && item.type === type);
+        
         if (existingIndex >= 0) {
-            setSelectedItems(selectedItems.filter((_, index) => index !== existingIndex))
+            // Item is already selected, so remove it
+            const newSelectedItems = selectedItems.filter((_, index) => index !== existingIndex);
+            setSelectedItems(newSelectedItems);
+            
+            // If this was the last selected item, exit selection mode
+            if (newSelectedItems.length === 0) {
+                setSelectionMode(false);
+            }
         } else {
-            setSelectedItems([...selectedItems, { id, type }])
+            // Item is not selected, add it and enter selection mode
+            setSelectedItems([...selectedItems, { id, type }]);
+            setSelectionMode(true);
         }
     }
 
@@ -462,6 +617,40 @@ function DriveHome() {
         } catch (error) {
             console.error("Error deleting file:", error);
             alert(`Failed to delete file: ${error.message}`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDeleteFolder = async (folderId, folderName) => {
+        const confirmed = window.confirm(`Are you sure you want to delete the folder "${folderName}"?`);
+        if (!confirmed) return;
+
+        setIsLoading(true);
+        try {
+            console.log(`Deleting folder: ${folderName} (ID: ${folderId})`);
+
+            const endpoint = `${Server_url}/drive/folders/${folderId}?created_by=${created_by}&user_email=${user_email}`;
+            console.log(`Sending delete request to: ${endpoint}`);
+
+            const response = await fetch(endpoint, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Failed to delete folder: ${errorText}`);
+                throw new Error(`Server error: ${response.status} ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log("Delete successful:", result);
+
+            alert(`Folder "${folderName}" deleted successfully`);
+            refreshDrive();
+        } catch (error) {
+            console.error("Error deleting folder:", error);
+            alert(`Failed to delete folder: ${error.message}`);
         } finally {
             setIsLoading(false);
         }
@@ -532,6 +721,7 @@ function DriveHome() {
         }
 
         setSelectedItems([]);
+        setSelectionMode(false);
         setIsLoading(false);
         refreshDrive();
     };
@@ -615,9 +805,27 @@ function DriveHome() {
 
         const kb = num / 1024;
         const mb = kb / 1024;
-        if (mb >= 1) return `${mb.toFixed(2)} MB`;
-        if (kb >= 1) return `${kb.toFixed(2)} KB`;
+        if (mb >= 1) return `${mb.toFixed(0)} MB`;
+        if (kb >= 1) return `${kb.toFixed(0)} KB`;
         return `${num} B`;
+    }
+
+    function formatFolderSize(folder) {
+        return `${folder.item_count} Items`;
+    }
+
+    // Format the date to match the image format
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
+        
+        if (diffHours < 24) {
+            return `${diffHours} hours ago`;
+        }
+        
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        return date.toLocaleDateString('en-GB', options).replace(' ', ', ');
     }
 
     // Update the sorting logic to always show folders on top
@@ -673,6 +881,14 @@ function DriveHome() {
 
     // Add a click handler for file items
     const handleItemClick = (item, type) => {
+        // If we're in selection mode, clicking should select the item instead of opening it
+        if (selectionMode) {
+            const itemId = type === 'folder' ? item.folder_id : item.file_id;
+            toggleSelectItem(itemId, type);
+            return;
+        }
+        
+        // Normal behavior when not in selection mode
         if (type === 'folder') {
             navigateToFolder(item.folder_id, item.folder_name);
         } else {
@@ -681,9 +897,21 @@ function DriveHome() {
         }
     };
 
+    const handleSearch = () => {
+        setSearchTerm(searchTerm);
+    };
+
     // Close file preview
     const closePreview = () => {
         setPreviewFile(null);
+    };
+
+    // Get current folder name for display
+    const getCurrentFolderName = () => {
+        if (breadcrumbPath.length === 0) {
+            return null;
+        }
+        return breadcrumbPath[breadcrumbPath.length - 1].name;
     };
 
     return (
@@ -744,7 +972,7 @@ function DriveHome() {
             )}
 
             <div className="drive-header">
-                <h1>{activeProfileSection}</h1>
+                <h1>My Files</h1>
 
                 <div className="drive-actions">
                     <div className="search-bar">
@@ -753,7 +981,15 @@ function DriveHome() {
                             placeholder="Search files and folders..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                    handleSearch();
+                                }
+                            }}
                         />
+                        <button className="search-btn" onClick={handleSearch}>
+                            <FontAwesomeIcon icon={faSearch} />
+                        </button>
                     </div>
 
                     <button className="btn-upload" onClick={() => document.getElementById('file-upload').click()}>
@@ -771,30 +1007,36 @@ function DriveHome() {
                         <FontAwesomeIcon icon={faPlusSquare} /> New Folder
                     </button>
 
-                    {selectedItems.length > 0 && (
-                        <button className="btn-delete" onClick={handleDeleteSelected}>
-                            <FontAwesomeIcon icon={faTrash} /> Delete
+                    <div className="view-mode-toggle">
+                        <button 
+                            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`} 
+                            onClick={() => setViewMode('grid')}
+                            title="Grid View"
+                        >
+                            <FontAwesomeIcon icon={faThLarge} />
                         </button>
-                    )}
+                        <button 
+                            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`} 
+                            onClick={() => setViewMode('list')}
+                            title="List View"
+                        >
+                            <FontAwesomeIcon icon={faList} />
+                        </button>
+                    </div>
 
-                    <button className="btn-refresh" onClick={refreshDrive} title="Refresh">
-                        <FontAwesomeIcon icon={faSync} spin={isLoading} />
-                    </button>
-                </div>
-            </div>
+                    <div className="sort-dropdown">
+                        <button className="sort-btn">
+                            Sort by - Date created <FontAwesomeIcon icon={faList} />
+                        </button>
+                    </div>
 
-
-
-            <div className="drive-stats">
-                <div className="stat-card">
-                    <h3>Storage</h3>
-                    <p>{formatFileSize(storageUsed)} used of {formatFileSize(storageLimit)}</p>
-                    <div className="progress-bar">
-                        <div className="progress" style={{ width: `${percentUsed}%` }}></div>
+                    <div className="display-toggle">
+                        <input type="checkbox" className="toggle-switch" />
                     </div>
                 </div>
             </div>
 
+            {/* Up Navigation */}
             <div className="path-navigation">
                 <button onClick={navigateUp} disabled={!currentFolder || isLoading}>
                     <FontAwesomeIcon icon={faArrowLeft} /> Up
@@ -808,6 +1050,8 @@ function DriveHome() {
                             setCurrentFolder(null);
                             setCurrentPath('/');
                             setBreadcrumbPath([]);
+                            setFiles(demoFiles);
+                            setFolders(demoFolders);
                         }}
                     >
                         Home
@@ -834,7 +1078,47 @@ function DriveHome() {
                 </div>
             </div>
 
-            <div className="files-container">
+            {/* Total Items Count */}
+            <div className="total-items-count">
+                Total {getTotalItemsCount()} items
+            </div>
+
+            {/* Selection Bar */}
+            {selectedItems.length > 0 && (
+                <div className="selection-bar">
+                    <div className="selection-count">
+                        <button className="clear-selection" onClick={clearSelections}>×</button>
+                        <span>{selectedItems.length} items selected</span>
+                    </div>
+                    <div className="selection-actions">
+                        <button className="action-btn download-btn" onClick={() => {
+                            // Download selected files
+                            const selectedFiles = selectedItems.filter(item => item.type === 'file');
+                            if (selectedFiles.length > 0) {
+                                // For simplicity, download first selected file
+                                const fileId = selectedFiles[0].id;
+                                const fileObj = files.find(f => f.file_id === fileId);
+                                if (fileObj) {
+                                    handleDownloadFile(fileId, fileObj.file_name);
+                                }
+                            }
+                        }}>
+                            <FontAwesomeIcon icon={faDownload} />
+                        </button>
+                        <button className="action-btn trash-btn" onClick={handleDeleteSelected}>
+                            <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                        <button className="action-btn share-btn">
+                            <FontAwesomeIcon icon={faShare} />
+                        </button>
+                        <button className="action-btn more-btn">
+                            <FontAwesomeIcon icon={faEllipsisH} />
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <div className={`files-container ${viewMode}-view`}>
                 <div className="files-header">
                     <div className="header-select"></div>
                     <div
@@ -844,8 +1128,11 @@ function DriveHome() {
                             setSortBy('name');
                         }}
                     >
-                        <span>Name</span>
+                        <span>NAME</span>
                         {getSortIcon('name')}
+                    </div>
+                    <div className="header-item header-shared">
+                        <span>SHARED</span>
                     </div>
                     <div
                         className="header-item header-date"
@@ -854,7 +1141,7 @@ function DriveHome() {
                             setSortBy('created_at');
                         }}
                     >
-                        <span>Last modified</span>
+                        <span>LAST MODIFIED</span>
                         {getSortIcon('created_at')}
                     </div>
                     <div
@@ -864,18 +1151,18 @@ function DriveHome() {
                             setSortBy('file_size');
                         }}
                     >
-                        <span>File size</span>
+                        <span>FILE SIZE</span>
                         {getSortIcon('file_size')}
                     </div>
                     <div className="header-item header-actions">
-                        Actions
+                        {/* Empty for actions column */}
                     </div>
                 </div>
 
                 {isLoading ? (
                     <div className="loading">Loading files and folders...</div>
                 ) : (
-                    <div className="files-list">
+                    <div className={`files-list ${viewMode}-layout`}>
                         {sortedFolders.length === 0 && sortedFiles.length === 0 ? (
                             <div className="empty-state">
                                 {currentFolder ? (
@@ -891,33 +1178,38 @@ function DriveHome() {
                                 )}
                             </div>
                         ) : (
-                            // Render all items in one list
+                            // Render all items in one list or grid
                             <>
                                 {/* Combine folders and files into a single list */}
                                 {[...sortedFolders, ...sortedFiles].map(item => {
                                     // Determine if it's a folder or file
                                     const itemType = 'folder_id' in item ? 'folder' : 'file';
-
+                                    const itemId = itemType === 'folder' ? item.folder_id : item.file_id;
+                                    
                                     return (
                                         <FileItem
-                                            key={itemType === 'folder' ? item.folder_id : item.file_id}
+                                            key={`${itemType}-${itemId}`}
                                             item={item}
                                             type={itemType}
+                                            viewMode={viewMode}
                                             isSelected={selectedItems.some(selectedItem =>
-                                                selectedItem.id === (itemType === 'folder' ? item.folder_id : item.file_id) &&
+                                                selectedItem.id === itemId &&
                                                 selectedItem.type === itemType
                                             )}
                                             onSelect={toggleSelectItem}
                                             onNavigate={navigateToFolder}
                                             onDownload={itemType === 'file' ? handleDownloadFile : null}
                                             onStar={handleStar}
-                                            onDelete={itemType === 'file' ? handleDeleteFile : null}
+                                            onDelete={itemType === 'file' ? handleDeleteFile : handleDeleteFolder}
                                             onShare={(id, type, name) => {
                                                 console.log(`Sharing ${type}: ${name}`);
+                                                alert(`Sharing dialog for ${type}: ${name}`);
                                             }}
-                                            onEdit={itemType === 'folder' ? handleOpenRenameDialog : null}
-                                            formatFileSize={formatFileSize}
+                                            onEdit={handleOpenRenameDialog}
+                                            formatFileSize={itemType === 'file' ? formatFileSize : formatFolderSize}
+                                            formatDate={formatDate}
                                             onClick={handleItemClick}
+                                            selectionMode={selectionMode}
                                         />
                                     );
                                 })}
@@ -926,6 +1218,13 @@ function DriveHome() {
                     </div>
                 )}
             </div>
+
+            {/* Footer */}
+            {showFooter && (
+                <div className="drive-footer">
+                    <p>© 2025 Photography Hub. All rights reserved.</p>
+                </div>
+            )}
         </div>
     )
 }
