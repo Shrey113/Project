@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFile, faFolder, faStar, faDownload, faShare, faSpinner, faSort, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons'
+import { faFile, faFolder, faStar, faDownload, faShare, faSpinner, faSort, faSortUp, faSortDown, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
 import { Server_url } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
+import FileItem from './FileItem'
+import FilePreview from './FilePreview'
 
 function StarredItems() {
     const user = useSelector((state) => state.user);
@@ -19,6 +21,12 @@ function StarredItems() {
     const [sortOrder, setSortOrder] = useState('asc')
     const [searchTerm, setSearchTerm] = useState('')
     const [downloadProgress, setDownloadProgress] = useState({ isDownloading: false, progress: 0, fileName: '' })
+    const [currentFolder, setCurrentFolder] = useState(null)
+    const [breadcrumbPath, setBreadcrumbPath] = useState([])
+    const [previewFile, setPreviewFile] = useState(null)
+    const [viewMode, setViewMode] = useState('list')
+    const [selectedItems, setSelectedItems] = useState([])
+    const [selectionMode, setSelectionMode] = useState(false)
 
     const fetchStarredItems = async () => {
         setIsLoading(true);
@@ -28,7 +36,6 @@ function StarredItems() {
                 throw new Error(`Server responded with ${response.status}`);
             }
             const data = await response.json();
-            // Separate starred folders and files
             setStarredFolders(data.starred_folders || []);
             setStarredFiles(data.starred_files || []);
         } catch (error) {
@@ -40,33 +47,97 @@ function StarredItems() {
                     folder_name: 'Project Materials',
                     user_email: user_email,
                     is_root: 0,
-                    created_date: new Date().toISOString(),
+                    created_at: new Date().toISOString(),
                     modified_date: new Date().toISOString(),
                     created_by: 'user1',
                     modified_by: 'user1',
                     is_shared: 0,
-                    is_starred: 1
+                    is_starred: 1,
+                    shared_with: [
+                        { id: 1, avatar: 'avatar1.jpg' },
+                        { id: 2, avatar: 'avatar2.jpg' }
+                    ]
                 }
             ]);
             setStarredFiles([
                 {
                     file_id: 1,
                     file_name: 'Important Document.pdf',
-                    file_size: 2.4,
+                    file_size: 2.4 * 1024 * 1024, // Convert to bytes
                     file_type: 'pdf',
                     parent_folder_id: 1,
                     file_data: null,
                     is_shared: 0,
-                    created_date: new Date().toISOString(),
+                    created_at: new Date().toISOString(),
                     modified_date: new Date().toISOString(),
                     created_by: 'user1',
                     modified_by: 'user1',
                     is_root: 0,
                     file_path: '/documents/important.pdf',
                     user_email: user_email,
-                    is_starred: 1
+                    is_starred: 1,
+                    shared_with: [
+                        { id: 1, avatar: 'avatar1.jpg' },
+                        { id: 2, avatar: 'avatar2.jpg' }
+                    ]
                 }
             ]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchFolderContents = async (folderId) => {
+        setIsLoading(true);
+        try {
+            let url;
+
+            if (folderId) {
+                // If we're in a folder, use the new endpoint to get only its contents
+                url = new URL(`${Server_url}/drive/folder/${folderId}/contents`);
+                url.searchParams.append('user_email', user_email);
+                url.searchParams.append('created_by', starredFolders[0].created_by);
+            } else {
+                // If we're at the root, get all files and folders
+                url = new URL(`${Server_url}/starred/drive/get_starred_items`);
+                url.searchParams.append('user_email', user_email);
+            }
+
+            const response = await fetch(url.toString());
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server error:', response.status, errorText);
+                throw new Error(`Server responded with ${response.status}: ${errorText}`);
+            }
+
+            const data = await response.json();
+
+            // Handle the response format
+            if (folderId && data.success) {
+                // When in a folder, show all contents of that folder
+                setStarredFiles(data.files || []);
+                setStarredFolders(data.folders || []);
+            } else {
+                // At root level, only show starred items
+                if (data.files) {
+                    setStarredFiles(data.files.filter(file => file.is_starred === 1));
+                }
+
+                if (data.folders) {
+                    setStarredFolders(data.folders.filter(folder => folder.is_starred === 1));
+                }
+            }
+
+            // Update breadcrumb path if available from server
+            if (data.breadcrumb && data.breadcrumb.length > 0) {
+                setBreadcrumbPath(data.breadcrumb);
+            } else {
+                setBreadcrumbPath([]);
+            }
+        } catch (error) {
+            console.error('Error fetching files and folders:', error);
+            toast.error('Failed to load folder contents');
         } finally {
             setIsLoading(false);
         }
@@ -80,7 +151,15 @@ function StarredItems() {
         fetchStarredItems()
     }, [activeProfileSection, setActiveProfileSection])
 
-    const handleUnstar = async (itemId, itemType) => {
+    useEffect(() => {
+        if (currentFolder) {
+            fetchFolderContents(currentFolder);
+        } else {
+            fetchStarredItems();
+        }
+    }, [currentFolder]);
+
+    const handleUnstar = async (itemId, itemType, isStarred) => {
         try {
             // Immediately update UI
             if (itemType === 'file') {
@@ -99,7 +178,7 @@ function StarredItems() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    is_starred: false,
+                    is_starred: !isStarred,
                     modified_by: user_email
                 })
             })
@@ -111,7 +190,11 @@ function StarredItems() {
             console.error('Error unstarring item:', error);
             // Revert UI changes on error
             toast.error('Failed to unstar item. Please try again.');
-            fetchStarredItems(); // Refresh the data
+            if (currentFolder) {
+                fetchFolderContents(currentFolder);
+            } else {
+                fetchStarredItems();
+            }
         }
     }
 
@@ -123,74 +206,26 @@ function StarredItems() {
                 fileName: fileName
             });
 
-            // Create a new AbortController
-            const controller = new AbortController();
-            const signal = controller.signal;
-
-            const response = await fetch(`${Server_url}/drive/files/${fileId}?user_email=${user_email}&download=true`, {
-                signal
-            });
+            const response = await fetch(`${Server_url}/drive/files/${fileId}?user_email=${user_email}&download=true`);
 
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}`);
             }
 
-            // Get total file size for progress calculation
-            const contentLength = response.headers.get('Content-Length');
-            const totalSize = contentLength ? parseInt(contentLength, 10) : 0;
-
-            // Create a reader to track progress
-            const reader = response.body.getReader();
-            const chunks = [];
-            let receivedLength = 0;
-
-            // Read the stream
-            while (true) {
-                const { done, value } = await reader.read();
-
-                if (done) {
-                    break;
-                }
-
-                chunks.push(value);
-                receivedLength += value.length;
-
-                // Update progress
-                if (totalSize) {
-                    setDownloadProgress(prev => ({
-                        ...prev,
-                        progress: Math.round((receivedLength / totalSize) * 100)
-                    }));
-                }
-            }
-
-            // Combine all chunks into a single Uint8Array
-            const chunksAll = new Uint8Array(receivedLength);
-            let position = 0;
-            for (const chunk of chunks) {
-                chunksAll.set(chunk, position);
-                position += chunk.length;
-            }
-
-            // Create Blob and download the file
-            const blob = new Blob([chunksAll]);
+            const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', fileName);
-            // Use downloads folder if supported by browser
-            link.setAttribute('target', '_blank');
             document.body.appendChild(link);
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url);
 
-            // Indicate completion
-            setDownloadProgress(prev => ({
-                ...prev,
+            setDownloadProgress({
                 isDownloading: false,
                 progress: 100
-            }));
+            });
 
             toast.success(`Downloaded ${fileName} successfully`);
         } catch (error) {
@@ -205,21 +240,28 @@ function StarredItems() {
     }
 
     const formatFileSize = (size) => {
-        if (size < 1) return `${(size * 1024).toFixed(0)} KB`
-        return `${size.toFixed(1)} MB`
+        const num = Number(size);
+        if (isNaN(num)) return '0 B';
+
+        const kb = num / 1024;
+        const mb = kb / 1024;
+        if (mb >= 1) return `${mb.toFixed(0)} MB`;
+        if (kb >= 1) return `${kb.toFixed(0)} KB`;
+        return `${num} B`;
     }
 
-    const getFileIcon = (fileType) => {
-        // Add more file type icons as needed
-        return <FontAwesomeIcon icon={faFile} className={`file-icon file-${fileType}`} />
-    }
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
 
-    const getSortIcon = (column) => {
-        if (sortBy !== column) return <FontAwesomeIcon icon={faSort} className="sort-icon" />;
-        return sortOrder === 'asc'
-            ? <FontAwesomeIcon icon={faSortUp} className="sort-icon active" />
-            : <FontAwesomeIcon icon={faSortDown} className="sort-icon active" />;
-    };
+        if (diffHours < 24) {
+            return `${diffHours} hours ago`;
+        }
+
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        return date.toLocaleDateString('en-GB', options).replace(' ', ', ');
+    }
 
     const handleSort = (column) => {
         if (sortBy === column) {
@@ -230,29 +272,99 @@ function StarredItems() {
         }
     };
 
+    const navigateToFolder = (folderId, folderName) => {
+        setCurrentFolder(folderId);
+
+        // Update breadcrumb path
+        if (currentFolder) {
+            setBreadcrumbPath([
+                ...breadcrumbPath,
+                { id: folderId, name: folderName }
+            ]);
+        } else {
+            setBreadcrumbPath([{ id: folderId, name: folderName }]);
+        }
+    }
+
+    const navigateUp = () => {
+        if (breadcrumbPath.length <= 1) {
+            setCurrentFolder(null);
+            setBreadcrumbPath([]);
+            return;
+        }
+
+        const newBreadcrumbPath = [...breadcrumbPath];
+        newBreadcrumbPath.pop();
+        const parentFolder = newBreadcrumbPath[newBreadcrumbPath.length - 1];
+
+        if (parentFolder) {
+            setCurrentFolder(parentFolder.id);
+            setBreadcrumbPath(newBreadcrumbPath);
+        } else {
+            setCurrentFolder(null);
+            setBreadcrumbPath([]);
+        }
+    }
+
+    const handleItemClick = (item, type) => {
+        if (selectionMode) {
+            const itemId = type === 'folder' ? item.folder_id : item.file_id;
+            toggleSelectItem(itemId, type);
+            return;
+        }
+
+        if (type === 'folder') {
+            navigateToFolder(item.folder_id, item.folder_name);
+        } else {
+            setPreviewFile(item);
+        }
+    };
+
+    const toggleSelectItem = (id, type) => {
+        const existingIndex = selectedItems.findIndex(item => item.id === id && item.type === type);
+
+        if (existingIndex >= 0) {
+            const newSelectedItems = selectedItems.filter((_, index) => index !== existingIndex);
+            setSelectedItems(newSelectedItems);
+
+            if (newSelectedItems.length === 0) {
+                setSelectionMode(false);
+            }
+        } else {
+            setSelectedItems([...selectedItems, { id, type }]);
+            setSelectionMode(true);
+        }
+    };
+
+    const clearSelections = () => {
+        setSelectedItems([]);
+        setSelectionMode(false);
+    };
+
+    const closePreview = () => {
+        setPreviewFile(null);
+    };
+
     const sortedFolders = [...starredFolders]
-        .map(folder => ({ ...folder, type: 'folder', starred_at: folder.modified_date }))
-        .filter(folder => folder.folder_name?.toLowerCase().includes(searchTerm.toLowerCase()))
-        .sort((a, b) => {
-            const aValue = sortBy === 'name' ? a.folder_name : sortBy === 'starred_at' ? a.starred_at : 0;
-            const bValue = sortBy === 'name' ? b.folder_name : sortBy === 'starred_at' ? b.starred_at : 0;
-            const compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-            return sortOrder === 'asc' ? compareResult : -compareResult;
-        });
+
+
 
     const sortedFiles = [...starredFiles]
-        .map(file => ({ ...file, type: 'file', starred_at: file.modified_date }))
-        .filter(file => file.file_name?.toLowerCase().includes(searchTerm.toLowerCase()))
-        .sort((a, b) => {
-            const aValue = sortBy === 'name' ? a.file_name : sortBy === 'starred_at' ? a.starred_at : a.file_size;
-            const bValue = sortBy === 'name' ? b.file_name : sortBy === 'starred_at' ? b.starred_at : b.file_size;
-            const compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-            return sortOrder === 'asc' ? compareResult : -compareResult;
-        });
+
 
     const allItems = [...sortedFolders, ...sortedFiles];
+
+
     return (
         <div className="starred-items-container">
+            {/* File Preview Component */}
+            {previewFile && (
+                <FilePreview
+                    file={previewFile}
+                    onClose={closePreview}
+                />
+            )}
+
             <div className="drive-header">
                 <h1>{activeProfileSection}</h1>
                 <div className="search-bar">
@@ -265,6 +377,52 @@ function StarredItems() {
                 </div>
             </div>
 
+            {/* Breadcrumb Navigation */}
+            <div className="path-navigation">
+                <button onClick={navigateUp} disabled={!currentFolder || isLoading}>
+                    <FontAwesomeIcon icon={faArrowLeft} /> Up
+                </button>
+
+                <div className="breadcrumb-container">
+                    <span
+                        className="breadcrumb-item clickable"
+                        onClick={() => {
+                            setCurrentFolder(null);
+                            setBreadcrumbPath([]);
+                        }}
+                    >
+                        Home
+                    </span>
+
+                    {breadcrumbPath.map((item, index) => (
+                        <span key={item.id}>
+                            <span className="breadcrumb-separator">/</span>
+                            <span
+                                className={`breadcrumb-item ${index === breadcrumbPath.length - 1 ? 'active' : 'clickable'}`}
+                                onClick={() => {
+                                    if (index < breadcrumbPath.length - 1) {
+                                        setCurrentFolder(item.id);
+                                        setBreadcrumbPath(breadcrumbPath.slice(0, index + 1));
+                                    }
+                                }}
+                            >
+                                {item.name}
+                            </span>
+                        </span>
+                    ))}
+                </div>
+            </div>
+
+            {/* Selection Bar */}
+            {selectedItems.length > 0 && (
+                <div className="selection-bar">
+                    <div className="selection-count">
+                        <button className="clear-selection" onClick={clearSelections}>×</button>
+                        <span>{selectedItems.length} items selected</span>
+                    </div>
+                </div>
+            )}
+
             <div className="files-container">
                 <div className="files-header">
                     <div className="header-select"></div>
@@ -272,19 +430,19 @@ function StarredItems() {
                         className="header-item header-name"
                         onClick={() => handleSort('name')}
                     >
-                        Name {getSortIcon('name')}
+                        Name
                     </div>
                     <div
                         className="header-item header-date"
-                        onClick={() => handleSort('starred_at')}
+                        onClick={() => handleSort('date')}
                     >
-                        Starred Date {getSortIcon('starred_at')}
+                        Last Modified
                     </div>
                     <div
                         className="header-item header-size"
                         onClick={() => handleSort('size')}
                     >
-                        Size {getSortIcon('size')}
+                        Size
                     </div>
                     <div className="header-item header-actions">Actions</div>
                 </div>
@@ -312,52 +470,40 @@ function StarredItems() {
 
                         {allItems.length === 0 ? (
                             <div className="starred-content">
-                                <p>No starred items yet.</p>
+                                <p>No starred items found.</p>
                                 <p>Mark important files with a star to find them quickly here.</p>
                             </div>
                         ) : (
-                            allItems.map(item => (
-                                <div key={`${item.type}-${item.type === 'file' ? item.file_id : item.folder_id}`} className={`file-item ${item.type === 'folder' ? 'folder' : ''}`}>
-                                    <div className="file-select"></div>
-                                    <div className="file-name">
-                                        {item.type === 'folder' ? (
-                                            <FontAwesomeIcon icon={faFolder} className="folder-icon" />
-                                        ) : (
-                                            getFileIcon(item.file_type)
-                                        )}
-                                        <span>{item.type === 'folder' ? item.folder_name : item.file_name}</span>
-                                    </div>
-                                    <div className="file-date">
-                                        {new Date(item.starred_at).toLocaleDateString()}
-                                    </div>
-                                    <div className="file-size">
-                                        {item.type === 'folder' ? '—' : formatFileSize(item.file_size)}
-                                    </div>
-                                    <div className="file-actions">
-                                        {item.type === 'file' && (
-                                            <button
-                                                className="action-btn action-download"
-                                                onClick={() => handleDownloadFile(item.file_id, item.file_name)}
-                                                disabled={downloadProgress.isDownloading}
-                                            >
-                                                <FontAwesomeIcon icon={faDownload} />
-                                            </button>
-                                        )}
-                                        <button
-                                            className="action-btn action-star"
-                                            onClick={() => handleUnstar(item.type === 'file' ? item.file_id : item.folder_id, item.type)}
-                                        >
-                                            <FontAwesomeIcon icon={faStar} style={{ color: '#FFD700' }} />
-                                        </button>
-                                        <button className="action-btn action-share">
-                                            <FontAwesomeIcon icon={faShare} />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))
+                            <>
+                                {[...sortedFolders, ...sortedFiles].map(item => {
+                                    const itemType = 'folder_id' in item ? 'folder' : 'file';
+                                    const itemId = itemType === 'folder' ? item.folder_id : item.file_id;
+                                    return (
+                                        <FileItem
+                                            key={`${itemType}-${itemId}`}
+                                            item={item}
+                                            type={itemType}
+                                            viewMode={viewMode}
+                                            isSelected={selectedItems.some(selectedItem =>
+                                                selectedItem.id === (item.folder_id || item.file_id) &&
+                                                selectedItem.type === (item.folder_id ? 'folder' : 'file')
+                                            )}
+                                            onSelect={toggleSelectItem}
+                                            onNavigate={navigateToFolder}
+                                            onDownload={handleDownloadFile}
+                                            onStar={handleUnstar}
+                                            formatFileSize={formatFileSize}
+                                            formatDate={formatDate}
+                                            onClick={handleItemClick}
+                                            selectionMode={selectionMode}
+                                        />
+                                    )
+                                })}
+                            </>
                         )}
                     </div>
                 )}
+
             </div>
         </div>
     );
