@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash,faArrowLeft, faThLarge, faList, faDownload, faShare, faEllipsisH, faUpload, faPlusSquare, faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faTrash,faArrowLeft, faThLarge, faList, faDownload, faShare, faEllipsisH, faUpload, faPlusSquare, faSearch, faSort, faSortAlphaDown, faSortAlphaUp, faCalendarAlt, faFileAlt, faStar, faCaretDown } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
 import { Server_url, FileLoaderToast } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
 import FileItem from './FileItem'
 import FilePreview from './FilePreview'
+import { FiStar, FiTrash } from 'react-icons/fi'
 
 function DriveHome() {
     const user = useSelector((state) => state.user);
@@ -30,6 +31,7 @@ function DriveHome() {
     const [viewMode, setViewMode] = useState('list') // Default to list view like in the image
     const [selectionMode, setSelectionMode] = useState(false) // Track if we're in selection mode
     const [showFooter, setShowFooter] = useState(true) // Show footer with copyright
+    const [activePopup, setActivePopup] = useState(null) // Add state for tracking active popup
 
     // Rename dialog state variables
     const [showRenameDialog, setShowRenameDialog] = useState(false)
@@ -161,6 +163,8 @@ function DriveHome() {
     // Toggle view mode
     const toggleViewMode = () => {
         setViewMode(viewMode === 'grid' ? 'list' : 'grid');
+        // Clear any active popups when switching view modes
+        setActivePopup(null);
     };
 
     // Get total items count
@@ -831,6 +835,15 @@ function DriveHome() {
     // Update the sorting logic to always show folders on top
     const sortItems = (items, type, sortKey, order) => {
         return [...items].sort((a, b) => {
+            // Special handling for starred items
+            if (sortKey === 'is_starred') {
+                const aStarred = a.is_starred ? 1 : 0;
+                const bStarred = b.is_starred ? 1 : 0;
+                // Direction is reversed for stars - we want starred items on top
+                const direction = order === 'asc' ? -1 : 1;
+                return (aStarred - bStarred) * direction;
+            }
+
             // Get values to compare
             const aValue = a[sortKey] || '';
             const bValue = b[sortKey] || '';
@@ -914,8 +927,62 @@ function DriveHome() {
         return breadcrumbPath[breadcrumbPath.length - 1].name;
     };
 
+    // Function to handle global popup management
+    const handleSetActivePopup = (popupId) => {
+        setActivePopup(popupId);
+    };
+
+    const [showSortDropdown, setShowSortDropdown] = useState(false);
+    const sortDropdownRef = useRef(null);
+    
+    // Close sort dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
+                setShowSortDropdown(false);
+            }
+        };
+
+        if (showSortDropdown) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showSortDropdown]);
+    
+    // Function to get human-readable sort field name
+    const getSortFieldName = (field) => {
+        switch(field) {
+            case 'name':
+                return 'Name';
+            case 'created_at':
+                return 'Date created';
+            case 'file_size':
+                return 'File size';
+            case 'is_starred':
+                return 'Starred';
+            default:
+                return 'Date created';
+        }
+    };
+    
+    // Function to handle sorting
+    const handleSort = (field) => {
+        if (sortBy === field) {
+            // Toggle sort order if same field
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            // Set new field and default to ascending
+            setSortBy(field);
+            setSortOrder('asc');
+        }
+        setShowSortDropdown(false);
+    };
+
     return (
-        <div className="drive-home-container">
+        <div className="drive-home-container" onClick={() => setActivePopup(null)}>
             {uploadProgress.total > 0 && <FileLoaderToast uploadProgress={uploadProgress} />}
 
             {/* File Preview Component */}
@@ -1024,15 +1091,55 @@ function DriveHome() {
                         </button>
                     </div>
 
-                    <div className="sort-dropdown">
-                        <button className="sort-btn">
-                            Sort by - Date created <FontAwesomeIcon icon={faList} />
+                    <div className="sort-dropdown" ref={sortDropdownRef}>
+                        <button 
+                            className="sort-btn"
+                            onClick={() => setShowSortDropdown(!showSortDropdown)}
+                        >
+                            Sort by - {getSortFieldName(sortBy)} {sortOrder === 'asc' ? '↑' : '↓'} <FontAwesomeIcon icon={faCaretDown} />
                         </button>
+                        
+                        {showSortDropdown && (
+                            <div className="sort-dropdown-menu">
+                                <div 
+                                    className={`sort-option ${sortBy === 'name' ? 'active' : ''}`}
+                                    onClick={() => handleSort('name')}
+                                >
+                                    <FontAwesomeIcon icon={sortBy === 'name' ? (sortOrder === 'asc' ? faSortAlphaDown : faSortAlphaUp) : faSort} />
+                                    <span>Name</span>
+                                    {sortBy === 'name' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
+                                </div>
+                                
+                                <div 
+                                    className={`sort-option ${sortBy === 'created_at' ? 'active' : ''}`}
+                                    onClick={() => handleSort('created_at')}
+                                >
+                                    <FontAwesomeIcon icon={faCalendarAlt} />
+                                    <span>Date created</span>
+                                    {sortBy === 'created_at' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
+                                </div>
+                                
+                                <div 
+                                    className={`sort-option ${sortBy === 'file_size' ? 'active' : ''}`}
+                                    onClick={() => handleSort('file_size')}
+                                >
+                                    <FontAwesomeIcon icon={faFileAlt} />
+                                    <span>File size</span>
+                                    {sortBy === 'file_size' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
+                                </div>
+                                
+                                <div 
+                                    className={`sort-option ${sortBy === 'is_starred' ? 'active' : ''}`}
+                                    onClick={() => handleSort('is_starred')}
+                                >
+                                    <FontAwesomeIcon icon={faStar} />
+                                    <span>Starred</span>
+                                    {sortBy === 'is_starred' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="display-toggle">
-                        <input type="checkbox" className="toggle-switch" />
-                    </div>
                 </div>
             </div>
 
@@ -1091,34 +1198,37 @@ function DriveHome() {
                         <span>{selectedItems.length} items selected</span>
                     </div>
                     <div className="selection-actions">
-                        <button className="action-btn download-btn" onClick={() => {
-                            // Download selected files
-                            const selectedFiles = selectedItems.filter(item => item.type === 'file');
-                            if (selectedFiles.length > 0) {
-                                // For simplicity, download first selected file
-                                const fileId = selectedFiles[0].id;
-                                const fileObj = files.find(f => f.file_id === fileId);
-                                if (fileObj) {
-                                    handleDownloadFile(fileId, fileObj.file_name);
-                                }
-                            }
-                        }}>
-                            <FontAwesomeIcon icon={faDownload} />
+                        {/* Show only star and delete buttons when multiple items are selected */}
+                        <button 
+                            className="action-btn star-btn"
+                            onClick={() => {
+                                // Star all selected items
+                                selectedItems.forEach(item => {
+                                    const itemObj = item.type === 'file' 
+                                        ? files.find(f => f.file_id === item.id)
+                                        : folders.find(f => f.folder_id === item.id);
+                                    
+                                    if (itemObj) {
+                                        handleStar(item.id, item.type, itemObj.is_starred);
+                                    }
+                                });
+                            }}
+                            title="Star selected items"
+                        >
+                            <FiStar />
                         </button>
-                        <button className="action-btn trash-btn" onClick={handleDeleteSelected}>
-                            <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                        <button className="action-btn share-btn">
-                            <FontAwesomeIcon icon={faShare} />
-                        </button>
-                        <button className="action-btn more-btn">
-                            <FontAwesomeIcon icon={faEllipsisH} />
+                        <button 
+                            className="action-btn trash-btn" 
+                            onClick={handleDeleteSelected}
+                            title="Delete selected items"
+                        >
+                            <FiTrash />
                         </button>
                     </div>
                 </div>
             )}
 
-            <div className={`files-container ${viewMode}-view`}>
+            <div className={`files-container ${viewMode}-view`} onClick={(e) => e.stopPropagation()}>
                 <div className="files-header">
                     <div className="header-select"></div>
                     <div
@@ -1162,7 +1272,12 @@ function DriveHome() {
                 {isLoading ? (
                     <div className="loading">Loading files and folders...</div>
                 ) : (
-                    <div className={`files-list ${viewMode}-layout`}>
+                    <div className={`files-list ${viewMode}-layout`} onClick={(e) => {
+                        // Only clear popups if clicked directly on the files-list (not on a child)
+                        if (e.target.className === `files-list ${viewMode}-layout`) {
+                            setActivePopup(null);
+                        }
+                    }}>
                         {sortedFolders.length === 0 && sortedFiles.length === 0 ? (
                             <div className="empty-state">
                                 {currentFolder ? (
@@ -1210,6 +1325,8 @@ function DriveHome() {
                                             formatDate={formatDate}
                                             onClick={handleItemClick}
                                             selectionMode={selectionMode}
+                                            globalActivePopup={activePopup}
+                                            setGlobalActivePopup={handleSetActivePopup}
                                         />
                                     );
                                 })}

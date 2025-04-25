@@ -26,6 +26,9 @@ import {
 } from 'react-icons/bs';
 import './DriveStyles.css';
 
+// Global variable to track the active popup
+let activePopupId = null;
+
 const FileItem = ({
     item,
     type,
@@ -42,12 +45,17 @@ const FileItem = ({
     formatDate,
     onClick,
     onPreview,
-    selectionMode = false
+    selectionMode = false,
+    setGlobalActivePopup, // New prop for managing global popup state
+    globalActivePopup // New prop for tracking active popup
 }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [showOptions, setShowOptions] = useState(false);
     const optionsRef = useRef(null);
     const itemRef = useRef(null);
+
+    // Generate a unique ID for this item
+    const itemId = type === 'file' ? `file-${item.file_id}` : `folder-${item.folder_id}`;
 
     // Close options popup when clicking outside
     useEffect(() => {
@@ -66,6 +74,13 @@ const FileItem = ({
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [showOptions]);
+
+    // Sync local popup state with global state
+    useEffect(() => {
+        if (globalActivePopup !== itemId) {
+            setShowOptions(false);
+        }
+    }, [globalActivePopup, itemId]);
 
     // Get appropriate icon based on file type
     const getIcon = () => {
@@ -125,10 +140,27 @@ const FileItem = ({
 
     const toggleOptions = (e) => {
         e.stopPropagation();
-        setShowOptions(!showOptions);
+        
+        // Close any active popup if it's not this one
+        if (globalActivePopup && globalActivePopup !== itemId) {
+            // Close the currently active popup
+            setGlobalActivePopup(null);
+        }
+        
+        // Toggle this popup and set it as the active one
+        const newState = !showOptions;
+        setShowOptions(newState);
+        
+        if (newState) {
+            setGlobalActivePopup(itemId);
+        } else {
+            setGlobalActivePopup(null);
+        }
     };
 
     const handleItemClick = (e) => {
+        if (showOptions) return; // Prevent navigation when options menu is open
+        
         if (onClick) {
             onClick(item, type);
         } else if (type === 'folder' && onNavigate && !selectionMode) {
@@ -153,7 +185,7 @@ const FileItem = ({
     };
 
     // Determine item details based on type
-    const itemId = type === 'file' ? item.file_id : item.folder_id;
+    const itemIdValue = type === 'file' ? item.file_id : item.folder_id;
     const itemName = type === 'file' ? item.file_name : item.folder_name;
     const createdDate = formatDate ? formatDate(item.created_at || item.created_date) : new Date(item.created_at || item.created_date).toLocaleDateString();
     const isStarred = item.is_starred;
@@ -185,6 +217,24 @@ const FileItem = ({
                 })}
             </div>
         );
+    };
+
+    const handleDownload = (e) => {
+        e.stopPropagation();
+        
+        try {
+            // Call the onDownload callback if provided
+            if (onDownload) {
+                onDownload(itemIdValue, itemName);
+            }
+            
+            // Close options menu
+            setShowOptions(false);
+            setGlobalActivePopup(null);
+        } catch (error) {
+            console.error("Error downloading file:", error);
+            alert("Failed to download file. Please try again.");
+        }
     };
 
     if (viewMode === 'grid') {
@@ -221,136 +271,94 @@ const FileItem = ({
                             />
                         )}
                     </div>
-                    
-                    <div className="file-meta">
-                        {type === 'file' && (
-                            <span className="file-size-grid">{itemSize}</span>
-                        )}
+                    <div className="file-meta-grid">
+                        {itemSize}
                     </div>
                 </div>
                 
-                <div className={`file-actions-grid ${isHovered ? 'visible' : ''}`}>
-                    {type === 'file' && onDownload && (
-                        <button
-                            className="action-btn action-download"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onDownload(itemId, itemName);
-                            }}
-                            title="Download"
-                        >
-                            <FiDownload />
-                        </button>
-                    )}
-                    
-                    {onStar && (
-                        <button
-                            className="action-btn action-star"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onStar(itemId, type, isStarred);
-                            }}
-                            title={isStarred ? "Unstar" : "Star"}
-                        >
-                            <FiStar
-                                style={{
-                                    color: isStarred ? '#FFD700' : '#666',
-                                    fill: isStarred ? '#FFD700' : 'none'
-                                }}
-                            />
-                        </button>
-                    )}
-                    
+                {/* In grid view, only show 3-dot menu */}
+                <div className="file-actions-grid">
                     <button
-                        className="action-btn action-more"
+                        className="action-more"
                         onClick={toggleOptions}
                         title="More options"
                     >
                         <FiMoreVertical />
                     </button>
-                </div>
-                
-                {showOptions && (
-                    <div className="options-popup" ref={optionsRef}>
-                        <ul>
+                    
+                    {showOptions && (
+                        <div className="options-popup" ref={optionsRef}>
                             {type === 'file' && onDownload && (
-                                <li onClick={(e) => {
-                                    e.stopPropagation();
-                                    onDownload(itemId, itemName);
-                                    setShowOptions(false);
-                                }}>
-                                    <FiDownload /> Download
-                                </li>
+                                <button
+                                    onClick={handleDownload}
+                                    className="option-item"
+                                >
+                                    <FiDownload />
+                                    <span>Download</span>
+                                </button>
                             )}
-                            {onStar && (
-                                <li onClick={(e) => {
+                            <button
+                                onClick={(e) => {
                                     e.stopPropagation();
-                                    onStar(itemId, type, isStarred);
+                                    onStar(itemIdValue, type, isStarred);
                                     setShowOptions(false);
-                                }}>
-                                    <FiStar style={{
-                                        color: isStarred ? '#FFD700' : '#666',
-                                        fill: isStarred ? '#FFD700' : 'none'
-                                    }} /> {isStarred ? 'Unstar' : 'Star'}
-                                </li>
-                            )}
-                            {type === 'file' && onEdit && (
-                                <li onClick={(e) => {
+                                    setGlobalActivePopup(null);
+                                }}
+                                className="option-item"
+                            >
+                                <FiStar />
+                                <span>{isStarred ? 'Unstar' : 'Star'}</span>
+                            </button>
+                            <button
+                                onClick={(e) => {
                                     e.stopPropagation();
-                                    onEdit(itemId, type, itemName);
+                                    if (onDelete) {
+                                        onDelete(itemIdValue, itemName);
+                                    }
                                     setShowOptions(false);
-                                }}>
-                                    <FiEdit /> Rename
-                                </li>
-                            )}
-                            {type === 'folder' && onDelete && (
-                                <li onClick={(e) => {
+                                    setGlobalActivePopup(null);
+                                }}
+                                className="option-item warning"
+                            >
+                                <FiTrash2 />
+                                <span>Delete</span>
+                            </button>
+                            <button
+                                onClick={(e) => {
                                     e.stopPropagation();
-                                    onDelete(itemId, itemName);
+                                    onEdit(itemIdValue, type, itemName);
                                     setShowOptions(false);
-                                }}>
-                                    <FiTrash2 /> Delete
-                                </li>
-                            )}
-                            {type === 'file' && onDelete && (
-                                <li onClick={(e) => {
+                                    setGlobalActivePopup(null);
+                                }}
+                                className="option-item"
+                            >
+                                <FiEdit />
+                                <span>Rename</span>
+                            </button>
+                            <button
+                                onClick={(e) => {
                                     e.stopPropagation();
-                                    onDelete(itemId, itemName);
+                                    onShare(itemIdValue, type, itemName);
                                     setShowOptions(false);
-                                }}>
-                                    <FiTrash2 /> Delete
-                                </li>
-                            )}
-                            {type === 'folder' && onEdit && (
-                                <li onClick={(e) => {
-                                    e.stopPropagation();
-                                    onEdit(itemId, type, itemName);
-                                    setShowOptions(false);
-                                }}>
-                                    <FiEdit /> Rename
-                                </li>
-                            )}
-                            {onShare && (
-                                <li onClick={(e) => {
-                                    e.stopPropagation();
-                                    onShare(itemId, type, itemName);
-                                    setShowOptions(false);
-                                }}>
-                                    <FiShare2 /> Share
-                                </li>
-                            )}
-                        </ul>
-                    </div>
-                )}
+                                    setGlobalActivePopup(null);
+                                }}
+                                className="option-item"
+                            >
+                                <FiShare2 />
+                                <span>Share</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }
 
-    // List view (matches the image more closely)
+    // List view
     return (
         <div
             ref={itemRef}
-            className={`file-item ${type} ${isSelected ? 'selected' : ''} ${selectionMode ? 'selection-mode' : ''}`}
+            className={`file-item-list ${type} ${isSelected ? 'selected' : ''} ${selectionMode ? 'selection-mode' : ''}`}
             onClick={handleItemClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -362,10 +370,13 @@ const FileItem = ({
                     onChange={() => {}}
                 />
             </div>
-
-            <div className="file-name">
+            
+            <div className="file-icon-container">
                 {getIcon()}
-                <span>{itemName}</span>
+            </div>
+            
+            <div className="file-name">
+                <span title={itemName}>{itemName}</span>
                 {isStarred && (
                     <FiStar
                         className="star-indicator"
@@ -376,101 +387,93 @@ const FileItem = ({
                     />
                 )}
             </div>
-
+            
             <div className="file-shared">
                 {renderSharedAvatars()}
             </div>
-
+            
             <div className="file-date">
                 {createdDate}
             </div>
-
+            
             <div className="file-size">
                 {itemSize}
             </div>
-
+            
             <div className="file-actions">
+                {/* Only show 3-dot menu in list view */}
                 <button
-                    className="action-btn action-more"
+                    className="action-more"
                     onClick={toggleOptions}
                     title="More options"
                 >
-                    <FiMoreVertical size={18} />
+                    <FiMoreVertical />
                 </button>
-            </div>
-
-            {showOptions && (
-                <div className="options-popup" ref={optionsRef}>
-                    <ul>
+                
+                {showOptions && (
+                    <div className="options-popup" ref={optionsRef}>
                         {type === 'file' && onDownload && (
-                            <li onClick={(e) => {
-                                e.stopPropagation();
-                                onDownload(itemId, itemName);
-                                setShowOptions(false);
-                            }}>
-                                <FiDownload /> Download
-                            </li>
+                            <button
+                                onClick={handleDownload}
+                                className="option-item"
+                            >
+                                <FiDownload />
+                                <span>Download</span>
+                            </button>
                         )}
-                        {onStar && (
-                            <li onClick={(e) => {
+                        <button
+                            onClick={(e) => {
                                 e.stopPropagation();
-                                onStar(itemId, type, isStarred);
+                                onStar(itemIdValue, type, isStarred);
                                 setShowOptions(false);
-                            }}>
-                                <FiStar style={{
-                                    color: isStarred ? '#FFD700' : '#666',
-                                    fill: isStarred ? '#FFD700' : 'none'
-                                }} /> {isStarred ? 'Unstar' : 'Star'}
-                            </li>
-                        )}
-                        {type === 'file' && onEdit && (
-                            <li onClick={(e) => {
+                                setGlobalActivePopup(null);
+                            }}
+                            className="option-item"
+                        >
+                            <FiStar />
+                            <span>{isStarred ? 'Unstar' : 'Star'}</span>
+                        </button>
+                        <button
+                            onClick={(e) => {
                                 e.stopPropagation();
-                                onEdit(itemId, type, itemName);
+                                if (onDelete) {
+                                    onDelete(itemIdValue, itemName);
+                                }
                                 setShowOptions(false);
-                            }}>
-                                <FiEdit /> Rename
-                            </li>
-                        )}
-                        {type === 'folder' && onDelete && (
-                            <li onClick={(e) => {
+                                setGlobalActivePopup(null);
+                            }}
+                            className="option-item warning"
+                        >
+                            <FiTrash2 />
+                            <span>Delete</span>
+                        </button>
+                        <button
+                            onClick={(e) => {
                                 e.stopPropagation();
-                                onDelete(itemId, itemName);
+                                onEdit(itemIdValue, type, itemName);
                                 setShowOptions(false);
-                            }}>
-                                <FiTrash2 /> Delete
-                            </li>
-                        )}
-                        {type === 'file' && onDelete && (
-                            <li onClick={(e) => {
+                                setGlobalActivePopup(null);
+                            }}
+                            className="option-item"
+                        >
+                            <FiEdit />
+                            <span>Rename</span>
+                        </button>
+                        <button
+                            onClick={(e) => {
                                 e.stopPropagation();
-                                onDelete(itemId, itemName);
+                                onShare(itemIdValue, type, itemName);
                                 setShowOptions(false);
-                            }}>
-                                <FiTrash2 /> Delete
-                            </li>
-                        )}
-                        {type === 'folder' && onEdit && (
-                            <li onClick={(e) => {
-                                e.stopPropagation();
-                                onEdit(itemId, type, itemName);
-                                setShowOptions(false);
-                            }}>
-                                <FiEdit /> Rename
-                            </li>
-                        )}
-                        {onShare && (
-                            <li onClick={(e) => {
-                                e.stopPropagation();
-                                onShare(itemId, type, itemName);
-                                setShowOptions(false);
-                            }}>
-                                <FiShare2 /> Share
-                            </li>
-                        )}
-                    </ul>
-                </div>
-            )}
+                                setGlobalActivePopup(null);
+                            }}
+                            className="option-item"
+                        >
+                            <FiShare2 />
+                            <span>Share</span>
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

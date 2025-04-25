@@ -340,18 +340,19 @@ button:disabled {
   color: #333;
 }
 
-/* Improved header styling */
+/* Files header */
 .files-header {
   display: grid;
   grid-template-columns: 30px 2fr 1fr 1fr 1fr 42px;
   gap: 10px;
   padding: 12px 15px;
   background-color: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid #e0e0e0;
   font-weight: 500;
-  color: #495057;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  color: #5f6368;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
 }
 
 .header-item {
@@ -361,17 +362,20 @@ button:disabled {
   user-select: none;
   padding: 8px;
   border-radius: 4px;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .header-item:hover {
-  background-color: #e9ecef;
-  color: #212529;
+  color: #202124;
+}
+
+.header-item span {
+  font-weight: 600;
 }
 
 .header-item.header-name {
   font-weight: 600;
-  color: #212529;
+  color: #202124;
 }
 
 .header-item.header-date,
@@ -448,6 +452,38 @@ button:disabled {
   text-align: center;
 }
 
+/* List view file item */
+.file-item-list {
+  display: grid;
+  grid-template-columns: 30px 30px 1fr 1fr 1fr 1fr 42px;
+  gap: 10px;
+  padding: 10px 15px;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+  max-height: 80px;
+}
+
+.file-item-list:hover {
+  background-color: #f8f9fa;
+}
+
+.file-item-list .file-name {
+  color: #202124;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-date, .file-size {
+  color: #5f6368;
+  font-size: 14px;
+}
+
 /* FileItem Component Styles */
 .file-item {
   display: grid;
@@ -504,8 +540,9 @@ button:disabled {
   gap: 5px;
   justify-content: flex-end;
   position: relative;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.2s ease;
+  z-index: 5;
 }
 
 .file-item .file-actions.visible {
@@ -514,32 +551,33 @@ button:disabled {
 
 /* Make action buttons 20% larger */
 .file-item .action-btn {
-  background: none;
+  background: transparent;
   border: none;
-  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  padding: 6px;
-  border-radius: 50%;
-  transition: background-color 0.2s ease;
-  font-size: 1.2em;
-  /* Make icons 20% larger */
+  margin: 0 2px;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  color: #666;
+  z-index: 10;
 }
 
 .file-item .action-btn:hover {
-  color: #495057;
-  transform: scale(1.1);
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #000;
 }
 
-.file-item .action-download:hover {
+.file-item .action-download {
   color: #0d6efd;
+  opacity: 1;
+  visibility: visible;
 }
 
 .file-item .action-star:hover {
   color: #ffc107;
-}
-
-.file-item .action-delete:hover {
-  color: #dc3545;
 }
 
 .file-item .action-edit:hover {
@@ -557,22 +595,23 @@ button:disabled {
 
 /* Make three dots always visible */
 .file-item .action-more.always-visible {
+  display: flex;
   opacity: 1;
   visibility: visible;
-  display: block !important;
 }
 
 /* Options Popup */
 .options-popup {
   position: absolute;
+  top: 100%;
   right: 0;
-  top: 30px;
-  background: white;
+  z-index: 1000;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  z-index: 9999;
+  overflow: hidden;
   min-width: 150px;
-  overflow: visible;
+  animation: popup-appear 0.2s ease-out;
 }
 
 @keyframes popup-appear {
@@ -594,34 +633,31 @@ button:disabled {
 }
 
 .options-popup li {
-  padding: 8px 15px;
+  padding: 8px 16px;
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  font-size: 14px;
+  color: #3c4043;
+  transition: background-color 0.2s;
 }
 
 .options-popup li:hover {
-  background-color: #f8f9fa;
+  background-color: #f1f3f4;
 }
 
-.options-popup li:first-child {
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-}
-
-.options-popup li:last-child {
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
+.options-popup li svg {
+  color: #5f6368;
+  font-size: 16px;
 }
 
 /* File select checkbox animation */
 .file-select input[type="checkbox"] {
   cursor: pointer;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 2px solid #ddd;
   border-radius: 3px;
   position: relative;
@@ -629,8 +665,8 @@ button:disabled {
 }
 
 .file-select input[type="checkbox"]:checked {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #1a73e8;
+  border-color: #1a73e8;
 }
 
 .file-select input[type="checkbox"]:checked::after {
@@ -956,8 +992,9 @@ button:disabled {
   gap: 5px;
   justify-content: flex-end;
   position: relative;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.2s ease;
+  z-index: 5;
 }
 
 .file-item:hover .file-actions,
@@ -966,17 +1003,48 @@ button:disabled {
   opacity: 1;
 }
 
-/* Options popup positioning */
-.file-item .options-popup {
-  position: absolute;
-  right: 0;
-  top: 30px;
-  z-index: 100;
+/* Make 3-dot menu always visible in list view */
+.file-item.list-view .action-more {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
 }
 
-/* Always show file actions */
-.file-item .file-actions.always-show {
+/* Ensure options popup is positioned correctly */
+.options-popup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 150px;
+  animation: popup-appear 0.2s ease-out;
+}
+
+/* Fix download functionality by ensuring click events propagate correctly */
+.file-item .action-btn {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  color: #666;
+  z-index: 10;
+}
+
+/* Style specifically for download button */
+.file-item .action-download {
+  color: #0d6efd;
   opacity: 1;
+  visibility: visible;
 }
 
 /* Additional file type icons */
@@ -1008,12 +1076,6 @@ button:disabled {
   color: #6c757d;
 }
 
-/* Fix popup positioning */
-.file-actions {
-  position: relative;
-  z-index: 10;
-}
-
 /* Files divider */
 .files-divider {
   display: none;
@@ -1034,13 +1096,13 @@ button:disabled {
 /* Fix header grid alignment to match FileItem */
 .files-header {
   display: grid;
-  grid-template-columns: 30px 2fr 1fr 1fr 1fr 42px;
+  grid-template-columns: 40px 2.1fr 1.5fr 2fr 1fr 1fr 42px;
   gap: 10px;
   padding: 12px 15px;
   background-color: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid #e0e0e0;
   font-weight: 500;
-  color: #495057;
+  color: #5f6368;
 }
 
 /* Ensure file actions container is properly sized */
@@ -1454,9 +1516,7 @@ button:disabled {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80px;
   width: 100%;
-  margin-bottom: 12px;
 }
 
 .file-details {
@@ -1487,17 +1547,133 @@ button:disabled {
   top: 8px;
   right: 8px;
   display: flex;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 4px;
-  padding: 4px;
+  flex-direction: column;
+  align-items: flex-end;
+  z-index: 5;
 }
 
 .file-item-grid:hover .file-actions-grid,
 .file-actions-grid.visible {
   opacity: 1;
+}
+
+/* Style the 3-dot menu button in grid view */
+.file-actions-grid .action-more {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.2s;
+  padding: 0;
+}
+
+.file-actions-grid .action-more:hover {
+  background-color: #f1f1f1;
+  color: #202124;
+}
+
+/* Popup options menu styling */
+.options-popup {
+  position: absolute;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  width: 180px;
+  z-index: 1000;
+  right: 0;
+  top: 100%;
+  padding: 8px 0;
+  animation: popup-appear 0.2s ease-out;
+  overflow: hidden;
+}
+
+/* Style the option items to look like buttons */
+.option-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  color: #202124;
+  font-size: 14px;
+  transition: background-color 0.15s;
+}
+
+.option-item:hover {
+  background-color: #f1f3f4;
+}
+
+.option-item svg {
+  margin-right: 12px;
+  font-size: 16px;
+  color: #5f6368;
+}
+
+.option-item.warning {
+  color: #ea4335;
+}
+
+.option-item.warning svg {
+  color: #ea4335;
+}
+
+/* Fix for list view to only show 3-dot menu */
+.file-item-list .file-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.file-item-list .action-more {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #5f6368;
+  transition: background-color 0.2s;
+  padding: 0;
+}
+
+.file-item-list .action-more:hover {
+  background-color: #f1f1f1;
+  color: #202124;
+}
+
+/* Ensure popup appears in correct position for list view */
+.file-item-list .options-popup {
+  right: 0;
+  top: 100%;
+}
+
+/* Make options popup responsive */
+@media (max-width: 600px) {
+  .options-popup {
+    width: 160px;
+  }
+  
+  .option-item {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .option-item svg {
+    margin-right: 8px;
+  }
 }
 
 /* Grid view specific file type styling */
@@ -1577,7 +1753,7 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 15px;
+  padding: 8px 15px;
   background-color: #f8f9fa;
   border-bottom: 1px solid #e0e0e0;
   min-height: 40px;
@@ -1587,36 +1763,40 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 10px;
+  color: #202124;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .clear-selection {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 18px;
   color: #5f6368;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
+  transition: background-color 0.2s;
 }
 
 .clear-selection:hover {
   background-color: #e8eaed;
+  color: #202124;
 }
 
 .selection-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
 }
 
 .selection-actions .action-btn {
   background: none;
   border: none;
-  color: #5f6368;
   cursor: pointer;
   width: 36px;
   height: 36px;
@@ -1624,12 +1804,30 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  color: #5f6368;
 }
 
 .selection-actions .action-btn:hover {
   background-color: #e8eaed;
-  color: #202124;
+}
+
+/* Specific styles for star button */
+.selection-actions .star-btn {
+  color: #5f6368;
+}
+
+.selection-actions .star-btn:hover {
+  color: #f8c022;
+}
+
+/* Specific styles for trash button */
+.selection-actions .trash-btn {
+  color: #5f6368;
+}
+
+.selection-actions .trash-btn:hover {
+  color: #ea4335;
 }
 
 /* Shared avatars */
@@ -1675,61 +1873,86 @@ button:disabled {
   font-weight: 500;
 }
 
-/* Sort dropdown */
-.sort-dropdown .sort-btn {
-  background: none;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #5f6368;
+/* Sort dropdown styles */
+.sort-dropdown {
+  position: relative;
+  margin-left: 10px;
+}
+
+.sort-btn {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #dadce0;
+  background-color: white;
+  color: #5f6368;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.sort-btn:hover {
+  background-color: #f1f3f4;
+  color: #202124;
 }
 
 .sort-btn svg {
   font-size: 12px;
   margin-left: 4px;
+  transition: transform 0.2s;
 }
 
-/* Display toggle */
-.display-toggle {
+.sort-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: popup-appear 0.2s ease-out;
+}
+
+.sort-option {
   display: flex;
   align-items: center;
-  padding: 0 12px;
-}
-
-.toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 20px;
-  background-color: #ccc;
-  border-radius: 20px;
-  transition: all 0.3s;
+  padding: 10px 16px;
   cursor: pointer;
-  appearance: none;
+  transition: background-color 0.15s;
+  font-size: 14px;
+  color: #202124;
 }
 
-.toggle-switch:checked {
-  background-color: #4285f4;
+.sort-option:hover {
+  background-color: #f1f3f4;
 }
 
-.toggle-switch:before {
-  position: absolute;
-  content: "";
-  height: 16px;
+.sort-option.active {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  font-weight: 500;
+}
+
+.sort-option svg {
+  margin-right: 12px;
+  font-size: 16px;
   width: 16px;
-  left: 2px;
-  bottom: 2px;
-  border-radius: 50%;
-  background-color: white;
-  transition: all 0.3s;
 }
 
-.toggle-switch:checked:before {
-  transform: translateX(20px);
+.sort-option span {
+  flex: 1;
+}
+
+.sort-indicator {
+  margin-left: 8px;
+  font-weight: 600;
 }
 
 /* Make drive header match UI in image */
@@ -1829,12 +2052,12 @@ button:disabled {
   position: absolute;
   right: 0;
   top: 30px;
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  min-width: 160px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  border: 1px solid #dadce0;
+  width: 160px;
+  overflow: hidden;
 }
 
 .options-popup ul {
@@ -1861,4 +2084,371 @@ button:disabled {
 .options-popup li svg {
   color: #5f6368;
   font-size: 16px;
+}
+
+/* Add or modify these styles to ensure 3-dot menu is always visible in list view */
+.file-item .action-more.always-visible {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Ensure options popup is positioned correctly and clickable */
+.options-popup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 150px;
+  animation: popup-appear 0.2s ease-out;
+}
+
+/* Fix any potential issues with action buttons */
+.file-item .action-btn {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  color: #666;
+}
+
+.file-item .action-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #000;
+}
+
+/* Fix any potential issues with list display */
+.file-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 40px;
+}
+
+.list-view .file-item .action-btn.list-view-menu {
+    opacity: 1;
+    visibility: visible;
+}
+
+.list-view .file-item .action-btn.action-download {
+    opacity: 1;
+    visibility: visible;
+    margin-right: 8px;
+}
+
+.file-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.list-view .file-actions {
+    width: auto;
+    padding-right: 10px;
+}
+
+.options-popup {
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 160px;
+    overflow: hidden;
+}
+
+/* Ensure list view action buttons are always visible */
+.list-view .file-item .file-actions {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 8px;
+}
+
+.list-view .file-item .action-btn {
+    opacity: 1 !important;
+    visibility: visible !important;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    padding: 6px;
+    transition: background-color 0.2s;
+}
+
+.list-view .file-item .action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.list-view .file-item .action-btn.action-download {
+    color: #1976d2;
+}
+
+.list-view .file-item .action-btn.list-view-menu {
+    color: #555;
+}
+
+/* Improve options popup styling */
+.options-popup {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 5px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    min-width: 180px;
+    overflow: hidden;
+}
+
+/* List View Enhancements */
+.file-item {
+    position: relative;
+}
+
+/* Ensure action buttons are always visible in list view without hover */
+.file-item .file-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 10px;
+}
+
+/* Make buttons always visible in list view */
+.file-item .file-actions .action-btn {
+    opacity: 1;
+    visibility: visible;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.file-item .file-actions .action-btn:hover {
+    background-color: #e9e9e9;
+}
+
+.file-item .file-actions .action-download {
+    color: #4285f4;
+}
+
+.file-item .file-actions .action-download:hover {
+    background-color: #e8f0fe;
+}
+
+.file-item .file-actions .action-more {
+    color: #555;
+}
+
+.file-item .file-actions .action-more:hover {
+    background-color: #e9e9e9;
+}
+
+/* Explicitly style the options popup */
+.options-popup {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    min-width: 160px;
+    overflow: hidden;
+}
+
+.options-popup ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.options-popup li {
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.options-popup li:hover {
+    background-color: #f5f5f5;
+}
+
+/* Specific list view adjustments */
+.file-item.selection-mode .file-actions {
+    opacity: 1;
+}
+
+/* Ensure buttons in list view aren't hidden */
+.list-view-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* List View Enhancements */
+.list-view .file-item {
+  position: relative;
+}
+
+.list-view .file-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative;
+}
+
+.list-view .file-actions .action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.list-view .file-actions .action-btn:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.list-view .file-actions .action-download,
+.list-view .file-actions .action-more,
+.list-view .list-view-menu {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.options-popup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  width: 150px;
+  z-index: 100;
+}
+
+.options-popup ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.options-popup li {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.options-popup li:hover {
+  background-color: #f5f5f5;
+}
+
+/* Folder icon styling */
+.folder-icon {
+  color: #f8d775 !important;
+  font-size: 1.4em;
+}
+
+/* Improved 3-dot menu button */
+.file-item-list .action-more {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #5f6368;
+  transition: background-color 0.2s;
+  padding: 0;
+}
+
+.file-item-list .action-more:hover {
+  background-color: #f1f1f1;
+  color: #202124;
+}
+
+/* Make checkbox more visible */
+.file-select input[type="checkbox"] {
+  cursor: pointer;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ddd;
+  border-radius: 3px;
+  position: relative;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.file-select input[type="checkbox"]:checked {
+  background-color: #1a73e8;
+  border-color: #1a73e8;
+}
+
+.file-select input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  font-size: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Sort dropdown responsive adjustments */
+@media (max-width: 768px) {
+  .sort-dropdown {
+    margin-left: 0;
+  }
+  
+  .sort-btn {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+  
+  .sort-dropdown-menu {
+    width: 180px;
+    right: 0;
+  }
+  
+  .sort-option {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sort-btn {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  
+  .sort-dropdown-menu {
+    width: 160px;
+  }
 }
