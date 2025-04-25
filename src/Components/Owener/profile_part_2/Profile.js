@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './Profile.css';
 
 import AddProfileData from './profile_parts/AddProfileData2';
@@ -12,6 +12,12 @@ import { useUIContext } from '../../../redux/UIContext';
 
 function Profile() {
   const { activeProfileSection } = useUIContext();
+
+  useEffect(() => {
+    if(!activeProfileSection){
+      activeProfileSection = 'User Profile';
+    }
+  }, [activeProfileSection]);
 
   return (
     <div className="profile-container-after-accept profile-without-sidebar">
