@@ -350,7 +350,7 @@ router.get('/folder/:folderId/contents', (req, res) => {
         return res.status(400).json({ error: 'Missing required parameters: folderId, user_email, or created_by' });
     }
 
-    console.log(`Getting child folders for folder ID: ${folderId} for user: ${user_email}`);
+    console.log(`Getting contents for folder ID: ${folderId} for user: ${user_email}`);
 
     // Step 1: Get child folder IDs from drive_folder_structure
     const childFolderQuery = `SELECT child_folder_id FROM drive_folder_structure WHERE parent_folder_id = ?`;
@@ -369,32 +369,46 @@ router.get('/folder/:folderId/contents', (req, res) => {
         const childFolderIds = childFolderIdsResult.map(row => row.child_folder_id);
 
         // Step 2: Get folder details for child folder IDs
-        if (childFolderIds.length === 0) {
-            return res.status(200).json({
-                success: true,
-                message: "No child folders found"
-            });
-        }
-
         const folderQuery = `SELECT * FROM drive_folders WHERE folder_id IN (?) AND created_by = ?`;
+        const fileQuery = `SELECT * FROM drive_files WHERE parent_folder_id = ? AND user_email = ?`;
 
-        db.query(folderQuery, [childFolderIds, created_by], (err, folders) => {
-            if (err) {
-                console.error("Error fetching child folders from database:", err);
-                return res.status(500).json({
-                    error: `Error fetching child folders: ${err.message}`,
+        // Execute both queries in parallel
+        Promise.all([
+            new Promise((resolve, reject) => {
+                if (childFolderIds.length === 0) {
+                    resolve([]);
+                } else {
+                    db.query(folderQuery, [childFolderIds, created_by], (err, folders) => {
+                        if (err) reject(err);
+                        else resolve(folders);
+                    });
+                }
+            }),
+            new Promise((resolve, reject) => {
+                db.query(fileQuery, [folderId, user_email], (err, files) => {
+                    if (err) reject(err);
+                    else resolve(files);
+                });
+            })
+        ])
+            .then(([folders, files]) => {
+                // Return both folders and files
+                res.status(200).json({
+                    success: true,
+                    folders: folders,
+                    files: files,
+                    message: folders.length === 0 && files.length === 0 ? "No folders or files found" : undefined
+                });
+            })
+            .catch(err => {
+                console.error("Error fetching contents from database:", err);
+                res.status(500).json({
+                    error: `Error fetching contents: ${err.message}`,
                     code: err.code,
                     sqlState: err.sqlState,
                     sqlMessage: err.sqlMessage
                 });
-            }
-
-            // Return child folders
-            res.status(200).json({
-                success: true,
-                folders: folders
             });
-        });
     });
 });
 
