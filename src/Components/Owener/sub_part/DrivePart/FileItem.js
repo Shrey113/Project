@@ -271,9 +271,6 @@ const FileItem = ({
                             />
                         )}
                     </div>
-                    <div className="file-meta-grid">
-                        {itemSize}
-                    </div>
                 </div>
                 
                 {/* In grid view, only show 3-dot menu */}
