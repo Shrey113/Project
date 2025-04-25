@@ -19,10 +19,7 @@
 
 .file-item {
   position: relative;
-  aspect-ratio: 1;
-  border-radius: 8px;
   overflow: hidden;
-  padding: 10px;
 }
 
 .file-item:hover {

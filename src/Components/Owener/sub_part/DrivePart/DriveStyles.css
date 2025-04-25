@@ -178,10 +178,6 @@ h3 {
   transition: background-color 0.2s;
 }
 
-/* button:hover {
-  background-color: #3367d6;
-} */
-
 button:disabled {
   background-color: #b7b7b7;
   cursor: not-allowed;
@@ -271,6 +267,15 @@ button:disabled {
   overflow: visible;
 }
 
+/* loader */
+.files-container .loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #333;
+}
+
 /* Improved header styling */
 .files-header {
   display: grid;
@@ -281,6 +286,8 @@ button:disabled {
   border-bottom: 1px solid #e9ecef;
   font-weight: 500;
   color: #495057;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
 .header-item {
@@ -294,18 +301,36 @@ button:disabled {
 }
 
 .header-item:hover {
-  background-color: #f1f1f1;
-  color: #333;
+  background-color: #e9ecef;
+  color: #212529;
 }
 
-.header-item span {
-  margin-right: 8px;
+.header-item.header-name {
+  font-weight: 600;
+  color: #212529;
+}
+
+.header-item.header-date,
+.header-item.header-size {
+  font-weight: 500;
+  color: #343a40;
+}
+
+.header-item.header-actions {
+  text-align: center;
+  cursor: default;
+}
+
+.header-item.header-actions:hover {
+  background-color: transparent;
 }
 
 /* Sort icons */
 .sort-icon {
-  margin-left: 5px;
-  font-weight: bold;
+  margin-left: 8px;
+  font-size: 0.85em;
+  color: #6c757d;
+  transition: transform 0.2s ease;
 }
 
 .sort-icon.active {
@@ -364,7 +389,8 @@ button:disabled {
   display: grid;
   grid-template-columns: 30px 3fr 1fr 1fr 130px;
   gap: 10px;
-  padding: 12px 15px;
+  padding: 10px;
+  align-content: center;
   height: 50px;
   width: 100%;
   align-items: center;
@@ -443,7 +469,6 @@ button:disabled {
 }
 
 .file-item .action-btn:hover {
-  background-color: #e9ecef;
   color: #495057;
   transform: scale(1.1);
 }
@@ -1162,4 +1187,139 @@ button:disabled {
 
 .preview-download-btn:hover {
   background-color: #1976d2;
+}
+
+/* Download progress overlay */
+.download-progress-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.download-progress-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.download-progress-container p {
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.download-progress-container .progress-bar {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.download-progress-container .progress {
+  height: 100%;
+  background-color: #4285f4;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Improved action buttons styles */
+.file-item .action-btn.action-download {
+  color: #0d6efd;
+}
+
+.file-item .action-btn.action-star {
+  color: #ffc107;
+}
+
+.file-item .action-btn.action-share {
+  color: #20c997;
+}
+
+.file-item .action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Breadcrumb navigation */
+.breadcrumb-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.9rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0 10px;
+}
+
+.breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: 3px;
+}
+
+.breadcrumb-item.clickable {
+  cursor: pointer;
+  color: #4285f4;
+}
+
+.breadcrumb-item.clickable:hover {
+  background-color: #e8eaed;
+  text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+  font-weight: 600;
+  color: #202124;
+}
+
+.breadcrumb-separator {
+  margin: 0 3px;
+  color: #5f6368;
+}
+
+.path-navigation {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.path-navigation button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background-color: white;
+  border: 1px solid #dadce0;
+  color: #5f6368;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.path-navigation button:hover:not(:disabled) {
+  background-color: #f1f3f4;
+  color: #202124;
+}
+
+.path-navigation button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faUpload, faPlusSquare, faSync } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faUpload, faPlusSquare, faSync, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
 import { Server_url, FileLoaderToast } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
@@ -26,6 +26,7 @@ function DriveHome() {
     const [storageUsed, setStorageUsed] = useState(0)
     const [storageLimit, setStorageLimit] = useState(1024) // 1GB in MB
     const [refreshKey, setRefreshKey] = useState(0) // Add a refresh key to force re-renders
+    const [breadcrumbPath, setBreadcrumbPath] = useState([]) // Add state for breadcrumb path
 
     // Rename dialog state variables
     const [showRenameDialog, setShowRenameDialog] = useState(false)
@@ -33,7 +34,7 @@ function DriveHome() {
     const [renameItemId, setRenameItemId] = useState(null)
     const [renameItemOldName, setRenameItemOldName] = useState('')
     const [renameItemNewName, setRenameItemNewName] = useState('') // Initialize with empty string
-    const [dialogMode, setDialogMode] = useState('rename') // 'rename' or 'create'
+    const [dialogMode, setDialogMode] = useState('rename')
 
     const [previewFile, setPreviewFile] = useState(null);
 
@@ -54,9 +55,20 @@ function DriveHome() {
             console.log("Fetching files and folders, currentFolder:", currentFolder);
 
             try {
-                // Use query parameters for both user_email and created_by
-                const url = new URL(`${Server_url}/drive/get_all_files_and_folders/${created_by}`);
-                url.searchParams.append('user_email', user_email);
+                let url;
+
+                if (currentFolder) {
+                    // If we're in a folder, use the new endpoint to get only its contents
+                    url = new URL(`${Server_url}/drive/folder/${currentFolder}/contents`);
+                    url.searchParams.append('user_email', user_email);
+                    url.searchParams.append('created_by', created_by);
+                } else {
+                    // If we're at the root, get all files and folders as before
+                    url = new URL(`${Server_url}/drive/get_all_files_and_folders/${created_by}`);
+                    url.searchParams.append('user_email', user_email);
+                    // Reset breadcrumb at root level
+                    setBreadcrumbPath([]);
+                }
 
                 const response = await fetch(url.toString());
 
@@ -70,35 +82,41 @@ function DriveHome() {
                 const data = await response.json();
                 console.log("Files and folders fetched:", data);
 
-                // Handle the updated response format that now contains both files and folders
-                if (data.files) {
-                    console.log("Filessssssssss:", data.files);
+                // Handle the response format
+                if (currentFolder && data.success) {
+                    // Set files and folders from the response
+                    setFiles(data.files || []);
+                    setFolders(data.folders || []);
 
-                    setFiles(data.files);
-                }
+                    // Update breadcrumb path if available from server
+                    if (data.breadcrumb && data.breadcrumb.length > 0) {
+                        setBreadcrumbPath(data.breadcrumb);
+                    }
+                    // Note: we keep existing breadcrumb if server doesn't provide one
+                    // This is handled by the navigateToFolder function
+                } else {
+                    // Handle the response for root level
+                    if (data.files) {
+                        console.log("Files:", data.files);
+                        setFiles(data.files.filter(file => !file.parent_folder_id || file.parent_folder_id === 0));
+                    }
 
-                if (data.folders) {
-                    console.log("Folderssssssssssssssss:", data.folders);
+                    if (data.folders) {
+                        console.log("Folders:", data.folders);
+                        setFolders(data.folders.filter(folder => !folder.parent_folder_id || folder.parent_folder_id === 0));
+                    }
 
-                    setFolders(data.folders);
+                    // Reset breadcrumb for root level
+                    setBreadcrumbPath([]);
                 }
             } catch (error) {
                 console.error('Error fetching files and folders:', error);
-                // Fallback to sample data
-                setFolders([
-                    { folder_id: 1, folder_name: 'Documents', created_at: new Date().toISOString() },
-                    { folder_id: 2, folder_name: 'Images', created_at: new Date().toISOString() }
-                ]);
-                setFiles([
-                    { file_id: 1, file_name: 'Report.pdf', file_size: 2.4, file_type: 'pdf', created_at: new Date().toISOString() },
-                    { file_id: 2, file_name: 'Presentation.pptx', file_size: 5.7, file_type: 'pptx', created_at: new Date().toISOString() }
-                ]);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        // Load initial files and folders
+        // Load files and folders
         fetchFilesAndFolders();
 
         const fetchStorageInfo = async () => {
@@ -117,7 +135,7 @@ function DriveHome() {
 
         // Get storage info
         fetchStorageInfo()
-    }, [activeProfileSection, setActiveProfileSection, refreshKey, currentFolder, created_by, user_email]) // Add refreshKey to dependencies
+    }, [activeProfileSection, setActiveProfileSection, refreshKey, currentFolder, created_by, user_email]) // Add currentFolder to dependencies
 
     // Add handleOpenRenameDialog function
     const handleOpenRenameDialog = (id, type, currentName) => {
@@ -229,7 +247,7 @@ function DriveHome() {
                 }
             } else {
                 // CREATE FOLDER OPERATION
-                console.log(`Creating folder: ${renameItemNewName}`);
+                console.log(`Creating folder: ${renameItemNewName}${currentFolder ? ` in parent folder ID: ${currentFolder}` : ' at root level'}`);
 
                 const response = await fetch(`${Server_url}/drive/create-folder`, {
                     method: 'POST',
@@ -240,7 +258,8 @@ function DriveHome() {
                         folder_name: renameItemNewName,
                         created_by: created_by,
                         user_email: user_email,
-                        modified_by: created_by
+                        modified_by: created_by,
+                        parent_folder_id: currentFolder || null // Include current folder as parent if we're in a folder
                     })
                 });
 
@@ -289,9 +308,15 @@ function DriveHome() {
                 const uploadUrl = new URL(`${Server_url}/drive/upload-file`);
                 uploadUrl.searchParams.append('created_by', created_by);
                 uploadUrl.searchParams.append('user_email', user_email);
+                uploadUrl.searchParams.append('parent_folder_id', currentFolder || null);
 
-                // All files are now uploaded directly to user's drive folder
-                console.log("Uploading to user's drive folder");
+                // Add current folder ID if we're in a folder
+                if (currentFolder) {
+                    uploadUrl.searchParams.append('parent_folder_id', currentFolder);
+                    console.log(`Uploading to folder ID: ${currentFolder}`);
+                } else {
+                    console.log("Uploading to root folder");
+                }
 
                 console.log("Sending request to:", uploadUrl.toString());
 
@@ -326,28 +351,76 @@ function DriveHome() {
     };
 
     const navigateToFolder = (folderId, folderName) => {
-        // We're not actually navigating between folders since our system now just shows all files
-        // But we'll update the path for display purposes
-        setCurrentFolder(folderId)
-        setCurrentPath(currentPath === '/' ? `/${folderName}` : `${currentPath}/${folderName}`)
+        console.log(`Navigating to folder: ${folderName} (ID: ${folderId})`);
 
-        // Just reload the files list - the backend will return all files regardless
-        refreshDrive();
+        // Reset file and folder states
+        setFiles([]);
+        setFolders([]);
+
+        // Update current folder
+        setCurrentFolder(folderId);
+
+        // Update breadcrumb path manually if not provided by the API
+        // This ensures we maintain the path even if the API response is slow
+        if (currentFolder) {
+            // We're navigating deeper, so add to the breadcrumb
+            const currentFolderInfo = breadcrumbPath.length > 0
+                ? breadcrumbPath[breadcrumbPath.length - 1]
+                : null;
+
+            // Only add the new folder to breadcrumb if it's not already the current folder
+            if (!currentFolderInfo || currentFolderInfo.id !== folderId) {
+                setBreadcrumbPath([
+                    ...breadcrumbPath,
+                    { id: folderId, name: folderName }
+                ]);
+            }
+        } else {
+            // If we were at root, just add this folder to breadcrumb
+            setBreadcrumbPath([{ id: folderId, name: folderName }]);
+        }
+
+        // Update path for backward compatibility
+        setCurrentPath(currentPath === '/' ? `/${folderName}` : `${currentPath}/${folderName}`);
+
+        // No need to call refreshDrive() as the useEffect will trigger due to currentFolder change
     }
 
     const navigateUp = () => {
-        if (currentPath === '/') return
+        if (breadcrumbPath.length <= 1) {
+            // If at root or only one level deep, go to root
+            setCurrentFolder(null);
+            setCurrentPath('/');
+            setBreadcrumbPath([]);
+            return;
+        }
 
-        // Just for display purposes
-        const pathParts = currentPath.split('/')
-        pathParts.pop() // Remove current folder name
-        const newPath = pathParts.join('/') || '/'
+        // Navigate to the parent folder
+        const newBreadcrumbPath = [...breadcrumbPath];
+        newBreadcrumbPath.pop(); // Remove the current folder from breadcrumb
 
-        setCurrentFolder(null)
-        setCurrentPath(newPath)
+        const parentFolder = newBreadcrumbPath.length > 0
+            ? newBreadcrumbPath[newBreadcrumbPath.length - 1]
+            : null;
 
-        // Just reload the files list
-        refreshDrive();
+        if (parentFolder) {
+            console.log(`Navigating up to: ${parentFolder.name} (ID: ${parentFolder.id})`);
+            setCurrentFolder(parentFolder.id);
+            setBreadcrumbPath(newBreadcrumbPath);
+
+            // Path will be updated by the API response
+            // Keep this for backward compatibility
+            const pathParts = currentPath.split('/');
+            pathParts.pop();
+            setCurrentPath(pathParts.join('/') || '/');
+        } else {
+            // If something went wrong with the breadcrumb, go to root
+            setCurrentFolder(null);
+            setCurrentPath('/');
+            setBreadcrumbPath([]);
+        }
+
+        // No need to call refreshDrive() as the useEffect will trigger
     }
 
     const toggleSelectItem = (id, type) => {
@@ -723,8 +796,42 @@ function DriveHome() {
             </div>
 
             <div className="path-navigation">
-                <button onClick={navigateUp} disabled={currentPath === '/' || isLoading}>Up</button>
-                <span className="current-path">{currentPath}</span>
+                <button onClick={navigateUp} disabled={!currentFolder || isLoading}>
+                    <FontAwesomeIcon icon={faArrowLeft} /> Up
+                </button>
+
+                {/* Improved breadcrumb navigation */}
+                <div className="breadcrumb-container">
+                    <span
+                        className="breadcrumb-item clickable"
+                        onClick={() => {
+                            setCurrentFolder(null);
+                            setCurrentPath('/');
+                            setBreadcrumbPath([]);
+                        }}
+                    >
+                        Home
+                    </span>
+
+                    {breadcrumbPath.map((item, index) => (
+                        <span key={item.id || index}>
+                            <span className="breadcrumb-separator">/</span>
+                            <span
+                                className={`breadcrumb-item ${index === breadcrumbPath.length - 1 ? 'active' : 'clickable'}`}
+                                onClick={() => {
+                                    if (index < breadcrumbPath.length - 1) {
+                                        // Navigate to this folder in the path
+                                        setCurrentFolder(item.id);
+                                        // Update breadcrumb to include only up to this point
+                                        setBreadcrumbPath(breadcrumbPath.slice(0, index + 1));
+                                    }
+                                }}
+                            >
+                                {item.name}
+                            </span>
+                        </span>
+                    ))}
+                </div>
             </div>
 
             <div className="files-container">
@@ -771,8 +878,17 @@ function DriveHome() {
                     <div className="files-list">
                         {sortedFolders.length === 0 && sortedFiles.length === 0 ? (
                             <div className="empty-state">
-                                <p>This folder is empty</p>
-                                <p>Upload files or create folders to get started</p>
+                                {currentFolder ? (
+                                    <>
+                                        <p>This folder is empty</p>
+                                        <p>Upload files or create folders inside this folder to get started</p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p>Your drive is empty</p>
+                                        <p>Upload files or create folders to get started</p>
+                                    </>
+                                )}
                             </div>
                         ) : (
                             // Render all items in one list
