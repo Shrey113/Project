@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash,faArrowLeft, faThLarge, faList, faDownload, faShare, faEllipsisH, faUpload, faPlusSquare, faSearch, faSort, faSortAlphaDown, faSortAlphaUp, faCalendarAlt, faFileAlt, faStar, faCaretDown } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faArrowLeft, faThLarge, faList, faDownload, faShare, faEllipsisH, faUpload, faPlusSquare, faSearch, faSort, faSortAlphaDown, faSortAlphaUp, faCalendarAlt, faFileAlt, faStar, faCaretDown } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
 import { Server_url, FileLoaderToast } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
@@ -42,7 +42,7 @@ function DriveHome() {
     const [dialogMode, setDialogMode] = useState('rename')
 
     const [previewFile, setPreviewFile] = useState(null);
-    
+
     // Sample data to match the UI in the image
     const demoFiles = [
         {
@@ -53,10 +53,10 @@ function DriveHome() {
             created_at: '2023-07-10T12:00:00',
             is_starred: false,
             shared_with: [
-                {id: 1, avatar: 'avatar1.jpg'},
-                {id: 2, avatar: 'avatar2.jpg'},
-                {id: 3, avatar: 'avatar3.jpg'},
-                {id: 4, avatar: 'avatar4.jpg'}
+                { id: 1, avatar: 'avatar1.jpg' },
+                { id: 2, avatar: 'avatar2.jpg' },
+                { id: 3, avatar: 'avatar3.jpg' },
+                { id: 4, avatar: 'avatar4.jpg' }
             ]
         },
         {
@@ -67,10 +67,10 @@ function DriveHome() {
             created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
             is_starred: false,
             shared_with: [
-                {id: 1, avatar: 'avatar1.jpg'},
-                {id: 2, avatar: 'avatar2.jpg'},
-                {id: 3, avatar: 'avatar3.jpg'},
-                {id: 4, avatar: '+2'}
+                { id: 1, avatar: 'avatar1.jpg' },
+                { id: 2, avatar: 'avatar2.jpg' },
+                { id: 3, avatar: 'avatar3.jpg' },
+                { id: 4, avatar: '+2' }
             ]
         },
         {
@@ -81,13 +81,13 @@ function DriveHome() {
             created_at: '2023-07-15T12:00:00',
             is_starred: false,
             shared_with: [
-                {id: 1, avatar: 'avatar1.jpg'},
-                {id: 2, avatar: 'avatar2.jpg'},
-                {id: 3, avatar: 'avatar3.jpg'}
+                { id: 1, avatar: 'avatar1.jpg' },
+                { id: 2, avatar: 'avatar2.jpg' },
+                { id: 3, avatar: 'avatar3.jpg' }
             ]
         }
     ];
-    
+
     const demoFolders = [
         {
             folder_id: 1,
@@ -96,12 +96,12 @@ function DriveHome() {
             created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
             is_starred: false,
             shared_with: [
-                {id: 1, avatar: 'avatar1.jpg'},
-                {id: 2, avatar: 'avatar2.jpg'},
-                {id: 3, avatar: 'avatar3.jpg'},
-                {id: 4, avatar: 'avatar4.jpg'},
-                {id: 5, avatar: 'avatar5.jpg'},
-                {id: 6, avatar: 'R'}
+                { id: 1, avatar: 'avatar1.jpg' },
+                { id: 2, avatar: 'avatar2.jpg' },
+                { id: 3, avatar: 'avatar3.jpg' },
+                { id: 4, avatar: 'avatar4.jpg' },
+                { id: 5, avatar: 'avatar5.jpg' },
+                { id: 6, avatar: 'R' }
             ]
         },
         {
@@ -111,11 +111,11 @@ function DriveHome() {
             created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
             is_starred: false,
             shared_with: [
-                {id: 1, avatar: 'avatar1.jpg'},
-                {id: 2, avatar: 'avatar2.jpg'},
-                {id: 3, avatar: 'avatar3.jpg'},
-                {id: 4, avatar: 'avatar4.jpg'},
-                {id: 5, avatar: 'avatar5.jpg'}
+                { id: 1, avatar: 'avatar1.jpg' },
+                { id: 2, avatar: 'avatar2.jpg' },
+                { id: 3, avatar: 'avatar3.jpg' },
+                { id: 4, avatar: 'avatar4.jpg' },
+                { id: 5, avatar: 'avatar5.jpg' }
             ]
         },
         {
@@ -125,11 +125,11 @@ function DriveHome() {
             created_at: '2023-09-20T12:00:00',
             is_starred: false,
             shared_with: [
-                {id: 1, avatar: 'avatar1.jpg'},
-                {id: 2, avatar: 'avatar2.jpg'},
-                {id: 3, avatar: 'avatar3.jpg'},
-                {id: 4, avatar: 'avatar4.jpg'},
-                {id: 5, avatar: 'avatar5.jpg'}
+                { id: 1, avatar: 'avatar1.jpg' },
+                { id: 2, avatar: 'avatar2.jpg' },
+                { id: 3, avatar: 'avatar3.jpg' },
+                { id: 4, avatar: 'avatar4.jpg' },
+                { id: 5, avatar: 'avatar5.jpg' }
             ]
         },
         {
@@ -139,10 +139,10 @@ function DriveHome() {
             created_at: '2023-09-21T12:00:00',
             is_starred: false,
             shared_with: [
-                {id: 1, avatar: 'avatar1.jpg'},
-                {id: 2, avatar: 'avatar2.jpg'},
-                {id: 3, avatar: 'avatar3.jpg'},
-                {id: 4, avatar: 'avatar4.jpg'}
+                { id: 1, avatar: 'avatar1.jpg' },
+                { id: 2, avatar: 'avatar2.jpg' },
+                { id: 3, avatar: 'avatar3.jpg' },
+                { id: 4, avatar: 'avatar4.jpg' }
             ]
         }
     ];
@@ -230,12 +230,10 @@ function DriveHome() {
                 } else {
                     // Handle the response for root level
                     if (data.files) {
-                        console.log("Files:", data.files);
                         setFiles(data.files.filter(file => !file.parent_folder_id || file.parent_folder_id === 0));
                     }
 
                     if (data.folders) {
-                        console.log("Folders:", data.folders);
                         setFolders(data.folders.filter(folder => !folder.parent_folder_id || folder.parent_folder_id === 0));
                     }
 
@@ -488,7 +486,7 @@ function DriveHome() {
         if (selectionMode) {
             return;
         }
-        
+
         console.log(`Navigating to folder: ${folderName} (ID: ${folderId})`);
 
         // Reset file and folder states
@@ -553,7 +551,7 @@ function DriveHome() {
             const pathParts = currentPath.split('/');
             pathParts.pop();
             setCurrentPath(pathParts.join('/') || '/');
-            
+
             // In a real app, we would fetch the folder contents
             // For demo, just show empty
             setFiles([]);
@@ -563,7 +561,7 @@ function DriveHome() {
             setCurrentFolder(null);
             setCurrentPath('/');
             setBreadcrumbPath([]);
-            
+
             // Reset to original demo data
             setFiles(demoFiles);
             setFolders(demoFolders);
@@ -575,12 +573,12 @@ function DriveHome() {
     const toggleSelectItem = (id, type) => {
         // Check if the item is already selected
         const existingIndex = selectedItems.findIndex(item => item.id === id && item.type === type);
-        
+
         if (existingIndex >= 0) {
             // Item is already selected, so remove it
             const newSelectedItems = selectedItems.filter((_, index) => index !== existingIndex);
             setSelectedItems(newSelectedItems);
-            
+
             // If this was the last selected item, exit selection mode
             if (newSelectedItems.length === 0) {
                 setSelectionMode(false);
@@ -823,11 +821,11 @@ function DriveHome() {
         const date = new Date(dateString);
         const now = new Date();
         const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
-        
+
         if (diffHours < 24) {
             return `${diffHours} hours ago`;
         }
-        
+
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
         return date.toLocaleDateString('en-GB', options).replace(' ', ', ');
     }
@@ -900,7 +898,7 @@ function DriveHome() {
             toggleSelectItem(itemId, type);
             return;
         }
-        
+
         // Normal behavior when not in selection mode
         if (type === 'folder') {
             navigateToFolder(item.folder_id, item.folder_name);
@@ -934,7 +932,7 @@ function DriveHome() {
 
     const [showSortDropdown, setShowSortDropdown] = useState(false);
     const sortDropdownRef = useRef(null);
-    
+
     // Close sort dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -951,10 +949,10 @@ function DriveHome() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [showSortDropdown]);
-    
+
     // Function to get human-readable sort field name
     const getSortFieldName = (field) => {
-        switch(field) {
+        switch (field) {
             case 'name':
                 return 'Name';
             case 'created_at':
@@ -967,7 +965,7 @@ function DriveHome() {
                 return 'Date created';
         }
     };
-    
+
     // Function to handle sorting
     const handleSort = (field) => {
         if (sortBy === field) {
@@ -1075,15 +1073,15 @@ function DriveHome() {
                     </button>
 
                     <div className="view-mode-toggle">
-                        <button 
-                            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`} 
+                        <button
+                            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
                             onClick={() => setViewMode('grid')}
                             title="Grid View"
                         >
                             <FontAwesomeIcon icon={faThLarge} />
                         </button>
-                        <button 
-                            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`} 
+                        <button
+                            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                             onClick={() => setViewMode('list')}
                             title="List View"
                         >
@@ -1092,16 +1090,16 @@ function DriveHome() {
                     </div>
 
                     <div className="sort-dropdown" ref={sortDropdownRef}>
-                        <button 
+                        <button
                             className="sort-btn"
                             onClick={() => setShowSortDropdown(!showSortDropdown)}
                         >
                             Sort by - {getSortFieldName(sortBy)} {sortOrder === 'asc' ? '↑' : '↓'} <FontAwesomeIcon icon={faCaretDown} />
                         </button>
-                        
+
                         {showSortDropdown && (
                             <div className="sort-dropdown-menu">
-                                <div 
+                                <div
                                     className={`sort-option ${sortBy === 'name' ? 'active' : ''}`}
                                     onClick={() => handleSort('name')}
                                 >
@@ -1109,8 +1107,8 @@ function DriveHome() {
                                     <span>Name</span>
                                     {sortBy === 'name' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
                                 </div>
-                                
-                                <div 
+
+                                <div
                                     className={`sort-option ${sortBy === 'created_at' ? 'active' : ''}`}
                                     onClick={() => handleSort('created_at')}
                                 >
@@ -1118,8 +1116,8 @@ function DriveHome() {
                                     <span>Date created</span>
                                     {sortBy === 'created_at' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
                                 </div>
-                                
-                                <div 
+
+                                <div
                                     className={`sort-option ${sortBy === 'file_size' ? 'active' : ''}`}
                                     onClick={() => handleSort('file_size')}
                                 >
@@ -1127,8 +1125,8 @@ function DriveHome() {
                                     <span>File size</span>
                                     {sortBy === 'file_size' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
                                 </div>
-                                
-                                <div 
+
+                                <div
                                     className={`sort-option ${sortBy === 'is_starred' ? 'active' : ''}`}
                                     onClick={() => handleSort('is_starred')}
                                 >
@@ -1199,15 +1197,15 @@ function DriveHome() {
                     </div>
                     <div className="selection-actions">
                         {/* Show only star and delete buttons when multiple items are selected */}
-                        <button 
+                        <button
                             className="action-btn star-btn"
                             onClick={() => {
                                 // Star all selected items
                                 selectedItems.forEach(item => {
-                                    const itemObj = item.type === 'file' 
+                                    const itemObj = item.type === 'file'
                                         ? files.find(f => f.file_id === item.id)
                                         : folders.find(f => f.folder_id === item.id);
-                                    
+
                                     if (itemObj) {
                                         handleStar(item.id, item.type, itemObj.is_starred);
                                     }
@@ -1217,8 +1215,8 @@ function DriveHome() {
                         >
                             <FiStar />
                         </button>
-                        <button 
-                            className="action-btn trash-btn" 
+                        <button
+                            className="action-btn trash-btn"
                             onClick={handleDeleteSelected}
                             title="Delete selected items"
                         >
@@ -1300,7 +1298,7 @@ function DriveHome() {
                                     // Determine if it's a folder or file
                                     const itemType = 'folder_id' in item ? 'folder' : 'file';
                                     const itemId = itemType === 'folder' ? item.folder_id : item.file_id;
-                                    
+
                                     return (
                                         <FileItem
                                             key={`${itemType}-${itemId}`}
