@@ -115,13 +115,13 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
             {getMemberStatusIcon()}
           </div>
         )}
-        {member.isEventOwner  ? (
+        {member.isEventOwner ? (
           <span className="member-role-tag owner-tag">Owner of event</span>
-        ): member.isMemberBusyPending ? (
+        ) : member.isMemberBusyPending ? (
           <span className="member-role-tag busy-tag">Pending Approval</span>
-        ): member.isEventHandler ? (
+        ) : member.isEventHandler ? (
           <span className="member-role-tag handler-tag">Event handler</span>
-        ):''}
+        ) : ''}
 
       </div>
       {!member.isEventOwner && !member.isEventHandler && (
@@ -129,16 +129,16 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
           className={actionButtonClass}
           onClick={() => onAction(member)}
           disabled={isDisabled || member.isEventOwner || member.isEventHandler}
-          title={isDisabled ? "This team member is not available" : 
+          title={isDisabled ? "This team member is not available" :
             member.isEventOwner ? "Event owner cannot be assigned" :
-            member.isEventHandler ? "Event handler cannot be assigned" :
-            actionButtonClass === "assign-btn" ? "Assign Member" : "Remove Member"}
-      style={{
-        cursor: (isDisabled || member.isEventOwner || member.isEventHandler) ? "not-allowed" : "pointer",
-      }}
-    >
-      <ActionIcon style={{ width: "20px", height: "20px", display: "block" }} />
-    </button>
+              member.isEventHandler ? "Event handler cannot be assigned" :
+                actionButtonClass === "assign-btn" ? "Assign Member" : "Remove Member"}
+          style={{
+            cursor: (isDisabled || member.isEventOwner || member.isEventHandler) ? "not-allowed" : "pointer",
+          }}
+        >
+          <ActionIcon style={{ width: "20px", height: "20px", display: "block" }} />
+        </button>
       )}
 
     </li>
@@ -213,7 +213,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
 
       const data = await response.json();
       console.log("Team assignment response:", data);
-      
+
       // Hide loader and close modal only after API call completes successfully
       setIsLoading(false);
       setShowEventModal(false);
@@ -399,7 +399,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   };
 
   useEffect(() => {
-    
+
     const fetchTeamMembers = async () => {
       try {
         const formattedStartDate = formatDate(newEvent.start);
@@ -441,7 +441,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         const processedTeamMembers = inactiveData.map(member => {
           // Check if the team member is the event sender (owner)
           const isEventOwner = member.team_member_email === newEvent.sender_email;
-          
+
           // Check if the team member is the event receiver (handler)
           const isEventHandler = member.team_member_email === user.user_email;
           const isMemberBusyPending = member.member_status === "Pending";
@@ -491,7 +491,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                 const isEventOwner = member.team_member_email === newEvent.sender_email;
                 const isEventHandler = member.team_member_email === user.user_email;
                 const isMemberBusyPending = member.member_status === "Pending";
-                
+
                 return {
                   ...member,
                   isEventOwner,
@@ -499,7 +499,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                   isMemberBusyPending
                 };
               });
-              
+
               setAssignedMembers(processedAssignedMembers);
 
               setTeamMembers(prev =>
@@ -542,18 +542,18 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       showWarningToast({ message: `${member.member_name} is not available during this time period.` });
       return;
     }
-    
+
     // Prevent assigning members who are event owners or handlers
     if (member.isEventOwner) {
       showWarningToast({ message: `${member.member_name} is the owner of this event and cannot be assigned.` });
       return;
     }
-    
+
     if (member.isEventHandler) {
       showWarningToast({ message: `${member.member_name} is the event handler and cannot be assigned.` });
       return;
     }
-    
+
     setAssignedMembers([...assignedMembers, member]);
     setTeamMembers(teamMembers.filter((m) => m.member_id !== member.member_id));
   };
@@ -792,6 +792,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   )
 
   return (
+    // Event management popup 
     <div className="modal-overlay_add_event"
       onClick={() => setShowEventModal(false)}
     >
@@ -824,7 +825,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           </button>
         </div>
       </div>
-      
+
       {isLoading && (
         <EmailSendingLoader />
       )}

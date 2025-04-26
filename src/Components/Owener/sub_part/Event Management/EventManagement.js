@@ -255,7 +255,7 @@ function EventManagement({ category }) {
     );
   };
 
-  
+
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -320,8 +320,8 @@ function EventManagement({ category }) {
   }, []);
 
   const ActionMenu = ({ onApprove, onReject, onInfo, eventStatus }) => {
-    const isFinal = eventStatus === "Accepted" || eventStatus === "Rejected" || 
-                   eventStatus === "Completed" || eventStatus === "Event Expired";
+    const isFinal = eventStatus === "Accepted" || eventStatus === "Rejected" ||
+      eventStatus === "Completed" || eventStatus === "Event Expired";
     return (
       <div className="action-menu">
         {!isFinal && (
@@ -417,7 +417,7 @@ function EventManagement({ category }) {
         return "Event Expired";
       }
     }
-    
+
     // Return original status if not passed
     return item.event_status;
   };
@@ -461,7 +461,7 @@ function EventManagement({ category }) {
         console.error("Error checking past events on mount:", error);
       }
     };
-    
+
     checkInitialPastEvents();
   }, [user.user_email, refreshReceivedData]);
 
@@ -1004,28 +1004,28 @@ function EventManagement({ category }) {
 
             {category === "Service" && (
               <div className="section-container">
-                        {category === "Service" && (
-                            <div className="service-filter-container">
-                            <div className="dropdown" ref={dropdownRef_service_data}>
-                              <button className="dropdown-toggle" onClick={() => setIsOpen_service_data(!isOpen_service_data)}>
-                              <IoFilter /> <span>{selected_service_data}</span>
-                              </button>
-                              {isOpen_service_data && (
-                                <div className="dropdown-menu">
-                                  {options.map((option) => (
-                                    <div
-                                      key={option}
-                                      className={`dropdown-item ${option === selected_service_data ? "selected" : ""}`}
-                                      onClick={() => handleSelect(option)}
-                                    >
-                                      {option}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
+                {category === "Service" && (
+                  <div className="service-filter-container">
+                    <div className="dropdown" ref={dropdownRef_service_data}>
+                      <button className="dropdown-toggle" onClick={() => setIsOpen_service_data(!isOpen_service_data)}>
+                        <IoFilter /> <span>{selected_service_data}</span>
+                      </button>
+                      {isOpen_service_data && (
+                        <div className="dropdown-menu">
+                          {options.map((option) => (
+                            <div
+                              key={option}
+                              className={`dropdown-item ${option === selected_service_data ? "selected" : ""}`}
+                              onClick={() => handleSelect(option)}
+                            >
+                              {option}
                             </div>
-                          </div>
-                            )}
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="table-container">
                   {receiver_service_data?.length > 0 ? (
@@ -1136,16 +1136,16 @@ function EventManagement({ category }) {
                           selected_service_data === "All" ||
                           getDisplayStatus(item) === selected_service_data
                       ).length === 0 && (
-                        <EmptyState
-                        title={
-                          <>
-                            No <span className="highlight">{selected_service_data.toLowerCase()}</span> service available
-                          </>
-                        }
-                        subtitle="Try selecting a different filter or check back later."
-                        icon={<IoInformationCircleOutline size={48} color="#888" />}
-                      />
-                      )}
+                          <EmptyState
+                            title={
+                              <>
+                                No <span className="highlight">{selected_service_data.toLowerCase()}</span> service available
+                              </>
+                            }
+                            subtitle="Try selecting a different filter or check back later."
+                            icon={<IoInformationCircleOutline size={48} color="#888" />}
+                          />
+                        )}
                     </>
                   ) : (
                     <p className="no-data-message">No data available</p>
