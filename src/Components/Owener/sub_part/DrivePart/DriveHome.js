@@ -604,7 +604,7 @@ function DriveHome() {
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                console.log(`Processing file ${i + 1}/${totalFiles}:`, file.name, "size:", file.size);
+                console.log(`Processing file ${i + 1}/${totalFiles}:`, file.name, "size:", file.size, "bytes");
 
                 // Create FormData for each file
                 const formData = new FormData();
@@ -614,7 +614,6 @@ function DriveHome() {
                 const uploadUrl = new URL(`${Server_url}/drive/upload-file`);
                 uploadUrl.searchParams.append('created_by', created_by);
                 uploadUrl.searchParams.append('user_email', user_email);
-                // uploadUrl.searchParams.append('parent_folder_id', currentFolder || null);
 
                 // Add current folder ID if we're in a folder
                 if (currentFolder) {
@@ -635,6 +634,14 @@ function DriveHome() {
                 if (response.ok) {
                     const result = await response.json();
                     console.log("Upload successful:", result);
+                    
+                    // Verify file_size is present in the response
+                    if (result.file_size) {
+                        console.log(`Uploaded file size: ${result.file_size} bytes (${formatFileSize(result.file_size)})`);
+                    } else {
+                        console.warn("File size not returned from server");
+                    }
+                    
                     completedFiles++;
                     setUploadProgress({ completed: completedFiles, total: totalFiles });
                 } else {
@@ -983,21 +990,41 @@ function DriveHome() {
     };
 
     function formatFileSize(size) {
-        const num = Number(size);
-        if (isNaN(num)) return '0 B';
-
-        const kb = num / 1024;
-        const mb = kb / 1024;
-        if (mb >= 1) return `${mb.toFixed(0)} MB`;
-        if (kb >= 1) return `${kb.toFixed(0)} KB`;
-        return `${num} B`;
+        // Handle invalid or missing values
+        if (size === null || size === undefined || isNaN(Number(size))) {
+            return '0 B';
+        }
+        
+        // Ensure size is a number in bytes
+        const bytes = Number(size);
+        
+        // Size thresholds in bytes
+        const KB = 1024;
+        const MB = KB * 1024;
+        const GB = MB * 1024;
+        const TB = GB * 1024;
+        
+        // Format with appropriate unit
+        if (bytes >= TB) {
+            return `${(bytes / TB).toFixed(2)} TB`;
+        } else if (bytes >= GB) {
+            return `${(bytes / GB).toFixed(2)} GB`;
+        } else if (bytes >= MB) {
+            return `${(bytes / MB).toFixed(2)} MB`;
+        } else if (bytes >= KB) {
+            return `${(bytes / KB).toFixed(2)} KB`;
+        } else {
+            return `${bytes} B`;
+        }
     }
 
     function formatFolderSize(folder) {
         if (!folder.item_count) return '--';
-        else{
-            return '--';
+        // If folder has file_size property, format it as file size
+        if (folder.file_size) {
+            return formatFileSize(folder.file_size);
         }
+        return '--';
     }
 
     // Format the date to match the image format
@@ -1036,9 +1063,15 @@ function DriveHome() {
             
             // Handle file_size specially for folders
             if (sortKey === 'file_size') {
+                // Convert file_size to numbers for proper comparison
                 // For folders, use 0 as the size or item_count if available
-                aValue = type === 'folder' && a.folder_id ? (a.item_count || 0) : (a[sortKey] || 0);
-                bValue = type === 'folder' && b.folder_id ? (b.item_count || 0) : (b[sortKey] || 0);
+                aValue = type === 'folder' && a.folder_id ? 
+                    (a.file_size ? Number(a.file_size) : (a.item_count || 0)) : 
+                    (a[sortKey] ? Number(a[sortKey]) : 0);
+                
+                bValue = type === 'folder' && b.folder_id ? 
+                    (b.file_size ? Number(b.file_size) : (b.item_count || 0)) : 
+                    (b[sortKey] ? Number(b[sortKey]) : 0);
             } else {
                 // For dates, ensure we're comparing date objects
                 if (sortKey === 'created_at' || sortKey === 'modified_date') {
@@ -1060,7 +1093,7 @@ function DriveHome() {
             } else if (typeof aValue === 'string' && typeof bValue === 'string') {
                 return aValue.localeCompare(bValue) * direction;
             } else {
-                return (aValue < bValue ? -1 : aValue > bValue ? 1 : 0) * direction;
+                return (aValue - bValue) * direction;
             }
         });
     };

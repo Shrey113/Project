@@ -82,8 +82,8 @@ const FilePreview = ({ file, onClose }) => {
 
     if (error) {
         return (
-            <div className="file-preview-overlay">
-                <div className="file-preview-container">
+            <div className="file-preview-overlay" onClick={onClose}>
+                <div className="file-preview-container" onClick={(e) => e.stopPropagation()}>
                     <div className="file-preview-header">
                         <h3>{file.file_name}</h3>
                         <button className="preview-close-btn" onClick={onClose}>
@@ -104,8 +104,8 @@ const FilePreview = ({ file, onClose }) => {
     const fileCategory = getFileCategory(file.file_type);
 
     return (
-        <div className="file-preview-overlay">
-            <div className="file-preview-container">
+        <div className="file-preview-overlay" onClick={onClose}>
+            <div className="file-preview-container" onClick={(e) => e.stopPropagation()}>
                 <div className="file-preview-header">
                     <h3>{file.file_name}</h3>
                     <button className="preview-close-btn" onClick={onClose}>

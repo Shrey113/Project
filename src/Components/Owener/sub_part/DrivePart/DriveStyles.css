@@ -732,10 +732,6 @@
   padding-left: 0 !important;
 }
 
-/* File icon container adjustments */
-.file-icon-container {
-  margin-right: 12px;
-}
 
 /* Additional styling to match the image */
 .file-name-span {
@@ -838,6 +834,7 @@
   transition: all 0.2s ease;
   position: relative;
   border: 1px solid var(--border-color);
+  height:fit-content;
 }
 
 .file-item-grid:hover,
@@ -1506,7 +1503,6 @@
 /* Table structure for list view */
 .table-container {
   width: 100%;
-  overflow-x: auto;
 }
 
 .files-table {
