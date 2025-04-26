@@ -711,8 +711,10 @@ function DriveHome() {
             setCurrentFolder(null);
             setCurrentPath('/');
             setBreadcrumbPath([]);
-            setFiles(demoFiles);
-            setFolders(demoFolders);
+            
+            // Instead of setting fake data, we'll trigger a real fetch
+            setIsLoading(true);
+            refreshDrive();
             return;
         }
 
@@ -735,22 +737,18 @@ function DriveHome() {
             pathParts.pop();
             setCurrentPath(pathParts.join('/') || '/');
 
-            // In a real app, we would fetch the folder contents
-            // For demo, just show empty
-            setFiles([]);
-            setFolders([]);
+            // Instead of manually setting empty files/folders, trigger a fetch
+            setIsLoading(true);
         } else {
             // If something went wrong with the breadcrumb, go to root
             setCurrentFolder(null);
             setCurrentPath('/');
             setBreadcrumbPath([]);
-
-            // Reset to original demo data
-            setFiles(demoFiles);
-            setFolders(demoFolders);
+            
+            // Instead of setting fake data, we'll trigger a real fetch
+            setIsLoading(true);
+            refreshDrive();
         }
-
-        // No need to call refreshDrive() as the useEffect will trigger
     }
 
     const toggleSelectItem = (id, type) => {
@@ -1019,8 +1017,10 @@ function DriveHome() {
     }
     
 
-    // Update the sorting logic to always show folders on top
+    // Modified sort function to handle all data types properly
     const sortItems = (items, type, sortKey, order) => {
+        if (!items || !Array.isArray(items)) return [];
+        
         return [...items].sort((a, b) => {
             // Special handling for starred items
             if (sortKey === 'is_starred') {
@@ -1030,23 +1030,38 @@ function DriveHome() {
                 const direction = order === 'asc' ? -1 : 1;
                 return (aStarred - bStarred) * direction;
             }
-
-            // Get values to compare
-            const aValue = a[sortKey] || '';
-            const bValue = b[sortKey] || '';
+            
+            // Handle other fields based on their data types
+            let aValue, bValue;
+            
+            // Handle file_size specially for folders
+            if (sortKey === 'file_size') {
+                // For folders, use 0 as the size or item_count if available
+                aValue = type === 'folder' && a.folder_id ? (a.item_count || 0) : (a[sortKey] || 0);
+                bValue = type === 'folder' && b.folder_id ? (b.item_count || 0) : (b[sortKey] || 0);
+            } else {
+                // For dates, ensure we're comparing date objects
+                if (sortKey === 'created_at' || sortKey === 'modified_date') {
+                    aValue = a[sortKey] ? new Date(a[sortKey]) : new Date(0);
+                    bValue = b[sortKey] ? new Date(b[sortKey]) : new Date(0);
+                } else {
+                    // For other fields, use the value or empty string/0
+                    aValue = a[sortKey] !== undefined ? a[sortKey] : (typeof a[sortKey] === 'string' ? '' : 0);
+                    bValue = b[sortKey] !== undefined ? b[sortKey] : (typeof b[sortKey] === 'string' ? '' : 0);
+                }
+            }
 
             // Determine sort direction
             const direction = order === 'asc' ? 1 : -1;
 
             // Compare values
-            let result;
-            if (typeof aValue === 'string' && typeof bValue === 'string') {
-                result = aValue.localeCompare(bValue) * direction;
+            if (aValue instanceof Date && bValue instanceof Date) {
+                return (aValue.getTime() - bValue.getTime()) * direction;
+            } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+                return aValue.localeCompare(bValue) * direction;
             } else {
-                result = (aValue < bValue ? -1 : aValue > bValue ? 1 : 0) * direction;
+                return (aValue < bValue ? -1 : aValue > bValue ? 1 : 0) * direction;
             }
-
-            return result;
         });
     };
 
@@ -1250,7 +1265,7 @@ function DriveHome() {
             )}
 
             <div className="drive-header">
-                <h1>My Files {currentFolder && <span className="current-folder-indicator">/ {getCurrentFolderName()}</span>}</h1>
+                <h1>My Files</h1>
 
                 <div className="drive-actions">
                     <div className="search-bar">
@@ -1370,8 +1385,9 @@ function DriveHome() {
                             setCurrentFolder(null);
                             setCurrentPath('/');
                             setBreadcrumbPath([]);
-                            setFiles(demoFiles);
-                            setFolders(demoFolders);
+                            // Instead of manually setting files/folders, trigger a fetch
+                            setIsLoading(true);
+                            refreshDrive();
                         }}
                     >
                         Home
