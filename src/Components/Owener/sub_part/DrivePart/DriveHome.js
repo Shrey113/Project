@@ -1405,7 +1405,7 @@ function DriveHome() {
             {/* Path Navigation */}
             <div className="path-navigation">
                 <button onClick={navigateUp} disabled={!currentFolder || isLoading}>
-                    <FontAwesomeIcon icon={faArrowLeft} /> Up
+                    <FontAwesomeIcon icon={faArrowLeft} />
                 </button>
 
                 {/* Breadcrumb navigation */}
