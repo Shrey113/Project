@@ -27,6 +27,7 @@ function StarredItems() {
     const [viewMode, setViewMode] = useState('list')
     const [selectedItems, setSelectedItems] = useState([])
     const [selectionMode, setSelectionMode] = useState(false)
+    const [activePopup, setActivePopup] = useState(null)
 
     const fetchStarredItems = async () => {
         setIsLoading(true);
@@ -275,17 +276,18 @@ function StarredItems() {
     const navigateToFolder = (folderId, folderName) => {
         setCurrentFolder(folderId);
 
-        // Update breadcrumb path
-        if (currentFolder) {
-            setBreadcrumbPath([
-                ...breadcrumbPath,
-                { id: folderId, name: folderName }
-            ]);
-        } else {
-            setBreadcrumbPath([{ id: folderId, name: folderName }]);
-        }
-    }
+        setBreadcrumbPath((prevPath) => {
+            const existingIndex = prevPath.findIndex(item => item.id === folderId);
 
+            if (existingIndex !== -1) {
+                // If folder already exists in breadcrumb, cut the path here
+                return prevPath.slice(0, existingIndex + 1);
+            } else {
+                // Append new folder to path
+                return [...prevPath, { id: folderId, name: folderName }];
+            }
+        });
+    };
     const navigateUp = () => {
         if (breadcrumbPath.length <= 1) {
             setCurrentFolder(null);
@@ -345,6 +347,9 @@ function StarredItems() {
         setPreviewFile(null);
     };
 
+    const handleSetActivePopup = (popupId) => {
+        setActivePopup(popupId);
+    };
     const sortedFolders = [...starredFolders]
 
 
@@ -496,6 +501,8 @@ function StarredItems() {
                                             formatDate={formatDate}
                                             onClick={handleItemClick}
                                             selectionMode={selectionMode}
+                                            globalActivePopup={activePopup}
+                                            setGlobalActivePopup={handleSetActivePopup}
                                         />
                                     )
                                 })}

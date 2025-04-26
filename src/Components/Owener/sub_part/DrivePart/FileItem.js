@@ -140,17 +140,17 @@ const FileItem = ({
 
     const toggleOptions = (e) => {
         e.stopPropagation();
-        
+
         // Close any active popup if it's not this one
         if (globalActivePopup && globalActivePopup !== itemId) {
             // Close the currently active popup
             setGlobalActivePopup(null);
         }
-        
+
         // Toggle this popup and set it as the active one
         const newState = !showOptions;
         setShowOptions(newState);
-        
+
         if (newState) {
             setGlobalActivePopup(itemId);
         } else {
@@ -160,7 +160,7 @@ const FileItem = ({
 
     const handleItemClick = (e) => {
         if (showOptions) return; // Prevent navigation when options menu is open
-        
+
         if (onClick) {
             onClick(item, type);
         } else if (type === 'folder' && onNavigate && !selectionMode) {
@@ -169,7 +169,7 @@ const FileItem = ({
             onPreview(item);
         }
     };
-    
+
     const handleCheckboxClick = (e) => {
         e.stopPropagation();
         const itemId = type === 'file' ? item.file_id : item.folder_id;
@@ -189,7 +189,7 @@ const FileItem = ({
     const itemName = type === 'file' ? item.file_name : item.folder_name;
     const createdDate = formatDate ? formatDate(item.created_at || item.created_date) : new Date(item.created_at || item.created_date).toLocaleDateString();
     const isStarred = item.is_starred;
-    const itemSize = type === 'file' 
+    const itemSize = type === 'file'
         ? formatFileSize(item.file_size)
         : formatFileSize(item);
     const sharedWith = item.shared_with || [];
@@ -221,13 +221,13 @@ const FileItem = ({
 
     const handleDownload = (e) => {
         e.stopPropagation();
-        
+
         try {
             // Call the onDownload callback if provided
             if (onDownload) {
                 onDownload(itemIdValue, itemName);
             }
-            
+
             // Close options menu
             setShowOptions(false);
             setGlobalActivePopup(null);
@@ -250,14 +250,14 @@ const FileItem = ({
                     <input
                         type="checkbox"
                         checked={isSelected}
-                        onChange={() => {}}
+                        onChange={() => { }}
                     />
                 </div>
-                
+
                 <div className="file-icon-container">
                     {getIcon()}
                 </div>
-                
+
                 <div className="file-details">
                     <div className="file-name-grid">
                         <span title={itemName}>{itemName}</span>
@@ -272,7 +272,7 @@ const FileItem = ({
                         )}
                     </div>
                 </div>
-                
+
                 {/* In grid view, only show 3-dot menu */}
                 <div className="file-actions-grid">
                     <button
@@ -282,7 +282,7 @@ const FileItem = ({
                     >
                         <FiMoreVertical />
                     </button>
-                    
+
                     {showOptions && (
                         <div className="options-popup" ref={optionsRef}>
                             {type === 'file' && onDownload && (
@@ -364,16 +364,16 @@ const FileItem = ({
                 <input
                     type="checkbox"
                     checked={isSelected}
-                    onChange={() => {}}
+                    onChange={() => { }}
                 />
             </div>
-            
+
             <div className="file-icon-container">
                 {getIcon()}
             </div>
-            
+
             <div className="file-name">
-                <span title={itemName}>{itemName}</span>
+                <span title={itemName} className="file-name-span">{itemName}</span>
                 {isStarred && (
                     <FiStar
                         className="star-indicator"
@@ -384,19 +384,19 @@ const FileItem = ({
                     />
                 )}
             </div>
-            
+
             <div className="file-shared">
                 {renderSharedAvatars()}
             </div>
-            
+
             <div className="file-date">
                 {createdDate}
             </div>
-            
+
             <div className="file-size">
                 {itemSize}
             </div>
-            
+
             <div className="file-actions">
                 {/* Only show 3-dot menu in list view */}
                 <button
@@ -406,7 +406,7 @@ const FileItem = ({
                 >
                     <FiMoreVertical />
                 </button>
-                
+
                 {showOptions && (
                     <div className="options-popup" ref={optionsRef}>
                         {type === 'file' && onDownload && (
@@ -430,20 +430,7 @@ const FileItem = ({
                             <FiStar />
                             <span>{isStarred ? 'Unstar' : 'Star'}</span>
                         </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (onDelete) {
-                                    onDelete(itemIdValue, itemName);
-                                }
-                                setShowOptions(false);
-                                setGlobalActivePopup(null);
-                            }}
-                            className="option-item warning"
-                        >
-                            <FiTrash2 />
-                            <span>Delete</span>
-                        </button>
+
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -467,6 +454,20 @@ const FileItem = ({
                         >
                             <FiShare2 />
                             <span>Share</span>
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onDelete) {
+                                    onDelete(itemIdValue, itemName);
+                                }
+                                setShowOptions(false);
+                                setGlobalActivePopup(null);
+                            }}
+                            className="option-item warning"
+                        >
+                            <FiTrash2 />
+                            <span>Delete</span>
                         </button>
                     </div>
                 )}

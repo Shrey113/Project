@@ -30,7 +30,6 @@ function DriveHome() {
     const [breadcrumbPath, setBreadcrumbPath] = useState([]) // Add state for breadcrumb path
     const [viewMode, setViewMode] = useState('list') // Default to list view like in the image
     const [selectionMode, setSelectionMode] = useState(false) // Track if we're in selection mode
-    const [showFooter, setShowFooter] = useState(true) // Show footer with copyright
     const [activePopup, setActivePopup] = useState(null) // Add state for tracking active popup
 
     // Rename dialog state variables
@@ -1334,12 +1333,6 @@ function DriveHome() {
                 )}
             </div>
 
-            {/* Footer */}
-            {showFooter && (
-                <div className="drive-footer">
-                    <p>© 2025 Photography Hub. All rights reserved.</p>
-                </div>
-            )}
         </div>
     )
 }
