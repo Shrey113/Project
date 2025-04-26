@@ -337,7 +337,8 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
 
     if (!validateForm()) return;
 
-    if (assignedMembers.length === 0 && newEvent.event_request_type === "package") {
+    // Add validation for minimum one team member requirement
+    if (assignedMembers.length === 0) {
       showWarningToast({ message: "Please assign at least one team member before confirming the event." });
       return;
     }
