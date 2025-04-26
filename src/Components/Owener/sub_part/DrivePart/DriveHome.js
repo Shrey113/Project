@@ -1,19 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faArrowLeft, faThLarge, faList, faDownload, faShare, faEllipsisH, faUpload, faPlusSquare, faSearch, faSort, faSortAlphaDown, faSortAlphaUp, faCalendarAlt, faFileAlt, faStar, faCaretDown } from '@fortawesome/free-solid-svg-icons'
+import { 
+    faTrash, faArrowLeft, faThLarge, faList, faDownload, faShare, 
+    faEllipsisH, faUpload, faPlusSquare, faSearch, faSort, 
+    faSortAlphaDown, faSortAlphaUp, faCalendarAlt, faFileAlt, 
+    faStar, faCaretDown, faFolder, faFile, faEdit, faLink, faInfoCircle 
+} from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
 import { Server_url, FileLoaderToast } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 import FileItem from './FileItem'
 import FilePreview from './FilePreview'
-import { FiStar, FiTrash } from 'react-icons/fi'
+import { FiStar, FiTrash, FiDownload, FiShare2, FiEdit, FiMoreVertical } from 'react-icons/fi'
 
 function DriveHome() {
     const user = useSelector((state) => state.user);
     const created_by = user.user_email;
     const user_email = user.user_email;
     const { activeProfileSection, setActiveProfileSection } = useUIContext()
+    const location = useLocation();
     const [files, setFiles] = useState([])
     const [folders, setFolders] = useState([])
     const [currentPath, setCurrentPath] = useState('/')
@@ -41,6 +48,10 @@ function DriveHome() {
     const [dialogMode, setDialogMode] = useState('rename')
 
     const [previewFile, setPreviewFile] = useState(null);
+
+    // Add reference to track navigation processing
+    const navigationProcessedRef = useRef(false);
+    const directFolderOpenRef = useRef(false);
 
     // Sample data to match the UI in the image
     const demoFiles = [
@@ -177,14 +188,169 @@ function DriveHome() {
         setSelectionMode(false);
     };
 
+    // Process location state from navigation (handle navigation from StarredItems)
+    useLayoutEffect(() => {
+        // Check if we have folder data from navigation state (from Starred Items) with directOpen flag
+        if (location.state && location.state.folderData && location.state.folderData.directOpen) {
+            try {
+                const folderData = location.state.folderData;
+                console.log("Processing DIRECT navigation data:", folderData);
+                
+                const timestamp = folderData.timestamp;
+                // Get the saved data from localStorage as a backup
+                const savedData = localStorage.getItem(`folder_navigation_${timestamp}`);
+                
+                // Mark as processed to prevent duplicate processing
+                navigationProcessedRef.current = true;
+                directFolderOpenRef.current = true;
+                
+                // Force folder ID and path update
+                console.log("Setting current folder to:", folderData.folderId);
+                setCurrentFolder(folderData.folderId);
+                
+                // Force breadcrumb path update with proper formatting
+                if (folderData.breadcrumbPath && folderData.breadcrumbPath.length > 0) {
+                    // Ensure each item in breadcrumb has id and name properties
+                    const formattedPath = folderData.breadcrumbPath.map(item => ({
+                        id: item.id || item.folder_id,
+                        name: item.name || item.folder_name
+                    }));
+                    
+                    console.log("Setting breadcrumb path to:", formattedPath);
+                    setBreadcrumbPath(formattedPath);
+                    
+                    // Set current path
+                    if (folderData.currentPath) {
+                        console.log("Setting current path to:", folderData.currentPath);
+                        setCurrentPath(folderData.currentPath);
+                    } else {
+                        // Build path from breadcrumb
+                        const pathString = '/' + formattedPath.map(item => item.name).join('/');
+                        console.log("Setting built path to:", pathString);
+                        setCurrentPath(pathString);
+                    }
+                }
+                
+                // Cleanup localStorage
+                if (savedData) {
+                    localStorage.removeItem(`folder_navigation_${timestamp}`);
+                }
+                
+                // Explicitly fetch the folder contents immediately
+                const fetchDirectFolderContents = async () => {
+                    setIsLoading(true);
+                    console.log("Explicitly fetching contents for folder:", folderData.folderId);
+                    
+                    try {
+                        const url = new URL(`${Server_url}/drive/folder/${folderData.folderId}/contents`);
+                        url.searchParams.append('user_email', user_email);
+                        url.searchParams.append('created_by', created_by);
+                        
+                        const response = await fetch(url.toString());
+                        
+                        // Check if response is OK
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            console.error('Server error:', response.status, errorText);
+                            throw new Error(`Server responded with ${response.status}: ${errorText}`);
+                        }
+                        
+                        const data = await response.json();
+                        console.log("Direct folder contents fetched:", data);
+                        
+                        // Handle the response format
+                        if (data.success) {
+                            // Set files and folders from the response
+                            setFiles(data.files || []);
+                            setFolders(data.folders || []);
+                            
+                            // Reset the direct folder open flag after successful fetch
+                            directFolderOpenRef.current = false;
+                        }
+                    } catch (error) {
+                        console.error("Error fetching direct folder contents:", error);
+                        directFolderOpenRef.current = false;
+                        
+                        // Fallback: Add a slight delay and trigger a normal fetch through the refreshDrive
+                        setTimeout(() => {
+                            console.log("Triggering fallback refresh after direct fetch failed");
+                            setRefreshKey(prev => prev + 1);
+                        }, 500);
+                    } finally {
+                        setIsLoading(false);
+                    }
+                };
+                
+                // Execute the fetch
+                fetchDirectFolderContents();
+            } catch (error) {
+                console.error("Error in direct folder opening:", error);
+                directFolderOpenRef.current = false;
+            }
+        } else if (location.state && location.state.folderData && !navigationProcessedRef.current) {
+            // Handle standard navigation (existing code)
+            try {
+                const folderData = location.state.folderData;
+                console.log("Processing navigation data:", folderData);
+                
+                // Check if the data is recent (within the last minute)
+                const isRecent = folderData.timestamp && 
+                    (new Date().getTime() - folderData.timestamp < 60000);
+                    
+                if (isRecent) {
+                    // Mark as processed to prevent duplicate processing
+                    navigationProcessedRef.current = true;
+                    
+                    // Set current folder to the one from navigation
+                    const newFolderId = folderData.folderId;
+                    setCurrentFolder(newFolderId);
+                    
+                    // Set breadcrumb path with proper formatting
+                    if (folderData.breadcrumbPath && folderData.breadcrumbPath.length > 0) {
+                        // Ensure each item in breadcrumb has id and name properties
+                        const formattedPath = folderData.breadcrumbPath.map(item => ({
+                            id: item.id || item.folder_id, // Handle different property names
+                            name: item.name || item.folder_name // Handle different property names
+                        }));
+                        
+                        setBreadcrumbPath(formattedPath);
+                        
+                        // Use provided currentPath if available, otherwise build it
+                        if (folderData.currentPath) {
+                            setCurrentPath(folderData.currentPath);
+                        } else {
+                            // Update current path for backward compatibility
+                            const pathString = '/' + formattedPath
+                                .map(item => item.name)
+                                .join('/');
+                            setCurrentPath(pathString);
+                        }
+                        
+                        console.log("Set breadcrumb path to:", formattedPath);
+                        console.log("Set current folder to:", newFolderId);
+                    }
+                }
+            } catch (error) {
+                console.error("Error processing folder data from navigation state:", error);
+            }
+        }
+    }, [location, user_email, created_by]);
+
+    // Main effect for fetching drive contents
     useEffect(() => {
         if (activeProfileSection !== 'Drive Home') {
             setActiveProfileSection('Drive Home')
         }
 
+        // Skip fetching if we're in direct folder opening mode
+        if (directFolderOpenRef.current) {
+            console.log("Skipping normal fetch due to direct folder opening - data will be fetched separately");
+            return;
+        }
+
         const fetchFilesAndFolders = async () => {
             setIsLoading(true);
-            console.log("Fetching files and folders, currentFolder:", currentFolder);
+            console.log("Fetching files and folders normally, currentFolder:", currentFolder);
 
             try {
                 let url;
@@ -198,8 +364,10 @@ function DriveHome() {
                     // If we're at the root, get all files and folders as before
                     url = new URL(`${Server_url}/drive/get_all_files_and_folders/${created_by}`);
                     url.searchParams.append('user_email', user_email);
-                    // Reset breadcrumb at root level
-                    setBreadcrumbPath([]);
+                    // Reset breadcrumb at root level if not coming from navigation
+                    if (!navigationProcessedRef.current) {
+                        setBreadcrumbPath([]);
+                    }
                 }
 
                 const response = await fetch(url.toString());
@@ -212,7 +380,7 @@ function DriveHome() {
                 }
 
                 const data = await response.json();
-                console.log("Files and folders fetched:", data);
+                console.log("Normal fetch - Files and folders fetched:", data);
 
                 // Handle the response format
                 if (currentFolder && data.success) {
@@ -220,12 +388,10 @@ function DriveHome() {
                     setFiles(data.files || []);
                     setFolders(data.folders || []);
 
-                    // Update breadcrumb path if available from server
-                    if (data.breadcrumb && data.breadcrumb.length > 0) {
+                    // Update breadcrumb path if available from server and not from navigation
+                    if (data.breadcrumb && data.breadcrumb.length > 0 && !navigationProcessedRef.current) {
                         setBreadcrumbPath(data.breadcrumb);
                     }
-                    // Note: we keep existing breadcrumb if server doesn't provide one
-                    // This is handled by the navigateToFolder function
                 } else {
                     // Handle the response for root level
                     if (data.files) {
@@ -236,11 +402,14 @@ function DriveHome() {
                         setFolders(data.folders.filter(folder => !folder.parent_folder_id || folder.parent_folder_id === 0));
                     }
 
-                    // Reset breadcrumb for root level
-                    setBreadcrumbPath([]);
+                    // Reset breadcrumb for root level if not from navigation
+                    if (!navigationProcessedRef.current) {
+                        setBreadcrumbPath([]);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching files and folders:', error);
+                directFolderOpenRef.current = false;
             } finally {
                 setIsLoading(false);
             }
@@ -262,10 +431,17 @@ function DriveHome() {
             }
         }
 
-
         // Get storage info
-        fetchStorageInfo()
-    }, [activeProfileSection, setActiveProfileSection, refreshKey, currentFolder, created_by, user_email]) // Add currentFolder to dependencies
+        fetchStorageInfo();
+        
+        // Reset the navigation processed ref when component unmounts or currentFolder changes
+        return () => {
+            if (currentFolder === null) {
+                navigationProcessedRef.current = false;
+                directFolderOpenRef.current = false;
+            }
+        };
+    }, [activeProfileSection, setActiveProfileSection, refreshKey, currentFolder, created_by, user_email]); // Removed location from dependencies
 
     // Add handleOpenRenameDialog function
     const handleOpenRenameDialog = (id, type, currentName) => {
@@ -487,6 +663,10 @@ function DriveHome() {
         }
 
         console.log(`Navigating to folder: ${folderName} (ID: ${folderId})`);
+        
+        // Reset navigation and direct folder flags
+        navigationProcessedRef.current = false;
+        directFolderOpenRef.current = false;
 
         // Reset file and folder states
         setFiles([]);
@@ -522,6 +702,10 @@ function DriveHome() {
     }
 
     const navigateUp = () => {
+        // Reset navigation and direct folder flags
+        navigationProcessedRef.current = false;
+        directFolderOpenRef.current = false;
+        
         if (breadcrumbPath.length <= 1) {
             // If at root or only one level deep, go to root
             setCurrentFolder(null);
@@ -812,22 +996,28 @@ function DriveHome() {
     }
 
     function formatFolderSize(folder) {
-        return `${folder.item_count} Items`;
+        if (!folder.item_count) return '--';
+        else{
+            return '--';
+        }
     }
 
     // Format the date to match the image format
     function formatDate(dateString) {
         const date = new Date(dateString);
         const now = new Date();
-        const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
-
-        if (diffHours < 24) {
-            return `${diffHours} hours ago`;
-        }
-
+        const diff = Math.floor((now - date) / 1000); // difference in seconds
+    
+        if (diff < 60) return `${diff}s ago`;
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+        if (diff < 2419200) return `${Math.floor(diff / 604800)}w ago`;
+    
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
         return date.toLocaleDateString('en-GB', options).replace(' ', ', ');
     }
+    
 
     // Update the sorting logic to always show folders on top
     const sortItems = (items, type, sortKey, order) => {
@@ -978,6 +1168,30 @@ function DriveHome() {
         setShowSortDropdown(false);
     };
 
+    // Add this state and handler at the appropriate location in your component
+    const [selectAll, setSelectAll] = useState(false);
+
+    // Add this handleSelectAll function to your component
+    const handleSelectAll = () => {
+        const newSelectAll = !selectAll;
+        setSelectAll(newSelectAll);
+        
+        if (newSelectAll) {
+            // Select all visible items
+            const allItems = [...sortedFolders, ...sortedFiles].map(item => {
+                const itemType = 'folder_id' in item ? 'folder' : 'file';
+                const itemId = itemType === 'folder' ? item.folder_id : item.file_id;
+                return { id: itemId, type: itemType };
+            });
+            setSelectedItems(allItems);
+            setSelectionMode(true);
+        } else {
+            // Deselect all items
+            setSelectedItems([]);
+            setSelectionMode(false);
+        }
+    };
+
     return (
         <div className="drive-home-container" onClick={() => setActivePopup(null)}>
             {uploadProgress.total > 0 && <FileLoaderToast uploadProgress={uploadProgress} />}
@@ -1036,7 +1250,7 @@ function DriveHome() {
             )}
 
             <div className="drive-header">
-                <h1>My Files</h1>
+                <h1>My Files {currentFolder && <span className="current-folder-indicator">/ {getCurrentFolderName()}</span>}</h1>
 
                 <div className="drive-actions">
                     <div className="search-bar">
@@ -1093,7 +1307,7 @@ function DriveHome() {
                             className="sort-btn"
                             onClick={() => setShowSortDropdown(!showSortDropdown)}
                         >
-                            Sort by - {getSortFieldName(sortBy)} {sortOrder === 'asc' ? '↑' : '↓'} <FontAwesomeIcon icon={faCaretDown} />
+                            Sort by: {getSortFieldName(sortBy)} <FontAwesomeIcon icon={faCaretDown} />
                         </button>
 
                         {showSortDropdown && (
@@ -1140,17 +1354,19 @@ function DriveHome() {
                 </div>
             </div>
 
-            {/* Up Navigation */}
+            {/* Path Navigation */}
             <div className="path-navigation">
                 <button onClick={navigateUp} disabled={!currentFolder || isLoading}>
                     <FontAwesomeIcon icon={faArrowLeft} /> Up
                 </button>
 
-                {/* Improved breadcrumb navigation */}
+                {/* Breadcrumb navigation */}
                 <div className="breadcrumb-container">
                     <span
                         className="breadcrumb-item clickable"
                         onClick={() => {
+                            navigationProcessedRef.current = false;
+                            directFolderOpenRef.current = false;
                             setCurrentFolder(null);
                             setCurrentPath('/');
                             setBreadcrumbPath([]);
@@ -1161,7 +1377,7 @@ function DriveHome() {
                         Home
                     </span>
 
-                    {breadcrumbPath.map((item, index) => (
+                    {breadcrumbPath && breadcrumbPath.length > 0 && breadcrumbPath.map((item, index) => (
                         <span key={item.id || index}>
                             <span className="breadcrumb-separator">/</span>
                             <span
@@ -1169,11 +1385,18 @@ function DriveHome() {
                                 onClick={() => {
                                     if (index < breadcrumbPath.length - 1) {
                                         // Navigate to this folder in the path
+                                        navigationProcessedRef.current = false;
+                                        directFolderOpenRef.current = false;
                                         setCurrentFolder(item.id);
                                         // Update breadcrumb to include only up to this point
                                         setBreadcrumbPath(breadcrumbPath.slice(0, index + 1));
+                                        
+                                        // Update current path
+                                        const newPath = '/' + breadcrumbPath.slice(0, index + 1).map(p => p.name).join('/');
+                                        setCurrentPath(newPath);
                                     }
                                 }}
+                                title={item.name} // Add tooltip for long folder names
                             >
                                 {item.name}
                             </span>
@@ -1184,7 +1407,7 @@ function DriveHome() {
 
             {/* Total Items Count */}
             <div className="total-items-count">
-                Total {getTotalItemsCount()} items
+                {getTotalItemsCount()} {getTotalItemsCount() === 1 ? 'item' : 'items'}
             </div>
 
             {/* Selection Bar */}
@@ -1192,10 +1415,9 @@ function DriveHome() {
                 <div className="selection-bar">
                     <div className="selection-count">
                         <button className="clear-selection" onClick={clearSelections}>×</button>
-                        <span>{selectedItems.length} items selected</span>
+                        <span>{selectedItems.length} {selectedItems.length === 1 ? 'item' : 'items'} selected</span>
                     </div>
                     <div className="selection-actions">
-                        {/* Show only star and delete buttons when multiple items are selected */}
                         <button
                             className="action-btn star-btn"
                             onClick={() => {
@@ -1226,108 +1448,200 @@ function DriveHome() {
             )}
 
             <div className={`files-container ${viewMode}-view`} onClick={(e) => e.stopPropagation()}>
-                <div className="files-header">
-                    <div className="header-select"></div>
-                    <div
-                        className="header-item header-name"
-                        onClick={() => {
-                            setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc');
-                            setSortBy('name');
-                        }}
-                    >
-                        <span>NAME</span>
-                        {getSortIcon('name')}
-                    </div>
-                    <div className="header-item header-shared">
-                        <span>SHARED</span>
-                    </div>
-                    <div
-                        className="header-item header-date"
-                        onClick={() => {
-                            setSortOrder(sortBy === 'created_at' && sortOrder === 'asc' ? 'desc' : 'asc');
-                            setSortBy('created_at');
-                        }}
-                    >
-                        <span>LAST MODIFIED</span>
-                        {getSortIcon('created_at')}
-                    </div>
-                    <div
-                        className="header-item header-size"
-                        onClick={() => {
-                            setSortOrder(sortBy === 'file_size' && sortOrder === 'asc' ? 'desc' : 'asc');
-                            setSortBy('file_size');
-                        }}
-                    >
-                        <span>FILE SIZE</span>
-                        {getSortIcon('file_size')}
-                    </div>
-                    <div className="header-item header-actions">
-                        {/* Empty for actions column */}
-                    </div>
-                </div>
+                {viewMode === 'list' ? (
+                    <div className="table-container">
+                        <table className="files-table">
+                            <thead>
+                                <tr className="files-header">
+                                    <th className="checkbox-header">
+                                        <div className="select-all-checkbox">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectAll}
+                                                onChange={handleSelectAll}
+                                                title={selectAll ? "Deselect all" : "Select all"}
+                                            />
+                                        </div>
+                                    </th>
+                                    <th 
+                                        className="name-header" 
+                                        onClick={() => {
+                                            setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc');
+                                            setSortBy('name');
+                                        }}
+                                    >
+                                        <span>NAME</span>
+                                        {getSortIcon('name')}
+                                    </th>
+                                    <th className="shared-header">
+                                        <span>SHARED</span>
+                                    </th>
+                                    <th 
+                                        className="date-header"
+                                        onClick={() => {
+                                            setSortOrder(sortBy === 'created_at' && sortOrder === 'asc' ? 'desc' : 'asc');
+                                            setSortBy('created_at');
+                                        }}
+                                    >
+                                        <span>LAST MODIFIED</span>
+                                        {getSortIcon('created_at')}
+                                    </th>
+                                    <th 
+                                        className="size-header"
+                                        onClick={() => {
+                                            setSortOrder(sortBy === 'file_size' && sortOrder === 'asc' ? 'desc' : 'asc');
+                                            setSortBy('file_size');
+                                        }}
+                                    >
+                                        <span>FILE SIZE</span>
+                                        {getSortIcon('file_size')}
+                                    </th>
+                                    <th className="actions-header"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan="6" className="loading-cell">
+                                            <div className="loading_drive">
+                                                <div className="loading-spinner-drive"></div>
+                                                <p>Loading your files...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : sortedFolders.length === 0 && sortedFiles.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" className="empty-cell">
+                                            <div className="empty-state">
+                                                {currentFolder ? (
+                                                    <>
+                                                        <div className="empty-icon">
+                                                            <FontAwesomeIcon icon={faFolder} size="3x" />
+                                                        </div>
+                                                        <p>This folder is empty</p>
+                                                        <p>Upload files or create folders to get started</p>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div className="empty-icon">
+                                                            <FontAwesomeIcon icon={faFile} size="3x" />
+                                                        </div>
+                                                        <p>Your drive is empty</p>
+                                                        <p>Upload files or create folders to get started</p>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    // Render all items in table rows
+                                    [...sortedFolders, ...sortedFiles].map(item => {
+                                        // Determine if it's a folder or file
+                                        const itemType = 'folder_id' in item ? 'folder' : 'file';
+                                        const itemId = itemType === 'folder' ? item.folder_id : item.file_id;
 
-                {isLoading ? (
-                    <div className="loading">Loading files and folders...</div>
+                                        return (
+                                            <FileItem
+                                                key={`${itemType}-${itemId}`}
+                                                item={item}
+                                                type={itemType}
+                                                viewMode={viewMode}
+                                                isSelected={selectedItems.some(selectedItem =>
+                                                    selectedItem.id === itemId &&
+                                                    selectedItem.type === itemType
+                                                )}
+                                                onSelect={toggleSelectItem}
+                                                onNavigate={navigateToFolder}
+                                                onDownload={itemType === 'file' ? handleDownloadFile : null}
+                                                onStar={handleStar}
+                                                onDelete={itemType === 'file' ? handleDeleteFile : handleDeleteFolder}
+                                                onShare={(id, type, name) => {
+                                                    console.log(`Sharing ${type}: ${name}`);
+                                                    alert(`Sharing dialog for ${type}: ${name}`);
+                                                }}
+                                                onEdit={handleOpenRenameDialog}
+                                                formatFileSize={itemType === 'file' ? formatFileSize : formatFolderSize}
+                                                formatDate={formatDate}
+                                                onClick={handleItemClick}
+                                                selectionMode={selectionMode}
+                                                globalActivePopup={activePopup}
+                                                setGlobalActivePopup={handleSetActivePopup}
+                                            />
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 ) : (
+                    // Grid view remains unchanged
                     <div className={`files-list ${viewMode}-layout`} onClick={(e) => {
-                        // Only clear popups if clicked directly on the files-list (not on a child)
+                        // Only clear popups if clicked directly on the files-list
                         if (e.target.className === `files-list ${viewMode}-layout`) {
                             setActivePopup(null);
                         }
                     }}>
-                        {sortedFolders.length === 0 && sortedFiles.length === 0 ? (
+                        {isLoading ? (
+                            <div className="loading">
+                                <div className="loading-spinner"></div>
+                                <p>Loading your files...</p>
+                            </div>
+                        ) : sortedFolders.length === 0 && sortedFiles.length === 0 ? (
                             <div className="empty-state">
                                 {currentFolder ? (
                                     <>
+                                        <div className="empty-icon">
+                                            <FontAwesomeIcon icon={faFolder} size="3x" />
+                                        </div>
                                         <p>This folder is empty</p>
-                                        <p>Upload files or create folders inside this folder to get started</p>
+                                        <p>Upload files or create folders to get started</p>
                                     </>
                                 ) : (
                                     <>
+                                        <div className="empty-icon">
+                                            <FontAwesomeIcon icon={faFile} size="3x" />
+                                        </div>
                                         <p>Your drive is empty</p>
                                         <p>Upload files or create folders to get started</p>
                                     </>
                                 )}
                             </div>
                         ) : (
-                            // Render all items in one list or grid
-                            <>
-                                {/* Combine folders and files into a single list */}
-                                {[...sortedFolders, ...sortedFiles].map(item => {
-                                    // Determine if it's a folder or file
-                                    const itemType = 'folder_id' in item ? 'folder' : 'file';
-                                    const itemId = itemType === 'folder' ? item.folder_id : item.file_id;
+                            // Grid view items
+                            [...sortedFolders, ...sortedFiles].map(item => {
+                                // Determine if it's a folder or file
+                                const itemType = 'folder_id' in item ? 'folder' : 'file';
+                                const itemId = itemType === 'folder' ? item.folder_id : item.file_id;
 
-                                    return (
-                                        <FileItem
-                                            key={`${itemType}-${itemId}`}
-                                            item={item}
-                                            type={itemType}
-                                            viewMode={viewMode}
-                                            isSelected={selectedItems.some(selectedItem =>
-                                                selectedItem.id === itemId &&
-                                                selectedItem.type === itemType
-                                            )}
-                                            onSelect={toggleSelectItem}
-                                            onNavigate={navigateToFolder}
-                                            onDownload={itemType === 'file' ? handleDownloadFile : null}
-                                            onStar={handleStar}
-                                            onDelete={itemType === 'file' ? handleDeleteFile : handleDeleteFolder}
-                                            onShare={(id, type, name) => {
-                                                console.log(`Sharing ${type}: ${name}`);
-                                                alert(`Sharing dialog for ${type}: ${name}`);
-                                            }}
-                                            onEdit={handleOpenRenameDialog}
-                                            formatFileSize={itemType === 'file' ? formatFileSize : formatFolderSize}
-                                            formatDate={formatDate}
-                                            onClick={handleItemClick}
-                                            selectionMode={selectionMode}
-                                            globalActivePopup={activePopup}
-                                            setGlobalActivePopup={handleSetActivePopup}
-                                        />
-                                    );
-                                })}
-                            </>
+                                return (
+                                    <FileItem
+                                        key={`${itemType}-${itemId}`}
+                                        item={item}
+                                        type={itemType}
+                                        viewMode={viewMode}
+                                        isSelected={selectedItems.some(selectedItem =>
+                                            selectedItem.id === itemId &&
+                                            selectedItem.type === itemType
+                                        )}
+                                        onSelect={toggleSelectItem}
+                                        onNavigate={navigateToFolder}
+                                        onDownload={itemType === 'file' ? handleDownloadFile : null}
+                                        onStar={handleStar}
+                                        onDelete={itemType === 'file' ? handleDeleteFile : handleDeleteFolder}
+                                        onShare={(id, type, name) => {
+                                            console.log(`Sharing ${type}: ${name}`);
+                                            alert(`Sharing dialog for ${type}: ${name}`);
+                                        }}
+                                        onEdit={handleOpenRenameDialog}
+                                        formatFileSize={itemType === 'file' ? formatFileSize : formatFolderSize}
+                                        formatDate={formatDate}
+                                        onClick={handleItemClick}
+                                        selectionMode={selectionMode}
+                                        globalActivePopup={activePopup}
+                                        setGlobalActivePopup={handleSetActivePopup}
+                                    />
+                                );
+                            })
                         )}
                     </div>
                 )}

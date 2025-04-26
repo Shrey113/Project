@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import FileItem from './FileItem'
 import FilePreview from './FilePreview'
+import { useNavigate } from 'react-router-dom'
 
 function StarredItems() {
     const user = useSelector((state) => state.user);
@@ -28,6 +29,8 @@ function StarredItems() {
     const [selectedItems, setSelectedItems] = useState([])
     const [selectionMode, setSelectionMode] = useState(false)
     const [activePopup, setActivePopup] = useState(null)
+    const [selectAll, setSelectAll] = useState(false)
+    const navigate = useNavigate();
 
     const fetchStarredItems = async () => {
         setIsLoading(true);
@@ -316,7 +319,55 @@ function StarredItems() {
         }
 
         if (type === 'folder') {
-            navigateToFolder(item.folder_id, item.folder_name);
+            // Instead of navigating within StarredItems, redirect to DriveHome
+            setActiveProfileSection('Drive Home');
+            
+            // Better handling of breadcrumb path
+            let pathToStore = [];
+            let currentPath = '';
+            
+            if (currentFolder) {
+                // If we're already in a folder in StarredItems, preserve that path
+                pathToStore = [...breadcrumbPath];
+                
+                // Check if the current folder is already in the path to avoid duplicates
+                if (!pathToStore.some(p => p.id === item.folder_id)) {
+                    pathToStore.push({ id: item.folder_id, name: item.folder_name });
+                }
+                
+                // Build current path string
+                currentPath = '/' + pathToStore.map(p => p.name).join('/');
+            } else {
+                // If we're at the root of StarredItems, start a new path
+                pathToStore = [{ id: item.folder_id, name: item.folder_name }];
+                currentPath = '/' + item.folder_name;
+            }
+            
+            console.log("Navigating to Drive Home with path:", pathToStore, "and currentPath:", currentPath);
+            
+            // Use a custom flag to force the path navigation
+            const timestamp = new Date().getTime();
+            localStorage.setItem(`folder_navigation_${timestamp}`, JSON.stringify({
+                folderId: item.folder_id,
+                folderName: item.folder_name,
+                breadcrumbPath: pathToStore,
+                currentPath: currentPath
+            }));
+            
+            // Pass folder data directly through router state with special flags
+            navigate('/Owner/drive/home', {
+                state: {
+                    folderData: {
+                        folderId: item.folder_id,
+                        folderName: item.folder_name,
+                        breadcrumbPath: pathToStore,
+                        currentPath: currentPath,
+                        fromStarred: true,
+                        directOpen: true, // Special flag for direct opening
+                        timestamp: timestamp
+                    }
+                }
+            });
         } else {
             setPreviewFile(item);
         }
@@ -350,15 +401,39 @@ function StarredItems() {
     const handleSetActivePopup = (popupId) => {
         setActivePopup(popupId);
     };
-    const sortedFolders = [...starredFolders]
 
+    // Add select all functionality
+    const handleSelectAll = () => {
+        const newSelectAll = !selectAll;
+        setSelectAll(newSelectAll);
+        
+        if (newSelectAll) {
+            // Select all visible items
+            const allItems = [...starredFolders, ...starredFiles].map(item => {
+                const itemType = 'folder_id' in item ? 'folder' : 'file';
+                const itemId = itemType === 'folder' ? item.folder_id : item.file_id;
+                return { id: itemId, type: itemType };
+            });
+            setSelectedItems(allItems);
+            setSelectionMode(true);
+        } else {
+            // Deselect all items
+            setSelectedItems([]);
+            setSelectionMode(false);
+        }
+    };
 
-
-    const sortedFiles = [...starredFiles]
-
-
+    const sortedFolders = [...starredFolders];
+    const sortedFiles = [...starredFiles];
     const allItems = [...sortedFolders, ...sortedFiles];
 
+    // Get the sort icon based on the current sort state
+    const getSortIcon = (field) => {
+        if (sortBy !== field) return null;
+        return sortOrder === 'asc' 
+            ? <FontAwesomeIcon icon={faSortUp} />
+            : <FontAwesomeIcon icon={faSortDown} />;
+    };
 
     return (
         <div className="starred-items-container">
@@ -383,7 +458,7 @@ function StarredItems() {
             </div>
 
             {/* Breadcrumb Navigation */}
-            <div className="path-navigation">
+            {/* <div className="path-navigation">
                 <button onClick={navigateUp} disabled={!currentFolder || isLoading}>
                     <FontAwesomeIcon icon={faArrowLeft} /> Up
                 </button>
@@ -416,71 +491,85 @@ function StarredItems() {
                         </span>
                     ))}
                 </div>
-            </div>
+            </div> */}
 
             {/* Selection Bar */}
             {selectedItems.length > 0 && (
                 <div className="selection-bar">
                     <div className="selection-count">
                         <button className="clear-selection" onClick={clearSelections}>×</button>
-                        <span>{selectedItems.length} items selected</span>
+                        <span>{selectedItems.length} {selectedItems.length === 1 ? 'item' : 'items'} selected</span>
                     </div>
                 </div>
             )}
 
             <div className="files-container">
-                <div className="files-header">
-                    <div className="header-select"></div>
-                    <div
-                        className="header-item header-name"
-                        onClick={() => handleSort('name')}
-                    >
-                        Name
-                    </div>
-                    <div
-                        className="header-item header-date"
-                        onClick={() => handleSort('date')}
-                    >
-                        Last Modified
-                    </div>
-                    <div
-                        className="header-item header-size"
-                        onClick={() => handleSort('size')}
-                    >
-                        Size
-                    </div>
-                    <div className="header-item header-actions">Actions</div>
-                </div>
-
-                {isLoading ? (
-                    <div className="loader">
-                        <FontAwesomeIcon icon={faSpinner} spin size="2x" />
-                    </div>
-                ) : (
-                    <div className="files-list">
-                        {downloadProgress.isDownloading && (
-                            <div className="download-progress-overlay">
-                                <div className="download-progress-container">
-                                    <p>Downloading {downloadProgress.fileName}</p>
-                                    <div className="progress-bar">
-                                        <div
-                                            className="progress"
-                                            style={{ width: `${downloadProgress.progress}%` }}
-                                        ></div>
+                <div className="table-container">
+                    <table className="files-table">
+                        <thead>
+                            <tr className="files-header">
+                                <th className="checkbox-header">
+                                    <div className="select-all-checkbox">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectAll}
+                                            onChange={handleSelectAll}
+                                            title={selectAll ? "Deselect all" : "Select all"}
+                                        />
                                     </div>
-                                    <p>{downloadProgress.progress}%</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {allItems.length === 0 ? (
-                            <div className="starred-content">
-                                <p>No starred items found.</p>
-                                <p>Mark important files with a star to find them quickly here.</p>
-                            </div>
-                        ) : (
-                            <>
-                                {[...sortedFolders, ...sortedFiles].map(item => {
+                                </th>
+                                <th 
+                                    className="name-header" 
+                                    onClick={() => handleSort('name')}
+                                >
+                                    <span>NAME</span>
+                                    {getSortIcon('name')}
+                                </th>
+                                <th className="shared-header">
+                                    <span>SHARED</span>
+                                </th>
+                                <th 
+                                    className="date-header"
+                                    onClick={() => handleSort('date')}
+                                >
+                                    <span>LAST MODIFIED</span>
+                                    {getSortIcon('date')}
+                                </th>
+                                <th 
+                                    className="size-header"
+                                    onClick={() => handleSort('size')}
+                                >
+                                    <span>FILE SIZE</span>
+                                    {getSortIcon('size')}
+                                </th>
+                                <th className="actions-header"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan="6" className="loading-cell">
+                                        <div className="loading_drive">
+                                            <div className="loading-spinner-drive"></div>
+                                            <p>Loading your files...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : allItems.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="empty-cell">
+                                        <div className="empty-state">
+                                            <div className="empty-icon">
+                                                <FontAwesomeIcon icon={faStar} size="3x" />
+                                            </div>
+                                            <p>No starred items found</p>
+                                            <p>Mark important files with a star to find them quickly here</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                // Render all items in table rows
+                                [...sortedFolders, ...sortedFiles].map(item => {
                                     const itemType = 'folder_id' in item ? 'folder' : 'file';
                                     const itemId = itemType === 'folder' ? item.folder_id : item.file_id;
                                     return (
@@ -488,10 +577,10 @@ function StarredItems() {
                                             key={`${itemType}-${itemId}`}
                                             item={item}
                                             type={itemType}
-                                            viewMode={viewMode}
+                                            viewMode="list"
                                             isSelected={selectedItems.some(selectedItem =>
-                                                selectedItem.id === (item.folder_id || item.file_id) &&
-                                                selectedItem.type === (item.folder_id ? 'folder' : 'file')
+                                                selectedItem.id === itemId &&
+                                                selectedItem.type === itemType
                                             )}
                                             onSelect={toggleSelectItem}
                                             onNavigate={navigateToFolder}
@@ -504,13 +593,28 @@ function StarredItems() {
                                             globalActivePopup={activePopup}
                                             setGlobalActivePopup={handleSetActivePopup}
                                         />
-                                    )
-                                })}
-                            </>
-                        )}
-                    </div>
-                )}
-
+                                    );
+                                })
+                            )}
+                            {downloadProgress.isDownloading && (
+                                <tr className="download-progress-overlay">
+                                    <td colSpan="6">
+                                        <div className="download-progress-container">
+                                            <p>Downloading {downloadProgress.fileName}</p>
+                                            <div className="progress-bar">
+                                                <div
+                                                    className="progress"
+                                                    style={{ width: `${downloadProgress.progress}%` }}
+                                                ></div>
+                                            </div>
+                                            <p>{downloadProgress.progress}%</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

@@ -196,6 +196,8 @@ const FileItem = ({
 
     // Render shared avatars
     const renderSharedAvatars = () => {
+        if (!sharedWith || sharedWith.length === 0) return null;
+        
         return (
             <div className="shared-avatars">
                 {sharedWith.map((user, index) => {
@@ -264,10 +266,7 @@ const FileItem = ({
                         {isStarred && (
                             <FiStar
                                 className="star-indicator"
-                                style={{
-                                    color: '#FFD700',
-                                    fill: '#FFD700'
-                                }}
+                                style={{ color: '#FFD700', fill: '#FFD700' }}
                             />
                         )}
                     </div>
@@ -304,21 +303,7 @@ const FileItem = ({
                                 className="option-item"
                             >
                                 <FiStar />
-                                <span>{isStarred ? 'Unstar' : 'Star'}</span>
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onDelete) {
-                                        onDelete(itemIdValue, itemName);
-                                    }
-                                    setShowOptions(false);
-                                    setGlobalActivePopup(null);
-                                }}
-                                className="option-item warning"
-                            >
-                                <FiTrash2 />
-                                <span>Delete</span>
+                                <span>{isStarred ? "Unstar" : "Star"}</span>
                             </button>
                             <button
                                 onClick={(e) => {
@@ -344,6 +329,20 @@ const FileItem = ({
                                 <FiShare2 />
                                 <span>Share</span>
                             </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onDelete) {
+                                        onDelete(itemIdValue, itemName);
+                                    }
+                                    setShowOptions(false);
+                                    setGlobalActivePopup(null);
+                                }}
+                                className="option-item warning"
+                            >
+                                <FiTrash2 />
+                                <span>Delete</span>
+                            </button>
                         </div>
                     )}
                 </div>
@@ -351,54 +350,53 @@ const FileItem = ({
         );
     }
 
-    // List view
+    // List view - improved table-like structure
     return (
-        <div
+        <tr
             ref={itemRef}
-            className={`file-item-list ${type} ${isSelected ? 'selected' : ''} ${selectionMode ? 'selection-mode' : ''}`}
+            className={`table-row ${type} ${isSelected ? 'selected' : ''} ${selectionMode ? 'selection-mode' : ''}`}
             onClick={handleItemClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <div className="file-select" onClick={handleCheckboxClick}>
-                <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => { }}
-                />
-            </div>
-
-            <div className="file-icon-container">
-                {getIcon()}
-            </div>
-
-            <div className="file-name">
-                <span title={itemName} className="file-name-span">{itemName}</span>
-                {isStarred && (
-                    <FiStar
-                        className="star-indicator"
-                        style={{
-                            color: '#FFD700',
-                            fill: '#FFD700'
-                        }}
+            <td className="checkbox-cell">
+                <div className="file-select" onClick={handleCheckboxClick}>
+                    <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => { }}
                     />
-                )}
-            </div>
-
-            <div className="file-shared">
+                </div>
+            </td>
+            
+            <td className="name-cell">
+                <div className="name-wrapper">
+                    <div className="file-icon-container">
+                        {getIcon()}
+                    </div>
+                    <span title={itemName} className="file-name-span">{itemName}</span>
+                    {isStarred && (
+                        <FiStar
+                            className="star-indicator"
+                            style={{ color: '#FFD700', fill: '#FFD700' }}
+                        />
+                    )}
+                </div>
+            </td>
+            
+            <td className="shared-cell">
                 {renderSharedAvatars()}
-            </div>
-
-            <div className="file-date">
+            </td>
+            
+            <td className="date-cell">
                 {createdDate}
-            </div>
-
-            <div className="file-size">
+            </td>
+            
+            <td className="size-cell">
                 {itemSize}
-            </div>
-
-            <div className="file-actions">
-                {/* Only show 3-dot menu in list view */}
+            </td>
+            
+            <td className="actions-cell">
                 <button
                     className="action-more"
                     onClick={toggleOptions}
@@ -428,9 +426,8 @@ const FileItem = ({
                             className="option-item"
                         >
                             <FiStar />
-                            <span>{isStarred ? 'Unstar' : 'Star'}</span>
+                            <span>{isStarred ? "Unstar" : "Star"}</span>
                         </button>
-
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -471,8 +468,8 @@ const FileItem = ({
                         </button>
                     </div>
                 )}
-            </div>
-        </div>
+            </td>
+        </tr>
     );
 };
 

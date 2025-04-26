@@ -1,1127 +1,972 @@
-/* Drive Components Styles */
-
-/* Drive Main Layout */
-.drive-main-layout {
-  display: flex;
-  min-height: calc(100vh - 60px);
-  /* Subtract header height */
+/* Modern Drive UI - Main Styles */
+:root {
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --secondary-color: #f9fafb;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-light: #6b7280;
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --info-color: #3b82f6;
 }
 
-.drive-sidebar {
-  width: 240px;
-  background-color: #f5f5f5;
-  border-right: 1px solid #e0e0e0;
-  display: flex;
-  flex-direction: column;
-  position: sticky;
-  top: 0;
-  height: 100vh;
+/* Global Styles */
+.drive-home-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+  color: var(--text-primary);
+  background-color: #f9fafb;
+  padding: 1.5rem;
+  min-height: calc(100vh - 3rem);
+  overflow-x: hidden;
 }
 
-.sidebar-header {
-  padding: 20px 15px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.sidebar-header h2 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  color: #4285f4;
-}
-
-.sidebar-nav {
-  flex-grow: 1;
-  padding: 15px 0;
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 15px;
-  color: #555;
-  text-decoration: none;
-  transition: background-color 0.2s;
-}
-
-.sidebar-item:hover {
-  background-color: #e8e8e8;
-}
-
-.sidebar-item.active {
-  background-color: #e0e8ff;
-  color: #4285f4;
-  font-weight: 500;
-}
-
-.sidebar-footer {
-  padding: 15px;
-  border-top: 1px solid #e0e0e0;
-}
-
-.btn-upgrade {
-  width: 100%;
-  background-color: #34a853;
-}
-
-.btn-upgrade:hover {
-  background-color: #2d9247;
-}
-
-.drive-content {
-  flex-grow: 1;
-  min-width: 0;
-  /* Ensures that content doesn't overflow */
-}
-
-/* Upload page */
-.upload-page {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.upload-zone {
-  margin-top: 30px;
-  border: 2px dashed #ccc;
-  padding: 40px;
-  text-align: center;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-}
-
-.upload-zone:hover {
-  border-color: #4285f4;
-  background-color: #f0f6ff;
-}
-
-.upload-zone p {
-  margin-top: 15px;
-  color: #666;
-}
-
-.file-input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-}
-
-/* Common styles */
-.drive-home-container,
-.starred-items-container,
-.shared-files-container {
-  padding: 20px;
-}
-
-h1 {
-  margin-bottom: 20px;
-  color: #333;
-  font-size: 1.8rem;
-}
-
-h2 {
-  margin-bottom: 15px;
-  color: #444;
-  font-size: 1.4rem;
-}
-
-h3 {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-  color: #555;
-}
-
-/* Drive header styles */
+/* Drive Header */
 .drive-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px 15px;
-  border-bottom: 1px solid #e0e0e0;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .drive-header h1 {
-  font-size: 22px;
+  font-size: 1.75rem;
+  font-weight: 600;
   margin: 0;
-  color: #202124;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
+.current-folder-indicator {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Drive Actions Bar */
 .drive-actions {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
-/* Enhanced search bar */
+/* Search Bar */
 .search-bar {
-  display: flex;
-  align-items: center;
-  background-color: #f1f3f4;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-right: 10px;
-  width: 240px;
-  border: 1px solid transparent;
-  transition: all 0.2s;
-}
-
-.search-bar:focus-within {
-  background-color: white;
-  border-color: #dadce0;
-  box-shadow: 0 1px 4px rgba(32, 33, 36, 0.1);
+  position: relative;
+  min-width: 240px;
+  max-width: 360px;
+  flex-grow: 1;
 }
 
 .search-bar input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  padding: 8px 12px;
-  font-size: 14px;
-  color: #202124;
+  width: 100%;
+  padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: white;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.search-bar input:focus {
   outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .search-bar .search-btn {
-  background: none;
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
   border: none;
-  padding: 8px;
-  color: #5f6368;
+  color: var(--text-light);
   cursor: pointer;
+  padding: 0.375rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
 }
 
 .search-bar .search-btn:hover {
-  color: #202124;
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--primary-color);
 }
 
-/* Upload and Create Folder buttons */
+/* Action Buttons */
 .btn-upload,
 .btn-create-folder {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 14px;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-md);
   font-weight: 500;
-  margin-right: 10px;
-  border: 1px solid #dadce0;
-  background-color: white;
-  color: #5f6368;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-upload:hover,
-.btn-create-folder:hover {
-  background-color: #f1f3f4;
-  color: #202124;
-}
-
-.drive-main-layout button {
-  background-color: #4285f4;
-  color: white;
+  transition: all 0.2s ease;
   border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
 }
 
-button:disabled {
-  background-color: #b7b7b7;
-  cursor: not-allowed;
+.btn-upload {
+  background-color: var(--primary-color);
+  color: white;
 }
 
-.btn-delete {
-  background-color: #ea4335;
+.btn-upload:hover {
+  background-color: var(--primary-hover);
 }
 
-.btn-delete:hover {
-  background-color: #d73228;
-}
-
-/* Upload progress */
-.upload-progress {
-  margin: 10px 0 20px;
-}
-
-.progress-bar {
-  height: 6px;
-  background-color: #f1f1f1;
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 5px;
-}
-
-.progress {
-  height: 100%;
-  background-color: #4285f4;
-  transition: width 0.3s ease-in-out;
-}
-
-/* Create folder form */
-.create-folder-form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #f8f8f8;
-  border-radius: 8px;
-  align-items: center;
-}
-
-.create-folder-form input {
-  flex-grow: 1;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-/* Storage statistics card */
-.drive-stats {
-  margin-bottom: 30px;
-}
-
-.stat-card {
+.btn-create-folder {
   background-color: white;
-  border-radius: 8px;
-  padding: 15px;
-  /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); */
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
-/* Path navigation */
+.btn-create-folder:hover {
+  background-color: var(--secondary-color);
+  border-color: #d1d5db;
+}
+
+.view-mode-toggle {
+  display: flex;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.view-btn {
+  padding: 0.625rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.view-btn:hover {
+  background-color: var(--secondary-color);
+}
+
+.view-btn.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Path Navigation */
 .path-navigation {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  background-color: #f5f5f5;
-  padding: 10px;
-  border-radius: 4px;
+  background-color: white;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
-.current-path {
-  font-family: monospace;
-  color: #444;
-  flex-grow: 1;
+.path-navigation::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
-/* Files container */
+.path-navigation button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--secondary-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.path-navigation button:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.path-navigation button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Breadcrumb Navigation */
+.breadcrumb-container {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  margin-left: 1rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  white-space: nowrap;
+}
+
+.breadcrumb-container::-webkit-scrollbar {
+  display: none;
+}
+
+.breadcrumb-item {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breadcrumb-item.clickable {
+  cursor: pointer;
+  color: var(--primary-color);
+}
+
+.breadcrumb-item.clickable:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.breadcrumb-separator {
+  margin: 0 0.5rem;
+  color: var(--text-light);
+}
+
+/* Total Items Count */
+.total-items-count {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  padding: 0 0.5rem;
+}
+
+/* Selection Bar */
+.selection-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  animation: fade-in 0.3s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.selection-count {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+}
+
+.clear-selection {
+  background: none;
+  border: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--text-light);
+  transition: all 0.2s ease;
+}
+
+.clear-selection:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--danger-color);
+}
+
+.selection-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.selection-actions .action-btn {
+  background: transparent;
+  border: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.selection-actions .action-btn:hover {
+  background-color: var(--secondary-color);
+}
+
+.selection-actions .star-btn:hover {
+  color: #f59e0b;
+}
+
+.selection-actions .trash-btn:hover {
+  color: var(--danger-color);
+}
+
+/* Files Container */
 .files-container {
   background-color: white;
-  border-radius: 8px;
-  position: relative;
-  z-index: 1;
-  /* Allow showing popups outside container boundaries */
-  overflow: visible;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
-/* loader */
-.files-container .loader {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  color: #333;
-}
-
-/* Files header */
+/* Files Header */
 .files-header {
-  display: grid;
-  grid-template-columns: 30px 2fr 1fr 1fr 1fr 42px;
-  gap: 10px;
-  padding: 12px 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
-  font-weight: 500;
-  color: #5f6368;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--secondary-color);
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--text-light);
   text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
 }
 
 .header-item {
   display: flex;
   align-items: center;
   cursor: pointer;
-  user-select: none;
-  padding: 8px;
-  border-radius: 4px;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
 }
 
 .header-item:hover {
-  color: #202124;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .header-item span {
-  font-weight: 600;
+  margin-right: 0.5rem;
 }
 
-.header-item.header-name {
-  font-weight: 600;
-  color: #202124;
-}
-
-.header-item.header-date,
-.header-item.header-size {
-  font-weight: 500;
-  color: #343a40;
-}
-
-.header-item.header-actions {
-  text-align: center;
-  cursor: default;
-}
-
-.header-item.header-actions:hover {
-  background-color: transparent;
-}
-
-/* Sort icons */
 .sort-icon {
-  margin-left: 8px;
-  font-size: 0.85em;
-  color: #6c757d;
-  transition: transform 0.2s ease;
+  font-size: 0.75rem;
+  color: var(--primary-color);
 }
 
-.sort-icon.active {
-  color: #0d6efd;
-}
-
-/* Filter button */
-.filter-button {
-  display: none;
-}
-
-/* Update file item hover - standard light gray hover */
-.file-item:hover,
-.file-item.hovered {
-  background-color: #f1f1f1;
-  /* Standard light gray */
-  transform: none;
-  /* No movement */
-  box-shadow: none;
-  /* No shadow */
-}
-
-/* Remove different hover colors for folders and files */
-.file-item.folder:hover,
-.file-item.file:hover {
-  background-color: #f1f1f1;
-  /* Standard light gray for all */
-}
-
-/* Files list */
+/* Files List */
 .files-list {
-  width: 100%;
-  overflow: visible;
+  min-height: 300px;
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
 }
 
-/* Header spacing adjustments */
-.header-select {
-  width: 30px;
+.files-list.list-layout {
+  display: flex;
+  flex-direction: column;
 }
 
-.header-name {
-  font-weight: 600;
+.files-list.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 1rem;
+  padding: 1.5rem;
 }
 
-.header-date,
-.header-size {
-  font-weight: 500;
-}
-
-.header-actions {
-  text-align: center;
-}
-
-/* List view file item */
+/* File Item - List View */
 .file-item-list {
   display: grid;
-  grid-template-columns: 30px 30px 1fr 1fr 1fr 1fr 42px;
-  gap: 10px;
-  padding: 10px 15px;
+  grid-template-columns: 3rem minmax(200px, 1fr) 1fr 1fr 7rem;
   align-items: center;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.2s;
-  max-height: 80px;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .file-item-list:hover {
-  background-color: #f8f9fa;
+  background-color: var(--secondary-color);
 }
 
-.file-item-list .file-name {
-  color: #202124;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  /* background-color: red; */
+.file-item-list.selected {
+  background-color: rgba(79, 70, 229, 0.1);
 }
 
-.file-item-list .file-name .file-name-span {
-  /* background-color: blue; */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 200px;
-  width: fit-content;
-}
-
-.file-date,
-.file-size {
-  color: #5f6368;
-  font-size: 14px;
-}
-
-/* FileItem Component Styles */
-.file-item {
-  display: grid;
-  grid-template-columns: 30px 2fr 1fr 1fr 1fr 42px;
-  gap: 10px;
-  padding: 10px 15px;
-  align-items: center;
-  border-bottom: 1px solid #eee;
-}
-
-/* .file-item .file-name {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-} */
-
-.file-item .folder-icon {
-  color: #ffc107;
-  font-size: 1.2em;
-  margin-right: 8px;
-}
-
-.file-item .file-icon {
-  color: #6c757d;
-  font-size: 1.2em;
-  margin-right: 8px;
-}
-
-.file-item .file-pdf {
-  color: #dc3545;
-}
-
-.file-item .file-docx,
-.file-item .file-doc {
-  color: #0d6efd;
-}
-
-.file-item .file-xlsx,
-.file-item .file-xls {
-  color: #198754;
-}
-
-.file-item .file-pptx,
-.file-item .file-ppt {
-  color: #fd7e14;
-}
-
-.file-item .file-actions {
-  display: flex;
-  gap: 5px;
-  justify-content: flex-end;
-  position: relative;
-  opacity: 1;
-  transition: opacity 0.2s ease;
-  z-index: 5;
-}
-
-.file-item .file-actions.visible {
-  opacity: 1;
-}
-
-/* Make action buttons 20% larger */
-.file-item .action-btn {
-  background: transparent;
-  border: none;
+.file-select {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  margin: 0 2px;
-  padding: 5px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  color: #666;
-  z-index: 10;
 }
 
-.file-item .action-btn:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: #000;
-}
-
-.file-item .action-download {
-  color: #0d6efd;
-  opacity: 1;
-  visibility: visible;
-}
-
-.file-item .action-star:hover {
-  color: #ffc107;
-}
-
-.file-item .action-edit:hover {
-  color: #6610f2;
-}
-
-.file-item .action-share:hover {
-  color: #20c997;
-}
-
-.file-item .action-more {
-  position: relative;
-  margin-left: auto;
-}
-
-/* Make three dots always visible */
-.file-item .action-more.always-visible {
-  display: flex;
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Options Popup */
-.options-popup {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 1000;
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
-  min-width: 150px;
-  animation: popup-appear 0.2s ease-out;
-}
-
-@keyframes popup-appear {
-  0% {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.options-popup ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.options-popup li {
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #3c4043;
-  transition: background-color 0.2s;
-}
-
-.options-popup li:hover {
-  background-color: #f1f3f4;
-}
-
-.options-popup li svg {
-  color: #5f6368;
-  font-size: 16px;
-}
-
-/* File select checkbox animation */
 .file-select input[type="checkbox"] {
-  cursor: pointer;
   appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #ddd;
-  border-radius: 3px;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
   position: relative;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .file-select input[type="checkbox"]:checked {
-  background-color: #1a73e8;
-  border-color: #1a73e8;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .file-select input[type="checkbox"]:checked::after {
   content: "✓";
   position: absolute;
-  color: white;
-  font-size: 12px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  color: white;
 }
 
-/* Star icon specific styles */
-.action-btn svg[data-icon="star"] {
-  transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.action-btn:hover svg[data-icon="star"] {
-  transform: scale(1.2);
-  color: #FFD700 !important;
-}
-
-/* Animation for star when clicked */
-@keyframes star-pulse {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.5);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-.action-btn:active svg[data-icon="star"] {
-  animation: star-pulse 0.5s ease;
-}
-
-/* Star icon when starred */
-.action-btn svg[data-icon="star"][style*="color: #FFD700"] {
-  transform: scale(1.1);
-  filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
-}
-
-/* Empty state */
-.empty-state {
-  padding: 50px 20px;
-  text-align: center;
-  color: #666;
-}
-
-.empty-state p:first-child {
-  font-size: 1.1rem;
-  margin-bottom: 10px;
-}
-
-/* Loading state */
-.loading {
-  padding: 30px;
-  text-align: center;
-  color: #666;
-}
-
-/* Starred items specific styles */
-.starred-content {
-  padding: 40px 20px;
-  text-align: center;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-}
-
-.starred-content p:first-child {
-  font-size: 1.1rem;
-  margin-bottom: 10px;
-}
-
-/* Shared files specific styles */
-.tabs-container {
+.file-name {
   display: flex;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ddd;
-}
-
-.tab {
-  padding: 10px 20px;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: all 0.2s;
-}
-
-.tab:hover {
-  background-color: #f5f5f5;
-}
-
-.tab.active {
-  border-bottom-color: #4285f4;
-  font-weight: 600;
-  color: #4285f4;
-}
-
-.tab-content {
-  padding: 20px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-}
-
-/* Ensure file-date and file-size are properly aligned */
-.file-date,
-.file-size {
-  color: #666;
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-
-/* File-specific hover and animations */
-.file-item.file:hover .file-name {
-  color: #0d6efd;
-}
-
-.file-item.folder:hover .file-name {
-  color: #ffc107;
-}
-
-/* Animation for file selection */
-.file-item.selected {
-  background-color: rgba(13, 110, 253, 0.1);
-}
-
-/* Make the file item layout responsive */
-@media (max-width: 768px) {
-  .drive-main-layout {
-    flex-direction: column;
-  }
-
-  .drive-sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
-  }
-
-  .sidebar-nav {
-    display: flex;
-    overflow-x: auto;
-    padding: 10px;
-  }
-
-  .sidebar-item {
-    padding: 10px;
-    flex-direction: column;
-    text-align: center;
-    font-size: 0.8rem;
-  }
-
-  .drive-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-
-  .drive-actions {
-    width: 100%;
-  }
-
-  .files-header,
-  .file-item {
-    grid-template-columns: 30px 2fr 1fr auto;
-  }
-
-  .file-size {
-    display: none;
-  }
-
-  .file-actions {
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: 480px) {
-
-  .files-header,
-  .file-item {
-    grid-template-columns: 30px 2fr 40px;
-  }
-
-  .file-date {
-    display: none;
-  }
-}
-
-/* Share Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
-}
-
-.share-modal {
-  background-color: white;
-  border-radius: 8px;
-  width: 450px;
-  max-width: 90%;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.share-modal h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.3rem;
-  color: #333;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 6px;
+  gap: 0.75rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-weight: 500;
-  color: #555;
 }
 
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.95rem;
-}
-
-.already-shared {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-}
-
-.already-shared h4 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 1rem;
-  color: #555;
-}
-
-.already-shared ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-.already-shared li {
+.file-icon {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 1.25rem;
 }
 
-.already-shared li:last-child {
-  border-bottom: none;
+.folder-icon {
+  color: #fdd835 !important;
 }
 
-.remove-access-btn {
-  background: none;
-  color: #ea4335;
-  border: none;
-  padding: 2px 5px;
-  font-size: 0.8rem;
-  cursor: pointer;
+.file-pdf {
+  color: #ef4444;
 }
 
-.remove-access-btn:hover {
-  text-decoration: underline;
+.file-docx,
+.file-txt {
+  color: #3b82f6;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+.file-xlsx {
+  color: #10b981;
 }
 
-.btn-cancel {
-  background-color: #f1f1f1;
-  color: #333;
+.file-pptx {
+  color: #f97316;
 }
 
-.btn-cancel:hover {
-  background-color: #e5e5e5;
-}
-
-.btn-share {
-  background-color: #4285f4;
-}
-
-/* File owner style */
-.file-owner {
-  color: #666;
-  font-size: 0.9rem;
-  white-space: nowrap;
+.file-name-span {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* File actions visibility */
-.file-item .file-actions {
+.star-indicator {
+  color: #f59e0b;
+  margin-left: 0.5rem;
+}
+
+.file-shared {
+  overflow: hidden;
+}
+
+.shared-avatars {
   display: flex;
-  gap: 5px;
-  justify-content: flex-end;
-  position: relative;
-  opacity: 1;
-  transition: opacity 0.2s ease;
+  align-items: center;
+}
+
+.shared-avatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 2px solid white;
+  margin-right: -0.5rem;
+  overflow: hidden;
+}
+
+.shared-avatar:nth-child(1) {
   z-index: 5;
 }
 
-.file-item:hover .file-actions,
-.file-item.hovered .file-actions,
-.file-item .file-actions.visible {
-  opacity: 1;
+.shared-avatar:nth-child(2) {
+  z-index: 4;
 }
 
-/* Make 3-dot menu always visible in list view */
-.file-item.list-view .action-more {
+.shared-avatar:nth-child(3) {
+  z-index: 3;
+}
+
+.shared-avatar:nth-child(4) {
+  z-index: 2;
+}
+
+.more-avatar {
+  background-color: var(--border-color);
+}
+
+.file-date {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.file-size {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* File Actions */
+.file-actions {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.375rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.file-item-list:hover .file-actions,
+.file-item-list:focus-within .file-actions {
   opacity: 1;
-  visibility: visible;
 }
 
-/* Ensure options popup is positioned correctly */
-.options-popup {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 1000;
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
-  min-width: 150px;
-  animation: popup-appear 0.2s ease-out;
-}
-
-/* Fix download functionality by ensuring click events propagate correctly */
-.file-item .action-btn {
-  background: transparent;
-  border: none;
+.action-btn {
+  width: 2rem;
+  height: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 50%;
   cursor: pointer;
-  margin: 0 2px;
-  padding: 5px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  color: #666;
-  z-index: 10;
+  transition: all 0.2s ease;
 }
 
-/* Style specifically for download button */
-.file-item .action-download {
-  color: #0d6efd;
+.action-btn:hover {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+}
+
+.action-download:hover {
+  color: var(--info-color);
+}
+
+.action-star:hover {
+  color: #f59e0b;
+}
+
+.action-edit:hover {
+  color: var(--primary-color);
+}
+
+.action-share:hover {
+  color: var(--success-color);
+}
+
+.action-more,
+.action-more.always-visible {
   opacity: 1;
-  visibility: visible;
 }
 
-/* Additional file type icons */
-.file-item .file-image {
-  color: #9c27b0;
+/* Options Popup */
+.options-popup {
+  position: absolute;
+  right: 0;
+  top: 90%;
+  z-index: 100;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  width: 140px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
 }
 
-.file-item .file-excel {
-  color: #198754;
+.option-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+  color: #333;
+  transition: background-color 0.2s;
+  position: relative;
 }
 
-.file-item .file-code {
-  color: #0dcaf0;
+.option-item:hover {
+  background-color: #f5f5f5;
 }
 
-.file-item .file-archive {
-  color: #6c757d;
+.option-item svg {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  color: #555;
 }
 
-.file-item .file-audio {
-  color: #fd7e14;
+.option-item.warning {
+  color: #e53935;
 }
 
-.file-item .file-video {
-  color: #e83e8c;
+.option-item.warning svg {
+  color: #e53935;
 }
 
-.file-item .file-txt {
-  color: #6c757d;
+/* Popup menu divider */
+.option-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
 }
 
-/* Files divider */
-.files-divider {
-  display: none;
+/* Select all checkbox in header */
+.select-all-checkbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
 }
 
-/* Star indicator next to file/folder name */
-.star-indicator {
-  margin-left: 8px;
+.select-all-checkbox input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #ddd;
+  border-radius: 3px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select-all-checkbox input[type="checkbox"]:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.select-all-checkbox input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.7rem;
+  color: white;
+}
+
+/* Adjust table row columns to match image */
+.table-row td:nth-child(1),
+.files-header th:nth-child(1) {
+  width: 40px !important;
+  max-width: 40px !important;
+}
+
+.checkbox-cell {
+  width: 40px !important;
+  max-width: 40px !important;
+}
+
+.checkbox-header {
+  width: 40px !important;
+  max-width: 40px !important;
+  text-align: center;
+}
+
+/* Name cell adjustments */
+.name-cell {
+  padding-left: 0 !important;
+}
+
+/* File icon container adjustments */
+.file-icon-container {
+  margin-right: 12px;
+}
+
+/* Additional styling to match the image */
+.file-name-span {
   font-size: 14px;
 }
 
-/* Ensure main container doesn't scroll horizontally on small screens */
-.drive-home-container {
-  max-width: 100%;
-  /* overflow-x: hidden; */
+.star-indicator {
+  color: #f5bc00 !important;
+  fill: #f5bc00 !important;
 }
 
-/* Fix header grid alignment to match FileItem */
-.files-header {
-  display: grid;
-  grid-template-columns: 40px 2.1fr 1.5fr 2fr 1fr 1fr 42px;
-  gap: 10px;
-  padding: 12px 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
-  font-weight: 500;
-  color: #5f6368;
-}
-
-/* Ensure file actions container is properly sized */
-.file-actions {
-  width: 130px;
+/* Adjust the action more button to match the image */
+.action-more {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: #777;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin: 0 auto;
+}
+
+.action-more:hover {
+  background-color: #f1f1f1;
+}
+
+.actions-cell {
+  position: relative;
+  width: 40px;
+  max-width: 40px;
+  text-align: center;
+  padding-right: 0.5rem !important;
+}
+
+.options-popup {
+  position: absolute;
+  right: 0;
+  top: 38px;
+  z-index: 100;
+  background-color: white;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  width: 140px;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Hide action button until hover on row */
+.table-row .action-more {
+  opacity: 0.2;
+}
+
+.table-row:hover .action-more {
+  opacity: 1;
+}
+
+/* Add a visible menu when clicked */
+.table-row .action-more:focus {
+  outline: none;
+  opacity: 1;
+}
+
+/* Properly align the menu items */
+.option-item {
+  height: 36px;
+  font-size: 13px;
+  margin: 0;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  line-height: 36px;
+}
+
+.option-item svg {
+  margin-right: 12px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Enhance the appearance of the purple checkbox area */
+.table-row td:nth-child(1),
+.files-header th:nth-child(1) {
+
+  width: 40px !important;
+  max-width: 40px !important;
+  border-right: 1px solid #fff;
+}
+
+/* File Item - Grid View */
+.file-item-grid {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  position: relative;
+  border: 1px solid var(--border-color);
+}
+
+.file-item-grid:hover,
+.file-item-grid:focus-within {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.file-item-grid.selected {
+  border-color: var(--primary-color);
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+.file-select-grid {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 5;
+}
+
+.file-icon-container {
+  height: 120px;
+  background-color: var(--secondary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  position: relative;
+}
+
+.file-item-grid.folder .file-icon-container {
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.file-item-grid.file .file-icon-container {
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+.file-details {
+  padding: 0.75rem;
+}
+
+.file-name-grid {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.file-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.file-size-grid {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.file-actions-grid {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.file-item-grid:hover .file-actions-grid,
+.file-item-grid:focus-within .file-actions-grid {
+  opacity: 1;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.empty-state p:first-child {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--secondary-color);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spinner 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Empty State Icons */
+.empty-icon {
+  color: var(--border-color);
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
 }
 
 /* Rename Dialog */
@@ -1133,854 +978,290 @@ button:disabled {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
 }
 
 .rename-dialog {
   background-color: white;
-  border-radius: 8px;
-  width: 400px;
-  max-width: 90%;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: var(--shadow-lg);
+  animation: dialog-appear 0.3s ease;
+}
+
+@keyframes dialog-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .rename-dialog h3 {
   margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.3rem;
-  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .rename-dialog input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  margin-bottom: 20px;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.rename-dialog input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .rename-dialog-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 0.75rem;
 }
 
 .rename-dialog-buttons button {
-  padding: 8px 15px;
-  border-radius: 4px;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
   border: none;
-  font-size: 0.9rem;
 }
 
 .cancel-btn {
-  background-color: #f1f1f1 !important;
-  color: #333 !important;
+  background-color: var(--secondary-color);
+  color: var(--text-primary);
+}
+
+.cancel-btn:hover {
+  background-color: #e5e7eb;
 }
 
 .rename-btn {
-  background-color: #4285f4 !important;
-  color: white !important;
+  background-color: var(--primary-color);
+  color: white;
 }
 
-/* File Preview Styles */
+.rename-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+.rename-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* File Preview */
 .file-preview-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
+  padding: 2rem;
 }
 
 .file-preview-container {
   background-color: white;
-  border-radius: 8px;
-  width: 80%;
+  border-radius: var(--radius-lg);
+  width: 95%;
   max-width: 1000px;
-  height: 80%;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
+  animation: preview-appear 0.3s ease;
+}
+
+@keyframes preview-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .file-preview-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
-  border-bottom: 1px solid #e0e0e0;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .file-preview-header h3 {
   margin: 0;
-  font-size: 18px;
-  white-space: nowrap;
+  font-size: 1.25rem;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 80%;
+  white-space: nowrap;
 }
 
 .preview-close-btn {
-  background: none;
+  background: transparent;
   border: none;
-  cursor: pointer;
-  color: #666;
-  padding: 5px;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
 }
 
 .preview-close-btn:hover {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: var(--secondary-color);
+  color: var(--danger-color);
 }
 
 .file-preview-content {
   flex: 1;
   overflow: auto;
-  padding: 20px;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  min-height: 300px;
+  background-color: var(--secondary-color);
 }
 
-.preview-image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
+.preview-image,
 .preview-video,
-.preview-audio {
-  width: 100%;
-  max-height: 100%;
-}
-
-.preview-pdf,
-.preview-text {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-.file-preview-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  font-size: 18px;
-  color: #666;
-}
-
-.file-preview-error {
-  color: #e53935;
-  text-align: center;
-  padding: 20px;
+.preview-pdf {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 }
 
 .preview-unsupported {
   text-align: center;
-  color: #666;
+  padding: 2rem;
+  color: var(--text-secondary);
 }
 
 .file-preview-actions {
   display: flex;
   justify-content: flex-end;
-  padding: 15px 20px;
-  border-top: 1px solid #e0e0e0;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  gap: 1rem;
 }
 
 .preview-download-btn {
   display: flex;
   align-items: center;
-  background-color: #2196f3;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 14px;
   cursor: pointer;
-  gap: 8px;
+  transition: all 0.2s ease;
 }
 
 .preview-download-btn:hover {
-  background-color: #1976d2;
+  background-color: var(--primary-hover);
 }
 
-/* Download progress overlay */
-.download-progress-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.download-progress-container {
-  background-color: white;
-  border-radius: 8px;
-  padding: 24px;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  text-align: center;
-}
-
-.download-progress-container p {
-  margin-bottom: 12px;
-  color: #333;
-}
-
-.download-progress-container .progress-bar {
-  height: 8px;
-  background-color: #e9ecef;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.download-progress-container .progress {
-  height: 100%;
-  background-color: #4285f4;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-/* Improved action buttons styles */
-.file-item .action-btn.action-download {
-  color: #0d6efd;
-}
-
-.file-item .action-btn.action-star {
-  color: #ffc107;
-}
-
-.file-item .action-btn.action-share {
-  color: #20c997;
-}
-
-.file-item .action-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Breadcrumb navigation */
-.breadcrumb-container {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 0.9rem;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding: 0 10px;
-}
-
-.breadcrumb-item {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 6px;
-  border-radius: 3px;
-}
-
-.breadcrumb-item.clickable {
-  cursor: pointer;
-  color: #4285f4;
-}
-
-.breadcrumb-item.clickable:hover {
-  background-color: #e8eaed;
-  text-decoration: underline;
-}
-
-.breadcrumb-item.active {
-  font-weight: 600;
-  color: #202124;
-}
-
-.breadcrumb-separator {
-  margin: 0 3px;
-  color: #5f6368;
-}
-
-.path-navigation {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  background-color: #f5f5f5;
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
-}
-
-.path-navigation button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 4px;
-  background-color: white;
-  border: 1px solid #dadce0;
-  color: #5f6368;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.path-navigation button:hover:not(:disabled) {
-  background-color: #f1f3f4;
-  color: #202124;
-}
-
-.path-navigation button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* View Mode Toggle */
-.view-mode-toggle {
-  display: flex;
-  margin-left: auto;
-  background-color: #f1f3f4;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.view-btn {
-  background: none;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  color: #5f6368;
-  transition: all 0.2s ease;
-}
-
-.view-btn:hover {
-  background-color: #e8eaed;
-  color: #202124;
-}
-
-.view-btn.active {
-  background-color: #dadce0;
-  color: #1a73e8;
-}
-
-/* Grid View Layout */
-.files-list.grid-layout {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
-  padding: 16px;
-}
-
-.file-item-grid {
-  position: relative;
-  background-color: white;
-  border-radius: 8px;
-  padding: 16px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  transition: all 0.2s ease;
-  height: 170px;
-  overflow: visible;
-}
-
-.file-item-grid:hover,
-.file-item-grid.selected {
-  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-  transform: translateY(-2px);
-}
-
-.file-item-grid.selected {
-  background-color: rgba(232, 240, 254, 0.6);
-  border: 1px solid #8ab4f8;
-}
-
-.file-select-grid {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 2;
-}
-
-.file-icon-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-.file-details {
-  width: 100%;
-  text-align: center;
-}
-
-.file-name-grid {
-  font-weight: 500;
-  margin-bottom: 4px;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-}
-
-.file-meta {
-  font-size: 12px;
-  color: #5f6368;
-}
-
-.file-actions-grid {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  z-index: 5;
-}
-
-.file-item-grid:hover .file-actions-grid,
-.file-actions-grid.visible {
-  opacity: 1;
-}
-
-/* Style the 3-dot menu button in grid view */
-.file-actions-grid .action-more {
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  color: #555;
-  transition: background-color 0.2s;
-  padding: 0;
-}
-
-.file-actions-grid .action-more:hover {
-  background-color: #f1f1f1;
-  color: #202124;
-}
-
-/* Popup options menu styling */
-.options-popup {
-  position: absolute;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  width: 180px;
-  z-index: 1000;
-  right: 0;
-  top: 100%;
-  padding: 8px 0;
-  animation: popup-appear 0.2s ease-out;
-  overflow: hidden;
-}
-
-/* Style the option items to look like buttons */
-.option-item {
-  display: flex;
-  align-items: center;
-  padding: 10px 16px;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  border: none;
-  background: none;
-  color: #202124;
-  font-size: 14px;
-  transition: background-color 0.15s;
-}
-
-.option-item:hover {
-  background-color: #f1f3f4;
-}
-
-.option-item svg {
-  margin-right: 12px;
-  font-size: 16px;
-  color: #5f6368;
-}
-
-.option-item.warning {
-  color: #ea4335;
-}
-
-.option-item.warning svg {
-  color: #ea4335;
-}
-
-/* Fix for list view to only show 3-dot menu */
-.file-item-list .file-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  position: relative;
-  max-width: 15px;
-}
-
-.file-item-list .action-more {
-  background: transparent;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  color: #5f6368;
-  transition: background-color 0.2s;
-  padding: 0;
-}
-
-.file-item-list .action-more:hover {
-  background-color: #f1f1f1;
-  color: #202124;
-}
-
-/* Ensure popup appears in correct position for list view */
-.file-item-list .options-popup {
-  right: 0;
-  top: 100%;
-}
-
-/* Make options popup responsive */
-@media (max-width: 600px) {
-  .options-popup {
-    width: 160px;
-  }
-
-  .option-item {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  .option-item svg {
-    margin-right: 8px;
-  }
-}
-
-/* Grid view specific file type styling */
-.file-item-grid.folder .file-icon-container {
-  color: #ffc107;
-}
-
-.file-item-grid.file .file-icon-container {
-  color: #4285f4;
-}
-
-/* File size in grid view */
-.file-size-grid {
-  font-size: 12px;
-  color: #5f6368;
-}
-
-/* Empty state for grid view */
-.grid-view .empty-state {
-  grid-column: 1 / -1;
-  padding: 40px;
-}
-
-/* Ensure file actions container is properly sized in grid view */
-.file-item-grid .file-actions-grid {
-  z-index: 5;
-}
-
-/* Modifications for view modes */
-.files-container.grid-view .files-header {
-  display: none;
-}
-
-/* Keep list view functioning */
-.files-container.list-view .files-list {
-  display: block;
-}
-
-.files-container.list-view .file-item {
-  display: grid;
-  grid-template-columns: 30px 2fr 1fr 1fr 1fr 42px;
-}
-
-/* Media queries for responsive grid layout */
-@media (max-width: 768px) {
-  .files-list.grid-layout {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-
-  .file-item-grid {
-    height: 150px;
-    padding: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .files-list.grid-layout {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
-
-  .file-item-grid {
-    height: 140px;
-    padding: 10px;
-  }
-
-  .file-icon-container {
-    height: 60px;
-  }
-
-  .file-name-grid {
-    font-size: 12px;
-  }
-}
-
-/* Selection bar */
-.selection-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
-  min-height: 40px;
-}
-
-.selection-count {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #202124;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.clear-selection {
-  background: none;
-  border: none;
-  font-size: 18px;
-  color: #5f6368;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-
-.clear-selection:hover {
-  background-color: #e8eaed;
-  color: #202124;
-}
-
-.selection-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.selection-actions .action-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  color: #5f6368;
-}
-
-.selection-actions .action-btn:hover {
-  background-color: #e8eaed;
-}
-
-/* Specific styles for star button */
-.selection-actions .star-btn {
-  color: #5f6368;
-}
-
-.selection-actions .star-btn:hover {
-  color: #f8c022;
-}
-
-/* Specific styles for trash button */
-.selection-actions .trash-btn {
-  color: #5f6368;
-}
-
-.selection-actions .trash-btn:hover {
-  color: #ea4335;
-}
-
-/* Shared avatars */
-.file-shared {
-  display: flex;
-  align-items: center;
-}
-
-.shared-avatars {
-  display: flex;
-  align-items: center;
-}
-
-.shared-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #e8eaed;
-  color: #5f6368;
-  font-size: 12px;
-  margin-right: -8px;
-  border: 2px solid white;
-  position: relative;
-  overflow: hidden;
-}
-
-.shared-avatar:nth-child(1) {
-  z-index: 5;
-  background-color: #4285f4;
-  color: white;
-}
-
-.shared-avatar:nth-child(2) {
-  z-index: 4;
-  background-color: #ea4335;
-  color: white;
-}
-
-.shared-avatar:nth-child(3) {
-  z-index: 3;
-  background-color: #fbbc05;
-  color: white;
-}
-
-.shared-avatar:nth-child(4) {
-  z-index: 2;
-  background-color: #34a853;
-  color: white;
-}
-
-.shared-avatar:nth-child(5) {
-  z-index: 1;
-  background-color: #5f6368;
-  color: white;
-}
-
-.user-avatar {
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.more-avatar {
-  font-size: 10px;
-  font-weight: 500;
-}
-
-/* Sort dropdown styles */
+/* Sort Dropdown */
 .sort-dropdown {
   position: relative;
-  margin-left: 10px;
 }
 
 .sort-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 14px;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-md);
   font-weight: 500;
-  border: 1px solid #dadce0;
+  font-size: 0.875rem;
   background-color: white;
-  color: #5f6368;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .sort-btn:hover {
-  background-color: #f1f3f4;
-  color: #202124;
+  background-color: var(--secondary-color);
 }
 
 .sort-btn svg {
-  font-size: 12px;
-  margin-left: 4px;
-  transition: transform 0.2s;
+  font-size: 0.75rem;
+  color: var(--text-light);
 }
 
 .sort-dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 0.5rem);
   right: 0;
-  margin-top: 4px;
   background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  width: 200px;
-  z-index: 1000;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  z-index: 100;
   overflow: hidden;
   animation: popup-appear 0.2s ease-out;
+  border: 1px solid var(--border-color);
 }
 
 .sort-option {
+  padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
-  padding: 10px 16px;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
   cursor: pointer;
-  transition: background-color 0.15s;
-  font-size: 14px;
-  color: #202124;
+  transition: all 0.2s ease;
 }
 
 .sort-option:hover {
-  background-color: #f1f3f4;
+  background-color: var(--secondary-color);
 }
 
 .sort-option.active {
-  background-color: #e8f0fe;
-  color: #1a73e8;
+  background-color: rgba(79, 70, 229, 0.05);
   font-weight: 500;
 }
 
 .sort-option svg {
-  margin-right: 12px;
-  font-size: 16px;
-  width: 16px;
+  color: var(--text-secondary);
+  font-size: 1rem;
 }
 
 .sort-option span {
@@ -1988,505 +1269,493 @@ button:disabled {
 }
 
 .sort-indicator {
-  margin-left: 8px;
+  color: var(--primary-color);
   font-weight: 600;
 }
 
-/* Make drive header match UI in image */
-.drive-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.drive-header h1 {
-  font-size: 22px;
-  margin: 0;
-  color: #202124;
-}
-
-/* Total Items Count */
-.total-items-count {
-  padding: 10px 15px;
-  color: #5f6368;
-  font-size: 14px;
-  border-bottom: 1px solid #e0e0e0;
-  background-color: #f8f9fa;
-}
-
-/* Selection Mode Styling */
-.selection-mode {
-  cursor: pointer !important;
-}
-
-.selection-mode .file-name {
-  cursor: pointer;
-}
-
-.file-item.selection-mode:hover,
-.file-item-grid.selection-mode:hover {
-  background-color: #f1f3f4;
-  border-color: #dadce0;
-}
-
-.file-item.selected.selection-mode,
-.file-item-grid.selected.selection-mode {
-  background-color: rgba(232, 240, 254, 0.6) !important;
-}
-
-/* Make checkboxes more clickable */
-.file-select,
-.file-select-grid {
-  cursor: pointer;
-  padding: 8px;
-  margin: -8px;
-}
-
-/* Path navigation styling */
-.path-navigation {
-  padding: 8px 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
-  display: flex;
-  align-items: center;
-}
-
-.path-navigation button {
-  background-color: white;
-  color: #5f6368;
-  border: 1px solid #dadce0;
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  margin-right: 12px;
-}
-
-.path-navigation button:hover:not(:disabled) {
-  background-color: #f1f3f4;
-  color: #202124;
-}
-
-.path-navigation button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Footer */
-.drive-footer {
-  padding: 20px;
-  text-align: center;
-  color: #70757a;
-  font-size: 13px;
-  border-top: 1px solid #e0e0e0;
-  margin-top: 20px;
-  background-color: #f8f9fa;
-}
-
-/* Context menu for 3-dot dropdown */
-.options-popup {
-  position: absolute;
-  right: 0;
-  top: 30px;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  width: 160px;
-  overflow: hidden;
-}
-
-.options-popup ul {
-  list-style: none;
-  margin: 0;
-  padding: 5px 0;
-}
-
-.options-popup li {
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #3c4043;
-  transition: background-color 0.2s;
-}
-
-.options-popup li:hover {
-  background-color: #f1f3f4;
-}
-
-.options-popup li svg {
-  color: #5f6368;
-  font-size: 16px;
-}
-
-/* Add or modify these styles to ensure 3-dot menu is always visible in list view */
-.file-item .action-more.always-visible {
-  display: flex;
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Ensure options popup is positioned correctly and clickable */
-.options-popup {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 1000;
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
-  min-width: 150px;
-  animation: popup-appear 0.2s ease-out;
-}
-
-/* Fix any potential issues with action buttons */
-.file-item .action-btn {
-  background: transparent;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin: 0 2px;
-  padding: 5px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  color: #666;
-}
-
-.file-item .action-btn:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: #000;
-}
-
-/* Fix any potential issues with list display */
-.file-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-width: 40px;
-}
-
-.list-view .file-item .action-btn.list-view-menu {
-  opacity: 1;
-  visibility: visible;
-}
-
-.list-view .file-item .action-btn.action-download {
-  opacity: 1;
-  visibility: visible;
-  margin-right: 8px;
-}
-
-.file-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.list-view .file-actions {
-  width: auto;
-  padding-right: 10px;
-}
-
-.options-popup {
-  position: absolute;
-  right: 0;
-  top: 30px;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  width: 160px;
-  overflow: hidden;
-}
-
-/* Ensure list view action buttons are always visible */
-.list-view .file-item .file-actions {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  gap: 8px;
-}
-
-.list-view .file-item .action-btn {
-  opacity: 1 !important;
-  visibility: visible !important;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-  padding: 6px;
-  transition: background-color 0.2s;
-}
-
-.list-view .file-item .action-btn:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.list-view .file-item .action-btn.action-download {
-  color: #1976d2;
-}
-
-.list-view .file-item .action-btn.list-view-menu {
-  color: #555;
-}
-
-/* Improve options popup styling */
-.options-popup {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  margin-top: 5px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-  min-width: 180px;
-  overflow: hidden;
-}
-
-/* List View Enhancements */
-.file-item {
-  position: relative;
-}
-
-/* Ensure action buttons are always visible in list view without hover */
-.file-item .file-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-right: 10px;
-}
-
-/* Make buttons always visible in list view */
-.file-item .file-actions .action-btn {
-  opacity: 1;
-  visibility: visible;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.file-item .file-actions .action-btn:hover {
-  background-color: #e9e9e9;
-}
-
-.file-item .file-actions .action-download {
-  color: #4285f4;
-}
-
-.file-item .file-actions .action-download:hover {
-  background-color: #e8f0fe;
-}
-
-.file-item .file-actions .action-more {
-  color: #555;
-}
-
-.file-item .file-actions .action-more:hover {
-  background-color: #e9e9e9;
-}
-
-/* Explicitly style the options popup */
-.options-popup {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  min-width: 160px;
-  overflow: hidden;
-}
-
-.options-popup ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.options-popup li {
-  padding: 10px 15px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.options-popup li:hover {
-  background-color: #f5f5f5;
-}
-
-/* Specific list view adjustments */
-.file-item.selection-mode .file-actions {
-  opacity: 1;
-}
-
-/* Ensure buttons in list view aren't hidden */
-.list-view-menu {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* List View Enhancements */
-.list-view .file-item {
-  position: relative;
-}
-
-.list-view .file-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  opacity: 1 !important;
-  visibility: visible !important;
-  position: relative;
-}
-
-.list-view .file-actions .action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.list-view .file-actions .action-btn:hover {
-  opacity: 1;
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.list-view .file-actions .action-download,
-.list-view .file-actions .action-more,
-.list-view .list-view-menu {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-.options-popup {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  width: 150px;
-  z-index: 100;
-}
-
-.options-popup ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.options-popup li {
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.options-popup li:hover {
-  background-color: #f5f5f5;
-}
-
-/* Folder icon styling */
-.folder-icon {
-  color: #f8d775 !important;
-  font-size: 1.4em;
-}
-
-/* Improved 3-dot menu button */
-.file-item-list .action-more {
-  background: transparent;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  color: #5f6368;
-  transition: background-color 0.2s;
-  padding: 0;
-}
-
-.file-item-list .action-more:hover {
-  background-color: #f1f1f1;
-  color: #202124;
-}
-
-/* Make checkbox more visible */
-.file-select input[type="checkbox"] {
-  cursor: pointer;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #ddd;
-  border-radius: 3px;
-  position: relative;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-
-.file-select input[type="checkbox"]:checked {
-  background-color: #1a73e8;
-  border-color: #1a73e8;
-}
-
-.file-select input[type="checkbox"]:checked::after {
-  content: "✓";
-  position: absolute;
-  color: white;
-  font-size: 12px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* Sort dropdown responsive adjustments */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .sort-dropdown {
-    margin-left: 0;
+  .drive-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
+  
+  .drive-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .search-bar {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .files-header {
+    grid-template-columns: 3rem minmax(150px, 1fr) 80px 80px 4rem;
+  }
+  
+  .file-item-list {
+    grid-template-columns: 3rem minmax(150px, 1fr) 80px 80px 4rem;
+  }
+  
+  .files-list.grid-layout {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
 
+@media (max-width: 600px) {
+  .path-navigation {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .drive-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .btn-upload,
+  .btn-create-folder,
   .sort-btn {
-    font-size: 13px;
-    padding: 6px 10px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
   }
-
-  .sort-dropdown-menu {
-    width: 180px;
-    right: 0;
+  
+  .files-header {
+    grid-template-columns: 3rem minmax(120px, 1fr) 80px 4rem;
   }
-
-  .sort-option {
-    padding: 8px 12px;
-    font-size: 13px;
+  
+  .header-item.header-shared,
+  .file-shared {
+    display: none;
+  }
+  
+  .file-item-list {
+    grid-template-columns: 3rem minmax(120px, 1fr) 80px 4rem;
+  }
+  
+  .files-list.grid-layout {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    padding: 1rem;
+  }
+  
+  .file-icon-container {
+    height: 90px;
   }
 }
 
 @media (max-width: 480px) {
-  .sort-btn {
-    font-size: 12px;
-    padding: 6px 8px;
+  .drive-home-container {
+    padding: 1rem;
   }
+  
+  .path-navigation button {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+  }
+  
+  .breadcrumb-item {
+    font-size: 0.75rem;
+    max-width: 120px;
+  }
+  
+  .files-header {
+    grid-template-columns: 3rem minmax(100px, 1fr) 4rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .header-item.header-date,
+  .file-date {
+    display: none;
+  }
+  
+  .file-item-list {
+    grid-template-columns: 3rem minmax(100px, 1fr) 4rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .files-list.grid-layout {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-gap: 0.75rem;
+    padding: 0.75rem;
+  }
+  
+  .file-icon-container {
+    height: 70px;
+    font-size: 2rem;
+  }
+  
+  .file-details {
+    padding: 0.5rem;
+  }
+  
+  .file-name-grid {
+    font-size: 0.875rem;
+  }
+}
 
-  .sort-dropdown-menu {
-    width: 160px;
+/* Add a subtle hover effect for file items */
+.file-item-list:hover {
+  background-color: var(--secondary-color);
+  border-left: 3px solid var(--primary-color);
+  padding-left: calc(1rem - 3px);
+}
+
+.file-item-grid:hover {
+  transform: translateY(-4px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-md);
+}
+
+/* Improved file icon visuals */
+.file-icon {
+  transition: all 0.2s ease-in-out;
+}
+
+.folder-icon {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+  color: #f59e0b;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Make selected items stand out more */
+.file-item-list.selected {
+  background-color: rgba(79, 70, 229, 0.08);
+  border-left: 3px solid var(--primary-color);
+  padding-left: calc(1rem - 3px);
+}
+
+/* Enhance the path navigation */
+.path-navigation {
+  background: linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(249, 250, 251, 0.8) 100%);
+  transition: box-shadow 0.2s ease;
+}
+
+.path-navigation:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Enhance selection bar with subtle animation */
+.selection-bar {
+  animation: slide-in 0.3s ease;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
   }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Improve action buttons with better hover effects */
+.action-btn:hover {
+  transform: scale(1.1);
+  background: linear-gradient(to bottom, var(--secondary-color), rgba(229, 231, 235, 0.7));
+}
+
+.action-btn.action-download:hover {
+  color: var(--info-color);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.action-btn.action-star:hover {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.action-btn.action-edit:hover {
+  color: var(--primary-color);
+  background: rgba(79, 70, 229, 0.08);
+}
+
+.action-btn.action-share:hover {
+  color: var(--success-color);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.action-btn.action-trash:hover, 
+.selection-actions .trash-btn:hover {
+  color: var(--danger-color);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* Improve sort dropdown appearance */
+.sort-dropdown-menu {
+  transform-origin: top right;
+  animation: dropdown-appear 0.2s ease;
+}
+
+@keyframes dropdown-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sort-option:hover {
+  background: linear-gradient(to right, rgba(79, 70, 229, 0.05) 0%, rgba(79, 70, 229, 0.02) 100%);
+}
+
+/* Table structure for list view */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.files-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.files-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--secondary-color);
+}
+
+.files-header {
+  height: 48px;
+  background-color: var(--secondary-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.files-header th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.files-header th:not(:last-child) {
+  border-right: 1px solid var(--border-color);
+}
+
+.name-header, 
+.date-header, 
+.size-header {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.name-header:hover, 
+.date-header:hover, 
+.size-header:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.checkbox-header {
+  width: 10px;
+  max-width: 10px;
+}
+
+.name-header {
+  width: 40%;
+}
+
+.shared-header {
+  width: 15%;
+}
+
+.date-header {
+  width: 20%;
+}
+
+.size-header {
+  width: 10%;
+}
+
+.actions-header {
+  width: 48px;
+}
+
+/* Table rows */
+.table-row {
+  height: 50px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+
+.table-row td {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.table-row:hover {
+  background-color: var(--secondary-color);
+}
+
+.table-row.selected {
+  background-color: rgba(79, 70, 229, 0.08);
+}
+
+/* Table cell styles */
+.checkbox-cell {
+  text-align: center;
+  width: 48px;
+  max-width: 5px !important;
+}
+
+.name-cell {
+  overflow: hidden;
+}
+
+.name-wrapper {
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-height: 35px;
+}
+
+.file-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.file-name-span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 0.5rem;
+  font-weight: 500;
+}
+
+.star-indicator {
+  flex-shrink: 0;
+  margin-left: 0.25rem;
+}
+
+.shared-cell {
+  white-space: nowrap;
+}
+
+.date-cell, .size-cell {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.actions-cell {
+  text-align: center;
+  position: relative;
+  width: 48px;
+}
+
+.action-more {
+  border: none;
+  background: transparent;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.action-more:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  opacity: 1;
+}
+
+.options-popup {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 100;
+}
+
+/* Empty and loading states in table */
+.loading-cell, .empty-cell {
+  padding: 3rem !important;
+  text-align: center;
+}
+
+/* Responsive adjustments for table */
+@media (max-width: 768px) {
+  .files-table {
+    min-width: 700px;
+  }
+  
+  .name-header {
+    width: 35%;
+  }
+  
+  .shared-header {
+    width: 15%;
+  }
+  
+  .date-header {
+    width: 20%;
+  }
+  
+  .size-header {
+    width: 15%;
+  }
+}
+
+@media (max-width: 576px) {
+  .files-table {
+    min-width: 500px;
+  }
+  
+  .shared-cell, .shared-header {
+    display: none;
+  }
+  
+  .name-header {
+    width: 45%;
+  }
+  
+  .date-header {
+    width: 30%;
+  }
+  
+  .size-header {
+    width: 15%;
+  }
+}
+
+/* Fix the size column styling */
+.size-cell {
+  text-align: left;
+  font-size: 13px;
+  color: #777;
+}
+
+/* Adjust date cell styling */
+.date-cell {
+  font-size: 13px;
+  color: #777;
+}
+
+/* Make sure the file type icons appear properly */
+.folder-icon {
+  color: #fdd835 !important;
 }
