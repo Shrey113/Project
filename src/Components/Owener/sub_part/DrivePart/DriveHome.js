@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { 
-    faTrash, faArrowLeft, faThLarge, faList, faDownload, faShare, 
-    faEllipsisH, faUpload, faPlusSquare, faSearch, faSort, 
-    faSortAlphaDown, faSortAlphaUp, faCalendarAlt, faFileAlt, 
-    faStar, faCaretDown, faFolder, faFile, faEdit, faLink, faInfoCircle 
+import {
+    faArrowLeft, faThLarge, faList, faUpload, faPlusSquare, faSearch, faSort,
+    faSortAlphaDown, faSortAlphaUp, faCalendarAlt, faFileAlt,
+    faStar, faCaretDown, faFolder, faFile
 } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
-import { Server_url, FileLoaderToast } from '../../../../redux/AllData'
+import { Server_url, FileLoaderToast, showAcceptToast, showRejectToast, ConfirmMessage } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import FileItem from './FileItem'
 import FilePreview from './FilePreview'
-import { FiStar, FiTrash, FiDownload, FiShare2, FiEdit, FiMoreVertical } from 'react-icons/fi'
+import { FiStar, FiTrash } from 'react-icons/fi'
 
 function DriveHome() {
     const user = useSelector((state) => state.user);
@@ -171,11 +170,11 @@ function DriveHome() {
     };
 
     // Toggle view mode
-    const toggleViewMode = () => {
-        setViewMode(viewMode === 'grid' ? 'list' : 'grid');
-        // Clear any active popups when switching view modes
-        setActivePopup(null);
-    };
+    // const toggleViewMode = () => {
+    //     setViewMode(viewMode === 'grid' ? 'list' : 'grid');
+    //     // Clear any active popups when switching view modes
+    //     setActivePopup(null);
+    // };
 
     // Get total items count
     const getTotalItemsCount = () => {
@@ -195,19 +194,19 @@ function DriveHome() {
             try {
                 const folderData = location.state.folderData;
                 console.log("Processing DIRECT navigation data:", folderData);
-                
+
                 const timestamp = folderData.timestamp;
                 // Get the saved data from localStorage as a backup
                 const savedData = localStorage.getItem(`folder_navigation_${timestamp}`);
-                
+
                 // Mark as processed to prevent duplicate processing
                 navigationProcessedRef.current = true;
                 directFolderOpenRef.current = true;
-                
+
                 // Force folder ID and path update
                 console.log("Setting current folder to:", folderData.folderId);
                 setCurrentFolder(folderData.folderId);
-                
+
                 // Force breadcrumb path update with proper formatting
                 if (folderData.breadcrumbPath && folderData.breadcrumbPath.length > 0) {
                     // Ensure each item in breadcrumb has id and name properties
@@ -215,10 +214,10 @@ function DriveHome() {
                         id: item.id || item.folder_id,
                         name: item.name || item.folder_name
                     }));
-                    
+
                     console.log("Setting breadcrumb path to:", formattedPath);
                     setBreadcrumbPath(formattedPath);
-                    
+
                     // Set current path
                     if (folderData.currentPath) {
                         console.log("Setting current path to:", folderData.currentPath);
@@ -230,47 +229,47 @@ function DriveHome() {
                         setCurrentPath(pathString);
                     }
                 }
-                
+
                 // Cleanup localStorage
                 if (savedData) {
                     localStorage.removeItem(`folder_navigation_${timestamp}`);
                 }
-                
+
                 // Explicitly fetch the folder contents immediately
                 const fetchDirectFolderContents = async () => {
                     setIsLoading(true);
                     console.log("Explicitly fetching contents for folder:", folderData.folderId);
-                    
+
                     try {
                         const url = new URL(`${Server_url}/drive/folder/${folderData.folderId}/contents`);
                         url.searchParams.append('user_email', user_email);
                         url.searchParams.append('created_by', created_by);
-                        
+
                         const response = await fetch(url.toString());
-                        
+
                         // Check if response is OK
                         if (!response.ok) {
                             const errorText = await response.text();
                             console.error('Server error:', response.status, errorText);
                             throw new Error(`Server responded with ${response.status}: ${errorText}`);
                         }
-                        
+
                         const data = await response.json();
                         console.log("Direct folder contents fetched:", data);
-                        
+
                         // Handle the response format
                         if (data.success) {
                             // Set files and folders from the response
                             setFiles(data.files || []);
                             setFolders(data.folders || []);
-                            
+
                             // Reset the direct folder open flag after successful fetch
                             directFolderOpenRef.current = false;
                         }
                     } catch (error) {
                         console.error("Error fetching direct folder contents:", error);
                         directFolderOpenRef.current = false;
-                        
+
                         // Fallback: Add a slight delay and trigger a normal fetch through the refreshDrive
                         setTimeout(() => {
                             console.log("Triggering fallback refresh after direct fetch failed");
@@ -280,7 +279,7 @@ function DriveHome() {
                         setIsLoading(false);
                     }
                 };
-                
+
                 // Execute the fetch
                 fetchDirectFolderContents();
             } catch (error) {
@@ -292,19 +291,19 @@ function DriveHome() {
             try {
                 const folderData = location.state.folderData;
                 console.log("Processing navigation data:", folderData);
-                
+
                 // Check if the data is recent (within the last minute)
-                const isRecent = folderData.timestamp && 
+                const isRecent = folderData.timestamp &&
                     (new Date().getTime() - folderData.timestamp < 60000);
-                    
+
                 if (isRecent) {
                     // Mark as processed to prevent duplicate processing
                     navigationProcessedRef.current = true;
-                    
+
                     // Set current folder to the one from navigation
                     const newFolderId = folderData.folderId;
                     setCurrentFolder(newFolderId);
-                    
+
                     // Set breadcrumb path with proper formatting
                     if (folderData.breadcrumbPath && folderData.breadcrumbPath.length > 0) {
                         // Ensure each item in breadcrumb has id and name properties
@@ -312,9 +311,9 @@ function DriveHome() {
                             id: item.id || item.folder_id, // Handle different property names
                             name: item.name || item.folder_name // Handle different property names
                         }));
-                        
+
                         setBreadcrumbPath(formattedPath);
-                        
+
                         // Use provided currentPath if available, otherwise build it
                         if (folderData.currentPath) {
                             setCurrentPath(folderData.currentPath);
@@ -325,7 +324,7 @@ function DriveHome() {
                                 .join('/');
                             setCurrentPath(pathString);
                         }
-                        
+
                         console.log("Set breadcrumb path to:", formattedPath);
                         console.log("Set current folder to:", newFolderId);
                     }
@@ -433,7 +432,7 @@ function DriveHome() {
 
         // Get storage info
         fetchStorageInfo();
-        
+
         // Reset the navigation processed ref when component unmounts or currentFolder changes
         return () => {
             if (currentFolder === null) {
@@ -461,21 +460,28 @@ function DriveHome() {
             }
         }
 
+        // For files, remove the extension from the name shown in the dialog
+        let displayName = currentName;
+        if (type === 'file') {
+            const lastDotIndex = currentName.lastIndexOf('.');
+            if (lastDotIndex !== -1) {
+                displayName = currentName.substring(0, lastDotIndex);
+            }
+        }
+
         console.log("Setting rename dialog values:", {
             id,
             type,
             oldName: currentName,
-            newName: currentName
+            newName: displayName
         });
 
         setRenameItemId(id);
         setRenameItemType(type);
         setRenameItemOldName(currentName);
-        setRenameItemNewName(currentName);
+        setRenameItemNewName(displayName);
         setDialogMode('rename');
         setShowRenameDialog(true);
-
-        // The text will be selected when the input gets focus (using onFocus handler)
     };
 
     // Function to open the dialog in create folder mode
@@ -496,6 +502,12 @@ function DriveHome() {
             return;
         }
 
+        // Check character limit
+        if (renameItemNewName.length > 100) {
+            alert('File name cannot exceed 100 characters');
+            return;
+        }
+
         // If renaming and name hasn't changed, just close dialog
         if (dialogMode === 'rename' && renameItemNewName === renameItemOldName) {
             setShowRenameDialog(false);
@@ -506,12 +518,22 @@ function DriveHome() {
 
         try {
             if (dialogMode === 'rename') {
+                // For files, preserve the extension
+                let finalName = renameItemNewName;
+                if (renameItemType === 'file') {
+                    const lastDotIndex = renameItemOldName.lastIndexOf('.');
+                    if (lastDotIndex !== -1) {
+                        const extension = renameItemOldName.substring(lastDotIndex);
+                        finalName = renameItemNewName + extension;
+                    }
+                }
+
                 // RENAME OPERATION
                 const endpoint = renameItemType === 'file'
                     ? `${Server_url}/drive/files/${renameItemId}?created_by=${created_by}&user_email=${user_email}`
                     : `${Server_url}/drive/folders/${renameItemId}?created_by=${created_by}&user_email=${user_email}`;
 
-                console.log(`Renaming ${renameItemType} from "${renameItemOldName}" to "${renameItemNewName}"`);
+                console.log(`Renaming ${renameItemType} from "${renameItemOldName}" to "${finalName}"`);
 
                 const response = await fetch(endpoint, {
                     method: 'PUT',
@@ -519,7 +541,7 @@ function DriveHome() {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        [renameItemType === 'file' ? 'file_name' : 'folder_name']: renameItemNewName,
+                        [renameItemType === 'file' ? 'file_name' : 'folder_name']: finalName,
                         modified_by: created_by,
                         is_shared: false // Maintain current sharing status
                     })
@@ -538,7 +560,7 @@ function DriveHome() {
                     setFiles(prevFiles =>
                         prevFiles.map(file =>
                             file.file_id === renameItemId
-                                ? { ...file, file_name: renameItemNewName }
+                                ? { ...file, file_name: finalName }
                                 : file
                         )
                     );
@@ -546,7 +568,7 @@ function DriveHome() {
                     setFolders(prevFolders =>
                         prevFolders.map(folder =>
                             folder.folder_id === renameItemId
-                                ? { ...folder, folder_name: renameItemNewName }
+                                ? { ...folder, folder_name: finalName }
                                 : folder
                         )
                     );
@@ -634,14 +656,14 @@ function DriveHome() {
                 if (response.ok) {
                     const result = await response.json();
                     console.log("Upload successful:", result);
-                    
+
                     // Verify file_size is present in the response
                     if (result.file_size) {
                         console.log(`Uploaded file size: ${result.file_size} bytes (${formatFileSize(result.file_size)})`);
                     } else {
                         console.warn("File size not returned from server");
                     }
-                    
+
                     completedFiles++;
                     setUploadProgress({ completed: completedFiles, total: totalFiles });
                 } else {
@@ -670,7 +692,7 @@ function DriveHome() {
         }
 
         console.log(`Navigating to folder: ${folderName} (ID: ${folderId})`);
-        
+
         // Reset navigation and direct folder flags
         navigationProcessedRef.current = false;
         directFolderOpenRef.current = false;
@@ -712,13 +734,13 @@ function DriveHome() {
         // Reset navigation and direct folder flags
         navigationProcessedRef.current = false;
         directFolderOpenRef.current = false;
-        
+
         if (breadcrumbPath.length <= 1) {
             // If at root or only one level deep, go to root
             setCurrentFolder(null);
             setCurrentPath('/');
             setBreadcrumbPath([]);
-            
+
             // Instead of setting fake data, we'll trigger a real fetch
             setIsLoading(true);
             refreshDrive();
@@ -751,7 +773,7 @@ function DriveHome() {
             setCurrentFolder(null);
             setCurrentPath('/');
             setBreadcrumbPath([]);
-            
+
             // Instead of setting fake data, we'll trigger a real fetch
             setIsLoading(true);
             refreshDrive();
@@ -778,142 +800,136 @@ function DriveHome() {
         }
     }
 
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [deleteItem, setDeleteItem] = useState(null);
+
     const handleDeleteFile = async (fileId, fileName) => {
-        const confirmed = window.confirm(`Are you sure you want to delete the file "${fileName}"?`);
-        if (!confirmed) return;
-
-        setIsLoading(true);
-        try {
-            console.log(`Deleting file: ${fileName} (ID: ${fileId})`);
-
-            const endpoint = `${Server_url}/drive/files/${fileId}?created_by=${created_by}&user_email=${user_email}`;
-            console.log(`Sending delete request to: ${endpoint}`);
-
-            const response = await fetch(endpoint, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`Failed to delete file: ${errorText}`);
-                throw new Error(`Server error: ${response.status} ${errorText}`);
-            }
-
-            const result = await response.json();
-            console.log("Delete successful:", result);
-
-            alert(`File "${fileName}" deleted successfully`);
-            refreshDrive();
-        } catch (error) {
-            console.error("Error deleting file:", error);
-            alert(`Failed to delete file: ${error.message}`);
-        } finally {
-            setIsLoading(false);
-        }
+        setDeleteItem({ id: fileId, name: fileName, type: 'file' });
+        setShowDeleteDialog(true);
     };
 
     const handleDeleteFolder = async (folderId, folderName) => {
-        const confirmed = window.confirm(`Are you sure you want to delete the folder "${folderName}"?`);
-        if (!confirmed) return;
+        setDeleteItem({ id: folderId, name: folderName, type: 'folder' });
+        setShowDeleteDialog(true);
+    };
 
-        setIsLoading(true);
-        try {
-            console.log(`Deleting folder: ${folderName} (ID: ${folderId})`);
-
-            const endpoint = `${Server_url}/drive/folders/${folderId}?created_by=${created_by}&user_email=${user_email}`;
-            console.log(`Sending delete request to: ${endpoint}`);
-
-            const response = await fetch(endpoint, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`Failed to delete folder: ${errorText}`);
-                throw new Error(`Server error: ${response.status} ${errorText}`);
-            }
-
-            const result = await response.json();
-            console.log("Delete successful:", result);
-
-            alert(`Folder "${folderName}" deleted successfully`);
-            refreshDrive();
-        } catch (error) {
-            console.error("Error deleting folder:", error);
-            alert(`Failed to delete folder: ${error.message}`);
-        } finally {
-            setIsLoading(false);
-        }
+    const handleDeleteCancel = () => {
+        setShowDeleteDialog(false);
+        setDeleteItem(null);
     };
 
     const handleDeleteSelected = async () => {
         if (!selectedItems.length) return;
 
-        const confirmed = window.confirm(`Are you sure you want to delete ${selectedItems.length} item(s)?`);
-        if (!confirmed) return;
+        setDeleteItem({
+            type: 'multiple',
+            items: selectedItems,
+            count: selectedItems.length
+        });
+        setShowDeleteDialog(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!deleteItem) return;
 
         setIsLoading(true);
-        let successCount = 0;
-        let failCount = 0;
-        let deletedItemNames = [];
+        try {
+            if (deleteItem.type === 'multiple') {
+                // Handle multiple items deletion
+                let successCount = 0;
+                let failCount = 0;
+                let deletedItemNames = [];
 
-        for (const item of selectedItems) {
-            try {
-                console.log(`Deleting ${item.type} with ID: ${item.id}`);
-                let endpoint;
-                let itemName = '';
+                for (const item of deleteItem.items) {
+                    try {
+                        console.log(`Deleting ${item.type} with ID: ${item.id}`);
+                        let endpoint;
+                        let itemName = '';
 
-                // Find the name of the item for better logging
-                if (item.type === 'file') {
-                    const fileObj = files.find(f => f.file_id === item.id);
-                    itemName = fileObj ? fileObj.file_name : `file #${item.id}`;
-                    endpoint = `${Server_url}/drive/files/${item.id}?created_by=${created_by}&user_email=${user_email}`;
-                } else {
-                    const folderObj = folders.find(f => f.folder_id === item.id);
-                    itemName = folderObj ? folderObj.folder_name : `folder #${item.id}`;
-                    endpoint = `${Server_url}/drive/folders/${item.id}?created_by=${created_by}&user_email=${user_email}`;
+                        // Find the name of the item for better logging
+                        if (item.type === 'file') {
+                            const fileObj = files.find(f => f.file_id === item.id);
+                            itemName = fileObj ? fileObj.file_name : `file #${item.id}`;
+                            endpoint = `${Server_url}/drive/files/${item.id}?created_by=${created_by}&user_email=${user_email}`;
+                        } else {
+                            const folderObj = folders.find(f => f.folder_id === item.id);
+                            itemName = folderObj ? folderObj.folder_name : `folder #${item.id}`;
+                            endpoint = `${Server_url}/drive/folders/${item.id}?created_by=${created_by}&user_email=${user_email}`;
+                        }
+
+                        console.log(`Deleting ${item.type}: "${itemName}" - sending request to: ${endpoint}`);
+
+                        const response = await fetch(endpoint, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            console.log(`Successfully deleted ${item.type} "${itemName}":`, result);
+                            successCount++;
+                            deletedItemNames.push(itemName);
+                        } else {
+                            const errorText = await response.text();
+                            console.error(`Failed to delete ${item.type} "${itemName}":`, errorText);
+                            failCount++;
+                        }
+                    } catch (error) {
+                        console.error(`Error deleting ${item.type}:`, error);
+                        failCount++;
+                    }
                 }
 
-                console.log(`Deleting ${item.type}: "${itemName}" - sending request to: ${endpoint}`);
+                if (failCount > 0) {
+                    if (successCount > 0) {
+                        showRejectToast({ message: `Deleted ${successCount} items (${deletedItemNames.join(', ')}), but failed to delete ${failCount} items.` });
+                    } else {
+                        showRejectToast({ message: `Failed to delete all ${failCount} items. Please try again.` });
+                    }
+                } else if (successCount > 0) {
+                    if (successCount === 1) {
+                        showAcceptToast({ message: `Successfully deleted "${deletedItemNames[0]}"` });
+                    } else {
+                        showAcceptToast({ message: `Successfully deleted ${successCount} items` });
+                    }
+                }
+
+                setSelectedItems([]);
+                setSelectionMode(false);
+            } else {
+                // Handle single item deletion
+                console.log(`Deleting ${deleteItem.type}: ${deleteItem.name} (ID: ${deleteItem.id})`);
+
+                const endpoint = deleteItem.type === 'file'
+                    ? `${Server_url}/drive/files/${deleteItem.id}?created_by=${created_by}&user_email=${user_email}`
+                    : `${Server_url}/drive/folders/${deleteItem.id}?created_by=${created_by}&user_email=${user_email}`;
+
+                console.log(`Sending delete request to: ${endpoint}`);
 
                 const response = await fetch(endpoint, {
                     method: 'DELETE'
                 });
 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log(`Successfully deleted ${item.type} "${itemName}":`, result);
-                    successCount++;
-                    deletedItemNames.push(itemName);
-                } else {
+                if (!response.ok) {
                     const errorText = await response.text();
-                    console.error(`Failed to delete ${item.type} "${itemName}":`, errorText);
-                    failCount++;
+                    console.error(`Failed to delete ${deleteItem.type}: ${errorText}`);
+                    throw new Error(`Server error: ${response.status} ${errorText}`);
                 }
-            } catch (error) {
-                console.error(`Error deleting ${item.type}:`, error);
-                failCount++;
-            }
-        }
 
-        if (failCount > 0) {
-            if (successCount > 0) {
-                alert(`Deleted ${successCount} items (${deletedItemNames.join(', ')}), but failed to delete ${failCount} items.`);
-            } else {
-                alert(`Failed to delete all ${failCount} items. Please try again.`);
-            }
-        } else if (successCount > 0) {
-            if (successCount === 1) {
-                alert(`Successfully deleted "${deletedItemNames[0]}"`);
-            } else {
-                alert(`Successfully deleted ${successCount} items`);
-            }
-        }
+                const result = await response.json();
+                console.log("Delete successful:", result);
 
-        setSelectedItems([]);
-        setSelectionMode(false);
-        setIsLoading(false);
-        refreshDrive();
+                showAcceptToast({ message: `${deleteItem.type === 'file' ? 'File' : 'Folder'} "${deleteItem.name}" deleted successfully` });
+            }
+
+            refreshDrive();
+        } catch (error) {
+            console.error(`Error deleting ${deleteItem.type}:`, error);
+            showRejectToast({ message: `Failed to delete ${deleteItem.type}: ${error.message}` });
+        } finally {
+            setIsLoading(false);
+            setShowDeleteDialog(false);
+            setDeleteItem(null);
+        }
     };
 
     const handleDownloadFile = async (fileId, fileName) => {
@@ -994,16 +1010,16 @@ function DriveHome() {
         if (size === null || size === undefined || isNaN(Number(size))) {
             return '0 B';
         }
-        
+
         // Ensure size is a number in bytes
         const bytes = Number(size);
-        
+
         // Size thresholds in bytes
         const KB = 1024;
         const MB = KB * 1024;
         const GB = MB * 1024;
         const TB = GB * 1024;
-        
+
         // Format with appropriate unit
         if (bytes >= TB) {
             return `${(bytes / TB).toFixed(2)} TB`;
@@ -1032,22 +1048,22 @@ function DriveHome() {
         const date = new Date(dateString);
         const now = new Date();
         const diff = Math.floor((now - date) / 1000); // difference in seconds
-    
+
         if (diff < 60) return `${diff}s ago`;
         if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
         if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
         if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
         if (diff < 2419200) return `${Math.floor(diff / 604800)}w ago`;
-    
+
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
         return date.toLocaleDateString('en-GB', options).replace(' ', ', ');
     }
-    
+
 
     // Modified sort function to handle all data types properly
     const sortItems = (items, type, sortKey, order) => {
         if (!items || !Array.isArray(items)) return [];
-        
+
         return [...items].sort((a, b) => {
             // Special handling for starred items
             if (sortKey === 'is_starred') {
@@ -1057,20 +1073,20 @@ function DriveHome() {
                 const direction = order === 'asc' ? -1 : 1;
                 return (aStarred - bStarred) * direction;
             }
-            
+
             // Handle other fields based on their data types
             let aValue, bValue;
-            
+
             // Handle file_size specially for folders
             if (sortKey === 'file_size') {
                 // Convert file_size to numbers for proper comparison
                 // For folders, use 0 as the size or item_count if available
-                aValue = type === 'folder' && a.folder_id ? 
-                    (a.file_size ? Number(a.file_size) : (a.item_count || 0)) : 
+                aValue = type === 'folder' && a.folder_id ?
+                    (a.file_size ? Number(a.file_size) : (a.item_count || 0)) :
                     (a[sortKey] ? Number(a[sortKey]) : 0);
-                
-                bValue = type === 'folder' && b.folder_id ? 
-                    (b.file_size ? Number(b.file_size) : (b.item_count || 0)) : 
+
+                bValue = type === 'folder' && b.folder_id ?
+                    (b.file_size ? Number(b.file_size) : (b.item_count || 0)) :
                     (b[sortKey] ? Number(b[sortKey]) : 0);
             } else {
                 // For dates, ensure we're comparing date objects
@@ -1125,7 +1141,7 @@ function DriveHome() {
             : <span className="sort-icon">↓</span>;
     };
 
-    const percentUsed = (storageUsed / storageLimit) * 100
+    // const percentUsed = (storageUsed / storageLimit) * 100
 
     // Add a click handler for file items
     const handleItemClick = (item, type) => {
@@ -1155,12 +1171,12 @@ function DriveHome() {
     };
 
     // Get current folder name for display
-    const getCurrentFolderName = () => {
-        if (breadcrumbPath.length === 0) {
-            return null;
-        }
-        return breadcrumbPath[breadcrumbPath.length - 1].name;
-    };
+    // const getCurrentFolderName = () => {
+    //     if (breadcrumbPath.length === 0) {
+    //         return null;
+    //     }
+    //     return breadcrumbPath[breadcrumbPath.length - 1].name;
+    // };
 
     // Function to handle global popup management
     const handleSetActivePopup = (popupId) => {
@@ -1223,7 +1239,7 @@ function DriveHome() {
     const handleSelectAll = () => {
         const newSelectAll = !selectAll;
         setSelectAll(newSelectAll);
-        
+
         if (newSelectAll) {
             // Select all visible items
             const allItems = [...sortedFolders, ...sortedFiles].map(item => {
@@ -1258,10 +1274,15 @@ function DriveHome() {
                     <div className="rename-dialog">
                         <h3>{dialogMode === 'rename' ? `Rename ${renameItemType}` : 'Create new folder'}</h3>
                         <input
-                            type="text"
+                            maxLength={100}
                             placeholder={dialogMode === 'rename' ? "New name" : "Folder name"}
                             value={renameItemNewName || (dialogMode === 'rename' ? renameItemOldName : '')}
-                            onChange={(e) => setRenameItemNewName(e.target.value)}
+                            onChange={(e) => {
+                                const newValue = e.target.value;
+                                if (newValue.length <= 100) {
+                                    setRenameItemNewName(newValue);
+                                }
+                            }}
                             autoFocus
                             onFocus={(e) => {
                                 // Select all text when focused for easier editing
@@ -1270,6 +1291,9 @@ function DriveHome() {
                                 }
                             }}
                         />
+                        <div className="character-count">
+                            {renameItemNewName.length}/100 characters
+                        </div>
                         <div className="rename-dialog-buttons">
                             <button
                                 onClick={() => setShowRenameDialog(false)}
@@ -1295,6 +1319,19 @@ function DriveHome() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Delete Confirmation Dialog */}
+            {showDeleteDialog && deleteItem && (
+                <ConfirmMessage
+                    message_title={`Delete ${deleteItem.type === 'multiple' ? 'Multiple Items' : (deleteItem.type === 'file' ? 'File' : 'Folder')}`}
+                    message={deleteItem.type === 'multiple'
+                        ? `Are you sure you want to delete ${deleteItem.count} item(s)? This action cannot be undone.`
+                        : `Are you sure you want to delete "${deleteItem.name}"? This action cannot be undone.`}
+                    onCancel={handleDeleteCancel}
+                    onConfirm={handleDeleteConfirm}
+                    button_text="Delete"
+                />
             )}
 
             <div className="drive-header">
@@ -1439,7 +1476,7 @@ function DriveHome() {
                                         setCurrentFolder(item.id);
                                         // Update breadcrumb to include only up to this point
                                         setBreadcrumbPath(breadcrumbPath.slice(0, index + 1));
-                                        
+
                                         // Update current path
                                         const newPath = '/' + breadcrumbPath.slice(0, index + 1).map(p => p.name).join('/');
                                         setCurrentPath(newPath);
@@ -1512,8 +1549,8 @@ function DriveHome() {
                                             />
                                         </div>
                                     </th>
-                                    <th 
-                                        className="name-header" 
+                                    <th
+                                        className="name-header"
                                         onClick={() => {
                                             setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc');
                                             setSortBy('name');
@@ -1525,7 +1562,7 @@ function DriveHome() {
                                     <th className="shared-header">
                                         <span>SHARED</span>
                                     </th>
-                                    <th 
+                                    <th
                                         className="date-header"
                                         onClick={() => {
                                             setSortOrder(sortBy === 'created_at' && sortOrder === 'asc' ? 'desc' : 'asc');
@@ -1535,7 +1572,7 @@ function DriveHome() {
                                         <span>LAST MODIFIED</span>
                                         {getSortIcon('created_at')}
                                     </th>
-                                    <th 
+                                    <th
                                         className="size-header"
                                         onClick={() => {
                                             setSortOrder(sortBy === 'file_size' && sortOrder === 'asc' ? 'desc' : 'asc');
