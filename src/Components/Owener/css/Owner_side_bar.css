@@ -757,3 +757,319 @@
   color: white !important;
   z-index: 3;
 }
+
+/* Drive Storage Visualization Styles */
+.drive-storage-info {
+  margin: 20px 15px 0;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #333;
+
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+  &:hover {
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  }
+}
+
+
+
+
+.storage-summary {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  justify-content: space-between;
+}
+
+.storage-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: rgba(59, 130, 246, 0.1);
+  margin-right: 12px;
+  color: #3b82f6;
+}
+
+.storage-details {
+  flex: 1;
+  margin-right: 8px;
+}
+
+.storage-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.storage-text {
+  font-size: 12px;
+  color: #666;
+}
+
+.storage-progress {
+  width: 100%;
+}
+
+.storage-progress-bar {
+  height: 8px;
+  width: 100%;
+  background-color: #eaecef;
+  border-radius: 4px;
+  display: flex;
+  overflow: hidden;
+}
+
+.storage-progress-filled {
+  height: 100%;
+  background-color: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+.storage-progress-unlimited {
+  height: 100%;
+  width: 15%;
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
+  background-size: 200% 100%;
+  animation: gradient-move 2s linear infinite;
+}
+
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+.storage-progress-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.storage-type-images {
+  background-color: #3b82f6; /* Blue */
+}
+
+.storage-type-documents {
+  background-color: #10b981; /* Green */
+}
+
+.storage-type-videos {
+  background-color: #8b5cf6; /* Purple */
+}
+
+.storage-type-others {
+  background-color: #f59e0b; /* Orange */
+}
+
+/* Storage Popup Styles */
+.storage-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.storage-popup {
+  background-color: #ffffff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  animation: popup-appear 0.3s ease;
+  overflow: hidden;
+  color: #333;
+}
+
+@keyframes popup-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.storage-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #eaecef;
+  background-color: #ffffff;
+}
+
+.storage-popup-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.close-popup-btn {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.close-popup-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.storage-popup-content {
+  padding: 20px;
+}
+
+.storage-total {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eaecef;
+}
+
+.storage-total-header {
+  display: flex;
+  align-items: center;
+}
+
+.storage-total-progress {
+  width: 100%;
+}
+
+.storage-type-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  color: #666;
+}
+
+.storage-type-details {
+  flex: 1;
+}
+
+.storage-type-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.storage-type-size {
+  font-size: 12px;
+  color: #666;
+}
+
+.storage-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.storage-type-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.storage-type-item:hover {
+  background-color: #f8f9fa;
+}
+
+.storage-type-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.storage-type-color.images {
+  background-color: #3b82f6; /* Blue */
+}
+
+.storage-type-color.documents {
+  background-color: #10b981; /* Green */
+}
+
+.storage-type-color.videos {
+  background-color: #8b5cf6; /* Purple */
+}
+
+.storage-type-color.others {
+  background-color: #f59e0b; /* Orange */
+}
+
+.storage-type-percentage {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-left: auto;
+}
+
+/* Add styles for refresh button */
+.storage-refresh-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  margin-left: 4px;
+}
+
+
+.storage-refresh-btn.refreshing svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Style for popup header actions */
+.popup-header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.popup-header-actions .storage-refresh-btn {
+  margin-right: 8px;
+}
