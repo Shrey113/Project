@@ -30,8 +30,6 @@ function DriveHome() {
     const [sortBy, setSortBy] = useState('name')
     const [sortOrder, setSortOrder] = useState('asc')
     const [searchTerm, setSearchTerm] = useState('')
-    const [storageUsed, setStorageUsed] = useState(0)
-    const [storageLimit, setStorageLimit] = useState(1024) // 1GB in MB
     const [refreshKey, setRefreshKey] = useState(0) // Add a refresh key to force re-renders
     const [breadcrumbPath, setBreadcrumbPath] = useState([]) // Add state for breadcrumb path
     const [viewMode, setViewMode] = useState('list') // Default to list view like in the image
@@ -51,117 +49,6 @@ function DriveHome() {
     // Add reference to track navigation processing
     const navigationProcessedRef = useRef(false);
     const directFolderOpenRef = useRef(false);
-
-    // Sample data to match the UI in the image
-    const demoFiles = [
-        {
-            file_id: 1,
-            file_name: 'Retro Ring.jpg',
-            file_size: 980 * 1024, // 980 KB
-            file_type: 'jpg',
-            created_at: '2023-07-10T12:00:00',
-            is_starred: false,
-            shared_with: [
-                { id: 1, avatar: 'avatar1.jpg' },
-                { id: 2, avatar: 'avatar2.jpg' },
-                { id: 3, avatar: 'avatar3.jpg' },
-                { id: 4, avatar: 'avatar4.jpg' }
-            ]
-        },
-        {
-            file_id: 2,
-            file_name: 'Classic Clicks.png',
-            file_size: 564 * 1024, // 564 KB
-            file_type: 'png',
-            created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
-            is_starred: false,
-            shared_with: [
-                { id: 1, avatar: 'avatar1.jpg' },
-                { id: 2, avatar: 'avatar2.jpg' },
-                { id: 3, avatar: 'avatar3.jpg' },
-                { id: 4, avatar: '+2' }
-            ]
-        },
-        {
-            file_id: 3,
-            file_name: 'World in Motion.mp4',
-            file_size: 18 * 1024 * 1024, // 18 MB
-            file_type: 'mp4',
-            created_at: '2023-07-15T12:00:00',
-            is_starred: false,
-            shared_with: [
-                { id: 1, avatar: 'avatar1.jpg' },
-                { id: 2, avatar: 'avatar2.jpg' },
-                { id: 3, avatar: 'avatar3.jpg' }
-            ]
-        }
-    ];
-
-    const demoFolders = [
-        {
-            folder_id: 1,
-            folder_name: 'Illustrations',
-            item_count: 20,
-            created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
-            is_starred: false,
-            shared_with: [
-                { id: 1, avatar: 'avatar1.jpg' },
-                { id: 2, avatar: 'avatar2.jpg' },
-                { id: 3, avatar: 'avatar3.jpg' },
-                { id: 4, avatar: 'avatar4.jpg' },
-                { id: 5, avatar: 'avatar5.jpg' },
-                { id: 6, avatar: 'R' }
-            ]
-        },
-        {
-            folder_id: 2,
-            folder_name: 'Brand Identity',
-            item_count: 16,
-            created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
-            is_starred: false,
-            shared_with: [
-                { id: 1, avatar: 'avatar1.jpg' },
-                { id: 2, avatar: 'avatar2.jpg' },
-                { id: 3, avatar: 'avatar3.jpg' },
-                { id: 4, avatar: 'avatar4.jpg' },
-                { id: 5, avatar: 'avatar5.jpg' }
-            ]
-        },
-        {
-            folder_id: 3,
-            folder_name: 'UI Design',
-            item_count: 10,
-            created_at: '2023-09-20T12:00:00',
-            is_starred: false,
-            shared_with: [
-                { id: 1, avatar: 'avatar1.jpg' },
-                { id: 2, avatar: 'avatar2.jpg' },
-                { id: 3, avatar: 'avatar3.jpg' },
-                { id: 4, avatar: 'avatar4.jpg' },
-                { id: 5, avatar: 'avatar5.jpg' }
-            ]
-        },
-        {
-            folder_id: 4,
-            folder_name: 'Source Code',
-            item_count: 21,
-            created_at: '2023-09-21T12:00:00',
-            is_starred: false,
-            shared_with: [
-                { id: 1, avatar: 'avatar1.jpg' },
-                { id: 2, avatar: 'avatar2.jpg' },
-                { id: 3, avatar: 'avatar3.jpg' },
-                { id: 4, avatar: 'avatar4.jpg' }
-            ]
-        }
-    ];
-
-    // Initialize with demo data but no selected items
-    useEffect(() => {
-        // Use demo data instead of fetching
-        setFiles(demoFiles);
-        setFolders(demoFolders);
-    }, []);
 
     // Function to trigger a refresh
     const refreshDrive = () => {
@@ -417,21 +304,7 @@ function DriveHome() {
         // Load files and folders
         fetchFilesAndFolders();
 
-        const fetchStorageInfo = async () => {
-            try {
-                const response = await fetch(`${Server_url}/drive/storage?created_by=${created_by}&user_email=${user_email}`)
-                const data = await response.json()
-                setStorageUsed(data.used || 125) // MB used
-                setStorageLimit(data.limit || 1024) // MB total
-            } catch (error) {
-                console.error('Error fetching storage info:', error)
-                // Set demo data
-                setStorageUsed(125)
-            }
-        }
-
-        // Get storage info
-        fetchStorageInfo();
+  
 
         // Reset the navigation processed ref when component unmounts or currentFolder changes
         return () => {
@@ -1141,7 +1014,6 @@ function DriveHome() {
             : <span className="sort-icon">↓</span>;
     };
 
-    // const percentUsed = (storageUsed / storageLimit) * 100
 
     // Add a click handler for file items
     const handleItemClick = (item, type) => {

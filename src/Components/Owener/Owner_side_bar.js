@@ -41,7 +41,6 @@ import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import DescriptionIcon from '@mui/icons-material/Description';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import axios from 'axios';
