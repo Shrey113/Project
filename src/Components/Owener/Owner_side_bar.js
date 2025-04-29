@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback, memo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { logoWithNameBlue } from "./../../redux/AllData.js";
 import { useUIContext } from "../../redux/UIContext.js";
-
+import { logoWithNameBlue, FULL_DRIVE_LIMIT, IS_UNLIMITED } from "./../../redux/AllData.js";
 import "./css/Owner_side_bar.css";
 
 // import app_icon from "./img/app-store.png";
@@ -47,9 +46,7 @@ import axios from 'axios';
 import { useSelector } from "react-redux";
 
 
-// Can be set to "15GB", "1TB", or "unlimited"
-const FULL_DRIVE_LIMIT = "5GB";
-const IS_UNLIMITED = FULL_DRIVE_LIMIT === "unlimited";
+
 
 
 function OwnerSideBar() {
@@ -143,6 +140,7 @@ function OwnerSideBar() {
 
   // Format bytes to human-readable size
   const formatStorageSize = (bytes) => {
+    if (bytes === undefined || bytes === null || isNaN(bytes)) return '0 B';
     if (bytes === 0) return '0 B';
     const units = ['B', 'KB', 'MB', 'GB', 'TB'];
     let size = bytes;
@@ -180,7 +178,34 @@ function OwnerSideBar() {
       const statsResponse = await axios.post(`${Server_url}/drive/get_storage_stats`, {
         user_email: userEmail
       });
-      setStorageStats(statsResponse.data);
+
+      // Parse storage limit from FULL_DRIVE_LIMIT
+      let maxStorage = 0;
+      if (!IS_UNLIMITED && FULL_DRIVE_LIMIT) {
+        if (FULL_DRIVE_LIMIT.endsWith('GB')) {
+          maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024 * 1024;
+        } else if (FULL_DRIVE_LIMIT.endsWith('MB')) {
+          maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024;
+        } else if (FULL_DRIVE_LIMIT.endsWith('TB')) {
+          maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024 * 1024 * 1024;
+        }
+      }
+
+      // Get the server response
+      const receivedStats = statsResponse.data;
+      const usedStorage = receivedStats.usedStorage || 0;
+
+      // IMPORTANT: Always use our frontend storage limit, ignoring the server's value
+      // Override server's totalStorage with our frontend setting
+      receivedStats.totalStorage = maxStorage;
+
+      // Recalculate percentages based on correct storage limit
+      if (usedStorage && maxStorage > 0) {
+        receivedStats.percentageUsed = (usedStorage / maxStorage) * 100;
+        receivedStats.remainingStorage = maxStorage - usedStorage;
+      }
+
+      setStorageStats(receivedStats);
 
       setTimeout(() => setIsRefreshing(false), 700); // Keep animation visible for a moment
     } catch (error) {
@@ -531,7 +556,7 @@ function OwnerSideBar() {
                   <div className="storage-details">
                     <div className="storage-title">Storage</div>
                     <div className="storage-text">
-                      {formatStorageSize(totalStorageSize)} {!IS_UNLIMITED ? `of ${FULL_DRIVE_LIMIT}` : ''}
+                      {formatStorageSize(totalStorageSize || 0)} {!IS_UNLIMITED ? `of ${FULL_DRIVE_LIMIT}` : ''}
                     </div>
                   </div>
                   <button
@@ -688,7 +713,7 @@ function OwnerSideBar() {
               <h3>Storage</h3>
               <div className="popup-header-actions">
                 <button
-                  className={`storage-refresh-btn ${isRefreshing ? 'refreshing' : ''}`}
+                  className={`storage-refresh-btn-for-storage-popup ${isRefreshing ? 'refreshing' : ''}`}
                   onClick={handleRefreshClick}
                   title="Refresh storage data"
                 >
@@ -707,7 +732,7 @@ function OwnerSideBar() {
                   <div className="storage-type-details">
                     <div className="storage-type-name">Total Storage</div>
                     <div className="storage-type-size">
-                      {formatStorageSize(totalStorageSize)} {!IS_UNLIMITED ? `of ${FULL_DRIVE_LIMIT}` : ''}
+                      {formatStorageSize(totalStorageSize || 0)} {!IS_UNLIMITED ? `of ${FULL_DRIVE_LIMIT}` : ''}
                     </div>
                   </div>
                 </div>
@@ -716,12 +741,12 @@ function OwnerSideBar() {
                   <div className="storage-progress-bar">
                     {!IS_UNLIMITED ? (
                       <>
-                        {Object.keys(storageStats).map((type) => (
+                        {Object.keys(storageStats || {}).map((type) => (
                           <div
                             key={type}
                             className={`storage-progress-segment storage-type-${type}`}
-                            style={{ width: `${storageStats[type].percentage}%` }}
-                            title={`${type}: ${formatStorageSize(storageStats[type].size)}`}
+                            style={{ width: `${storageStats?.[type]?.percentage || 0}%` }}
+                            title={`${type}: ${formatStorageSize(storageStats?.[type]?.size || 0)}`}
                           ></div>
                         ))}
                       </>
@@ -733,44 +758,44 @@ function OwnerSideBar() {
               </div>
 
               <div className="storage-breakdown">
-                <div className="storage-type-item">
+                <div className="storage-type-item images">
                   <div className="storage-type-color images"></div>
                   <ImageIcon className="storage-type-icon" />
                   <div className="storage-type-details">
                     <div className="storage-type-name">Images</div>
-                    <div className="storage-type-size">{formatStorageSize(storageStats.images.size)}</div>
+                    <div className="storage-type-size">{formatStorageSize(storageStats?.images?.size || 0)}</div>
                   </div>
-                  <div className="storage-type-percentage">{storageStats.images.percentage}%</div>
+                  <div className="storage-type-percentage">{storageStats?.images?.percentage || 0}%</div>
                 </div>
 
-                <div className="storage-type-item">
+                <div className="storage-type-item documents">
                   <div className="storage-type-color documents"></div>
                   <PictureAsPdfIcon className="storage-type-icon" />
                   <div className="storage-type-details">
                     <div className="storage-type-name">Documents</div>
-                    <div className="storage-type-size">{formatStorageSize(storageStats.documents.size)}</div>
+                    <div className="storage-type-size">{formatStorageSize(storageStats?.documents?.size || 0)}</div>
                   </div>
-                  <div className="storage-type-percentage">{storageStats.documents.percentage}%</div>
+                  <div className="storage-type-percentage">{storageStats?.documents?.percentage || 0}%</div>
                 </div>
 
-                <div className="storage-type-item">
+                <div className="storage-type-item videos">
                   <div className="storage-type-color videos"></div>
                   <VideocamIcon className="storage-type-icon" />
                   <div className="storage-type-details">
                     <div className="storage-type-name">Videos</div>
-                    <div className="storage-type-size">{formatStorageSize(storageStats.videos.size)}</div>
+                    <div className="storage-type-size">{formatStorageSize(storageStats?.videos?.size || 0)}</div>
                   </div>
-                  <div className="storage-type-percentage">{storageStats.videos.percentage}%</div>
+                  <div className="storage-type-percentage">{storageStats?.videos?.percentage || 0}%</div>
                 </div>
 
-                <div className="storage-type-item">
+                <div className="storage-type-item others">
                   <div className="storage-type-color others"></div>
                   <DescriptionIcon className="storage-type-icon" />
                   <div className="storage-type-details">
                     <div className="storage-type-name">Others</div>
-                    <div className="storage-type-size">{formatStorageSize(storageStats.others.size)}</div>
+                    <div className="storage-type-size">{formatStorageSize(storageStats?.others?.size || 0)}</div>
                   </div>
-                  <div className="storage-type-percentage">{storageStats.others.percentage}%</div>
+                  <div className="storage-type-percentage">{storageStats?.others?.percentage || 0}%</div>
                 </div>
               </div>
             </div>

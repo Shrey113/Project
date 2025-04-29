@@ -7,7 +7,7 @@ import {
     faStar, faCaretDown, faFolder, faFile
 } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
-import { Server_url, FileLoaderToast, showAcceptToast, showRejectToast, ConfirmMessage } from '../../../../redux/AllData'
+import { Server_url, FULL_DRIVE_LIMIT, IS_UNLIMITED, FileLoaderToast, showAcceptToast, showWarningToast, showRejectToast, ConfirmMessage } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import FileItem from './FileItem'
@@ -56,6 +56,21 @@ function DriveHome() {
         show: false,
         item: null
     });
+
+    // Add storage usage state
+    const [storageStats, setStorageStats] = useState({
+        usedStorage: 0,
+        totalStorage: 0,
+        percentageUsed: 0,
+        remainingStorage: 0
+    });
+
+    // Add state for file rename conflict dialog
+    const [showFileConflictDialog, setShowFileConflictDialog] = useState(false);
+    const [conflictFiles, setConflictFiles] = useState([]);
+    const [currentConflictIndex, setCurrentConflictIndex] = useState(0);
+    const [newFileName, setNewFileName] = useState('');
+    const [filesToUpload, setFilesToUpload] = useState(null);
 
     // Function to trigger a refresh
     const refreshDrive = () => {
@@ -300,6 +315,9 @@ function DriveHome() {
                         setBreadcrumbPath([]);
                     }
                 }
+
+                // Fetch storage stats after loading files/folders
+                fetchStorageStats();
             } catch (error) {
                 console.error('Error fetching files and folders:', error);
                 directFolderOpenRef.current = false;
@@ -310,8 +328,6 @@ function DriveHome() {
 
         // Load files and folders
         fetchFilesAndFolders();
-
-
 
         // Reset the navigation processed ref when component unmounts or currentFolder changes
         return () => {
@@ -496,6 +512,209 @@ function DriveHome() {
         const files = event.target.files;
         if (!files.length) return;
 
+        // Store files for later upload (after checking conflicts)
+        setFilesToUpload(files);
+
+        // Check for duplicate file names
+        const duplicates = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const fileName = files[i].name;
+            // Check if the file name already exists in current folder
+            const isDuplicate = sortedFiles.some(file => file.file_name.toLowerCase() === fileName.toLowerCase());
+
+            if (isDuplicate) {
+                duplicates.push({
+                    originalFile: files[i],
+                    originalName: fileName,
+                    newName: generateNewFileName(fileName, sortedFiles)
+                });
+            }
+        }
+
+        if (duplicates.length > 0) {
+            // Set the conflict files and show the dialog
+            setConflictFiles(duplicates);
+            setCurrentConflictIndex(0);
+            setNewFileName(duplicates[0].newName);
+            setShowFileConflictDialog(true);
+            return; // Stop here until conflicts are resolved
+        }
+
+        // If no duplicates, proceed with upload
+        processFileUpload(files);
+    };
+
+    // Function to generate a new file name based on existing files
+    const generateNewFileName = (fileName, existingFiles) => {
+        const lastDotIndex = fileName.lastIndexOf('.');
+        let baseName = fileName;
+        let extension = '';
+
+        if (lastDotIndex !== -1) {
+            baseName = fileName.substring(0, lastDotIndex);
+            extension = fileName.substring(lastDotIndex);
+        }
+
+        // Check for existing numbered versions like "filename(2).ext"
+        const regex = new RegExp(`^${baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\((\\d+)\\)${extension.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+
+        let highestNumber = 1;
+
+        existingFiles.forEach(file => {
+            const match = file.file_name.match(regex);
+            if (match) {
+                const num = parseInt(match[1], 10);
+                if (num >= highestNumber) {
+                    highestNumber = num + 1;
+                }
+            }
+        });
+
+        return `${baseName}(${highestNumber})${extension}`;
+    };
+
+    // Function to handle conflict resolution
+    const handleResolveConflict = () => {
+        if (!conflictFiles.length) return;
+
+        // Update the current file's new name
+        const updatedConflictFiles = [...conflictFiles];
+        updatedConflictFiles[currentConflictIndex].newName = newFileName;
+        setConflictFiles(updatedConflictFiles);
+
+        // Move to next conflict or finish
+        if (currentConflictIndex < conflictFiles.length - 1) {
+            const nextIndex = currentConflictIndex + 1;
+            setCurrentConflictIndex(nextIndex);
+            setNewFileName(conflictFiles[nextIndex].newName);
+        } else {
+            // All conflicts resolved, create modified FileList with new names
+            processUploadWithRenamedFiles();
+        }
+    };
+
+    // Process upload with renamed files
+    const processUploadWithRenamedFiles = () => {
+        // Close the dialog
+        setShowFileConflictDialog(false);
+
+        if (!filesToUpload) return;
+
+        // Create a mapping of original files to new names
+        const fileMap = new Map();
+        conflictFiles.forEach(conflict => {
+            fileMap.set(conflict.originalFile, conflict.newName);
+        });
+
+        // Create a new array of files, replacing conflicting ones with renamed versions
+        const updatedFiles = Array.from(filesToUpload).map(file => {
+            const newName = fileMap.get(file);
+
+            if (newName) {
+                // This is a conflicting file that needs to be renamed
+                // We can't modify the original File object, so we'll handle the rename during upload
+                return {
+                    originalFile: file,
+                    newName: newName
+                };
+            }
+
+            // This file has no conflicts, use as is
+            return {
+                originalFile: file,
+                newName: null
+            };
+        });
+
+        // Process the upload with our modified file list
+        processFileUpload(updatedFiles, true);
+    };
+
+    // Cancel conflict resolution and abort upload
+    const handleCancelConflict = () => {
+        setShowFileConflictDialog(false);
+        setConflictFiles([]);
+        setFilesToUpload(null);
+    };
+
+    // Main upload processing function
+    const processFileUpload = async (files, hasRenamedFiles = false) => {
+        // Calculate total size of files to be uploaded
+        let totalUploadSize = 0;
+
+        // If we have renamed files, the structure is different
+        if (hasRenamedFiles) {
+            for (let i = 0; i < files.length; i++) {
+                totalUploadSize += files[i].originalFile.size;
+            }
+        } else {
+            for (let i = 0; i < files.length; i++) {
+                totalUploadSize += files[i].size;
+            }
+        }
+
+        // Get current storage usage
+        try {
+            const response = await fetch(`${Server_url}/drive/get_storage_stats`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_email,
+                    created_by
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to get storage statistics');
+            }
+
+            const stats = await response.json();
+            const usedStorage = stats.usedStorage || 0; // in bytes
+
+            // Parse storage limit from FULL_DRIVE_LIMIT
+            let maxStorage = 0;
+            if (IS_UNLIMITED) {
+                // No limit check needed
+            } else if (FULL_DRIVE_LIMIT.endsWith('GB')) {
+                maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024 * 1024;
+            } else if (FULL_DRIVE_LIMIT.endsWith('MB')) {
+                maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024;
+            } else if (FULL_DRIVE_LIMIT.endsWith('TB')) {
+                maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024 * 1024 * 1024;
+            }
+
+            // IMPORTANT: Always use our frontend storage limit for validation
+            // Ignore server's storage limit
+            const storageLimit = maxStorage;
+            const remainingStorage = storageLimit - usedStorage;
+
+            // Check if upload would exceed storage limit
+            if (!IS_UNLIMITED && (usedStorage + totalUploadSize > storageLimit)) {
+                const formattedRemaining = formatFileSize(remainingStorage);
+                const formattedUploadSize = formatFileSize(totalUploadSize);
+                const formattedTotal = formatFileSize(storageLimit);
+                const formattedUsed = formatFileSize(usedStorage);
+
+                showRejectToast({
+                    message: `Not enough storage space. You have ${formattedRemaining} available but need ${formattedUploadSize} for this upload.`
+                });
+
+                // Show more detailed storage information
+                console.log(`Storage details: Used ${formattedUsed} of ${formattedTotal} (${(usedStorage / storageLimit * 100).toFixed(1)}%)`);
+                return;
+            }
+
+        } catch (error) {
+            console.error('Error checking storage limits:', error);
+            showRejectToast({
+                message: 'Unable to verify storage limits. Please try again later.'
+            });
+            return;
+        }
+
         setIsLoading(true);
         const totalFiles = files.length;
         let completedFiles = 0;
@@ -505,17 +724,58 @@ function DriveHome() {
             console.log("Starting upload of", totalFiles, "files");
 
             for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                console.log(`Processing file ${i + 1}/${totalFiles}:`, file.name, "size:", file.size, "bytes");
+                let file, customFileName;
+
+                // Handle differently based on whether we're dealing with renamed files
+                if (hasRenamedFiles) {
+                    file = files[i].originalFile;
+                    customFileName = files[i].newName;
+                } else {
+                    file = files[i];
+                    customFileName = null;
+                }
+
+                console.log(`Processing file ${i + 1}/${totalFiles}:`,
+                    customFileName || file.name,
+                    "size:", file.size, "bytes");
 
                 // Create FormData for each file
                 const formData = new FormData();
-                formData.append('file', file);
+
+                // If we have a custom file name, we'll create a new File object with that name
+                if (customFileName) {
+                    try {
+                        // Create a new file with the custom name to ensure the name is properly sent
+                        // Some servers rely on the actual file.name property
+                        const fileBlob = new Blob([await file.arrayBuffer()], { type: file.type });
+                        const renamedFile = new File([fileBlob], customFileName, { type: file.type });
+
+                        // Append the renamed file instead of the original
+                        formData.append('file', renamedFile);
+                        console.log(`Renamed file from "${file.name}" to "${customFileName}"`);
+                    } catch (error) {
+                        console.error("Error creating renamed file:", error);
+                        // Fallback: use original file and rely on server-side renaming
+                        formData.append('file', file);
+                        formData.append('customFileName', customFileName);
+                    }
+                } else {
+                    formData.append('file', file);
+                }
 
                 // Construct upload URL with proper parameters
                 const uploadUrl = new URL(`${Server_url}/drive/upload-file`);
                 uploadUrl.searchParams.append('created_by', created_by);
                 uploadUrl.searchParams.append('user_email', user_email);
+
+                // Always add the custom filename as a URL parameter for backup
+                if (customFileName) {
+                    uploadUrl.searchParams.append('customFileName', customFileName);
+
+                    // Some servers use different parameter names, so let's add alternatives
+                    uploadUrl.searchParams.append('newFileName', customFileName);
+                    uploadUrl.searchParams.append('fileName', customFileName);
+                }
 
                 // Add current folder ID if we're in a folder
                 if (currentFolder) {
@@ -537,6 +797,12 @@ function DriveHome() {
                     const result = await response.json();
                     console.log("Upload successful:", result);
 
+                    // Verify the server used the correct filename
+                    const serverFileName = result.file_name || result.fileName;
+                    if (customFileName && serverFileName && serverFileName !== customFileName) {
+                        console.warn(`Server used different filename: ${serverFileName} instead of ${customFileName}`);
+                    }
+
                     // Verify file_size is present in the response
                     if (result.file_size) {
                         console.log(`Uploaded file size: ${result.file_size} bytes (${formatFileSize(result.file_size)})`);
@@ -548,8 +814,8 @@ function DriveHome() {
                     setUploadProgress({ completed: completedFiles, total: totalFiles });
                 } else {
                     const errorText = await response.text();
-                    console.error(`Upload failed for ${file.name}:`, errorText);
-                    alert(`Failed to upload ${file.name}: ${errorText}`);
+                    console.error(`Upload failed for ${customFileName || file.name}:`, errorText);
+                    alert(`Failed to upload ${customFileName || file.name}: ${errorText}`);
                 }
             }
 
@@ -557,6 +823,13 @@ function DriveHome() {
             console.log("All uploads completed");
             setUploadProgress({ completed: 0, total: 0 });
             refreshDrive(); // Use the refresh function instead of direct fetch calls
+
+            // Refresh storage stats after upload
+            fetchStorageStats();
+
+            // Clean up
+            setFilesToUpload(null);
+            setConflictFiles([]);
         } catch (error) {
             console.error('Upload error:', error);
             alert('Upload failed: ' + error.message);
@@ -1156,6 +1429,62 @@ function DriveHome() {
         refreshDrive();
     };
 
+    // Add a function to fetch storage stats
+    const fetchStorageStats = async () => {
+        try {
+            const response = await fetch(`${Server_url}/drive/get_storage_stats`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_email,
+                    created_by
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to get storage statistics');
+            }
+
+            const stats = await response.json();
+
+            // IMPORTANT: Always override server's storage limit with our frontend setting
+            // Parse FULL_DRIVE_LIMIT to get the correct storage limit
+            let maxStorage = 0;
+            if (!IS_UNLIMITED && FULL_DRIVE_LIMIT) {
+                if (FULL_DRIVE_LIMIT.endsWith('GB')) {
+                    maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024 * 1024;
+                } else if (FULL_DRIVE_LIMIT.endsWith('MB')) {
+                    maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024;
+                } else if (FULL_DRIVE_LIMIT.endsWith('TB')) {
+                    maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024 * 1024 * 1024;
+                }
+            }
+
+            // Always use our frontend storage limit, ignoring what the server sent
+            const usedStorage = stats.usedStorage || 0;
+
+            // Recalculate all stats based on our frontend FULL_DRIVE_LIMIT
+            const totalStorage = maxStorage;
+            const remainingStorage = totalStorage - usedStorage;
+            let percentageUsed = 0;
+            if (totalStorage > 0) {
+                percentageUsed = (usedStorage / totalStorage) * 100;
+            }
+
+            setStorageStats({
+                usedStorage,
+                totalStorage,
+                percentageUsed,
+                remainingStorage
+            });
+
+        } catch (error) {
+            console.error('Error fetching storage stats:', error);
+        }
+    };
+
     return (
         <div className="drive-home-container" onClick={() => setActivePopup(null)}>
             {uploadProgress.total > 0 && <FileLoaderToast uploadProgress={uploadProgress} />}
@@ -1241,6 +1570,47 @@ function DriveHome() {
                     onClose={() => setSharePopup({ show: false, item: null })}
                     onShare={handleShareSuccess}
                 />
+            )}
+
+            {/* File Conflict Dialog */}
+            {showFileConflictDialog && (
+                <div className="rename-dialog-overlay">
+                    <div className="rename-dialog">
+                        <h3>File Already Exists</h3>
+                        <p>
+                            The file "{conflictFiles[currentConflictIndex]?.originalName}" already exists.
+                            Please rename the file or cancel the upload.
+                        </p>
+                        <input
+                            maxLength={100}
+                            placeholder="New file name"
+                            value={newFileName}
+                            onChange={(e) => setNewFileName(e.target.value)}
+                            autoFocus
+                        />
+                        <div className="character-count">
+                            {newFileName.length}/100 characters
+                        </div>
+                        <div className="conflict-dialog-status">
+                            File {currentConflictIndex + 1} of {conflictFiles.length}
+                        </div>
+                        <div className="rename-dialog-buttons">
+                            <button
+                                onClick={handleCancelConflict}
+                                className="cancel-btn"
+                            >
+                                Cancel Upload
+                            </button>
+                            <button
+                                onClick={handleResolveConflict}
+                                className="rename-btn"
+                                disabled={!newFileName || !newFileName.trim()}
+                            >
+                                {currentConflictIndex < conflictFiles.length - 1 ? "Next" : "Upload"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             <div className="drive-header">
@@ -1348,6 +1718,24 @@ function DriveHome() {
                 </div>
             </div>
 
+            {/* Storage Usage Indicator */}
+            {!IS_UNLIMITED && storageStats.totalStorage > 0 && (
+                <div className="storage-usage-container">
+                    <div className="storage-usage-bar">
+                        <div
+                            className={`storage-used ${storageStats.percentageUsed > 90 ? 'critical' :
+                                storageStats.percentageUsed > 75 ? 'warning' : ''}`}
+                            style={{ width: `${Math.min(storageStats.percentageUsed || 0, 100)}%` }}
+                        ></div>
+                    </div>
+                    <div className="storage-text">
+                        {formatFileSize(storageStats.usedStorage || 0)} of {FULL_DRIVE_LIMIT} used
+                        ({(storageStats.percentageUsed || 0).toFixed(1)}%) ·
+                        {formatFileSize(storageStats.remainingStorage || 0)} available
+                    </div>
+                </div>
+            )}
+
             {/* Path Navigation */}
             <div className="path-navigation">
                 <button onClick={navigateUp} disabled={!currentFolder || isLoading}>
@@ -1398,6 +1786,15 @@ function DriveHome() {
                         </span>
                     ))}
                 </div>
+            </div>
+
+            {/* Static storage display at the top of the page - consistently using FULL_DRIVE_LIMIT */}
+            <div className="static-storage-display">
+                {storageStats.usedStorage !== undefined && (
+                    <div className="storage-usage-text">
+                        {formatFileSize(storageStats.usedStorage || 0)} of {FULL_DRIVE_LIMIT} used ({(storageStats.percentageUsed || 0).toFixed(1)}%) · {formatFileSize(storageStats.remainingStorage || 0)} available
+                    </div>
+                )}
             </div>
 
             {/* Total Items Count */}

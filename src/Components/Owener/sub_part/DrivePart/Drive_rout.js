@@ -878,9 +878,10 @@ router.post('/upload-file', (req, res) => {
             const bb = busboy({
                 headers: req.headers,
                 limits: {
-                    fileSize: 50 * 1024 * 1024, // 50MB limit
+                    fileSize: 500 * 1024 * 1024, // 500MB limit
                 }
             });
+
 
             let filesUploaded = 0;
             let uploadPromises = [];
@@ -1890,16 +1891,16 @@ function categorizeFilesByType(files) {
         videos: { size: 0, percentage: 0, extensions: ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.mkv', '.webm', '.m4v', '.3gp'] },
         others: { size: 0, percentage: 0, extensions: [] }
     };
-    
+
     let totalSize = 0;
-    
+
     files.forEach(file => {
         const fileExt = '.' + file.file_name.split('.').pop().toLowerCase();
         const fileSize = parseInt(file.file_size) || 0;
         totalSize += fileSize;
-        
+
         let categorized = false;
-        
+
         // Check which category this file belongs to
         for (const [category, data] of Object.entries(categories)) {
             if (category !== 'others' && data.extensions.includes(fileExt)) {
@@ -1908,50 +1909,82 @@ function categorizeFilesByType(files) {
                 break;
             }
         }
-        
+
         // If not categorized, put in others
         if (!categorized) {
             categories.others.size += fileSize;
         }
     });
-    
+
     // Calculate percentages if total size is not zero
     if (totalSize > 0) {
         for (const category in categories) {
             categories[category].percentage = Math.round((categories[category].size / totalSize) * 100);
         }
     }
-    
+
     // Remove the extensions array from the result
     for (const category in categories) {
         delete categories[category].extensions;
     }
-    
+
     return categories;
 }
 
 // Add this new route handler after an existing route
 router.post('/get_storage_stats', (req, res) => {
     try {
-        const { user_email } = req.body;
-        
+        const { user_email, created_by } = req.body;
+
         if (!user_email) {
             return res.status(400).json({ error: 'User email is required' });
         }
-        
+
         // Query all files for this user
         const query = 'SELECT file_name, file_size FROM drive_files WHERE user_email = ?';
-        
+
         db.query(query, [user_email], (err, results) => {
             if (err) {
                 console.error('Error fetching files for storage stats:', err);
                 return res.status(500).json({ error: 'Database error' });
             }
-            
+
+            // Calculate total used storage
+            let usedStorage = 0;
+            results.forEach(file => {
+                usedStorage += parseInt(file.file_size) || 0;
+            });
+
             // Categorize files and calculate stats
             const stats = categorizeFilesByType(results);
-            
-            res.json(stats);
+
+            // Add total used storage to the response
+            const response = {
+                ...stats,
+                usedStorage,
+                totalFiles: results.length
+            };
+
+            // If FULL_DRIVE_LIMIT is defined and not unlimited, calculate percentage used
+            const fullDriveLimit = process.env.FULL_DRIVE_LIMIT || '5GB';
+            const isUnlimited = fullDriveLimit.toLowerCase() === 'unlimited';
+
+            if (!isUnlimited) {
+                let maxStorage = 0;
+                if (fullDriveLimit.endsWith('GB')) {
+                    maxStorage = parseFloat(fullDriveLimit) * 1024 * 1024 * 1024;
+                } else if (fullDriveLimit.endsWith('MB')) {
+                    maxStorage = parseFloat(fullDriveLimit) * 1024 * 1024;
+                } else if (fullDriveLimit.endsWith('TB')) {
+                    maxStorage = parseFloat(fullDriveLimit) * 1024 * 1024 * 1024 * 1024;
+                }
+
+                response.totalStorage = maxStorage;
+                response.percentageUsed = maxStorage > 0 ? (usedStorage / maxStorage) * 100 : 0;
+                response.remainingStorage = maxStorage - usedStorage;
+            }
+
+            res.json(response);
         });
     } catch (error) {
         console.error('Error in get_storage_stats:', error);

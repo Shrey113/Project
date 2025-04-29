@@ -515,9 +515,26 @@ function SharedFilesPage() {
     };
 
     // Add preview handler functions
-    const handleItemClick = (item, type) => {
-        if (type === 'file') {
-            setPreviewFile(item);
+    const handleItemClick = (item) => {
+        if (item.type === 'file' || item.file_id) {
+            // Get file extension from name if not available in file_type
+            let fileType = item.file_type || item.type || '';
+            if (fileType === 'file' && item.file_name) {
+                const nameParts = item.file_name.split('.');
+                if (nameParts.length > 1) {
+                    fileType = nameParts[nameParts.length - 1];
+                }
+            }
+
+            // Ensure we have all the required properties for FilePreview
+            const fileData = {
+                file_id: item.file_id || item.id,
+                file_name: item.file_name || item.name,
+                file_type: fileType,
+                ...item // Include all other item properties
+            };
+            console.log("Setting preview file:", fileData);
+            setPreviewFile(fileData);
         }
     };
 
@@ -720,7 +737,7 @@ function SharedFilesPage() {
                                                     formatDate={formatDate}
                                                     setGlobalActivePopup={setGlobalActivePopup}
                                                     globalActivePopup={globalActivePopup}
-                                                    onClick={handleItemClick}
+                                                    onClick={(item) => handleItemClick(item)}
                                                 />
                                             );
                                         })
@@ -773,7 +790,7 @@ function SharedFilesPage() {
                                                     formatDate={formatDate}
                                                     setGlobalActivePopup={setGlobalActivePopup}
                                                     globalActivePopup={globalActivePopup}
-                                                    onClick={handleItemClick}
+                                                    onClick={(item) => handleItemClick(item)}
                                                 />
                                             );
                                         })
@@ -833,7 +850,7 @@ function SharedFilesPage() {
                                         formatDate={formatDate}
                                         setGlobalActivePopup={setGlobalActivePopup}
                                         globalActivePopup={globalActivePopup}
-                                        onClick={handleItemClick}
+                                        onClick={(item) => handleItemClick(item)}
                                     />
                                 );
                             })

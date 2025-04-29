@@ -758,43 +758,64 @@
   z-index: 3;
 }
 
-/* Drive Storage Visualization Styles */
+/* Drive Storage Visualization Styles - Enhanced UI */
 .drive-storage-info {
-  margin: 20px 15px 0;
-  padding: 15px;
-  background-color: #ffffff;
-  border-radius: 12px;
+  margin: 20px 15px 10px;
+  padding: 16px;
+  background: linear-gradient(145deg, #ffffff, #f5f7fa);
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   color: #333;
-
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
-
-  &:hover {
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-  }
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: rgba(149, 157, 165, 0.1) 0px 8px 24px;
+  position: relative;
+  overflow: hidden;
 }
 
+.drive-storage-info:hover {
+  box-shadow: hwb(0 0% 100% / 0.082) 0px 8px 24px;
+  /* transform: translateY(-2px); */
+}
 
+.drive-storage-info::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
 
+.drive-storage-info:hover::before {
+  opacity: 1;
+}
 
 .storage-summary {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   justify-content: space-between;
+  position: relative;
+  z-index: 2;
 }
 
 .storage-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background-color: rgba(59, 130, 246, 0.1);
-  margin-right: 12px;
-  color: #3b82f6;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  margin-right: 14px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .storage-details {
@@ -803,108 +824,140 @@
 }
 
 .storage-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 2px;
+  color: #1e293b;
+  margin-bottom: 4px;
 }
 
 .storage-text {
-  font-size: 12px;
-  color: #666;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .storage-progress {
   width: 100%;
+  position: relative;
+  z-index: 2;
 }
 
 .storage-progress-bar {
-  height: 8px;
+  height: 10px;
   width: 100%;
-  background-color: #eaecef;
-  border-radius: 4px;
+  background-color: #e2e8f0;
+  border-radius: 10px;
   display: flex;
   overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .storage-progress-filled {
   height: 100%;
-  background-color: #3b82f6;
-  transition: width 0.3s ease;
+  background: linear-gradient(90deg, #4f46e5, #3b82f6, #60a5fa);
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.storage-progress-filled::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.2) 20%,
+      rgba(255, 255, 255, 0.1) 40%);
+  animation: shine 1.5s infinite linear;
+  transform: translateX(-100%);
+}
+
+@keyframes shine {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 .storage-progress-unlimited {
   height: 100%;
   width: 15%;
-  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
+  background: linear-gradient(90deg, #4f46e5 0%, #8b5cf6 50%, #3b82f6 100%);
   background-size: 200% 100%;
-  animation: gradient-move 2s linear infinite;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
+  background-position: 0% 0%;
 }
 
-@keyframes gradient-move {
-  0% {
-    background-position: 0% 0%;
-  }
 
-  100% {
-    background-position: 200% 0%;
-  }
-}
 
 .storage-progress-segment {
   height: 100%;
-  transition: width 0.3s ease;
+  transition: width 0.4s ease;
 }
 
 .storage-type-images {
-  background-color: #3b82f6;
-  /* Blue */
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
 }
 
 .storage-type-documents {
-  background-color: #10b981;
-  /* Green */
+  background: linear-gradient(90deg, #10b981, #34d399);
 }
 
 .storage-type-videos {
-  background-color: #8b5cf6;
-  /* Purple */
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
 }
 
 .storage-type-others {
-  background-color: #f59e0b;
-  /* Orange */
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
 }
 
-/* Storage Popup Styles */
+/* Storage Popup Styles - Enhanced */
 .storage-popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: overlay-appear 0.3s ease;
+}
+
+@keyframes overlay-appear {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .storage-popup {
-  background-color: #ffffff;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-  animation: popup-appear 0.3s ease;
+  background: white;
+  border-radius: 20px;
+  width: 92%;
+  max-width: 420px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
+  animation: popup-appear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
   color: #333;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 @keyframes popup-appear {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.92);
   }
 
   to {
@@ -917,48 +970,52 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
-  border-bottom: 1px solid #eaecef;
-  background-color: #ffffff;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
 }
 
 .storage-popup-header h3 {
   margin: 0;
   font-size: 20px;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #1e293b;
+  position: relative;
 }
 
+
 .close-popup-btn {
-  background: transparent;
+  background: rgba(241, 245, 249, 0.8);
   border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #666;
+  color: #64748b;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .close-popup-btn:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: #333;
+  background-color: #f1f5f9;
+  color: #1e293b;
+  transform: rotate(90deg);
 }
 
 .storage-popup-content {
-  padding: 20px;
+  padding: 24px;
 }
 
 .storage-total {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  padding-bottom: 20px;
+  gap: 18px;
+  padding-bottom: 24px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #eaecef;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .storage-total-header {
@@ -973,8 +1030,8 @@
 .storage-type-icon {
   width: 24px;
   height: 24px;
-  margin-right: 12px;
-  color: #666;
+  margin-right: 16px;
+  color: #64748b;
 }
 
 .storage-type-details {
@@ -982,14 +1039,16 @@
 }
 
 .storage-type-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 3px;
 }
 
 .storage-type-size {
-  font-size: 12px;
-  color: #666;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .storage-breakdown {
@@ -1001,69 +1060,119 @@
 .storage-type-item {
   display: flex;
   align-items: center;
-  padding: 12px;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
+  padding: 16px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .storage-type-item:hover {
-  background-color: #f8f9fa;
+  background: #f8fafc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .storage-type-color {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   margin-right: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .storage-type-color.images {
-  background-color: #3b82f6;
-  /* Blue */
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
 }
 
 .storage-type-color.documents {
-  background-color: #10b981;
-  /* Green */
+  background: linear-gradient(135deg, #10b981, #34d399);
 }
 
 .storage-type-color.videos {
-  background-color: #8b5cf6;
-  /* Purple */
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
 }
 
 .storage-type-color.others {
-  background-color: #f59e0b;
-  /* Orange */
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
 }
 
 .storage-type-percentage {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
   margin-left: auto;
+  background: -webkit-linear-gradient(45deg, #1e293b, #64748b);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Add styles for refresh button */
+/* Enhanced styles for refresh button */
 .storage-refresh-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: transparent;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(241, 245, 249, 0.8);
   border: none;
-  color: #3b82f6;
+  color: #4f46e5;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   padding: 0;
-  margin-left: 4px;
+  margin-left: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: absolute;
+  top: -8px;
+  right: -8px;
 }
 
+.storage-refresh-btn:hover {
+  background: #f1f5f9;
+  color: #3b82f6;
+  transform: scale(1.05);
+}
+
+.storage-refresh-btn.refreshing {
+  background: #f1f5f9;
+}
 
 .storage-refresh-btn.refreshing svg {
-  animation: spins_for_refresh 0.7s linear infinite;
+  animation: spins_for_refresh 0.7s cubic-bezier(0.6, 0.1, 0.4, 0.9) infinite;
+}
+
+.storage-refresh-btn-for-storage-popup {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(241, 245, 249, 0.8);
+  border: none;
+  color: #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  margin-left: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-right: 10px;
+}
+
+.storage-refresh-btn-for-storage-popup:hover {
+  background: #f1f5f9;
+  color: #3b82f6;
+  transform: scale(1.05);
+}
+
+.storage-refresh-btn-for-storage-popup.refreshing {
+  background: #f1f5f9;
+}
+
+.storage-refresh-btn-for-storage-popup.refreshing svg {
+  animation: spins_for_refresh 0.7s cubic-bezier(0.6, 0.1, 0.4, 0.9) infinite;
 }
 
 @keyframes spins_for_refresh {
@@ -1084,4 +1193,21 @@
 
 .popup-header-actions .storage-refresh-btn {
   margin-right: 8px;
+}
+
+/* Additional enhancement for visual indicators */
+.storage-type-item.images .storage-type-icon {
+  color: #3b82f6;
+}
+
+.storage-type-item.documents .storage-type-icon {
+  color: #10b981;
+}
+
+.storage-type-item.videos .storage-type-icon {
+  color: #8b5cf6;
+}
+
+.storage-type-item.others .storage-type-icon {
+  color: #f59e0b;
 }

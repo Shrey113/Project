@@ -28,6 +28,10 @@ export const Socket_url = 'ws://localhost:4000';
 // export const Server_url = 'https://srv749838.hstgr.cloud:4000';
 // export const Socket_url = 'wss://srv749838.hstgr.cloud:4000';
 
+// Can be set to "15GB", "1TB", or "unlimited"
+export const FULL_DRIVE_LIMIT = "5GB";
+export const IS_UNLIMITED = FULL_DRIVE_LIMIT === "unlimited";
+
 
 export const localstorage_key_for_client = "localstorage_key_for_client";
 export const localstorage_key_for_admin_settings =
