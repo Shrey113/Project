@@ -48,7 +48,7 @@ import { useSelector } from "react-redux";
 
 
 // Can be set to "15GB", "1TB", or "unlimited"
-const FULL_DRIVE_LIMIT = "5GB"; 
+const FULL_DRIVE_LIMIT = "5GB";
 const IS_UNLIMITED = FULL_DRIVE_LIMIT === "unlimited";
 
 
@@ -116,7 +116,7 @@ function OwnerSideBar() {
   // Calculate storage usage percentage
   const calculateUsagePercentage = () => {
     if (IS_UNLIMITED) return 0; // No percentage for unlimited
-    
+
     const limitInBytes = parseStorageSize(FULL_DRIVE_LIMIT);
     return Math.min(Math.round((totalStorageSize / limitInBytes) * 100), 100);
   };
@@ -124,20 +124,20 @@ function OwnerSideBar() {
   // Parse storage size like "15GB" to bytes
   const parseStorageSize = (sizeString) => {
     if (typeof sizeString !== 'string') return 0;
-    
+
     const match = sizeString.match(/^(\d+(?:\.\d+)?)([KMGT]B)$/i);
     if (!match) return 0;
-    
+
     const value = parseFloat(match[1]);
     const unit = match[2].toUpperCase();
-    
+
     const multipliers = {
       'KB': 1024,
       'MB': 1024 * 1024,
       'GB': 1024 * 1024 * 1024,
       'TB': 1024 * 1024 * 1024 * 1024
     };
-    
+
     return value * multipliers[unit];
   };
 
@@ -147,42 +147,42 @@ function OwnerSideBar() {
     const units = ['B', 'KB', 'MB', 'GB', 'TB'];
     let size = bytes;
     let unitIndex = 0;
-  
+
     while (size >= 1024 && unitIndex < units.length - 1) {
       size /= 1024;
       unitIndex++;
     }
-  
+
     return `${size.toFixed(2)} ${units[unitIndex]}`;
   };
 
-  useEffect(()=>{
-    if(showStoragePopup){
+  useEffect(() => {
+    if (showStoragePopup) {
       document.documentElement.style.overflow = "hidden";
-    }else{
+    } else {
       document.documentElement.style.overflow = "auto";
     }
-  },[showStoragePopup])
+  }, [showStoragePopup])
 
   const fetchStorageData = useCallback(async () => {
     if (!userEmail) return;
-    
+
     try {
       setIsRefreshing(true);
-      
+
       // Fetch total storage size
       const sizeResponse = await axios.post(`${Server_url}/drive/get_all_file_size`, {
         user_email: userEmail
       });
       setTotalStorageSize(sizeResponse.data);
-      
+
       // Fetch storage statistics
       const statsResponse = await axios.post(`${Server_url}/drive/get_storage_stats`, {
         user_email: userEmail
       });
       setStorageStats(statsResponse.data);
-      
-      setTimeout(() => setIsRefreshing(false), 600); // Keep animation visible for a moment
+
+      setTimeout(() => setIsRefreshing(false), 700); // Keep animation visible for a moment
     } catch (error) {
       console.error('Error fetching storage data:', error);
       setIsRefreshing(false);
@@ -200,7 +200,7 @@ function OwnerSideBar() {
     e.stopPropagation();
     setShowStoragePopup(!showStoragePopup);
   };
-  
+
   // Handle refresh button click
   const handleRefreshClick = (e) => {
     e.stopPropagation();
@@ -534,7 +534,7 @@ function OwnerSideBar() {
                       {formatStorageSize(totalStorageSize)} {!IS_UNLIMITED ? `of ${FULL_DRIVE_LIMIT}` : ''}
                     </div>
                   </div>
-                  <button 
+                  <button
                     className={`storage-refresh-btn ${isRefreshing ? 'refreshing' : ''}`}
                     onClick={handleRefreshClick}
                     title="Refresh storage data"
@@ -542,11 +542,11 @@ function OwnerSideBar() {
                     <RefreshIcon />
                   </button>
                 </div>
-                
+
                 <div className="storage-progress">
                   <div className="storage-progress-bar">
                     {!IS_UNLIMITED ? (
-                      <div 
+                      <div
                         className="storage-progress-filled"
                         style={{ width: `${calculateUsagePercentage()}%` }}
                       ></div>
@@ -556,7 +556,7 @@ function OwnerSideBar() {
                   </div>
                 </div>
               </div>
-              
+
             </div>
           ) : !isProfilePage ? (
             // Show regular menu items when not on profile page
@@ -680,103 +680,103 @@ function OwnerSideBar() {
           }}
         />
       )}
-        {/* Storage Details Popup */}
-        {showStoragePopup && (
-                <div className="storage-popup-overlay" onClick={toggleStoragePopup}>
-                  <div className="storage-popup" onClick={(e) => e.stopPropagation()}>
-                    <div className="storage-popup-header">
-                      <h3>Storage</h3>
-                      <div className="popup-header-actions">
-                        <button 
-                          className={`storage-refresh-btn ${isRefreshing ? 'refreshing' : ''}`}
-                          onClick={handleRefreshClick}
-                          title="Refresh storage data"
-                        >
-                          <RefreshIcon />
-                        </button>
-                        <button className="close-popup-btn" onClick={toggleStoragePopup}>
-                          <CloseIcon />
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="storage-popup-content">
-                      <div className="storage-total">
-                        <div className="storage-total-header">
-                          <StorageIcon className="storage-type-icon" />
-                          <div className="storage-type-details">
-                            <div className="storage-type-name">Total Storage</div>
-                            <div className="storage-type-size">
-                              {formatStorageSize(totalStorageSize)} {!IS_UNLIMITED ? `of ${FULL_DRIVE_LIMIT}` : ''}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="storage-total-progress">
-                          <div className="storage-progress-bar">
-                            {!IS_UNLIMITED ? (
-                              <>
-                                {Object.keys(storageStats).map((type) => (
-                                  <div 
-                                    key={type} 
-                                    className={`storage-progress-segment storage-type-${type}`}
-                                    style={{ width: `${storageStats[type].percentage}%` }}
-                                    title={`${type}: ${formatStorageSize(storageStats[type].size)}`}
-                                  ></div>
-                                ))}
-                              </>
-                            ) : (
-                              <div className="storage-progress-unlimited"></div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="storage-breakdown">
-                        <div className="storage-type-item">
-                          <div className="storage-type-color images"></div>
-                          <ImageIcon className="storage-type-icon" />
-                          <div className="storage-type-details">
-                            <div className="storage-type-name">Images</div>
-                            <div className="storage-type-size">{formatStorageSize(storageStats.images.size)}</div>
-                          </div>
-                          <div className="storage-type-percentage">{storageStats.images.percentage}%</div>
-                        </div>
-                        
-                        <div className="storage-type-item">
-                          <div className="storage-type-color documents"></div>
-                          <PictureAsPdfIcon className="storage-type-icon" />
-                          <div className="storage-type-details">
-                            <div className="storage-type-name">Documents</div>
-                            <div className="storage-type-size">{formatStorageSize(storageStats.documents.size)}</div>
-                          </div>
-                          <div className="storage-type-percentage">{storageStats.documents.percentage}%</div>
-                        </div>
-                        
-                        <div className="storage-type-item">
-                          <div className="storage-type-color videos"></div>
-                          <VideocamIcon className="storage-type-icon" />
-                          <div className="storage-type-details">
-                            <div className="storage-type-name">Videos</div>
-                            <div className="storage-type-size">{formatStorageSize(storageStats.videos.size)}</div>
-                          </div>
-                          <div className="storage-type-percentage">{storageStats.videos.percentage}%</div>
-                        </div>
-                        
-                        <div className="storage-type-item">
-                          <div className="storage-type-color others"></div>
-                          <DescriptionIcon className="storage-type-icon" />
-                          <div className="storage-type-details">
-                            <div className="storage-type-name">Others</div>
-                            <div className="storage-type-size">{formatStorageSize(storageStats.others.size)}</div>
-                          </div>
-                          <div className="storage-type-percentage">{storageStats.others.percentage}%</div>
-                        </div>
-                      </div>
+      {/* Storage Details Popup */}
+      {showStoragePopup && (
+        <div className="storage-popup-overlay" onClick={toggleStoragePopup}>
+          <div className="storage-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="storage-popup-header">
+              <h3>Storage</h3>
+              <div className="popup-header-actions">
+                <button
+                  className={`storage-refresh-btn ${isRefreshing ? 'refreshing' : ''}`}
+                  onClick={handleRefreshClick}
+                  title="Refresh storage data"
+                >
+                  <RefreshIcon />
+                </button>
+                <button className="close-popup-btn" onClick={toggleStoragePopup}>
+                  <CloseIcon />
+                </button>
+              </div>
+            </div>
+
+            <div className="storage-popup-content">
+              <div className="storage-total">
+                <div className="storage-total-header">
+                  <StorageIcon className="storage-type-icon" />
+                  <div className="storage-type-details">
+                    <div className="storage-type-name">Total Storage</div>
+                    <div className="storage-type-size">
+                      {formatStorageSize(totalStorageSize)} {!IS_UNLIMITED ? `of ${FULL_DRIVE_LIMIT}` : ''}
                     </div>
                   </div>
                 </div>
-               )}
+
+                <div className="storage-total-progress">
+                  <div className="storage-progress-bar">
+                    {!IS_UNLIMITED ? (
+                      <>
+                        {Object.keys(storageStats).map((type) => (
+                          <div
+                            key={type}
+                            className={`storage-progress-segment storage-type-${type}`}
+                            style={{ width: `${storageStats[type].percentage}%` }}
+                            title={`${type}: ${formatStorageSize(storageStats[type].size)}`}
+                          ></div>
+                        ))}
+                      </>
+                    ) : (
+                      <div className="storage-progress-unlimited"></div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="storage-breakdown">
+                <div className="storage-type-item">
+                  <div className="storage-type-color images"></div>
+                  <ImageIcon className="storage-type-icon" />
+                  <div className="storage-type-details">
+                    <div className="storage-type-name">Images</div>
+                    <div className="storage-type-size">{formatStorageSize(storageStats.images.size)}</div>
+                  </div>
+                  <div className="storage-type-percentage">{storageStats.images.percentage}%</div>
+                </div>
+
+                <div className="storage-type-item">
+                  <div className="storage-type-color documents"></div>
+                  <PictureAsPdfIcon className="storage-type-icon" />
+                  <div className="storage-type-details">
+                    <div className="storage-type-name">Documents</div>
+                    <div className="storage-type-size">{formatStorageSize(storageStats.documents.size)}</div>
+                  </div>
+                  <div className="storage-type-percentage">{storageStats.documents.percentage}%</div>
+                </div>
+
+                <div className="storage-type-item">
+                  <div className="storage-type-color videos"></div>
+                  <VideocamIcon className="storage-type-icon" />
+                  <div className="storage-type-details">
+                    <div className="storage-type-name">Videos</div>
+                    <div className="storage-type-size">{formatStorageSize(storageStats.videos.size)}</div>
+                  </div>
+                  <div className="storage-type-percentage">{storageStats.videos.percentage}%</div>
+                </div>
+
+                <div className="storage-type-item">
+                  <div className="storage-type-color others"></div>
+                  <DescriptionIcon className="storage-type-icon" />
+                  <div className="storage-type-details">
+                    <div className="storage-type-name">Others</div>
+                    <div className="storage-type-size">{formatStorageSize(storageStats.others.size)}</div>
+                  </div>
+                  <div className="storage-type-percentage">{storageStats.others.percentage}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

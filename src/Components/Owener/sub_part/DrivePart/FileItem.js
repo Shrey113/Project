@@ -297,7 +297,9 @@ const FileItem = ({
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    onStar(itemIdValue, type, isStarred);
+                                    if (onStar) {
+                                        onStar(itemIdValue, type, isStarred);
+                                    }
                                     setShowOptions(false);
                                     setGlobalActivePopup(null);
                                 }}
@@ -306,44 +308,48 @@ const FileItem = ({
                                 <FiStar />
                                 <span>{isStarred ? "Unstar" : "Star"}</span>
                             </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onEdit(itemIdValue, type, itemName);
-                                    setShowOptions(false);
-                                    setGlobalActivePopup(null);
-                                }}
-                                className="option-item"
-                            >
-                                <FiEdit />
-                                <span>Rename</span>
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onShare(itemIdValue, type, itemName);
-                                    setShowOptions(false);
-                                    setGlobalActivePopup(null);
-                                }}
-                                className="option-item"
-                            >
-                                <FiShare2 />
-                                <span>Share</span>
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onDelete) {
+                            {onEdit && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onEdit(itemIdValue, type, itemName);
+                                        setShowOptions(false);
+                                        setGlobalActivePopup(null);
+                                    }}
+                                    className="option-item"
+                                >
+                                    <FiEdit />
+                                    <span>Rename</span>
+                                </button>
+                            )}
+                            {onShare && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onShare(itemIdValue, type, itemName);
+                                        setShowOptions(false);
+                                        setGlobalActivePopup(null);
+                                    }}
+                                    className="option-item"
+                                >
+                                    <FiShare2 />
+                                    <span>Share</span>
+                                </button>
+                            )}
+                            {onDelete && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         onDelete(itemIdValue, itemName);
-                                    }
-                                    setShowOptions(false);
-                                    setGlobalActivePopup(null);
-                                }}
-                                className="option-item warning"
-                            >
-                                <FiTrash2 />
-                                <span>Delete</span>
-                            </button>
+                                        setShowOptions(false);
+                                        setGlobalActivePopup(null);
+                                    }}
+                                    className="option-item warning"
+                                >
+                                    <FiTrash2 />
+                                    <span>Delete</span>
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
@@ -435,7 +441,9 @@ const FileItem = ({
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onStar(itemIdValue, type, isStarred);
+                                if (onStar) {
+                                    onStar(itemIdValue, type, isStarred);
+                                }
                                 setShowOptions(false);
                                 setGlobalActivePopup(null);
                             }}
@@ -444,44 +452,48 @@ const FileItem = ({
                             <FiStar />
                             <span>{isStarred ? "Unstar" : "Star"}</span>
                         </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onEdit(itemIdValue, type, itemName);
-                                setShowOptions(false);
-                                setGlobalActivePopup(null);
-                            }}
-                            className="option-item"
-                        >
-                            <FiEdit />
-                            <span>Rename</span>
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onShare(itemIdValue, type, itemName);
-                                setShowOptions(false);
-                                setGlobalActivePopup(null);
-                            }}
-                            className="option-item"
-                        >
-                            <FiShare2 />
-                            <span>Share</span>
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (onDelete) {
+                        {onEdit && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEdit(itemIdValue, type, itemName);
+                                    setShowOptions(false);
+                                    setGlobalActivePopup(null);
+                                }}
+                                className="option-item"
+                            >
+                                <FiEdit />
+                                <span>Rename</span>
+                            </button>
+                        )}
+                        {onShare && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onShare(itemIdValue, type, itemName);
+                                    setShowOptions(false);
+                                    setGlobalActivePopup(null);
+                                }}
+                                className="option-item"
+                            >
+                                <FiShare2 />
+                                <span>Share</span>
+                            </button>
+                        )}
+                        {onDelete && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
                                     onDelete(itemIdValue, itemName);
-                                }
-                                setShowOptions(false);
-                                setGlobalActivePopup(null);
-                            }}
-                            className="option-item warning"
-                        >
-                            <FiTrash2 />
-                            <span>Delete</span>
-                        </button>
+                                    setShowOptions(false);
+                                    setGlobalActivePopup(null);
+                                }}
+                                className="option-item warning"
+                            >
+                                <FiTrash2 />
+                                <span>Delete</span>
+                            </button>
+                        )}
                     </div>
                 )}
             </td>

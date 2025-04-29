@@ -3,12 +3,13 @@ import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStar, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
-import { Server_url } from '../../../../redux/AllData'
+import { Server_url, showAcceptToast, showRejectToast, ConfirmMessage } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import FileItem from './FileItem'
 import FilePreview from './FilePreview'
 import { useNavigate } from 'react-router-dom'
+import SharePopup from './SharePopup'
 
 function StarredItems() {
     const user = useSelector((state) => state.user);
@@ -30,6 +31,17 @@ function StarredItems() {
     const [selectionMode, setSelectionMode] = useState(false)
     const [activePopup, setActivePopup] = useState(null)
     const [selectAll, setSelectAll] = useState(false)
+    const [showShareModal, setShowShareModal] = useState(false)
+    const [selectedItemForShare, setSelectedItemForShare] = useState(null)
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+    const [deleteItem, setDeleteItem] = useState(null)
+    const [showRenameDialog, setShowRenameDialog] = useState(false)
+    const [renameItem, setRenameItem] = useState(null)
+    const [newItemName, setNewItemName] = useState('')
+    const [sharePopup, setSharePopup] = useState({
+        show: false,
+        item: null
+    })
     const navigate = useNavigate();
 
     const fetchStarredItems = async () => {
@@ -423,6 +435,125 @@ function StarredItems() {
         }
     };
 
+    // Update handlers to use proper dialogs
+    const handleOpenRenameDialog = (id, type, currentName) => {
+        setRenameItem({ id, type, currentName });
+        setNewItemName(currentName);
+        setShowRenameDialog(true);
+    };
+
+    const handleRenameCancel = () => {
+        setShowRenameDialog(false);
+        setRenameItem(null);
+        setNewItemName('');
+    };
+
+    const handleRenameSubmit = async () => {
+        if (!renameItem || !newItemName.trim()) return;
+
+        try {
+            const endpoint = renameItem.type === 'folder' ? 'folders' : 'files';
+            const nameField = renameItem.type === 'folder' ? 'folder_name' : 'file_name';
+
+            // Updated URL to include query parameters like in DriveHome.js
+            const response = await fetch(`${Server_url}/drive/${endpoint}/${renameItem.id}?created_by=${user_email}&user_email=${user_email}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    [nameField]: newItemName,
+                    modified_by: user_email
+                })
+            });
+
+            if (response.ok) {
+                showAcceptToast({ message: `${renameItem.type} renamed successfully` });
+                // Refresh the list
+                if (currentFolder) {
+                    fetchFolderContents(currentFolder);
+                } else {
+                    fetchStarredItems();
+                }
+            } else {
+                const errorData = await response.json();
+                showRejectToast({ message: errorData.error || `Failed to rename ${renameItem.type}` });
+            }
+        } catch (error) {
+            console.error(`Error renaming ${renameItem.type}:`, error);
+            showRejectToast({ message: `Failed to rename ${renameItem.type}` });
+        } finally {
+            setShowRenameDialog(false);
+            setRenameItem(null);
+            setNewItemName('');
+        }
+    };
+
+    const handleShare = (id, type, name) => {
+        const item = {
+            [type === 'file' ? 'file_id' : 'folder_id']: id,
+            type,
+            name
+        };
+        setSharePopup({ show: true, item });
+    };
+
+    const handleShareSuccess = () => {
+        // Refresh the list after sharing
+        if (currentFolder) {
+            fetchFolderContents(currentFolder);
+        } else {
+            fetchStarredItems();
+        }
+    };
+
+    const handleDeleteFile = (fileId, fileName) => {
+        setDeleteItem({ id: fileId, name: fileName, type: 'file' });
+        setShowDeleteDialog(true);
+    };
+
+    const handleDeleteFolder = (folderId, folderName) => {
+        setDeleteItem({ id: folderId, name: folderName, type: 'folder' });
+        setShowDeleteDialog(true);
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteDialog(false);
+        setDeleteItem(null);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!deleteItem) return;
+
+        try {
+            const endpoint = deleteItem.type === 'folder' ? 'folders' : 'files';
+
+            // Updated URL to include query parameters like in DriveHome.js
+            const response = await fetch(`${Server_url}/drive/${endpoint}/${deleteItem.id}?created_by=${user_email}&user_email=${user_email}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                showAcceptToast({ message: `${deleteItem.type} deleted successfully` });
+                // Refresh the list
+                if (currentFolder) {
+                    fetchFolderContents(currentFolder);
+                } else {
+                    fetchStarredItems();
+                }
+            } else {
+                const errorData = await response.json();
+                showRejectToast({ message: errorData.error || `Failed to delete ${deleteItem.type}` });
+            }
+        } catch (error) {
+            console.error(`Error deleting ${deleteItem.type}:`, error);
+            showRejectToast({ message: `Failed to delete ${deleteItem.type}` });
+        } finally {
+            setShowDeleteDialog(false);
+            setDeleteItem(null);
+        }
+    };
+
     const sortedFolders = [...starredFolders];
     const sortedFiles = [...starredFiles];
     const allItems = [...sortedFolders, ...sortedFiles];
@@ -437,11 +568,51 @@ function StarredItems() {
 
     return (
         <div className="starred-items-container">
+            {/* Delete Confirmation Dialog */}
+            {showDeleteDialog && deleteItem && (
+                <ConfirmMessage
+                    message_title={`Delete ${deleteItem.type === 'file' ? 'File' : 'Folder'}`}
+                    message={`Are you sure you want to delete "${deleteItem.name}"? This action cannot be undone.`}
+                    onCancel={handleDeleteCancel}
+                    onConfirm={handleDeleteConfirm}
+                    button_text="Delete"
+                />
+            )}
+
+            {/* Rename Dialog */}
+            {showRenameDialog && renameItem && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Rename {renameItem.type}</h2>
+                        <input
+                            type="text"
+                            value={newItemName}
+                            onChange={(e) => setNewItemName(e.target.value)}
+                            placeholder={`Enter new name for ${renameItem.type}`}
+                            autoFocus
+                        />
+                        <div className="modal-actions">
+                            <button onClick={handleRenameCancel}>Cancel</button>
+                            <button onClick={handleRenameSubmit}>Rename</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* File Preview Component */}
             {previewFile && (
                 <FilePreview
                     file={previewFile}
                     onClose={closePreview}
+                />
+            )}
+
+            {/* Share Popup */}
+            {sharePopup.show && (
+                <SharePopup
+                    item={sharePopup.item}
+                    onClose={() => setSharePopup({ show: false, item: null })}
+                    onShare={handleShareSuccess}
                 />
             )}
 
@@ -586,6 +757,9 @@ function StarredItems() {
                                             onNavigate={navigateToFolder}
                                             onDownload={handleDownloadFile}
                                             onStar={handleUnstar}
+                                            onEdit={handleOpenRenameDialog}
+                                            onShare={handleShare}
+                                            onDelete={itemType === 'file' ? handleDeleteFile : handleDeleteFolder}
                                             formatFileSize={formatFileSize}
                                             formatDate={formatDate}
                                             onClick={handleItemClick}

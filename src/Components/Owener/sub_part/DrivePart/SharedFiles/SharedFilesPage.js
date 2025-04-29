@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { useUIContext } from '../../../../../redux/UIContext'
 import '../DriveStyles.css'
 import './SharedFilesPage.css'
-import { Server_url } from '../../../../../redux/AllData'
+import { Server_url, showAcceptToast, showRejectToast, ConfirmMessage } from '../../../../../redux/AllData'
 import { useSelector } from 'react-redux'
 import FileItem from '../FileItem'
 import FilePreview from '../FilePreview'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { toast } from 'react-hot-toast'
+import SharePopup from '../SharePopup'
 
 function SharedFilesPage() {
     const user = useSelector((state) => state.user);
@@ -25,6 +27,15 @@ function SharedFilesPage() {
     const [selectedItems, setSelectedItems] = useState({})
     const [globalActivePopup, setGlobalActivePopup] = useState(null)
     const [previewFile, setPreviewFile] = useState(null)
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+    const [deleteItem, setDeleteItem] = useState(null)
+    const [showRenameDialog, setShowRenameDialog] = useState(false)
+    const [renameItem, setRenameItem] = useState(null)
+    const [newItemName, setNewItemName] = useState('')
+    const [sharePopup, setSharePopup] = useState({
+        show: false,
+        item: null
+    })
 
     // Add new state variables for folder navigation
     const [currentFolder, setCurrentFolder] = useState(null)
@@ -259,29 +270,161 @@ function SharedFilesPage() {
         })
     }
 
-    // Handle starring items
-    const handleStar = (itemId, type, isStarred) => {
-        console.log(`${isStarred ? 'Unstarring' : 'Starring'} ${type} with id ${itemId}`)
-        // Implement star functionality here
-    }
+    // Handle renaming items
+    const handleOpenRenameDialog = (id, type, currentName) => {
+        setRenameItem({ id, type, currentName });
+        setNewItemName(currentName);
+        setShowRenameDialog(true);
+    };
 
-    // Handle editing (renaming) items
-    const handleEdit = (itemId, type, name) => {
-        console.log(`Renaming ${type} with id ${itemId} to ${name}`)
-        // Implement rename functionality here
-    }
+    const handleRenameCancel = () => {
+        setShowRenameDialog(false);
+        setRenameItem(null);
+        setNewItemName('');
+    };
 
-    // Handle sharing items
-    const handleShare = (itemId, type, name) => {
-        setSelectedItem({ id: itemId, type, name })
-        setShowShareModal(true)
-    }
+    const handleRenameSubmit = async () => {
+        if (!renameItem || !newItemName.trim()) return;
+
+        try {
+            const endpoint = renameItem.type === 'folder' ? 'folders' : 'files';
+            const nameField = renameItem.type === 'folder' ? 'folder_name' : 'file_name';
+
+            const response = await fetch(`${Server_url}/drive/${endpoint}/${renameItem.id}?created_by=${user_email}&user_email=${user_email}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    [nameField]: newItemName,
+                    modified_by: user_email
+                })
+            });
+
+            if (response.ok) {
+                showAcceptToast({ message: `${renameItem.type} renamed successfully` });
+                fetchSharedItems();
+            } else {
+                const errorData = await response.json();
+                showRejectToast({ message: errorData.error || `Failed to rename ${renameItem.type}` });
+            }
+        } catch (error) {
+            console.error(`Error renaming ${renameItem.type}:`, error);
+            showRejectToast({ message: `Failed to rename ${renameItem.type}` });
+        } finally {
+            setShowRenameDialog(false);
+            setRenameItem(null);
+            setNewItemName('');
+        }
+    };
 
     // Handle deleting items
-    const handleDelete = (itemId, name) => {
-        console.log(`Deleting item with id ${itemId} named ${name}`)
-        // Implement delete functionality here
-    }
+    const handleDeleteFile = (fileId, fileName) => {
+        setDeleteItem({ id: fileId, name: fileName, type: 'file' });
+        setShowDeleteDialog(true);
+    };
+
+    const handleDeleteFolder = (folderId, folderName) => {
+        setDeleteItem({ id: folderId, name: folderName, type: 'folder' });
+        setShowDeleteDialog(true);
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteDialog(false);
+        setDeleteItem(null);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!deleteItem) return;
+
+        try {
+            // For shared items, implement removing access rather than actual deletion
+            const response = await fetch(`${Server_url}/share_drive/remove_access`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    item_id: deleteItem.id,
+                    item_type: deleteItem.type,
+                    user_email: user_email
+                })
+            });
+
+            if (response.ok) {
+                showAcceptToast({ message: `${deleteItem.type} removed from shared items` });
+                fetchSharedItems();
+            } else {
+                const errorData = await response.json();
+                showRejectToast({ message: errorData.error || `Failed to remove ${deleteItem.type}` });
+            }
+        } catch (error) {
+            console.error(`Error removing ${deleteItem.type}:`, error);
+            showRejectToast({ message: `Failed to remove ${deleteItem.type}` });
+        } finally {
+            setShowDeleteDialog(false);
+            setDeleteItem(null);
+        }
+    };
+
+    // Handle starring items
+    const handleStar = async (itemId, itemType, isStarred) => {
+        try {
+            const response = await fetch(`${Server_url}/starred/drive/${itemType === 'file' ? 'files' : 'folders'}/${itemId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    is_starred: !isStarred,
+                    modified_by: user_email
+                })
+            });
+
+            if (response.ok) {
+                showAcceptToast({ message: `${itemType} ${isStarred ? 'unstarred' : 'starred'} successfully` });
+
+                // Update the local state for immediate feedback
+                if (activeTab === 'shared-with-me') {
+                    setSharedWithMe(prev => prev.map(item => {
+                        if ((itemType === 'file' && item.file_id === itemId) ||
+                            (itemType === 'folder' && item.folder_id === itemId)) {
+                            return { ...item, is_starred: !isStarred };
+                        }
+                        return item;
+                    }));
+                } else {
+                    setSharedByMe(prev => prev.map(item => {
+                        if ((itemType === 'file' && item.file_id === itemId) ||
+                            (itemType === 'folder' && item.folder_id === itemId)) {
+                            return { ...item, is_starred: !isStarred };
+                        }
+                        return item;
+                    }));
+                }
+            } else {
+                const errorData = await response.json();
+                showRejectToast({ message: errorData.error || `Failed to ${isStarred ? 'unstar' : 'star'} ${itemType}` });
+            }
+        } catch (error) {
+            console.error(`Error ${isStarred ? 'unstarring' : 'starring'} ${itemType}:`, error);
+            showRejectToast({ message: `Failed to ${isStarred ? 'unstar' : 'star'} ${itemType}` });
+        }
+    };
+
+    // Handle sharing items
+    const handleShare = (id, type, name) => {
+        const item = {
+            [type === 'file' ? 'file_id' : 'folder_id']: id,
+            type,
+            name
+        };
+        setSharePopup({ show: true, item });
+    };
+
+    const handleShareSuccess = () => {
+        fetchSharedItems();
+    };
 
     // Sort and filter items
     const getItemsToDisplay = () => {
@@ -384,6 +527,54 @@ function SharedFilesPage() {
 
     return (
         <div className="shared-files-container">
+            {/* Delete Confirmation Dialog */}
+            {showDeleteDialog && deleteItem && (
+                <ConfirmMessage
+                    message_title={`Remove ${deleteItem.type === 'file' ? 'File' : 'Folder'}`}
+                    message={`Are you sure you want to remove "${deleteItem.name}" from shared items?`}
+                    onCancel={handleDeleteCancel}
+                    onConfirm={handleDeleteConfirm}
+                    button_text="Remove"
+                />
+            )}
+
+            {/* Rename Dialog */}
+            {showRenameDialog && renameItem && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Rename {renameItem.type}</h2>
+                        <input
+                            type="text"
+                            value={newItemName}
+                            onChange={(e) => setNewItemName(e.target.value)}
+                            placeholder={`Enter new name for ${renameItem.type}`}
+                            autoFocus
+                        />
+                        <div className="modal-actions">
+                            <button onClick={handleRenameCancel}>Cancel</button>
+                            <button onClick={handleRenameSubmit}>Rename</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Share Popup */}
+            {sharePopup.show && (
+                <SharePopup
+                    item={sharePopup.item}
+                    onClose={() => setSharePopup({ show: false, item: null })}
+                    onShare={handleShareSuccess}
+                />
+            )}
+
+            {/* File Preview */}
+            {previewFile && (
+                <FilePreview
+                    file={previewFile}
+                    onClose={closePreview}
+                />
+            )}
+
             <div className="drive-header">
                 <h1>{activeProfileSection}</h1>
 
@@ -522,9 +713,9 @@ function SharedFilesPage() {
                                                     onNavigate={itemType === 'folder' ? (id, name) => navigateToFolder(id, name, item.shared_by) : null}
                                                     onDownload={itemType === 'file' ? handleDownloadFile : null}
                                                     onStar={handleStar}
-                                                    onEdit={handleEdit}
+                                                    onEdit={handleOpenRenameDialog}
                                                     onShare={handleShare}
-                                                    onDelete={handleDelete}
+                                                    onDelete={itemType === 'file' ? handleDeleteFile : handleDeleteFolder}
                                                     formatFileSize={formatFileSize}
                                                     formatDate={formatDate}
                                                     setGlobalActivePopup={setGlobalActivePopup}
@@ -575,9 +766,9 @@ function SharedFilesPage() {
                                                     onNavigate={itemType === 'folder' ? (id, name) => navigateToFolder(id, name, item.shared_by) : null}
                                                     onDownload={handleDownloadFile}
                                                     onStar={handleStar}
-                                                    onEdit={handleEdit}
+                                                    onEdit={handleOpenRenameDialog}
                                                     onShare={handleShare}
-                                                    onDelete={handleDelete}
+                                                    onDelete={itemType === 'file' ? handleDeleteFile : handleDeleteFolder}
                                                     formatFileSize={formatFileSize}
                                                     formatDate={formatDate}
                                                     setGlobalActivePopup={setGlobalActivePopup}
@@ -635,9 +826,9 @@ function SharedFilesPage() {
                                         onSelect={handleSelectItem}
                                         onDownload={handleDownloadFile}
                                         onStar={handleStar}
-                                        onEdit={handleEdit}
+                                        onEdit={handleOpenRenameDialog}
                                         onShare={handleShare}
-                                        onDelete={handleDelete}
+                                        onDelete={itemType === 'file' ? handleDeleteFile : handleDeleteFolder}
                                         formatFileSize={formatFileSize}
                                         formatDate={formatDate}
                                         setGlobalActivePopup={setGlobalActivePopup}
@@ -734,13 +925,6 @@ function SharedFilesPage() {
                         </form>
                     </div>
                 </div>
-            )}
-
-            {previewFile && (
-                <FilePreview
-                    file={previewFile}
-                    onClose={closePreview}
-                />
             )}
         </div>
     )
