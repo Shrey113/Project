@@ -15,7 +15,6 @@ function StarredItems() {
     const user = useSelector((state) => state.user);
     const user_email = user.user_email;
     const { activeProfileSection, setActiveProfileSection } = useUIContext()
-    const [starredItems, setStarredItems] = useState([])
     const [starredFolders, setStarredFolders] = useState([]);
     const [starredFiles, setStarredFiles] = useState([]);
     const [isLoading, setIsLoading] = useState(false)
@@ -26,13 +25,10 @@ function StarredItems() {
     const [currentFolder, setCurrentFolder] = useState(null)
     const [breadcrumbPath, setBreadcrumbPath] = useState([])
     const [previewFile, setPreviewFile] = useState(null)
-    const [viewMode, setViewMode] = useState('list')
     const [selectedItems, setSelectedItems] = useState([])
     const [selectionMode, setSelectionMode] = useState(false)
     const [activePopup, setActivePopup] = useState(null)
     const [selectAll, setSelectAll] = useState(false)
-    const [showShareModal, setShowShareModal] = useState(false)
-    const [selectedItemForShare, setSelectedItemForShare] = useState(null)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [deleteItem, setDeleteItem] = useState(null)
     const [showRenameDialog, setShowRenameDialog] = useState(false)
