@@ -1062,6 +1062,14 @@ function DriveHome() {
         setActivePopup(popupId);
     };
 
+    useEffect(() => {
+        if (sharePopup.show) {
+            document.documentElement.style.overflow = 'hidden';
+        } else {
+            document.documentElement.style.overflow = 'auto';
+        }
+    }, [sharePopup.show]);
+
     const [showSortDropdown, setShowSortDropdown] = useState(false);
     const sortDropdownRef = useRef(null);
 

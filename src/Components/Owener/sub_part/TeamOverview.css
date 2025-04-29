@@ -1904,13 +1904,13 @@
   gap: 5px;
 }
 
-.search-container {
+.team-overview-container .search-container {
   position: relative;
   width: 100%;
   padding: 0px 20px;
 }
 
-.search-input {
+.team-overview-container .search-input {
   width: 100%;
   padding: 12px 15px;
   border-radius: 8px;
@@ -1975,7 +1975,7 @@
   font-style: italic;
 }
 
-.search-result-item {
+.team-overview-container .search-result-item {
   display: flex;
   padding: 10px 15px;
   border: 1px solid #eee;
@@ -2147,7 +2147,7 @@
     font-size: 14px;
   }
 
-  .search-input {
+  .team-overview-container .search-input {
     padding: 10px;
   }
 
@@ -2176,7 +2176,7 @@
     font-size: 13px;
   }
 
-  .search-result-item {
+  .team-overview-container .search-result-item {
     padding: 8px 10px;
   }
 
