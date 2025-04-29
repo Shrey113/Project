@@ -210,7 +210,8 @@ function SharedFilesPage() {
 
     const handleDownloadFile = async (fileId, fileName) => {
         try {
-            const response = await fetch(`${Server_url}/drive/files/${fileId}?user_email=${user_email}&download=true`)
+            // Get the owner's email for the file (created_by parameter)
+            const response = await fetch(`${Server_url}/drive/files/${fileId}?user_email=${user_email}&created_by=${user_email}&download=true`)
 
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}`)

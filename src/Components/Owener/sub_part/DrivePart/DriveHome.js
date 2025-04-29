@@ -1089,7 +1089,7 @@ function DriveHome() {
         try {
             console.log(`Downloading file: ${fileName} (ID: ${fileId})`);
 
-            const response = await fetch(`${Server_url}/drive/files/${fileId}?created_by=${created_by}&user_email=${user_email}&download=true`);
+            const response = await fetch(`${Server_url}/drive/files/${fileId}?created_by=${created_by}&user_email=${user_email}&download=true&download_source=drive_home`);
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -1499,8 +1499,8 @@ function DriveHome() {
 
             {/* Rename/Create Dialog */}
             {showRenameDialog && (
-                <div className="rename-dialog-overlay">
-                    <div className="rename-dialog">
+                <div className="rename-dialog-overlay" onClick={() => setShowRenameDialog(false)}>
+                    <div className="rename-dialog" onClick={(e) => e.stopPropagation()}>
                         <h3>{dialogMode === 'rename' ? `Rename ${renameItemType}` : 'Create new folder'}</h3>
                         <input
                             maxLength={100}
@@ -1574,8 +1574,8 @@ function DriveHome() {
 
             {/* File Conflict Dialog */}
             {showFileConflictDialog && (
-                <div className="rename-dialog-overlay">
-                    <div className="rename-dialog">
+                <div className="rename-dialog-overlay" onClick={() => setShowFileConflictDialog(false)}>
+                    <div className="rename-dialog" onClick={(e) => e.stopPropagation()}>
                         <h3>File Already Exists</h3>
                         <p>
                             The file "{conflictFiles[currentConflictIndex]?.originalName}" already exists.
