@@ -25,6 +25,7 @@ import {
     BsFileCode
 } from 'react-icons/bs';
 import './DriveStyles.css';
+import { Server_url } from '../../../../redux/AllData';
 
 // Global variable to track the active popup
 let activePopupId = null;
@@ -197,7 +198,7 @@ const FileItem = ({
     // Render shared avatars
     const renderSharedAvatars = () => {
         if (!sharedWith || sharedWith.length === 0) return null;
-        
+
         return (
             <div className="shared-avatars">
                 {sharedWith.map((user, index) => {
@@ -368,7 +369,7 @@ const FileItem = ({
                     />
                 </div>
             </td>
-            
+
             <td className="name-cell">
                 <div className="name-wrapper">
                     <div className="file-icon-container">
@@ -383,19 +384,34 @@ const FileItem = ({
                     )}
                 </div>
             </td>
-            
+
             <td className="shared-cell">
-                {renderSharedAvatars()}
+                {item.shared_by ? (
+                    <div className="shared-by" style={{ width: "120px", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        <div className="shared-by-container">
+                            {item.shared_by_profile_image && (
+                                <img
+                                    src={`${Server_url}/owner/business-profile-image/${item.shared_by}?t=${new Date().getTime()}`}
+                                    alt={item.shared_by}
+                                    className="shared-by-avatar"
+                                />
+                            )}
+                            <span className="shared-by-email">{item.shared_by}</span>
+                        </div>
+                    </div>
+                ) : (
+                    renderSharedAvatars()
+                )}
             </td>
-            
+
             <td className="date-cell">
                 {createdDate}
             </td>
-            
+
             <td className="size-cell">
                 {itemSize}
             </td>
-            
+
             <td className="actions-cell">
                 <button
                     className="action-more"

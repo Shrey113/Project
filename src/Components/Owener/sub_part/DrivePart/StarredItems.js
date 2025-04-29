@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useUIContext } from '../../../../redux/UIContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFile, faFolder, faStar, faDownload, faShare, faSpinner, faSort, faSortUp, faSortDown, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { faStar, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
 import { Server_url } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
@@ -321,20 +321,20 @@ function StarredItems() {
         if (type === 'folder') {
             // Instead of navigating within StarredItems, redirect to DriveHome
             setActiveProfileSection('Drive Home');
-            
+
             // Better handling of breadcrumb path
             let pathToStore = [];
             let currentPath = '';
-            
+
             if (currentFolder) {
                 // If we're already in a folder in StarredItems, preserve that path
                 pathToStore = [...breadcrumbPath];
-                
+
                 // Check if the current folder is already in the path to avoid duplicates
                 if (!pathToStore.some(p => p.id === item.folder_id)) {
                     pathToStore.push({ id: item.folder_id, name: item.folder_name });
                 }
-                
+
                 // Build current path string
                 currentPath = '/' + pathToStore.map(p => p.name).join('/');
             } else {
@@ -342,9 +342,9 @@ function StarredItems() {
                 pathToStore = [{ id: item.folder_id, name: item.folder_name }];
                 currentPath = '/' + item.folder_name;
             }
-            
+
             console.log("Navigating to Drive Home with path:", pathToStore, "and currentPath:", currentPath);
-            
+
             // Use a custom flag to force the path navigation
             const timestamp = new Date().getTime();
             localStorage.setItem(`folder_navigation_${timestamp}`, JSON.stringify({
@@ -353,7 +353,7 @@ function StarredItems() {
                 breadcrumbPath: pathToStore,
                 currentPath: currentPath
             }));
-            
+
             // Pass folder data directly through router state with special flags
             navigate('/Owner/drive/home', {
                 state: {
@@ -406,7 +406,7 @@ function StarredItems() {
     const handleSelectAll = () => {
         const newSelectAll = !selectAll;
         setSelectAll(newSelectAll);
-        
+
         if (newSelectAll) {
             // Select all visible items
             const allItems = [...starredFolders, ...starredFiles].map(item => {
@@ -430,7 +430,7 @@ function StarredItems() {
     // Get the sort icon based on the current sort state
     const getSortIcon = (field) => {
         if (sortBy !== field) return null;
-        return sortOrder === 'asc' 
+        return sortOrder === 'asc'
             ? <FontAwesomeIcon icon={faSortUp} />
             : <FontAwesomeIcon icon={faSortDown} />;
     };
@@ -518,8 +518,8 @@ function StarredItems() {
                                         />
                                     </div>
                                 </th>
-                                <th 
-                                    className="name-header" 
+                                <th
+                                    className="name-header"
                                     onClick={() => handleSort('name')}
                                 >
                                     <span>NAME</span>
@@ -528,14 +528,14 @@ function StarredItems() {
                                 <th className="shared-header">
                                     <span>SHARED</span>
                                 </th>
-                                <th 
+                                <th
                                     className="date-header"
                                     onClick={() => handleSort('date')}
                                 >
                                     <span>LAST MODIFIED</span>
                                     {getSortIcon('date')}
                                 </th>
-                                <th 
+                                <th
                                     className="size-header"
                                     onClick={() => handleSort('size')}
                                 >

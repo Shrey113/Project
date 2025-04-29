@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useUIContext } from '../../../../../redux/UIContext'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFile, faFolder, faDownload, faShare, faStar, faUserFriends } from '@fortawesome/free-solid-svg-icons'
 import '../DriveStyles.css'
+import './SharedFilesPage.css'
 import { Server_url } from '../../../../../redux/AllData'
 import { useSelector } from 'react-redux'
+import FileItem from '../FileItem'
+import FilePreview from '../FilePreview'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 
 function SharedFilesPage() {
     const user = useSelector((state) => state.user);
@@ -18,6 +21,16 @@ function SharedFilesPage() {
     const [sortBy, setSortBy] = useState('name')
     const [sortOrder, setSortOrder] = useState('asc')
     const [searchTerm, setSearchTerm] = useState('')
+    const [viewMode, setViewMode] = useState('list')
+    const [selectedItems, setSelectedItems] = useState({})
+    const [globalActivePopup, setGlobalActivePopup] = useState(null)
+    const [previewFile, setPreviewFile] = useState(null)
+
+    // Add new state variables for folder navigation
+    const [currentFolder, setCurrentFolder] = useState(null)
+    const [currentPath, setCurrentPath] = useState('/')
+    const [breadcrumbPath, setBreadcrumbPath] = useState([])
+    const [folderContents, setFolderContents] = useState({ files: [], folders: [] })
 
     const [showShareModal, setShowShareModal] = useState(false)
     const [selectedItem, setSelectedItem] = useState(null)
@@ -29,146 +42,93 @@ function SharedFilesPage() {
             setActiveProfileSection('Shared Files')
         }
 
-        const fetchSharedItems = async () => {
-            setIsLoading(true)
-            try {
-                if (activeTab === 'shared-with-me') {
-                    const response = await fetch(`${Server_url}/owner/drive/shared-with-me?user_email=${user_email}`)
-                    if (!response.ok) {
-                        throw new Error(`Server responded with ${response.status}`)
-                    }
-                    const data = await response.json()
-                    setSharedWithMe(data)
-                } else {
-                    const response = await fetch(`${Server_url}/drive/shared-by-me?user_email=${user_email}`)
-                    if (!response.ok) {
-                        throw new Error(`Server responded with ${response.status}`)
-                    }
-                    const data = await response.json()
-                    setSharedByMe(data)
-                }
-            } catch (error) {
-                console.error(`Error fetching ${activeTab} items:`, error)
-                // Set demo data
-                if (activeTab === 'shared-with-me') {
-                    setSharedWithMe([
-                        {
-                            id: 1,
-                            name: 'Team Project Plan.pdf',
-                            type: 'file',
-                            file_type: 'pdf',
-                            size: 3.2,
-                            shared_by: 'manager@example.com',
-                            permission: 'READ',
-                            created_at: new Date().toISOString(),
-                            shared_at: new Date().toISOString()
-                        },
-                        {
-                            id: 2,
-                            name: 'Marketing Assets',
-                            type: 'folder',
-                            shared_by: 'design@example.com',
-                            permission: 'WRITE',
-                            created_at: new Date().toISOString(),
-                            shared_at: new Date().toISOString()
-                        }
-                    ])
-                } else {
-                    setSharedByMe([
-                        {
-                            id: 3,
-                            name: 'Financial Report.xlsx',
-                            type: 'file',
-                            file_type: 'xlsx',
-                            size: 1.7,
-                            shared_with: ['finance@example.com', 'ceo@example.com'],
-                            created_at: new Date().toISOString(),
-                            shared_at: new Date().toISOString()
-                        },
-                        {
-                            id: 4,
-                            name: 'Client Presentations',
-                            type: 'folder',
-                            shared_with: ['sales@example.com'],
-                            created_at: new Date().toISOString(),
-                            shared_at: new Date().toISOString()
-                        }
-                    ])
-                }
-            } finally {
-                setIsLoading(false)
-            }
-        }
-
         // Fetch shared items based on active tab
         fetchSharedItems()
-    }, [activeProfileSection, setActiveProfileSection, activeTab,user_email])
+    }, [activeProfileSection, setActiveProfileSection, activeTab, user_email])
 
     const fetchSharedItems = async () => {
         setIsLoading(true)
         try {
             if (activeTab === 'shared-with-me') {
-                const response = await fetch(`${Server_url}/owner/drive/shared-with-me?user_email=${user_email}`)
+                // Use the new POST endpoint for shared-with-me
+                const response = await fetch(`${Server_url}/share_drive/share_drive_with_me`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_email })
+                })
+
                 if (!response.ok) {
                     throw new Error(`Server responded with ${response.status}`)
                 }
+
                 const data = await response.json()
-                setSharedWithMe(data)
+                console.log("shared with me", data)
+
+                // Process the new data format
+                const combinedItems = [
+                    ...(data.shared_folders || []).map(folder => ({
+                        ...folder,
+                        type: 'folder',
+                        name: folder.folder_name,
+                        shared_at: folder.created_at,
+                        shared_by: folder.shared_by
+                    })),
+                    ...(data.shared_files || []).map(file => ({
+                        ...file,
+                        type: 'file',
+                        name: file.file_name,
+                        file_type: file.file_extension || file.type || 'file',
+                        shared_at: file.created_at,
+                        shared_by: file.shared_by
+                    }))
+                ]
+
+                console.log("combined items", combinedItems)
+                setSharedWithMe(combinedItems)
             } else {
-                const response = await fetch(`${Server_url}/drive/shared-by-me?user_email=${user_email}`)
+                // Use the new POST endpoint for shared-by-me
+                const response = await fetch(`${Server_url}/share_drive/share_drive_by_me`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_email })
+                })
+
                 if (!response.ok) {
                     throw new Error(`Server responded with ${response.status}`)
                 }
+
                 const data = await response.json()
-                setSharedByMe(data)
+                console.log("shared by me", data)
+
+                // Process the new data format
+                const combinedItems = [
+                    ...(data.shared_folders || []).map(folder => ({
+                        ...folder,
+                        type: 'folder',
+                        shared_with: folder.shared_with ? folder.shared_with.split(',') : []
+                    })),
+                    ...(data.shared_files || []).map(file => ({
+                        ...file,
+                        type: 'file',
+                        file_type: file.file_extension || file.type || 'file',
+                        shared_with: file.shared_with ? file.shared_with.split(',') : []
+                    }))
+                ]
+
+                console.log("combined items", combinedItems)
+                setSharedByMe(combinedItems)
             }
         } catch (error) {
             console.error(`Error fetching ${activeTab} items:`, error)
-            // Set demo data
+            // Set empty arrays instead of fake data
             if (activeTab === 'shared-with-me') {
-                setSharedWithMe([
-                    {
-                        id: 1,
-                        name: 'Team Project Plan.pdf',
-                        type: 'file',
-                        file_type: 'pdf',
-                        size: 3.2,
-                        shared_by: 'manager@example.com',
-                        permission: 'READ',
-                        created_at: new Date().toISOString(),
-                        shared_at: new Date().toISOString()
-                    },
-                    {
-                        id: 2,
-                        name: 'Marketing Assets',
-                        type: 'folder',
-                        shared_by: 'design@example.com',
-                        permission: 'WRITE',
-                        created_at: new Date().toISOString(),
-                        shared_at: new Date().toISOString()
-                    }
-                ])
+                setSharedWithMe([])
             } else {
-                setSharedByMe([
-                    {
-                        id: 3,
-                        name: 'Financial Report.xlsx',
-                        type: 'file',
-                        file_type: 'xlsx',
-                        size: 1.7,
-                        shared_with: ['finance@example.com', 'ceo@example.com'],
-                        created_at: new Date().toISOString(),
-                        shared_at: new Date().toISOString()
-                    },
-                    {
-                        id: 4,
-                        name: 'Client Presentations',
-                        type: 'folder',
-                        shared_with: ['sales@example.com'],
-                        created_at: new Date().toISOString(),
-                        shared_at: new Date().toISOString()
-                    }
-                ])
+                setSharedByMe([])
             }
         } finally {
             setIsLoading(false)
@@ -186,7 +146,7 @@ function SharedFilesPage() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    item_id: selectedItem.id,
+                    item_id: selectedItem.id || selectedItem.file_id || selectedItem.folder_id,
                     item_type: selectedItem.type,
                     user_email: user_email,
                     shared_with: shareEmail,
@@ -261,9 +221,66 @@ function SharedFilesPage() {
         }
     }
 
-    const getFileIcon = (fileType) => {
-        // Add more file type icons as needed
-        return <FontAwesomeIcon icon={faFile} className={`file-icon file-${fileType}`} />
+    // Format file size for display
+    const formatFileSize = (size) => {
+        if (!size) return '0 B'
+        if (typeof size === 'object') return '-'
+
+        const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+        let formattedSize = size
+        let unitIndex = 0
+
+        while (formattedSize >= 1024 && unitIndex < units.length - 1) {
+            formattedSize /= 1024
+            unitIndex++
+        }
+
+        return `${formattedSize.toFixed(1)} ${units[unitIndex]}`
+    }
+
+    // Format date for display
+    const formatDate = (dateString) => {
+        if (!dateString) return '-'
+        return new Date(dateString).toLocaleDateString()
+    }
+
+    // Handle item selection
+    const handleSelectItem = (itemId, type) => {
+        setSelectedItems(prev => {
+            const newSelectedItems = { ...prev }
+
+            if (newSelectedItems[`${type}-${itemId}`]) {
+                delete newSelectedItems[`${type}-${itemId}`]
+            } else {
+                newSelectedItems[`${type}-${itemId}`] = { id: itemId, type }
+            }
+
+            return newSelectedItems
+        })
+    }
+
+    // Handle starring items
+    const handleStar = (itemId, type, isStarred) => {
+        console.log(`${isStarred ? 'Unstarring' : 'Starring'} ${type} with id ${itemId}`)
+        // Implement star functionality here
+    }
+
+    // Handle editing (renaming) items
+    const handleEdit = (itemId, type, name) => {
+        console.log(`Renaming ${type} with id ${itemId} to ${name}`)
+        // Implement rename functionality here
+    }
+
+    // Handle sharing items
+    const handleShare = (itemId, type, name) => {
+        setSelectedItem({ id: itemId, type, name })
+        setShowShareModal(true)
+    }
+
+    // Handle deleting items
+    const handleDelete = (itemId, name) => {
+        console.log(`Deleting item with id ${itemId} named ${name}`)
+        // Implement delete functionality here
     }
 
     // Sort and filter items
@@ -279,10 +296,91 @@ function SharedFilesPage() {
             const bValue = b[sortBy] || ''
             const compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0
             return sortOrder === 'asc' ? compareResult : -compareResult
-        }).filter(item => item.name?.toLowerCase().includes(searchTerm.toLowerCase()))
+        }).filter(item => {
+            const itemName = item.name || item.file_name || ''
+            return itemName.toLowerCase().includes(searchTerm.toLowerCase())
+        })
     }
 
     const sortedItems = getItemsToDisplay()
+
+    // Add new function to handle folder navigation
+    const navigateToFolder = async (folderId, folderName, sharedBy) => {
+        setIsLoading(true);
+        try {
+            // Update current folder and path
+            setCurrentFolder(folderId);
+            setCurrentPath(prevPath => prevPath === '/' ? `/${folderName}` : `${prevPath}/${folderName}`);
+
+            // Update breadcrumb path with shared_by information
+            setBreadcrumbPath(prevPath => [...prevPath, { id: folderId, name: folderName, shared_by: sharedBy }]);
+
+            // Fetch folder contents using the owner's email (shared_by)
+            const response = await fetch(`${Server_url}/drive/folder/${folderId}/contents?user_email=${encodeURIComponent(user_email)}&created_by=${encodeURIComponent(sharedBy)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
+            }
+
+            const data = await response.json();
+            setFolderContents({
+                files: data.files || [],
+                folders: data.folders || []
+            });
+        } catch (error) {
+            console.error('Error fetching folder contents:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Add function to navigate up
+    const navigateUp = () => {
+        if (breadcrumbPath.length <= 1) {
+            // If at root or only one level deep, go to root
+            setCurrentFolder(null);
+            setCurrentPath('/');
+            setBreadcrumbPath([]);
+            setFolderContents({ files: [], folders: [] });
+            return;
+        }
+
+        // Navigate to the parent folder
+        const newBreadcrumbPath = [...breadcrumbPath];
+        newBreadcrumbPath.pop(); // Remove the current folder from breadcrumb
+
+        const parentFolder = newBreadcrumbPath.length > 0
+            ? newBreadcrumbPath[newBreadcrumbPath.length - 1]
+            : null;
+
+        if (parentFolder) {
+            setCurrentFolder(parentFolder.id);
+            setBreadcrumbPath(newBreadcrumbPath);
+            setCurrentPath(newBreadcrumbPath.map(item => item.name).join('/'));
+        } else {
+            // If something went wrong with the breadcrumb, go to root
+            setCurrentFolder(null);
+            setCurrentPath('/');
+            setBreadcrumbPath([]);
+            setFolderContents({ files: [], folders: [] });
+        }
+    };
+
+    // Add preview handler functions
+    const handleItemClick = (item, type) => {
+        if (type === 'file') {
+            setPreviewFile(item);
+        }
+    };
+
+    const closePreview = () => {
+        setPreviewFile(null);
+    };
 
     return (
         <div className="shared-files-container">
@@ -314,34 +412,195 @@ function SharedFilesPage() {
                 </div>
             </div>
 
-            <div className="files-container">
-                <div className="files-header">
-                    <div className="header-item" onClick={() => {
-                        setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc')
-                        setSortBy('name')
-                    }}>
-                        Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
-                    </div>
-                    <div className="header-item" onClick={() => {
-                        setSortOrder(sortBy === 'shared_at' && sortOrder === 'asc' ? 'desc' : 'asc')
-                        setSortBy('shared_at')
-                    }}>
-                        {activeTab === 'shared-with-me' ? 'Shared By' : 'Shared With'}
-                    </div>
-                    <div className="header-item" onClick={() => {
-                        setSortOrder(sortBy === 'shared_at' && sortOrder === 'asc' ? 'desc' : 'asc')
-                        setSortBy('shared_at')
-                    }}>
-                        Date Shared {sortBy === 'shared_at' && (sortOrder === 'asc' ? '↑' : '↓')}
-                    </div>
-                    <div className="header-item">Actions</div>
-                </div>
+            {/* Add path navigation */}
+            {currentFolder && (
+                <div className="path-navigation">
+                    <button onClick={navigateUp} disabled={isLoading}>
+                        <FontAwesomeIcon icon={faArrowLeft} />
+                    </button>
 
-                {isLoading ? (
-                    <div className="loading">Loading shared items...</div>
-                ) : (
-                    <div className="files-list">
-                        {sortedItems.length === 0 ? (
+                    <div className="breadcrumb-container">
+                        <span
+                            className="breadcrumb-item clickable"
+                            onClick={() => {
+                                setCurrentFolder(null);
+                                setCurrentPath('/');
+                                setBreadcrumbPath([]);
+                                setFolderContents({ files: [], folders: [] });
+                            }}
+                        >
+                            Home
+                        </span>
+
+                        {breadcrumbPath.map((item, index) => (
+                            <span key={item.id}>
+                                <span className="breadcrumb-separator">/</span>
+                                <span
+                                    className={`breadcrumb-item ${index === breadcrumbPath.length - 1 ? 'active' : 'clickable'}`}
+                                    onClick={() => {
+                                        if (index < breadcrumbPath.length - 1) {
+                                            navigateToFolder(item.id, item.name, item.shared_by);
+                                        }
+                                    }}
+                                >
+                                    {item.name}
+                                </span>
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <div className="files-container">
+                {viewMode === 'list' && (
+                    <div className="table-container">
+                        <table className="files-table">
+                            <thead>
+                                <tr className="files-header">
+                                    <th className="checkbox-header">
+                                        {/* Checkbox for select all could go here */}
+                                    </th>
+                                    <th className="name-header" onClick={() => {
+                                        setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc')
+                                        setSortBy('name')
+                                    }}>
+                                        Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                    </th>
+                                    <th className="shared-header">
+                                        {activeTab === 'shared-with-me' ? 'Shared By' : 'Shared With'}
+                                    </th>
+                                    <th className="date-header" onClick={() => {
+                                        setSortOrder(sortBy === 'shared_at' && sortOrder === 'asc' ? 'desc' : 'asc')
+                                        setSortBy('shared_at')
+                                    }}>
+                                        Date Shared {sortBy === 'shared_at' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                    </th>
+                                    <th className="size-header">
+                                        Size
+                                    </th>
+                                    <th className="actions-header"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan="6" className="loading-cell">
+                                            <div className="loading">
+                                                <div className="loading-spinner"></div>
+                                                <p>Loading items...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : currentFolder ? (
+                                    // Show folder contents when in a folder
+                                    [...folderContents.folders, ...folderContents.files].length === 0 ? (
+                                        <tr>
+                                            <td colSpan="6" className="empty-cell">
+                                                <div className="empty-state">
+                                                    <p>This folder is empty</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        [...folderContents.folders, ...folderContents.files].map(item => {
+                                            const itemType = item.folder_id ? 'folder' : 'file';
+                                            const itemId = itemType === 'folder' ? item.folder_id : item.file_id;
+                                            const isItemSelected = !!selectedItems[`${itemType}-${itemId}`];
+
+                                            return (
+                                                <FileItem
+                                                    key={`${itemType}-${itemId}`}
+                                                    item={{
+                                                        ...item,
+                                                        shared_by: item.shared_by || '-',
+                                                        shared_with: activeTab === 'shared-with-me' ? [] : (item.shared_with || [])
+                                                    }}
+                                                    type={itemType}
+                                                    viewMode={viewMode}
+                                                    isSelected={isItemSelected}
+                                                    onSelect={handleSelectItem}
+                                                    onNavigate={itemType === 'folder' ? (id, name) => navigateToFolder(id, name, item.shared_by) : null}
+                                                    onDownload={itemType === 'file' ? handleDownloadFile : null}
+                                                    onStar={handleStar}
+                                                    onEdit={handleEdit}
+                                                    onShare={handleShare}
+                                                    onDelete={handleDelete}
+                                                    formatFileSize={formatFileSize}
+                                                    formatDate={formatDate}
+                                                    setGlobalActivePopup={setGlobalActivePopup}
+                                                    globalActivePopup={globalActivePopup}
+                                                    onClick={handleItemClick}
+                                                />
+                                            );
+                                        })
+                                    )
+                                ) : (
+                                    // Show shared items when not in a folder
+                                    sortedItems.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="6" className="empty-cell">
+                                                <div className="empty-state">
+                                                    {activeTab === 'shared-with-me' ? (
+                                                        <>
+                                                            <p>No files have been shared with you yet.</p>
+                                                            <p>Files and folders others share with you will appear here.</p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p>You haven't shared any files yet.</p>
+                                                            <p>Share files with others and they will appear here.</p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        sortedItems.map(item => {
+                                            const itemType = item.type || (item.file_id ? 'file' : 'folder');
+                                            const itemId = itemType === 'file' ? item.file_id || item.id : item.folder_id || item.id;
+                                            const isItemSelected = !!selectedItems[`${itemType}-${itemId}`];
+
+                                            return (
+                                                <FileItem
+                                                    key={`${itemType}-${itemId}`}
+                                                    item={{
+                                                        ...item,
+                                                        shared_by: item.shared_by || '-',
+                                                        shared_with: activeTab === 'shared-with-me' ? [] : (item.shared_with || [])
+                                                    }}
+                                                    type={itemType}
+                                                    viewMode={viewMode}
+                                                    isSelected={isItemSelected}
+                                                    onSelect={handleSelectItem}
+                                                    onNavigate={itemType === 'folder' ? (id, name) => navigateToFolder(id, name, item.shared_by) : null}
+                                                    onDownload={handleDownloadFile}
+                                                    onStar={handleStar}
+                                                    onEdit={handleEdit}
+                                                    onShare={handleShare}
+                                                    onDelete={handleDelete}
+                                                    formatFileSize={formatFileSize}
+                                                    formatDate={formatDate}
+                                                    setGlobalActivePopup={setGlobalActivePopup}
+                                                    globalActivePopup={globalActivePopup}
+                                                    onClick={handleItemClick}
+                                                />
+                                            );
+                                        })
+                                    )
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {viewMode === 'grid' && (
+                    <div className={`files-list grid-layout`}>
+                        {isLoading ? (
+                            <div className="loading">
+                                <div className="loading-spinner"></div>
+                                <p>Loading shared items...</p>
+                            </div>
+                        ) : sortedItems.length === 0 ? (
                             <div className="empty-state">
                                 {activeTab === 'shared-with-me' ? (
                                     <>
@@ -356,57 +615,37 @@ function SharedFilesPage() {
                                 )}
                             </div>
                         ) : (
-                            sortedItems.map(item => (
-                                <div key={`${item.type}-${item.id}`} className={`file-item ${item.type === 'folder' ? 'folder' : ''}`}>
-                                    <div></div>
-                                    <div className="file-name">
-                                        {item.type === 'folder' ? (
-                                            <FontAwesomeIcon icon={faFolder} className="folder-icon" />
-                                        ) : (
-                                            getFileIcon(item.file_type)
-                                        )}
-                                        <span>{item.name}</span>
-                                    </div>
-                                    <div className="file-owner">
-                                        {activeTab === 'shared-with-me' ? (
-                                            <span title={item.shared_by}>
-                                                <FontAwesomeIcon icon={faUserFriends} /> {item.shared_by}
-                                            </span>
-                                        ) : (
-                                            <span title={item.shared_with.join(', ')}>
-                                                <FontAwesomeIcon icon={faUserFriends} /> {item.shared_with.length} user(s)
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="file-date">
-                                        {new Date(item.shared_at).toLocaleDateString()}
-                                    </div>
-                                    <div className="file-actions">
-                                        {item.type === 'file' && (
-                                            <button
-                                                className="action-btn"
-                                                onClick={() => handleDownloadFile(item.id, item.name)}
-                                            >
-                                                <FontAwesomeIcon icon={faDownload} />
-                                            </button>
-                                        )}
-                                        <button className="action-btn">
-                                            <FontAwesomeIcon icon={faStar} />
-                                        </button>
-                                        {activeTab === 'shared-by-me' && (
-                                            <button
-                                                className="action-btn"
-                                                onClick={() => {
-                                                    setSelectedItem(item)
-                                                    setShowShareModal(true)
-                                                }}
-                                            >
-                                                <FontAwesomeIcon icon={faShare} />
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            ))
+                            sortedItems.map(item => {
+                                const itemType = item.type || (item.file_id ? 'file' : 'folder');
+                                const itemId = itemType === 'file' ? item.file_id || item.id : item.folder_id || item.id;
+                                const itemName = item.file_name || item.folder_name || item.name;
+                                const isItemSelected = !!selectedItems[`${itemType}-${itemId}`];
+
+                                return (
+                                    <FileItem
+                                        key={`${itemType}-${itemId}`}
+                                        item={{
+                                            ...item,
+                                            shared_by: item.shared_by || '-',
+                                            shared_with: activeTab === 'shared-with-me' ? [] : (item.shared_with || [])
+                                        }}
+                                        type={itemType}
+                                        viewMode={viewMode}
+                                        isSelected={isItemSelected}
+                                        onSelect={handleSelectItem}
+                                        onDownload={handleDownloadFile}
+                                        onStar={handleStar}
+                                        onEdit={handleEdit}
+                                        onShare={handleShare}
+                                        onDelete={handleDelete}
+                                        formatFileSize={formatFileSize}
+                                        formatDate={formatDate}
+                                        setGlobalActivePopup={setGlobalActivePopup}
+                                        globalActivePopup={globalActivePopup}
+                                        onClick={handleItemClick}
+                                    />
+                                );
+                            })
                         )}
                     </div>
                 )}
@@ -442,22 +681,36 @@ function SharedFilesPage() {
                                 </select>
                             </div>
 
-                            {activeTab === 'shared-by-me' && selectedItem?.shared_with?.length > 0 && (
+                            {activeTab === 'shared-by-me' && selectedItem?.shared_with && (
                                 <div className="already-shared">
                                     <h4>Already shared with:</h4>
                                     <ul>
-                                        {selectedItem.shared_with.map((email, index) => (
-                                            <li key={index}>
-                                                {email}
-                                                <button
-                                                    type="button"
-                                                    className="remove-access-btn"
-                                                    onClick={() => handleRemoveAccess(selectedItem.id, selectedItem.type, email)}
-                                                >
-                                                    Remove
-                                                </button>
-                                            </li>
-                                        ))}
+                                        {Array.isArray(selectedItem.shared_with)
+                                            ? selectedItem.shared_with.map((email, index) => (
+                                                <li key={index}>
+                                                    {email}
+                                                    <button
+                                                        type="button"
+                                                        className="remove-access-btn"
+                                                        onClick={() => handleRemoveAccess(selectedItem.id, selectedItem.type, email)}
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </li>
+                                            ))
+                                            : typeof selectedItem.shared_with === 'string' && selectedItem.shared_with.trim() !== '' && (
+                                                <li>
+                                                    {selectedItem.shared_with}
+                                                    <button
+                                                        type="button"
+                                                        className="remove-access-btn"
+                                                        onClick={() => handleRemoveAccess(selectedItem.id, selectedItem.type, selectedItem.shared_with)}
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </li>
+                                            )
+                                        }
                                     </ul>
                                 </div>
                             )}
@@ -481,6 +734,13 @@ function SharedFilesPage() {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {previewFile && (
+                <FilePreview
+                    file={previewFile}
+                    onClose={closePreview}
+                />
             )}
         </div>
     )

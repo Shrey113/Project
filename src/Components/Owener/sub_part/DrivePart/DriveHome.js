@@ -13,6 +13,7 @@ import { useLocation } from 'react-router-dom'
 import FileItem from './FileItem'
 import FilePreview from './FilePreview'
 import { FiStar, FiTrash } from 'react-icons/fi'
+import SharePopup from './SharePopup'
 
 function DriveHome() {
     const user = useSelector((state) => state.user);
@@ -49,6 +50,12 @@ function DriveHome() {
     // Add reference to track navigation processing
     const navigationProcessedRef = useRef(false);
     const directFolderOpenRef = useRef(false);
+
+    // Share popup state
+    const [sharePopup, setSharePopup] = useState({
+        show: false,
+        item: null
+    });
 
     // Function to trigger a refresh
     const refreshDrive = () => {
@@ -304,7 +311,7 @@ function DriveHome() {
         // Load files and folders
         fetchFilesAndFolders();
 
-  
+
 
         // Reset the navigation processed ref when component unmounts or currentFolder changes
         return () => {
@@ -1128,6 +1135,19 @@ function DriveHome() {
         }
     };
 
+    const handleShare = (id, type, name) => {
+        const item = {
+            [type === 'file' ? 'file_id' : 'folder_id']: id,
+            type,
+            name
+        };
+        setSharePopup({ show: true, item });
+    };
+
+    const handleShareSuccess = () => {
+        refreshDrive();
+    };
+
     return (
         <div className="drive-home-container" onClick={() => setActivePopup(null)}>
             {uploadProgress.total > 0 && <FileLoaderToast uploadProgress={uploadProgress} />}
@@ -1203,6 +1223,15 @@ function DriveHome() {
                     onCancel={handleDeleteCancel}
                     onConfirm={handleDeleteConfirm}
                     button_text="Delete"
+                />
+            )}
+
+            {/* Share Popup */}
+            {sharePopup.show && (
+                <SharePopup
+                    item={sharePopup.item}
+                    onClose={() => setSharePopup({ show: false, item: null })}
+                    onShare={handleShareSuccess}
                 />
             )}
 
@@ -1513,10 +1542,7 @@ function DriveHome() {
                                                 onDownload={itemType === 'file' ? handleDownloadFile : null}
                                                 onStar={handleStar}
                                                 onDelete={itemType === 'file' ? handleDeleteFile : handleDeleteFolder}
-                                                onShare={(id, type, name) => {
-                                                    console.log(`Sharing ${type}: ${name}`);
-                                                    alert(`Sharing dialog for ${type}: ${name}`);
-                                                }}
+                                                onShare={handleShare}
                                                 onEdit={handleOpenRenameDialog}
                                                 formatFileSize={itemType === 'file' ? formatFileSize : formatFolderSize}
                                                 formatDate={formatDate}
@@ -1586,10 +1612,7 @@ function DriveHome() {
                                         onDownload={itemType === 'file' ? handleDownloadFile : null}
                                         onStar={handleStar}
                                         onDelete={itemType === 'file' ? handleDeleteFile : handleDeleteFolder}
-                                        onShare={(id, type, name) => {
-                                            console.log(`Sharing ${type}: ${name}`);
-                                            alert(`Sharing dialog for ${type}: ${name}`);
-                                        }}
+                                        onShare={handleShare}
                                         onEdit={handleOpenRenameDialog}
                                         formatFileSize={itemType === 'file' ? formatFileSize : formatFolderSize}
                                         formatDate={formatDate}
