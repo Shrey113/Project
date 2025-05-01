@@ -459,9 +459,19 @@ function SharedFilesPage() {
             // Update breadcrumb path with shared_by information
             setBreadcrumbPath(prevPath => [...prevPath, { id: folderId, name: folderName, shared_by: sharedBy }]);
 
+            let fetch_folder_url;
+            if (activeTab === 'shared-by-me') {
+                console.log("Shared by me", sharedBy, user_email);
+                
+                fetch_folder_url = `${Server_url}/drive/folder/${folderId}/contents?user_email=${encodeURIComponent(user_email)}&created_by=${encodeURIComponent(sharedBy)}`
+            } else {
+                console.log("Shared with me", sharedBy, user_email);
+                fetch_folder_url = `${Server_url}/drive/folder/${folderId}/contents?user_email=${encodeURIComponent(sharedBy)}&created_by=${encodeURIComponent(sharedBy)}`
+            }
+            console.log("Fetch folder URL:", fetch_folder_url);
             // Fetch folder contents using the owner's email (shared_by) 
             // Make sure we use the correct API endpoint matching what's in DriveHome.js
-            const response = await fetch(`${Server_url}/drive/folder/${folderId}/contents?user_email=${encodeURIComponent(user_email)}&created_by=${encodeURIComponent(sharedBy || user_email)}`, {
+            const response = await fetch(fetch_folder_url, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -541,6 +551,7 @@ function SharedFilesPage() {
             const folderId = item.folder_id || item.id;
             const folderName = item.folder_name || item.name;
             const sharedBy = item.shared_by || item.created_by;
+            console.log("item item", item);
             navigateToFolder(folderId, folderName, sharedBy);
             return;
         }
@@ -677,7 +688,7 @@ function SharedFilesPage() {
                                     className={`breadcrumb-item ${index === breadcrumbPath.length - 1 ? 'active' : 'clickable'}`}
                                     onClick={() => {
                                         if (index < breadcrumbPath.length - 1) {
-                                            navigateToFolder(item.id, item.name, item.shared_by);
+                                            navigateToFolder(item.id, item.name, item.shared_by || item.created_bys);
                                         }
                                     }}
                                 >
