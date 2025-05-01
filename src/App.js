@@ -58,7 +58,7 @@ import OwnerDetails from "./Components/Owener/sub_part/Search_photographer/sub_p
 
 
 import EventManagement from "./Components/Owener/sub_part/Event Management/EventManagement.js";
-import Packages from "./Components/Owener/sub_part/Packages/Packages.js";
+// import Packages from "./Components/Owener/sub_part/Packages/Packages.js";
 import {
   BeforeAccept,
   PendingStatus,
@@ -298,12 +298,12 @@ function App() {
     <UIProvider>
       <>
         <Routes>
-          {/* testing part */}
+
           <Route path="/Admin2" element={<Admin2 socket={socket} />} />
-          {/* <Route path="/Admin1" element={<Admin/> } /> */}
+
           <Route path="/BeforeLogin" element={<BeforeLogin2 />} />
 
-          {/* Default route */}
+
           <Route
             path="/"
             element={
@@ -319,7 +319,7 @@ function App() {
             }
           />
 
-          {/* Client routes */}
+
           <Route
             path="/Client"
             element={authStatus.client ? <HomePage /> : <LoginRegisterClient />}
@@ -329,9 +329,9 @@ function App() {
             element={authStatus.client ? <HomePage /> : <LoginRegisterClient />}
           />
 
-          {/* -------------------------------------------------------------------------------------------------------------- */}
 
-          {/* Owner routes */}
+
+
           <Route
             path="/Owner"
             element={
@@ -343,18 +343,7 @@ function App() {
             }
           />
 
-          {/* Owner routes Event Management */}
           {/* <Route
-            path="/Owner/Event"
-            element={
-              authStatus.owner ? (
-                <SetOwnerPage ActivePage={EventManagement} />
-              ) : (
-                <LoginRegisterOwener />
-              )
-            }
-          /> */}
-          <Route
             path="/Owner/Event/packages"
             element={
               authStatus.owner ? (
@@ -363,7 +352,7 @@ function App() {
                 <LoginRegisterOwener />
               )
             }
-          />
+          /> */}
           <Route
             path="/Owner/Event/equipment"
             element={
@@ -385,18 +374,6 @@ function App() {
               )
             }
           />
-          {/* <Route
-            path="/Owner/Event/services"
-            element={
-              authStatus.owner ? (
-                <SetOwnerPage ActivePage={Services} /> 
-              ) : (
-                <LoginRegisterOwener />
-              )
-            }
-          /> */}
-
-          {/* Owner routes Team Management */}
           <Route
             path="/Owner/Team"
             element={
@@ -408,7 +385,6 @@ function App() {
             }
           />
 
-          {/* Owner routes Invoice */}
           <Route
             path="/Owner/Invoice"
             element={
@@ -420,9 +396,7 @@ function App() {
             }
           />
 
-
-          {/* Owner routes Packages */}
-          <Route
+          {/* <Route
             path="/Owner/Packages"
             element={
               authStatus.owner ? (
@@ -431,13 +405,8 @@ function App() {
                 <LoginRegisterOwener />
               )
             }
-          />
+          /> */}
 
-          {/* Owner routes calendar */}
-          {/* <Route path="/Owner/calendar" element={authStatus.owner ? 
-            <SetOwnerPage ActivePage={Calendar} /> : 
-            <LoginRegisterOwener />
-          } /> */}
 
           <Route
             path="/Owner/search_photographer"
@@ -514,7 +483,6 @@ function App() {
             }
           />
 
-          {/* Owner Drive Routes */}
           <Route
             path="/Owner/drive/home"
             element={
@@ -545,8 +513,6 @@ function App() {
               )
             }
           />
-
-          {/* -------------------------------------------------------------------------------------------------------------- */}
 
           <Route
             path="/Owner_profile/search_photographer/:owner_email"
@@ -598,7 +564,6 @@ function App() {
             element={<StackingCards />}
           />
 
-          {/* 404 Page */}
           <Route path="*" element={<PageNotFound />} />
         </Routes>
         {authStatus.owner && OwnerStatus === "Accept" && !window.location.pathname.includes("/Owner/share_profile") && (

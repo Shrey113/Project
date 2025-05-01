@@ -12,7 +12,7 @@ import socket from './../../../../redux/socket.js'
 import { Server_url } from '../../../../redux/AllData.js';
 
 function WelcomeUser({ setActiveRow }) {
-  const [notifications, setNotifications] = useState([]); 
+  const [notifications, setNotifications] = useState([]);
 
 
 
@@ -34,14 +34,14 @@ function WelcomeUser({ setActiveRow }) {
     // Socket event listener
     socket.on('new_notification', (message) => {
       console.log('Notification received:', message);
-      fetchNotifications(); 
+      fetchNotifications();
     });
 
-    
+
     // Cleanup function
     return () => {
       socket.off('new_notification');
-      socket.disconnect(); 
+      socket.disconnect();
     };
 
   }, []);
@@ -73,7 +73,6 @@ function WelcomeUser({ setActiveRow }) {
     <div className='welcome_message_con'>
       <h2>Latest Notifications</h2>
 
-      {/* Render filtered notifications */}
       {filteredNotifications.length > 0 ? (
         filteredNotifications.map((notification) => (
           <Notification
@@ -81,9 +80,9 @@ function WelcomeUser({ setActiveRow }) {
             notificationType={notification.notification_type}
             notificationTitle={notification.notification_title}
             notificationMessage={notification.notification_message}
-            notificationTime={formatTime(notification.created_at)}  // Use formatted time here
+            notificationTime={formatTime(notification.created_at)}
             onClick={() => setActiveRow(1)}
-            set_img={user_icon_1}  // You can dynamically set the image based on the user
+            set_img={user_icon_1}
           />
         ))
       ) : (

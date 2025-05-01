@@ -1,5 +1,4 @@
-/* CheckUserPage.css */
-:root{
+:root {
   --main-side-bar-space: 50px;
 }
 
@@ -8,8 +7,6 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
-  /* align-items: center; */
-
   gap: 50px;
   padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -25,11 +22,12 @@
   min-height: 100vh;
   padding: 2rem;
 }
-.wrap_p{
+
+.wrap_p {
   height: 120vh;
 }
 
-.check-user-page .back_button{
+.check-user-page .back_button {
   position: fixed;
   top: 20px;
   left: var(--main-side-bar-space);
@@ -48,24 +46,29 @@
   z-index: 100;
   width: fit-content;
 }
+
 .check-user-page .back_button:hover {
   transform: translateX(-5px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
+
 .check-user-page .back_button span {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .check-user-page .back_button img {
   width: 24px;
   height: 24px;
   transition: transform 0.3s ease;
 }
+
 .check-user-page .back_button:hover img {
   transform: translateX(-5px);
 }
-.check-user-page .main_con{
+
+.check-user-page .main_con {
   min-width: 75vw;
   background: white;
   border-radius: 20px;
@@ -74,12 +77,14 @@
   /* width: 90%; */
   margin-left: var(--main-side-bar-space);
 }
-.main_con_wrap{
+
+.main_con_wrap {
   display: flex;
   justify-content: center;
   gap: 50px;
 }
- .check-user-page .section {
+
+.check-user-page .section {
   height: fit-content;
   /* background: rebeccapurple; */
   width: 48%;
@@ -88,7 +93,7 @@
 
 .check-user-page h2 {
   color: #333;
-  
+
   margin-bottom: 40px;
   text-align: center;
   font-size: 1.3rem;
@@ -151,18 +156,18 @@
 
 .check-user-page .form-group input:read-only,
 .check-user-page .form-group select:read-only {
-  background-color: #f5f5f5; 
-  color: #757575;           
-  border: 1px solid #ddd;  
- 
-  opacity: 0.9;            
+  background-color: #f5f5f5;
+  color: #757575;
+  border: 1px solid #ddd;
+
+  opacity: 0.9;
 }
 
 .check-user-page .form-group input:read-only:focus,
 .check-user-page .form-group select:read-only:focus {
   outline: none;
   border-color: none;
-  box-shadow:none;
+  box-shadow: none;
 }
 
 .check-user-page .profile-avatar-container {
@@ -287,7 +292,7 @@
   font-style: italic;
 }
 
-.check-user-page .button_con{
+.check-user-page .button_con {
   margin-top: 40px;
   padding: 0 40px;
   /* background: rebeccapurple; */
@@ -406,7 +411,6 @@
   font-size: 1rem;
 }
 
-/* Portfolio Section Styles */
 .check-user-page .portfolio-section {
   width: 100%;
   margin-top: 2rem;
@@ -457,18 +461,17 @@
   grid-column: 1 / -1;
 }
 
-/* Responsive adjustments */
 @media (max-width: 1200px) {
   .check-user-page {
     padding: 1.5rem;
   }
-  
+
   .check-user-page .main_con {
     min-width: 85vw;
     padding: 30px;
     margin-left: var(--main-side-bar-space);
   }
-  
+
   .check-user-page .section-header {
     font-size: 1.4rem;
   }
@@ -478,49 +481,49 @@
   .check-user-page {
     padding: 1rem;
   }
-  
+
   .check-user-page .main_con {
     min-width: 90vw;
     padding: 25px;
   }
-  
+
   .main_con_wrap {
     gap: 30px;
   }
-  
+
   .check-user-page .form-row {
     gap: 1rem;
   }
-  
+
   .check-user-page .section-header {
     font-size: 1.3rem;
     margin-bottom: 1.5rem;
   }
-  
+
   .check-user-page .form-group label {
     font-size: 0.8rem;
   }
-  
+
   .check-user-page .form-group input,
   .check-user-page .form-group select {
     padding: 10px 14px;
     font-size: 0.95rem;
   }
-  
+
   .check-user-page .profile-avatar {
     width: 120px;
     height: 120px;
   }
-  
+
   .check-user-page .profile-avatar span {
     font-size: 2rem;
   }
-  
+
   .check-user-page .button_con {
     padding: 0 20px;
     padding-bottom: 60px;
   }
-  
+
   .check-user-page .accept-button {
     padding: 12px 28px;
     font-size: 0.95rem;
@@ -532,7 +535,7 @@
     padding: 0.75rem;
     padding-top: 60px;
   }
-  
+
   .check-user-page .back_button {
     top: 10px;
     left: 10px;
@@ -540,94 +543,94 @@
     font-size: 0.9rem;
     border-radius: 8px;
   }
-  
+
   .check-user-page .back_button img {
     width: 20px;
     height: 20px;
   }
-  
+
   .check-user-page .main_con {
     padding: 20px;
   }
-  
+
   .main_con_wrap {
     flex-direction: column;
     gap: 30px;
   }
-  
+
   .check-user-page .section {
     width: 100%;
   }
-  
+
   .check-user-page .section-header {
     font-size: 1.2rem;
     margin-bottom: 1.2rem;
   }
-  
+
   .check-user-page .form-group {
     margin-bottom: 1rem;
   }
-  
+
   .check-user-page .profile-avatar {
     width: 100px;
     height: 100px;
   }
-  
+
   .check-user-page .profile-avatar span {
     font-size: 1.8rem;
   }
-  
+
   .check-user-page .profile-avatar-overlay {
     height: 30px;
   }
-  
+
   .check-user-page .profile-avatar-overlay img {
     width: 16px;
     height: 16px;
   }
-  
+
   .check-user-page .button_con {
     margin-top: 20px;
     padding: 0 10px;
     padding-bottom: 40px;
     text-align: center;
   }
-  
+
   .check-user-page .accept-button {
     padding: 10px 24px;
     font-size: 0.9rem;
     width: 100%;
     max-width: 300px;
   }
-  
+
   .check-user-page .form-row {
     display: flex;
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .check-user-page .equipment-container {
     grid-template-columns: 1fr;
   }
-  
+
   .check-user-page .equipment-card {
     padding: 1.25rem;
   }
-  
+
   .check-user-page .equipment-image {
     padding: 1rem 1rem 0.5rem;
     height: 100px;
   }
-  
+
   .check-user-page .equipment-image img {
     max-width: 100%;
     max-height: 100px;
   }
-  
+
   .check-user-page .equipment-details h3 {
     font-size: 1.125rem;
   }
-  
+
   .check-user-page .portfolio-container {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 0.75rem;
@@ -635,9 +638,10 @@
 }
 
 @media (max-width: 650px) {
-  .check-user-page .main_con{
+  .check-user-page .main_con {
     margin-left: 0;
   }
+
   .check-user-page .button_con {
     padding-bottom: 100px;
   }
@@ -648,96 +652,96 @@
     padding: 0.5rem;
     padding-top: 50px;
   }
-  
+
   .wrap_p {
     height: auto;
   }
-  
+
   .check-user-page .back_button {
     padding: 6px 12px;
     font-size: 0.8rem;
   }
-  
+
   .check-user-page .back_button img {
     width: 16px;
     height: 16px;
   }
-  
+
   .check-user-page .main_con {
     padding: 15px;
     border-radius: 15px;
   }
-  
+
   .check-user-page .section-header {
     font-size: 1.1rem;
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
   }
-  
+
   .check-user-page .section-header::after {
     width: 40px;
   }
-  
+
   .check-user-page .form-group label {
     font-size: 0.75rem;
     margin-bottom: 0.3rem;
   }
-  
+
   .check-user-page .form-group input,
   .check-user-page .form-group select {
     padding: 8px 12px;
     font-size: 0.85rem;
     border-radius: 8px;
   }
-  
+
   .check-user-page .profile-avatar {
     width: 80px;
     height: 80px;
     border-width: 3px;
   }
-  
+
   .check-user-page .profile-avatar span {
     font-size: 1.5rem;
   }
-  
+
   .check-user-page .service-tag {
     padding: 6px 12px;
     font-size: 0.8rem;
     border-radius: 16px;
   }
-  
+
   .check-user-page .accept-button {
     padding: 8px 20px;
     font-size: 0.85rem;
     border-radius: 8px;
   }
-  
+
   .check-user-page .loader-content {
     padding: 15px;
     max-width: 90%;
     font-size: 0.9rem;
   }
-  
+
   .check-user-page .loader {
     width: 30px;
     height: 30px;
     border-width: 3px;
   }
-  
+
   .check-user-page .equipment-image {
     padding: 1rem 1rem 0.5rem;
     height: 100px;
   }
-  
+
   .check-user-page .equipment-image img {
     max-width: 100%;
     max-height: 100px;
   }
-  
+
   .check-user-page .equipment-details h3 {
     font-size: 1.125rem;
   }
-  
+
   .check-user-page .portfolio-container {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 0.5rem;
@@ -745,36 +749,41 @@
 }
 
 .check-user-page .loader-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .check-user-page .loader-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
 }
 
 .check-user-page .loader {
-    border: 4px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 4px solid #3498db;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 10px;
+  border: 4px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 4px solid #3498db;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 10px;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

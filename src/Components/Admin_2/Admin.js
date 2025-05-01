@@ -26,16 +26,16 @@ import ProfileManager from "./sub_part/Profile_Manager/ProfileManager.js";
 import AdminProfile from "./sub_part/AdminProfile/AdminProfile.js";
 import Charts from "./sub_part/Chart/Chart.js";
 import Setting from "./sub_part/Setting/Setting.js";
-import {localstorage_key_for_admin_settings,localstorage_key_for_admin_login,Server_url} from './../../redux/AllData'
+import { localstorage_key_for_admin_settings, localstorage_key_for_admin_login, Server_url } from './../../redux/AllData'
 
 
 
 
-function Admin2({socket}) {
+function Admin2({ socket }) {
   const [activeRow, setActiveRow] = useState(0);
   const [adminSettings, setAdminSettings] = useState(null);
   const [admin_email, set_admin_email] = useState('gfapk63@gmail.com');
-  const [is_mobile,set_is_mobile] = useState(window.innerWidth <= 650);
+  const [is_mobile, set_is_mobile] = useState(window.innerWidth <= 650);
 
   useEffect(() => {
     const handleResize = () => {
@@ -45,11 +45,11 @@ function Admin2({socket}) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  function get_admin_settings(){
+  function get_admin_settings() {
     const savedSettings = localStorage.getItem(localstorage_key_for_admin_settings);
     if (savedSettings) {
       setAdminSettings(JSON.parse(savedSettings));
-    }else{
+    } else {
       setAdminSettings({
         show_animation: true,
         show_navbar: false,
@@ -59,45 +59,45 @@ function Admin2({socket}) {
   }
 
 
-  
-    useEffect(() => {
-      const checkAdminToken = async () => {
-        const jwtToken = localStorage.getItem(localstorage_key_for_admin_login);
 
-        if (!jwtToken) return;
-  
-        try {
-          const response = await fetch(`${Server_url}/Admin/check-jwt`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ token: jwtToken }),
-          });
-  
-          const result = await response.json();
-    
-          if (response.ok) {
+  useEffect(() => {
+    const checkAdminToken = async () => {
+      const jwtToken = localStorage.getItem(localstorage_key_for_admin_login);
 
-            if(result.message === "Token is valid"){
-             
-              
-              if(result.data.user_email){
-                set_admin_email(result.data.user_email)
-                console.log(result.data.user_email);
-              }
+      if (!jwtToken) return;
+
+      try {
+        const response = await fetch(`${Server_url}/Admin/check-jwt`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: jwtToken }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+
+          if (result.message === "Token is valid") {
+
+
+            if (result.data.user_email) {
+              set_admin_email(result.data.user_email)
+              console.log(result.data.user_email);
             }
-            
-          } else {
-            console.log(result);
           }
-        } catch (err) {
-          console.error("Admin token check error:", err);
+
+        } else {
+          console.log(result);
         }
-      };
-  
-      checkAdminToken();
-    }, []);
+      } catch (err) {
+        console.error("Admin token check error:", err);
+      }
+    };
+
+    checkAdminToken();
+  }, []);
 
 
   useEffect(() => {
@@ -134,7 +134,6 @@ function Admin2({socket}) {
 
   return (
     <div className="admin_body">
-      {/* Desktop Sidebar (visible on non-mobile) */}
       {!is_mobile && (
         <div className="admin_side_bar_con desktop_sidebar">
           <div className="admin_side_bar">
@@ -165,7 +164,6 @@ function Admin2({socket}) {
         </div>
       )}
 
-      {/* Mobile Bottom Navbar (visible only on mobile) */}
       {is_mobile && (
         <div className="admin_side_bar_con mobile_navbar">
           <div className="admin_side_bar">

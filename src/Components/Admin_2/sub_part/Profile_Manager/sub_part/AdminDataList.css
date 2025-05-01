@@ -1,194 +1,202 @@
-.Admin_table_date{
+.Admin_table_date {
   height: 580px;
   min-height: 580px;
-    background: white;
-    padding: 20px 10px;
-    border-radius: var(--admin_box_radius);
-    width: max-content;
-    flex: 1;
-    /* margin-top: -70px; */
-    transition: box-shadow 0.3s ease;
-    position: relative;
-    padding-top: var(--admin_title_padding_top_for_2);
-  }
-  
-  /* Add hover effect to chart box */
-  .Admin_table_date:hover {
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  }
+  background: white;
+  padding: 20px 10px;
+  border-radius: var(--admin_box_radius);
+  width: max-content;
+  flex: 1;
+  transition: box-shadow 0.3s ease;
+  position: relative;
+  padding-top: var(--admin_title_padding_top_for_2);
+}
+
+.Admin_table_date:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
 
 
-.Admin_table_date .title_bar_sub{
-    display: flex;
-    justify-content: space-between;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: var(--admin_title_padding);
-    font-size: var(--admin_title_font_size);
-    font-weight: var(--admin_title_font_weight);
+.Admin_table_date .title_bar_sub {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: var(--admin_title_padding);
+  font-size: var(--admin_title_font_size);
+  font-weight: var(--admin_title_font_weight);
 }
-.Admin_table_date .title_bar_sub span{
-    display: flex;
-    gap: 10px;
+
+.Admin_table_date .title_bar_sub span {
+  display: flex;
+  gap: 10px;
 }
-.Admin_table_date .title_bar_sub img{
-    height: 36px;
-    padding: 8px;
-    border-radius: 10px;
-    cursor: pointer;
-    &:hover{
-        background: rgba(212, 212, 212, 0.421);
-    }
+
+.Admin_table_date .title_bar_sub img {
+  height: 36px;
+  padding: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(212, 212, 212, 0.421);
+  }
 }
-.Admin_table_date .title_hr{
-    
-    height: 1px;
-    width: 100%;
-    background: rgb(0, 0, 0);
- }
- 
+
+.Admin_table_date .title_hr {
+
+  height: 1px;
+  width: 100%;
+  background: rgb(0, 0, 0);
+}
+
 
 .Admin_table_date table {
-    margin-top: 20px;
-    width: 100%;
-    border-collapse: collapse;
-    font-family: Arial, sans-serif;
-  }
+  margin-top: 20px;
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+}
 
-  .Admin_table_date  table th,
-  .Admin_table_date  table td {
-    border: 3px solid transparent;
-    padding: 10px 18px;
-    text-align: left;
-  }
-  
-  .Admin_table_date  table thead th {
-    font-weight: bold;
-    color: #333;
-  }
-  .Admin_table_date  table thead tr {
-    height:45px;
-    text-wrap: nowrap;
-  }
-  .Admin_table_date  table tbody tr {
-    height:100px;
-    /* background: rebeccapurple; */
-    border-radius: 20px;
-  }
-  .Admin_table_date  table tbody tr:hover {
-    background-color: #f1f1f1;
-    cursor: pointer;
-  }
-  
+.Admin_table_date table th,
+.Admin_table_date table td {
+  border: 3px solid transparent;
+  padding: 10px 18px;
+  text-align: left;
+}
 
-  .Admin_table_date  .profile_con {
-    display: flex;
-    align-items: center;
-  }
-  
-  .Admin_table_date  .profile {
-    margin-right: 20px;
-  }
-  
-  .Admin_table_date  .profile img {
-    width: 40px; /* Profile image size */
-    height: 40px;
-    border-radius: 50%; /* Makes the image circular */
-    object-fit: cover;
-    border: 1px solid #ccc;
-  }
-  
-  .Admin_table_date  .data .title {
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 3px;
-  }
-  
-  .Admin_table_date  .data .type {
-    font-size: 0.9em;
-    color: #666;
-  }
-  .Admin_table_date tbody tr td{
-    position: relative;
-  }
+.Admin_table_date table thead th {
+  font-weight: bold;
+  color: #333;
+}
 
-  .Admin_table_date tbody tr td .set_type{
-    padding: 5px 8px;
-    background: rebeccapurple;
-    width: fit-content;
-    border-radius: 15px;
-    text-wrap: nowrap;
-  }
-  .Admin_table_date tbody tr td .set_type.read_only{
-    background: #dffff3;
-    color: #5cd7ae;
-    border: 1px solid #5cd7ae;
-  }
-  .Admin_table_date tbody tr td .set_type.read_write{
-    background:  #e4f2fb;
-    color: #319be1;
-    border: 1px solid #319be1;
-  }
-  .Admin_table_date tbody tr td .set_type.Full{
-    background: #ffede9;
-    color: #faa691;
-    border: 1px solid #faa691;
-  }
-  .Admin_table_date tbody tr td .more_option_bt{
-   height: 35px;
-   padding: 8px;
+.Admin_table_date table thead tr {
+  height: 45px;
+  text-wrap: nowrap;
+}
+
+.Admin_table_date table tbody tr {
+  height: 100px;
+  border-radius: 20px;
+}
+
+.Admin_table_date table tbody tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+
+.Admin_table_date .profile_con {
+  display: flex;
+  align-items: center;
+}
+
+.Admin_table_date .profile {
+  margin-right: 20px;
+}
+
+.Admin_table_date .profile img {
+  width: 40px;
+  /* Profile image size */
+  height: 40px;
+  border-radius: 50%;
+  /* Makes the image circular */
+  object-fit: cover;
+  border: 1px solid #ccc;
+}
+
+.Admin_table_date .data .title {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.Admin_table_date .data .type {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.Admin_table_date tbody tr td {
+  position: relative;
+}
+
+.Admin_table_date tbody tr td .set_type {
+  padding: 5px 8px;
+  background: rebeccapurple;
+  width: fit-content;
+  border-radius: 15px;
+  text-wrap: nowrap;
+}
+
+.Admin_table_date tbody tr td .set_type.read_only {
+  background: #dffff3;
+  color: #5cd7ae;
+  border: 1px solid #5cd7ae;
+}
+
+.Admin_table_date tbody tr td .set_type.read_write {
+  background: #e4f2fb;
+  color: #319be1;
+  border: 1px solid #319be1;
+}
+
+.Admin_table_date tbody tr td .set_type.Full {
+  background: #ffede9;
+  color: #faa691;
+  border: 1px solid #faa691;
+}
+
+.Admin_table_date tbody tr td .more_option_bt {
+  height: 35px;
+  padding: 8px;
   border-radius: 10px;
-   cursor: pointer;
-   &:hover{
+  cursor: pointer;
+
+  &:hover {
     background: rgba(128, 128, 128, 0.168);
-   }
   }
-  .Admin_table_date tbody tr td .more_option_pop{
-    position: absolute;
-    z-index: 9999;
-    top: 60%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    padding: 10px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    background: var(--admin_ui_coloer);
-    box-shadow: var(--admin_box_shadow);
+}
+
+.Admin_table_date tbody tr td .more_option_pop {
+  position: absolute;
+  z-index: 9999;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--admin_ui_coloer);
+  box-shadow: var(--admin_box_shadow);
+}
+
+.Admin_table_date tbody tr td .more_option_pop .item {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+
+  &:hover {
+    background: rgba(128, 128, 128, 0.221);
   }
-  .Admin_table_date tbody tr td .more_option_pop .item{
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    border-radius: 10px;
-    &:hover{
-      background: rgba(128, 128, 128, 0.221);
-    }
-  }
-  .Admin_table_date tbody tr td .more_option_pop .item .icon_img{
-    height: 25px;
-    width: 25px;
-    padding: 2px;
-  }
-  .Admin_table_date tbody tr td .more_option_pop .item .icon_img img{
-    height: 100%;
-    width: 100%;
-  }
+}
 
+.Admin_table_date tbody tr td .more_option_pop .item .icon_img {
+  height: 25px;
+  width: 25px;
+  padding: 2px;
+}
 
+.Admin_table_date tbody tr td .more_option_pop .item .icon_img img {
+  height: 100%;
+  width: 100%;
+}
 
-
-
-
-  /*  */
-  /*  */
-  /*  */
-/* Overlay background */
 .popup_overlay_admin_con {
   position: fixed;
   top: 0;
@@ -201,18 +209,18 @@
   align-items: center;
   z-index: 9999;
   animation: fadeIn 0.3s ease-in-out;
-}/* Fade-in animation for overlay */
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
-
-/* Popup container */
 .popup_overlay_admin_con .popup_admin {
   background: #fff;
   padding: clamp(15px, 5vw, 40px);
@@ -226,7 +234,7 @@
   transition: all 0.3s ease-in-out;
 }
 
-.popup_overlay_admin_con .popup_admin .error_message{
+.popup_overlay_admin_con .popup_admin .error_message {
   color: red;
   width: 100%;
   display: flex;
@@ -234,7 +242,6 @@
   font-size: clamp(0.8rem, 2vw, 1rem);
 }
 
-/* Header inside the popup */
 .popup_overlay_admin_con .popup_admin h2 {
   text-align: center;
   color: #333;
@@ -242,7 +249,6 @@
   margin-bottom: clamp(8px, 2vw, 15px);
 }
 
-/* Form styling */
 .popup_overlay_admin_con .popup_admin .popup_admin_form {
   display: flex;
   flex-direction: column;
@@ -257,10 +263,12 @@
   gap: clamp(10px, 4vw, 40px);
   flex-wrap: wrap;
 }
+
 .popup_overlay_admin_con .popup_admin .popup_admin_form label:has(input[type="text"]) {
   align-items: center;
 }
-.popup_overlay_admin_con .popup_admin .popup_admin_form input[type="text"]{
+
+.popup_overlay_admin_con .popup_admin .popup_admin_form input[type="text"] {
   width: 100%;
   max-width: 300px;
   flex: 1;
@@ -282,12 +290,11 @@
   border-color: #007bff;
 }
 
-.popup_overlay_admin_con .popup_admin .popup_admin_form input:read-only{
+.popup_overlay_admin_con .popup_admin .popup_admin_form input:read-only {
   background: rgba(128, 128, 128, 0.237);
   cursor: default;
 }
 
-/* Access Type Radio Buttons */
 .popup_overlay_admin_con .Access_radio_con {
   display: flex;
   gap: clamp(10px, 2vw, 20px);
@@ -328,13 +335,11 @@
   color: #444444;
 }
 
-/* Access Type Label */
 .popup_overlay_admin_con .Access_type_lable {
   font-size: clamp(0.9rem, 2.5vw, 1.1rem);
   color: #444;
 }
 
-/* Actions buttons */
 .popup-actions {
   display: flex;
   justify-content: space-between;
@@ -362,7 +367,7 @@
   color: #fff;
 }
 
- .popup-actions button:last-child {
+.popup-actions button:last-child {
   background-color: #f44336;
   color: #fff;
   text-align: center;
@@ -371,24 +376,23 @@
   align-items: center;
 }
 
-/* Media queries for different screen sizes */
 @media screen and (max-width: 768px) {
   .popup_overlay_admin_con .popup_admin {
     width: 95%;
     padding: 20px;
   }
-  
+
   .popup_overlay_admin_con .popup_admin .popup_admin_form label {
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
   }
-  
+
   .popup_overlay_admin_con .popup_admin .popup_admin_form input[type="text"] {
     width: 100%;
     max-width: none;
   }
-  
+
   .popup-actions {
     flex-direction: column;
   }
@@ -398,11 +402,11 @@
   .popup_overlay_admin_con .popup_admin {
     padding: 15px;
   }
-  
+
   .popup_overlay_admin_con .Access_radio_con {
     flex-direction: column;
   }
-  
+
   .popup_overlay_admin_con .Access_radio_con label {
     width: 100%;
   }
@@ -449,57 +453,65 @@
 }
 
 @media screen and (max-width: 950px) {
-  .Admin_table_date  {
+  .Admin_table_date {
     width: 100%;
   }
-  .Admin_table_date .title_bar_sub{
+
+  .Admin_table_date .title_bar_sub {
     position: absolute;
     font-size: 1.3rem;
   }
-  .Admin_table_date .title_bar_sub img{
+
+  .Admin_table_date .title_bar_sub img {
     height: 30px;
   }
 
- .Admin_table_date  table th,
- .Admin_table_date  table td {
-  max-width: 100px;
-  /* background: #000; */
-  text-wrap: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
- }
- .Admin_table_date  table thead th:nth-child(1),
- .Admin_table_date tbody tr td:nth-child(1){
-  width:62px ;
-  max-width: 62px;
-}
+  .Admin_table_date table th,
+  .Admin_table_date table td {
+    max-width: 100px;
+    /* background: #000; */
+    text-wrap: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-.Admin_table_date  table thead th:nth-child(4),
-.Admin_table_date tbody tr td:nth-child(4){
- width:150px ;
- max-width: 150px;
-}
-.Admin_table_date  table thead th:nth-child(5),
-.Admin_table_date tbody tr td:nth-child(5){
-  width:50px ;
-  max-width: 50px;
-  overflow: visible;
-}
+  .Admin_table_date table thead th:nth-child(1),
+  .Admin_table_date tbody tr td:nth-child(1) {
+    width: 62px;
+    max-width: 62px;
+  }
+
+  .Admin_table_date table thead th:nth-child(4),
+  .Admin_table_date tbody tr td:nth-child(4) {
+    width: 150px;
+    max-width: 150px;
+  }
+
+  .Admin_table_date table thead th:nth-child(5),
+  .Admin_table_date tbody tr td:nth-child(5) {
+    width: 50px;
+    max-width: 50px;
+    overflow: visible;
+  }
 
 }
 
 @media screen and (max-width: 670px) {
-  .Admin_table_date  table thead th:nth-child(2),
-  .Admin_table_date tbody tr td:nth-child(2){
-   display: none;
- }
- .Admin_table_date .title_bar_sub p{
-  font-size: 1.1rem;
- }
+
+  .Admin_table_date table thead th:nth-child(2),
+  .Admin_table_date tbody tr td:nth-child(2) {
+    display: none;
+  }
+
+  .Admin_table_date .title_bar_sub p {
+    font-size: 1.1rem;
+  }
 }
+
 @media screen and (max-width: 480px) {
-  .Admin_table_date  table thead th:nth-child(4),
-   .Admin_table_date tbody tr td:nth-child(4){
+
+  .Admin_table_date table thead th:nth-child(4),
+  .Admin_table_date tbody tr td:nth-child(4) {
     display: none;
   }
 }

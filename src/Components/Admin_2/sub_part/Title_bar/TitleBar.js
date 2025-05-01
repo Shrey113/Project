@@ -25,23 +25,23 @@ import user_profile from "./../Dashboard/profile_pic/user2.jpg";
 //       <div className="profile_con_full">
 //       <div className="user_con">
 
-  
+
 //         <div className="data">
 //           <div className="user_profile">
 //             <img src={user_profile} alt="" />
 //           </div>
-       
-  
+
+
 //         <div className="profile_data">
 //           <div className="name">Shrey Patel</div>
 //           <div className="type">Admin</div>
 //           <div className="email">info@gmail.com</div>
 //         </div>
-  
+
 //         </div>
-  
+
 //         <div className="more_option">
-  
+
 //           <div className="more_data">
 //             <div className="icon" style={{background:"#e5f3fb"}}>
 //               <img src={wallet_icon} alt="" />
@@ -51,8 +51,8 @@ import user_profile from "./../Dashboard/profile_pic/user2.jpg";
 //               <div className="name_info">Account Settings</div>
 //             </div>
 //           </div>
-          
-  
+
+
 //           <div className="more_data">
 //             <div className="icon" style={{background:"#defff2"}}>
 //               <img src={shield_icon} alt="" />
@@ -62,7 +62,7 @@ import user_profile from "./../Dashboard/profile_pic/user2.jpg";
 //               <div className="name_info">Messages & Email</div>
 //             </div>
 //           </div>
-  
+
 //           <div className="more_data">
 //             <div className="icon" style={{background:"#feece9"}}>
 //               <img src={credit_card_icon} alt="" />
@@ -72,26 +72,26 @@ import user_profile from "./../Dashboard/profile_pic/user2.jpg";
 //               <div className="name_info">To-do and Daily Tasks</div>
 //             </div>
 //           </div>
-  
-  
+
+
 //           <button>Logout</button>
-  
+
 //         </div>
-  
-  
+
+
 //       </div>
-        
+
 //     </div>
 //     )
 //   }
 
-function TitleBar({adminSettings, setActiveRow, activeRow, admin_email}) {
-  
+function TitleBar({ adminSettings, setActiveRow, activeRow, admin_email }) {
+
   // const [show_user_profile, set_show_user_profile] = useState(false);
 
   // State for profile image
   const [profileImage, setProfileImage] = useState(user_profile);
-  
+
   // Load profile image from localStorage when component mounts
   useEffect(() => {
     if (admin_email) {
@@ -105,7 +105,7 @@ function TitleBar({adminSettings, setActiveRow, activeRow, admin_email}) {
 
 
   const getTitleInfo = () => {
-    switch(activeRow) {
+    switch (activeRow) {
       case 0:
         return { title: "Dashboard", info: "Payment Updates" };
       case 1:
@@ -125,42 +125,41 @@ function TitleBar({adminSettings, setActiveRow, activeRow, admin_email}) {
 
   return (
     <div className={`title_bar ${adminSettings?.show_navbar ? 'fixed_navbar' : ''}`}>
-    <div className="left_title_con">
-      <div className="title">{titleInfo.title}</div>
-      <div className="title_info">{titleInfo.info}</div>
-    </div>
-
-    <div className="custom_input">
-      <div className="icon">
-        <img src={search_icon} alt="" />
+      <div className="left_title_con">
+        <div className="title">{titleInfo.title}</div>
+        <div className="title_info">{titleInfo.info}</div>
       </div>
-      <input type="text" placeholder="Search" />
-    </div>
 
-    <div className="other_option">
+      <div className="custom_input">
+        <div className="icon">
+          <img src={search_icon} alt="" />
+        </div>
+        <input type="text" placeholder="Search" />
+      </div>
 
-      {/* <div className="icon" >
+      <div className="other_option">
+
+        {/* <div className="icon" >
         <img src={bell_b_icon} alt="" />
       </div> */}
-      <div className="icon" onClick={()=>{setActiveRow(4)}}>
-        <img src={setting_icon} alt="" />
-      </div>
-      <div className="profile_con" onClick={()=>{setActiveRow(3)}}>
-        <div className="profile">
-          <img src={profileImage} alt="" />
+        <div className="icon" onClick={() => { setActiveRow(4) }}>
+          <img src={setting_icon} alt="" />
         </div>
-        <div className="data">
-          <div className="name">Shrey Patel</div>
-          <div className="type">Admin</div>
+        <div className="profile_con" onClick={() => { setActiveRow(3) }}>
+          <div className="profile">
+            <img src={profileImage} alt="" />
+          </div>
+          <div className="data">
+            <div className="name">Shrey Patel</div>
+            <div className="type">Admin</div>
+          </div>
         </div>
       </div>
+
+
+
+
     </div>
-
-    {/* {show_user_profile &&
-    <Profile />} */}
-
-
-  </div>
   )
 }
 

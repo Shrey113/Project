@@ -244,20 +244,20 @@ function OwnerSideBar() {
       name: "Event",
       icon: (<EventIcon className={`menu-icon ${activeIndex === 1 ? "active" : ""}`} />
       ),
-      path: "/Owner/Event/packages",
+      path: "/Owner/Event/equipment",
       subMenu: [
-        {
-          name: "Packages",
-          path: "/Owner/Event/packages",
-          icon: (<LocalOfferIcon className={`menu-icon ${activeIndex === 1.1 ? "active" : ""}`} />
-          ),
-        },
-        { name: "Equipment", path: "/Owner/Event/equipment", icon: (<CameraAltIcon className={`menu-icon ${activeIndex === 1.2 ? "active" : ""}`} />), },
+        // {
+        //   name: "Packages",
+        //   path: "/Owner/Event/packages",
+        //   icon: (<LocalOfferIcon className={`menu-icon ${activeIndex === 1.1 ? "active" : ""}`} />
+        //   ),
+        // },
+        { name: "Equipment", path: "/Owner/Event/equipment", icon: (<CameraAltIcon className={`menu-icon ${activeIndex === 1.1 ? "active" : ""}`} />), },
 
         {
           name: "Services", path: "/Owner/Event/services", icon: (
             <LocalOfferIcon
-              className={`menu-icon ${activeIndex === 1.3 ? "active" : ""}`}
+              className={`menu-icon ${activeIndex === 1.2 ? "active" : ""}`}
             />
           ),
         }
@@ -273,19 +273,19 @@ function OwnerSideBar() {
       icon: (<ReceiptIcon className={`menu-icon ${activeIndex === 3 ? "active" : ""}`} />),
       path: "/Owner/Invoice",
     },
-    {
-      name: "Packages",
-      icon: (<LocalOfferIcon className={`menu-icon ${activeIndex === 4 ? "active" : ""}`} />),
-      path: "/Owner/Packages",
-    },
+    // {
+    //   name: "Packages",
+    //   icon: (<LocalOfferIcon className={`menu-icon ${activeIndex === 4 ? "active" : ""}`} />),
+    //   path: "/Owner/Packages",
+    // },
     {
       name: "Search",
-      icon: (<SearchIcon className={`menu-icon ${activeIndex === 5 ? "active" : ""}`} />),
+      icon: (<SearchIcon className={`menu-icon ${activeIndex === 4 ? "active" : ""}`} />),
       path: "/Owner/search_photographer",
     },
     {
       name: "Drive",
-      icon: (<AddToDriveIcon className={`menu-icon ${activeIndex === 6 ? "active" : ""}`} />),
+      icon: (<AddToDriveIcon className={`menu-icon ${activeIndex === 5 ? "active" : ""}`} />),
       path: "/Owner/drive",
     },
   ], [activeIndex]);

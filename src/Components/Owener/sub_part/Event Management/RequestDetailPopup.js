@@ -193,11 +193,10 @@ const RequestDetailPopup = ({
             {requestData.package_name && renderPackageDetails()}
             {requestData.equipment_name && renderEquipmentDetails()}
             {requestData.service_name && renderServiceDetails()}
-            {requestData.event_status !== "Rejected" && requestData.event_status !== "Accepted" && (
+            {requestData.event_status !== "Rejected" && requestData.event_status !== "Accepted" && requestData.event_status !== "Event Expired" && (
               <button
                 onClick={() => setPopupType("reject")}
                 className="reject-btn"
-                style={{ marginTop: "20px" }}
               >
                 Reject Request
               </button>

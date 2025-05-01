@@ -9,210 +9,210 @@ import PopupMenu from '../../Dashboard/question/PopupMenu';
 
 import { Server_url, showRejectToast, showAcceptToast } from '../../../../../redux/AllData';
 import CheckUserPage from './CheckUserPage';
- 
-function OwnerManager({admin_email}) {
+
+function OwnerManager({ admin_email }) {
   const [pendingUsers, setPendingUsers] = useState([]);
   const [selected_user, set_selected_user] = useState([]);
   const [selected_email, set_selected_email] = useState('');
-  
+
   const [error, setError] = useState(null);
 
-   const [showPopup, setShowPopup] = useState(false);
-   const [showConfirm, setShowConfirm] = useState({
+  const [showPopup, setShowPopup] = useState(false);
+  const [showConfirm, setShowConfirm] = useState({
     isOpen: false,
     email: null,
-    handleClose: () => {}
+    handleClose: () => { }
   });
 
 
 
 
-     const [rejectedUsers, setRejectedUsers] = useState([]);
-     const [allOwners, setAllOwners] = useState([]);
+  const [rejectedUsers, setRejectedUsers] = useState([]);
+  const [allOwners, setAllOwners] = useState([]);
 
 
 
-     const [activeList, setActiveList] = useState('pending');
+  const [activeList, setActiveList] = useState('pending');
 
-     const [currentPage, setCurrentPage] = useState(1);
-     const [itemsPerPage] = useState(4);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(4);
 
-     const indexOfLastItem = currentPage * itemsPerPage;
-     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
-     
-     const [showOneOwnerData, setshowOneOwnerData] = useState({
-      isShow: false,                         
-      client_id: '',          
-      user_name: '',          
-      user_email: '',        
-      user_password: '',  
-      business_name: '',  
-      business_email: '', 
-      business_address: '',
-      mobile_number: '',   
-      gst_number: '',         
-      user_status: '',       
-      admin_message: '',   
-      set_status_by_admin: '',
-      bus_log: '',               
-      profile_pic: '',       
-      location: ''              
-    });
+
+  const [showOneOwnerData, setshowOneOwnerData] = useState({
+    isShow: false,
+    client_id: '',
+    user_name: '',
+    user_email: '',
+    user_password: '',
+    business_name: '',
+    business_email: '',
+    business_address: '',
+    mobile_number: '',
+    gst_number: '',
+    user_status: '',
+    admin_message: '',
+    set_status_by_admin: '',
+    bus_log: '',
+    profile_pic: '',
+    location: ''
+  });
 
   function closeOneOwnerData() {
     setshowOneOwnerData(prevState => ({
-      ...prevState, 
-      isShow: false   
+      ...prevState,
+      isShow: false
     }));
     get_admin_data();
   }
   function OnOneOwnerData() {
     setshowOneOwnerData(prevState => ({
-      ...prevState, 
-      isShow: true   
+      ...prevState,
+      isShow: true
     }));
   }
-     
-     const getCurrentItems = () => {
-       if (activeList === 'pending') {
-         return pendingUsers.slice(indexOfFirstItem, indexOfLastItem);
-       } else if (activeList === 'rejected') {
-         return rejectedUsers.slice(indexOfFirstItem, indexOfLastItem);
-       } else {
-         return allOwners.slice(indexOfFirstItem, indexOfLastItem);
-       }
-     };
 
-     const getTotalPages = () => {
-       let totalItems;
-       if (activeList === 'pending') {
-         totalItems = pendingUsers.length;
-       } else if (activeList === 'rejected') {
-         totalItems = rejectedUsers.length;
-       } else {
-         totalItems = allOwners.length;
-       }
-       return Math.ceil(totalItems / itemsPerPage);
-     };
+  const getCurrentItems = () => {
+    if (activeList === 'pending') {
+      return pendingUsers.slice(indexOfFirstItem, indexOfLastItem);
+    } else if (activeList === 'rejected') {
+      return rejectedUsers.slice(indexOfFirstItem, indexOfLastItem);
+    } else {
+      return allOwners.slice(indexOfFirstItem, indexOfLastItem);
+    }
+  };
 
-     const handlePageChange = (pageNumber) => {
-       setCurrentPage(pageNumber);
-     };
+  const getTotalPages = () => {
+    let totalItems;
+    if (activeList === 'pending') {
+      totalItems = pendingUsers.length;
+    } else if (activeList === 'rejected') {
+      totalItems = rejectedUsers.length;
+    } else {
+      totalItems = allOwners.length;
+    }
+    return Math.ceil(totalItems / itemsPerPage);
+  };
 
-     const handlePrevPage = () => {
-       setCurrentPage(prev => Math.max(prev - 1, 1));
-     };
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
-     const handleNextPage = () => {
-       setCurrentPage(prev => Math.min(prev + 1, getTotalPages()));
-     };
+  const handlePrevPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, getTotalPages()));
+  };
 
   // Function to fetch owner data by email
-const fetchOwnerByEmail = (email) => {
-  return fetch(`${Server_url}/Admin/owner`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email }) 
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Owner not found or server error');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Owner Data:', data);
-      setShowPopup(true)
-      set_selected_user(data)
-    })
-    .catch(error => {
-      console.error('Error:', error); // Handle any errors
-      throw error; // Optional: rethrow to handle in the calling code
-    });
-};
-
-function get_admin_data(){
-  fetch(`${Server_url}/Admin/pending-users`)
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Failed to fetch pending users');
-    }
-    return response.json();
-  })
-  .then(data => {
-    setPendingUsers(data); // Set the fetched data to the state
-  })
-  .catch(error => {
-    setError(error.message); // Set error message if there's an issue
-  });
-  }
-
-function updateUserStatus(email, status, message = null, set_status_by_admin = null) {
-  if(status === "Accept"){
-    set_selected_email(email);
-    OnOneOwnerData();
-    return;
-  }
-  fetch(`${Server_url}/owner/update-status`, {
+  const fetchOwnerByEmail = (email) => {
+    return fetch(`${Server_url}/Admin/owner`, {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email })
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Owner not found or server error');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Owner Data:', data);
+        setShowPopup(true)
+        set_selected_user(data)
+      })
+      .catch(error => {
+        console.error('Error:', error); // Handle any errors
+        throw error; // Optional: rethrow to handle in the calling code
+      });
+  };
+
+  function get_admin_data() {
+    fetch(`${Server_url}/Admin/pending-users`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch pending users');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setPendingUsers(data); // Set the fetched data to the state
+      })
+      .catch(error => {
+        setError(error.message); // Set error message if there's an issue
+      });
+  }
+
+  function updateUserStatus(email, status, message = null, set_status_by_admin = null) {
+    if (status === "Accept") {
+      set_selected_email(email);
+      OnOneOwnerData();
+      return;
+    }
+    fetch(`${Server_url}/owner/update-status`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-          user_email: email,
-          user_Status: status,
-          message: message,
-          set_status_by_admin: set_status_by_admin
+        user_email: email,
+        user_Status: status,
+        message: message,
+        set_status_by_admin: set_status_by_admin
       }),
-  })
-  .then(response => {
-      if (!response.ok) {
+    })
+      .then(response => {
+        if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-  })
-  .then(data => {
-    if(data.message === 'Status updated'){
-      showAcceptToast({message: 'Status updated' });
-      get_admin_data();
-      getRejectedUsers(); // Refresh rejected users list
-      getAllOwners(); // Refresh all owners list
-      if(showPopup){
-        setShowPopup(false);
-      }
-    }else{
-      showRejectToast({message: data.message });
-    }
-  })
-  .catch(error => {
-      console.error('Error:', error.message);
-  });
-}
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.message === 'Status updated') {
+          showAcceptToast({ message: 'Status updated' });
+          get_admin_data();
+          getRejectedUsers(); // Refresh rejected users list
+          getAllOwners(); // Refresh all owners list
+          if (showPopup) {
+            setShowPopup(false);
+          }
+        } else {
+          showRejectToast({ message: data.message });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error.message);
+      });
+  }
 
-function getAllOwners() {
-  fetch(`${Server_url}/Admin/get_all_owner`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch all owners');
-      }
-      return response.json();
-    })
-    .then(data => {
-      setAllOwners(data);
-    })
-    .catch(error => {
-      setError(error.message);
-    });
-}
+  function getAllOwners() {
+    fetch(`${Server_url}/Admin/get_all_owner`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch all owners');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setAllOwners(data);
+      })
+      .catch(error => {
+        setError(error.message);
+      });
+  }
 
   useEffect(() => {
     get_admin_data();
     getAllOwners();
   }, []);
-  
+
 
 
   function getRejectedUsers() {
@@ -231,7 +231,7 @@ function getAllOwners() {
       });
   }
 
-  
+
 
   useEffect(() => {
     getRejectedUsers();
@@ -240,14 +240,14 @@ function getAllOwners() {
   // Add this new function to get the range of pages to display
   const getPageRange = () => {
     const totalPages = getTotalPages();
-    
+
     // For 3 pages or less, show all pages
     if (totalPages <= 3) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-    
+
     let start, end;
-    
+
     if (currentPage <= 2) {
       // Near the start
       start = 1;
@@ -261,9 +261,9 @@ function getAllOwners() {
       start = currentPage - 1;
       end = currentPage + 1;
     }
-    
+
     return Array.from(
-      { length: end - start + 1 }, 
+      { length: end - start + 1 },
       (_, i) => start + i
     );
   };
@@ -273,9 +273,9 @@ function getAllOwners() {
       <div className="title_bar_sub">
         Owner Requests
       </div>
-      
+
       <div className="categories-container">
-      <div 
+        <div
           className={`category-item ${activeList === 'all' ? 'active' : ''}`}
           onClick={() => {
             setActiveList('all');
@@ -285,7 +285,7 @@ function getAllOwners() {
           All Owners
         </div>
 
-        <div 
+        <div
           className={`category-item ${activeList === 'pending' ? 'active' : ''}`}
           onClick={() => {
             setActiveList('pending');
@@ -294,7 +294,7 @@ function getAllOwners() {
         >
           Pending Requests
         </div>
-        <div 
+        <div
           className={`category-item ${activeList === 'rejected' ? 'active' : ''}`}
           onClick={() => {
             setActiveList('rejected');
@@ -306,7 +306,6 @@ function getAllOwners() {
 
       </div>
 
-      {/* Display error message if there's any */}
       {error && <p className="error-message">{error}</p>}
 
       <table className="user_table">
@@ -356,58 +355,57 @@ function getAllOwners() {
             getCurrentItems().length > 0 ? (
               getCurrentItems().map(user => (
                 <tr key={user.user_email}>
-                <td className='set_width'>{user.client_id}</td>
-                <td>{user.user_name}</td>
-                <td>{user.user_email}</td>
-                <td>{user.business_name}</td>
-                <td>{user.business_address}</td>
-                <td>{user.mobile_number}</td>
-                <td>{user.gst_number}</td>
-                <td className='set_type'>
-                  <span className={`${
-                    user.user_Status === "Reject"
-                      ? "Reject"
-                      : user.user_Status === "Accept"
-                      ? "Accept"
-                      : "Pending"
-                  }`}>
-                    {user.user_Status}
-                  </span>
-                </td>
-                <td>
-                  <div className="more_option_pop">
-                    {user.user_Status === "Pending" && (
-                      <>
-                        <div className="icon_img" onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)}>
-                          <img 
-                            src={accept} 
-                            alt="Accept" 
-                            
-                          />
-                        </div>
-                        <div className="icon_img">
-                          <img 
-                            src={reject} 
-                            alt="Reject" 
-                            onClick={() => setShowConfirm({
-                              isOpen: true,
-                              email: user.user_email,
-                              handleClose: () => setShowConfirm({ isOpen: false, email: null })
-                            })}
-                          />
-                        </div>
-                      </>
-                    )}
-                    <div className="icon_img">
-                      <img 
-                        src={info} 
-                        alt="Info" 
-                        onClick={() => fetchOwnerByEmail(user.user_email)}
-                      />
+                  <td className='set_width'>{user.client_id}</td>
+                  <td>{user.user_name}</td>
+                  <td>{user.user_email}</td>
+                  <td>{user.business_name}</td>
+                  <td>{user.business_address}</td>
+                  <td>{user.mobile_number}</td>
+                  <td>{user.gst_number}</td>
+                  <td className='set_type'>
+                    <span className={`${user.user_Status === "Reject"
+                        ? "Reject"
+                        : user.user_Status === "Accept"
+                          ? "Accept"
+                          : "Pending"
+                      }`}>
+                      {user.user_Status}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="more_option_pop">
+                      {user.user_Status === "Pending" && (
+                        <>
+                          <div className="icon_img" onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)}>
+                            <img
+                              src={accept}
+                              alt="Accept"
+
+                            />
+                          </div>
+                          <div className="icon_img">
+                            <img
+                              src={reject}
+                              alt="Reject"
+                              onClick={() => setShowConfirm({
+                                isOpen: true,
+                                email: user.user_email,
+                                handleClose: () => setShowConfirm({ isOpen: false, email: null })
+                              })}
+                            />
+                          </div>
+                        </>
+                      )}
+                      <div className="icon_img">
+                        <img
+                          src={info}
+                          alt="Info"
+                          onClick={() => fetchOwnerByEmail(user.user_email)}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                </tr>
               ))
             ) : (
               <tr><td colSpan="3">No pending users found</td></tr>
@@ -416,58 +414,57 @@ function getAllOwners() {
             getCurrentItems().length > 0 ? (
               getCurrentItems().map(user => (
                 <tr key={user.user_email}>
-                <td className='set_width'>{user.client_id}</td>
-                <td>{user.user_name}</td>
-                <td>{user.user_email}</td>
-                <td>{user.business_name}</td>
-                <td>{user.business_address}</td>
-                <td>{user.mobile_number}</td>
-                <td>{user.gst_number}</td>
-                <td className='set_type'>
-                  <span className={`${
-                    user.user_Status === "Reject"
-                      ? "Reject"
-                      : user.user_Status === "Accept"
-                      ? "Accept"
-                      : "Pending"
-                  }`}>
-                    {user.user_Status}
-                  </span>
-                </td>
-                <td>
-                  <div className="more_option_pop">
-                    {user.user_Status === "Pending" && (
-                      <>
-                        <div className="icon_img" onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)}>
-                          <img 
-                            src={accept} 
-                            alt="Accept" 
-                            
-                          />
-                        </div>
-                        <div className="icon_img">
-                          <img 
-                            src={reject} 
-                            alt="Reject" 
-                            onClick={() => setShowConfirm({
-                              isOpen: true,
-                              email: user.user_email,
-                              handleClose: () => setShowConfirm({ isOpen: false, email: null })
-                            })}
-                          />
-                        </div>
-                      </>
-                    )}
-                    <div className="icon_img">
-                      <img 
-                        src={info} 
-                        alt="Info" 
-                        onClick={() => fetchOwnerByEmail(user.user_email)}
-                      />
+                  <td className='set_width'>{user.client_id}</td>
+                  <td>{user.user_name}</td>
+                  <td>{user.user_email}</td>
+                  <td>{user.business_name}</td>
+                  <td>{user.business_address}</td>
+                  <td>{user.mobile_number}</td>
+                  <td>{user.gst_number}</td>
+                  <td className='set_type'>
+                    <span className={`${user.user_Status === "Reject"
+                        ? "Reject"
+                        : user.user_Status === "Accept"
+                          ? "Accept"
+                          : "Pending"
+                      }`}>
+                      {user.user_Status}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="more_option_pop">
+                      {user.user_Status === "Pending" && (
+                        <>
+                          <div className="icon_img" onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)}>
+                            <img
+                              src={accept}
+                              alt="Accept"
+
+                            />
+                          </div>
+                          <div className="icon_img">
+                            <img
+                              src={reject}
+                              alt="Reject"
+                              onClick={() => setShowConfirm({
+                                isOpen: true,
+                                email: user.user_email,
+                                handleClose: () => setShowConfirm({ isOpen: false, email: null })
+                              })}
+                            />
+                          </div>
+                        </>
+                      )}
+                      <div className="icon_img">
+                        <img
+                          src={info}
+                          alt="Info"
+                          onClick={() => fetchOwnerByEmail(user.user_email)}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                </tr>
               ))
             ) : (
               <tr><td colSpan="4">No rejected users found</td></tr>
@@ -484,13 +481,12 @@ function getAllOwners() {
                   <td>{user.mobile_number}</td>
                   <td>{user.gst_number}</td>
                   <td className='set_type'>
-                    <span className={`${
-                      user.user_Status === "Reject"
+                    <span className={`${user.user_Status === "Reject"
                         ? "Reject"
                         : user.user_Status === "Accept"
-                        ? "Accept"
-                        : "Pending"
-                    }`}>
+                          ? "Accept"
+                          : "Pending"
+                      }`}>
                       {user.user_Status}
                     </span>
                   </td>
@@ -498,17 +494,17 @@ function getAllOwners() {
                     <div className="more_option_pop">
                       {user.user_Status === "Pending" && (
                         <>
-                          <div className="icon_img"                               onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)} >
-                            <img 
-                              src={accept} 
-                              alt="Accept" 
+                          <div className="icon_img" onClick={() => updateUserStatus(user.user_email, "Accept", null, admin_email)} >
+                            <img
+                              src={accept}
+                              alt="Accept"
 
                             />
                           </div>
                           <div className="icon_img">
-                            <img 
-                              src={reject} 
-                              alt="Reject" 
+                            <img
+                              src={reject}
+                              alt="Reject"
                               onClick={() => setShowConfirm({
                                 isOpen: true,
                                 email: user.user_email,
@@ -519,9 +515,9 @@ function getAllOwners() {
                         </>
                       )}
                       <div className="icon_img">
-                        <img 
-                          src={info} 
-                          alt="Info" 
+                        <img
+                          src={info}
+                          alt="Info"
                           onClick={() => fetchOwnerByEmail(user.user_email)}
                         />
                       </div>
@@ -537,15 +533,14 @@ function getAllOwners() {
       </table>
 
       <div className="pagination">
-        <button 
+        <button
           onClick={handlePrevPage}
           disabled={currentPage === 1}
           className="pagination-button"
         >
           &lt;
         </button>
-        
-        {/* First page and dots */}
+
         {currentPage > 2 && getTotalPages() > 3 && (
           <>
             <button
@@ -557,8 +552,7 @@ function getAllOwners() {
             {currentPage > 3 && <span className="pagination-dots">...</span>}
           </>
         )}
-        
-        {/* Page numbers */}
+
         {getPageRange().map(pageNum => (
           <button
             key={pageNum}
@@ -568,8 +562,7 @@ function getAllOwners() {
             {pageNum}
           </button>
         ))}
-        
-        {/* Last page and dots */}
+
         {currentPage < getTotalPages() - 1 && getTotalPages() > 3 && (
           <>
             {currentPage < getTotalPages() - 2 && <span className="pagination-dots">...</span>}
@@ -581,8 +574,8 @@ function getAllOwners() {
             </button>
           </>
         )}
-        
-        <button 
+
+        <button
           onClick={handleNextPage}
           disabled={currentPage === getTotalPages()}
           className="pagination-button"
@@ -592,62 +585,61 @@ function getAllOwners() {
       </div>
 
       {showPopup && (
-                <div className="popup-overlay" onClick={() => setShowPopup(false)}>
-                    <div className="popup-content"  onClick={(e) => e.stopPropagation()}>
-                        <h2>User Details</h2>
-                        {
-                          selected_user.user_Status !== "Pending" &&
-                          <span> <strong>{selected_user.user_Status}</strong> by Admin <strong>{selected_user.set_status_by_admin}</strong></span>
-                        }
-                        
-                        <table className="user-data-table">
-                            <tbody>
-                                <tr>
-                                    <th>Client ID</th>
-                                    <td>{selected_user.client_id}</td>
-                                </tr>
-                                <tr>
-                                    <th>Name</th>
-                                    <td>{selected_user.user_name}</td>
-                                </tr>
-                                <tr>
-                                    <th>Email</th>
-                                    <td>{selected_user.user_email}</td>
-                                </tr>
-                                <tr>
-                                    <th>Password</th>
-                                    {/* <td>{user.user_password}</td> */}
-                                    <td>******</td>
-                                </tr>
-                                <tr>
-                                    <th>Business Name</th>
-                                    <td>{selected_user.business_name}</td>
-                                </tr>
-                                <tr>
-                                    <th>Business Address</th>
-                                    <td>{selected_user.business_address}</td>
-                                </tr>
-                                <tr>
-                                    <th>Mobile</th>
-                                    <td>{selected_user.mobile_number}</td>
-                                </tr>
-                                <tr>
-                                    <th>GST Number</th>
-                                    <td>{selected_user.gst_number}</td>
-                                </tr>
-                                
-                            </tbody>
-                           
-                        </table>
-                        <button className="close-popup-button" onClick={() => setShowPopup(false)}>
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
+        <div className="popup-overlay" onClick={() => setShowPopup(false)}>
+          <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+            <h2>User Details</h2>
+            {
+              selected_user.user_Status !== "Pending" &&
+              <span> <strong>{selected_user.user_Status}</strong> by Admin <strong>{selected_user.set_status_by_admin}</strong></span>
+            }
+
+            <table className="user-data-table">
+              <tbody>
+                <tr>
+                  <th>Client ID</th>
+                  <td>{selected_user.client_id}</td>
+                </tr>
+                <tr>
+                  <th>Name</th>
+                  <td>{selected_user.user_name}</td>
+                </tr>
+                <tr>
+                  <th>Email</th>
+                  <td>{selected_user.user_email}</td>
+                </tr>
+                <tr>
+                  <th>Password</th>
+                  <td>******</td>
+                </tr>
+                <tr>
+                  <th>Business Name</th>
+                  <td>{selected_user.business_name}</td>
+                </tr>
+                <tr>
+                  <th>Business Address</th>
+                  <td>{selected_user.business_address}</td>
+                </tr>
+                <tr>
+                  <th>Mobile</th>
+                  <td>{selected_user.mobile_number}</td>
+                </tr>
+                <tr>
+                  <th>GST Number</th>
+                  <td>{selected_user.gst_number}</td>
+                </tr>
+
+              </tbody>
+
+            </table>
+            <button className="close-popup-button" onClick={() => setShowPopup(false)}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {showConfirm.isOpen && (
-        <PopupMenu 
+        <PopupMenu
           email={showConfirm.email}
           handleClose={showConfirm.handleClose}
           admin_email={admin_email}
@@ -661,7 +653,7 @@ function getAllOwners() {
 
       {
         showOneOwnerData.isShow && (
-          <CheckUserPage closeOneOwnerData={closeOneOwnerData} email={selected_email} admin_email={admin_email}/>
+          <CheckUserPage closeOneOwnerData={closeOneOwnerData} email={selected_email} admin_email={admin_email} />
         )
       }
 

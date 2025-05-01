@@ -459,8 +459,9 @@ function SharedFilesPage() {
             // Update breadcrumb path with shared_by information
             setBreadcrumbPath(prevPath => [...prevPath, { id: folderId, name: folderName, shared_by: sharedBy }]);
 
-            // Fetch folder contents using the owner's email (shared_by)
-            const response = await fetch(`${Server_url}/drive/folder/${folderId}/contents?user_email=${encodeURIComponent(user_email)}&created_by=${encodeURIComponent(sharedBy)}`, {
+            // Fetch folder contents using the owner's email (shared_by) 
+            // Make sure we use the correct API endpoint matching what's in DriveHome.js
+            const response = await fetch(`${Server_url}/drive/folders/${folderId}/contents?user_email=${encodeURIComponent(user_email)}&created_by=${encodeURIComponent(sharedBy || user_email)}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -472,12 +473,30 @@ function SharedFilesPage() {
             }
 
             const data = await response.json();
+            console.log("Folder contents:", data);
+
+            // Process the folder contents to have consistent format
+            const processedFiles = (data.files || []).map(file => ({
+                ...file,
+                type: 'file',
+                file_type: file.file_extension || file.type || 'file',
+                shared_by: sharedBy || file.created_by || user_email
+            }));
+
+            const processedFolders = (data.folders || []).map(folder => ({
+                ...folder,
+                type: 'folder',
+                shared_by: sharedBy || folder.created_by || user_email
+            }));
+
             setFolderContents({
-                files: data.files || [],
-                folders: data.folders || []
+                files: processedFiles,
+                folders: processedFolders
             });
         } catch (error) {
             console.error('Error fetching folder contents:', error);
+            toast.error('Failed to load folder contents');
+            setFolderContents({ files: [], folders: [] });
         } finally {
             setIsLoading(false);
         }
@@ -517,6 +536,16 @@ function SharedFilesPage() {
 
     // Add preview handler functions
     const handleItemClick = (item) => {
+        // Check if it's a folder and navigate to it
+        if (item.type === 'folder' || item.folder_id) {
+            const folderId = item.folder_id || item.id;
+            const folderName = item.folder_name || item.name;
+            const sharedBy = item.shared_by || item.created_by;
+            navigateToFolder(folderId, folderName, sharedBy);
+            return;
+        }
+
+        // It's a file - handle file preview
         if (item.type === 'file' || item.file_id) {
             // Get file extension from name if not available in file_type
             let fileType = item.file_type || item.type || '';
@@ -728,7 +757,7 @@ function SharedFilesPage() {
                                                     viewMode={viewMode}
                                                     isSelected={isItemSelected}
                                                     onSelect={handleSelectItem}
-                                                    onNavigate={itemType === 'folder' ? (id, name) => navigateToFolder(id, name, item.shared_by) : null}
+                                                    onNavigate={itemType === 'folder' ? (id, name) => navigateToFolder(id, name, item.shared_by || item.created_by) : null}
                                                     onDownload={itemType === 'file' ? handleDownloadFile : null}
                                                     onStar={handleStar}
                                                     onEdit={handleOpenRenameDialog}
@@ -781,7 +810,7 @@ function SharedFilesPage() {
                                                     viewMode={viewMode}
                                                     isSelected={isItemSelected}
                                                     onSelect={handleSelectItem}
-                                                    onNavigate={itemType === 'folder' ? (id, name) => navigateToFolder(id, name, item.shared_by) : null}
+                                                    onNavigate={itemType === 'folder' ? (id, name) => navigateToFolder(id, name, item.shared_by || item.created_by) : null}
                                                     onDownload={handleDownloadFile}
                                                     onStar={handleStar}
                                                     onEdit={handleOpenRenameDialog}
@@ -842,6 +871,7 @@ function SharedFilesPage() {
                                         viewMode={viewMode}
                                         isSelected={isItemSelected}
                                         onSelect={handleSelectItem}
+                                        onNavigate={itemType === 'folder' ? (id, name) => navigateToFolder(id, name, item.shared_by || item.created_by) : null}
                                         onDownload={handleDownloadFile}
                                         onStar={handleStar}
                                         onEdit={handleOpenRenameDialog}

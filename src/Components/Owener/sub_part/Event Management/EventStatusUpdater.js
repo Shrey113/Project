@@ -17,7 +17,7 @@ const EventStatusUpdater = ({ user_email, updateReceivedData }) => {
     // Function to check for past events and update their status
     const checkPastEvents = async () => {
       try {
-        const response = await axios.get(`${Server_url}/owner/check-past-events/${user_email}`);
+        const response = await axios.get(`${Server_url}/team_members/check-past-events/${user_email}`);
         if (response.data.updated) {
           // If any events were updated, refresh the data
           updateReceivedData();
@@ -48,7 +48,7 @@ const EventStatusUpdater = ({ user_email, updateReceivedData }) => {
 
     return () => {
       clearInterval(pastEventsInterval);
-      
+
       if (socket) {
         socket.off(`event-confirmation-updated`);
         socket.off(`event-status-update-${user_email}`);

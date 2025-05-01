@@ -1,18 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import "./OwnerHome.css";
 import Calendar from "./Calendar/Calendar.js";
 import {
   FaCalendarAlt,
   FaUsers,
   FaFileInvoiceDollar,
-  FaBoxOpen,
+  // FaBoxOpen,
 } from "react-icons/fa";
 import { Server_url } from "../../../redux/AllData.js";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import welcome_bg from "./Calendar/custom_css/welcome-bg.png";
 import { useCount } from "./../../../redux/CountContext.js";
-import { useEffect } from "react";
 
 function OwnerHome() {
   const user = useSelector((state) => state.user);
@@ -20,7 +19,7 @@ function OwnerHome() {
   const navigate = useNavigate();
   const { count } = useCount();
 
-  const [package_count, set_package_count] = useState(0);
+  // const [package_count, set_package_count] = useState(0);
 
   const userName = user.user_name;
   const currentTime = new Date();
@@ -89,29 +88,29 @@ function OwnerHome() {
     return "Good Evening";
   };
 
-  useEffect(() => {
-    const fetchPackageCount = async (user_email) => {
-      try {
-        const response = await fetch(`${Server_url}/fetch_package_count`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            owner_email: user_email,
-          }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          console.log("error fetching packages ");
-        }
-        set_package_count(data.package_count);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchPackageCount(user.user_email);
-  }, [user.user_email]);
+  // useEffect(() => {
+  //   const fetchPackageCount = async (user_email) => {
+  //     try {
+  //       const response = await fetch(`${Server_url}/fetch_package_count`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           owner_email: user_email,
+  //         }),
+  //       });
+  //       const data = await response.json();
+  //       if (!response.ok) {
+  //         console.log("error fetching packages ");
+  //       }
+  //       set_package_count(data.package_count);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetchPackageCount(user.user_email);
+  // }, [user.user_email]);
 
   return (
     <div className="owner_home_page_container">
@@ -187,7 +186,7 @@ function OwnerHome() {
         </div>
 
         {/* Packages Card */}
-        <div
+        {/* <div
           className="dashboard_card"
           onClick={() => setActiveIndex(4, "Packages")}
         >
@@ -199,7 +198,7 @@ function OwnerHome() {
             <p className="number">{package_count}</p>
             <p className="label">Packages</p>
           </div>
-        </div>
+        </div> */}
       </div>
       <Calendar />
     </div>

@@ -27,14 +27,14 @@ const Setting = ({ onClose, get_admin_settings }) => {
     return savedSettings
       ? JSON.parse(savedSettings)
       : {
-          show_animation: true,
-          show_navbar: false,
-          show_notification: true,
-          email_alerts: true,
-          push_notifications: true,
-        };
+        show_animation: true,
+        show_navbar: false,
+        show_notification: true,
+        email_alerts: true,
+        push_notifications: true,
+      };
   });
-  
+
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // Track window resize for responsive behavior
@@ -42,7 +42,7 @@ const Setting = ({ onClose, get_admin_settings }) => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -72,7 +72,6 @@ const Setting = ({ onClose, get_admin_settings }) => {
     <div className={getResponsiveClass()}>
       <div className="settings-overlay" onClick={onClose}></div>
       <div className="settings-container">
-        {/* UI Settings Section */}
         <div className="settings-section">
           <div className="settings-header">
             <h1>UI Settings</h1>

@@ -12,7 +12,7 @@ function Charts() {
   useEffect(() => {
     // Check if viewport meta tag exists
     let viewportMeta = document.querySelector('meta[name="viewport"]');
-    
+
     // If it doesn't exist, create it
     if (!viewportMeta) {
       viewportMeta = document.createElement('meta');
@@ -28,20 +28,19 @@ function Charts() {
   return (
     <div className='Chart_id'>
       <div className='section_2'>
-      {/* <ChartWithData/> */}
-      <ActiveUsersChart/>
-      <ProfitExpensesChart/>
+
+        <ActiveUsersChart />
+        <ProfitExpensesChart />
       </div>
 
-      <PackageUsageCharts/>
+      <PackageUsageCharts />
       <div className='section_1'>
         <br />
-      
-      {/* <UserGrowthChart/>  */}
+
       </div>
 
 
-      
+
 
     </div>
   )

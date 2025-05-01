@@ -153,9 +153,9 @@
 
 #owner-main-container-EventManagement h2 {
   color: #333;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
   font-size: 24px;
-  padding-bottom: 10px;
+  /* padding-bottom: 10px; */
 }
 
 #owner-main-container-EventManagement .tab-buttons {
@@ -1313,6 +1313,7 @@
 #owner-main-container-EventManagement .action-buttons button {
   transition: all 0.2s ease;
 }
+
 .service-filter-container {
   display: flex;
   justify-content: flex-start;
@@ -1389,8 +1390,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Empty State */
@@ -1455,6 +1463,7 @@
   color: #6b21a8;
   border: 1px solid #d8b4fe;
 }
+
 .busy-tag {
   background-color: #fa8633;
   color: #ffffff;

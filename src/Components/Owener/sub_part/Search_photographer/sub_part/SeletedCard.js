@@ -280,7 +280,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       return;
     }
 
-    if (!selectedOwner || !selectedOwner) {
+    if (!selectedOwner || !selectedOwner.user_email) {
       showRejectToast({ message: "Owner information is missing" });
       return;
     }

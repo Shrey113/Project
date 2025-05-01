@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AdminDataList.css';
 
 import more_icon from './sub_img/more.png';
@@ -16,36 +16,36 @@ import AddingAdmin from './AddingAdmin';
 import { Server_url, showRejectToast, showAcceptToast } from '../../../../../redux/AllData';
 
 
-function AdminDataList({admin_email,accessType}) {
+function AdminDataList({ admin_email, accessType }) {
 
   const [all_admin_data, set_all_admin_data] = useState(false);
   const [show_question, set_show_question] = useState(false);
   const [show_question_data, set_show_question_data] = useState({
-    message:'',onYesClick:()=>{},onNoClick:()=>{},closeButton:()=>{}
+    message: '', onYesClick: () => { }, onNoClick: () => { }, closeButton: () => { }
   });
- function go_for_re_fetch_data(admin_email){
-  fetch(`${Server_url}/Admin/get_all_admin`)
-  .then(response => {
-      if (!response.ok) {
+  function go_for_re_fetch_data(admin_email) {
+    fetch(`${Server_url}/Admin/get_all_admin`)
+      .then(response => {
+        if (!response.ok) {
           throw new Error('Network response was not ok');
-      }
-      return response.json();
-  })
-  .then(data => {
-    set_all_admin_data(data)
-      data.filter(match => match === admin_email).forEach(match => console.log(match));
-  })
-  .catch(error => {
-      console.error('There was a problem with the fetch operation:', error);
-  });
- }
+        }
+        return response.json();
+      })
+      .then(data => {
+        set_all_admin_data(data)
+        data.filter(match => match === admin_email).forEach(match => console.log(match));
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+  }
 
-  useEffect(()=>{
+  useEffect(() => {
     go_for_re_fetch_data(admin_email);
-  },[admin_email])
+  }, [admin_email])
   const [add_new_admin_pop, set_add_new_admin_pop] = useState(false);
   const [update_admin_pop, set_update_admin_pop] = useState(false);
-  const [more_option_pop,set_more_option_pop] = useState(null);
+  const [more_option_pop, set_more_option_pop] = useState(null);
 
   const outside_click_more_option = (event) => {
     const target = event.target;
@@ -68,17 +68,17 @@ function AdminDataList({admin_email,accessType}) {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const getCurrentItems = () => {
     // Filter out the current admin's own profile
-    const filteredAdminData = all_admin_data 
-      ? all_admin_data.filter(admin => admin.admin_email !== admin_email) 
+    const filteredAdminData = all_admin_data
+      ? all_admin_data.filter(admin => admin.admin_email !== admin_email)
       : [];
-    
+
     // Apply pagination to filtered data
     return filteredAdminData.slice(indexOfFirstItem, indexOfLastItem);
   };
 
   const getTotalPages = () => {
-    const filteredLength = all_admin_data 
-      ? all_admin_data.filter(admin => admin.admin_email !== admin_email).length 
+    const filteredLength = all_admin_data
+      ? all_admin_data.filter(admin => admin.admin_email !== admin_email).length
       : 0;
     return Math.ceil(filteredLength / itemsPerPage);
   };
@@ -97,13 +97,13 @@ function AdminDataList({admin_email,accessType}) {
 
   const getPageRange = () => {
     const totalPages = getTotalPages();
-    
+
     if (totalPages <= 3) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-    
+
     let start, end;
-    
+
     if (currentPage <= 2) {
       start = 1;
       end = 3;
@@ -114,59 +114,58 @@ function AdminDataList({admin_email,accessType}) {
       start = currentPage - 1;
       end = currentPage + 1;
     }
-    
+
     return Array.from(
-      { length: end - start + 1 }, 
+      { length: end - start + 1 },
       (_, i) => start + i
     );
   };
 
-        const delete_admin_by_id = (adminId) => {
-        
+  const delete_admin_by_id = (adminId) => {
 
-          fetch(`${Server_url}/admin/delete_data`, {
-              method: 'DELETE',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ admin_id: adminId })  // Send admin_id in the body
-          })
-          .then(response => {
-              if (!response.ok) {
-                  throw new Error('Network response was not ok');
-              }
-              return response.json();  // Parse JSON response
-          })
-          .then(data => {
-              console.log('Admin deleted:', data);  // Handle success
-              if(data.message === 'Admin deleted successfully'){
-                go_for_re_fetch_data();
-                showAcceptToast({message: 'Admin deleted successfully' });
-              }else{
-                showRejectToast({message: "Admin delete error" });
-              }
-          })
-          .catch(error => {
-              console.error('There was a problem with the fetch operation:', error);
-          });
-        };
+
+    fetch(`${Server_url}/admin/delete_data`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ admin_id: adminId })  // Send admin_id in the body
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();  // Parse JSON response
+      })
+      .then(data => {
+        console.log('Admin deleted:', data);  // Handle success
+        if (data.message === 'Admin deleted successfully') {
+          go_for_re_fetch_data();
+          showAcceptToast({ message: 'Admin deleted successfully' });
+        } else {
+          showRejectToast({ message: "Admin delete error" });
+        }
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+  };
 
 
 
 
   return (
     <div className="Admin_table_date">
-      {/* Title Bar */}
       <div className="title_bar_sub">
         <p>Admin Manager Table</p>
 
         {accessType === 'Full' &&
-        <span>
-          <img src={add_icon} alt="Add Icon" 
-          onClick={()=>{
-            set_add_new_admin_pop(true);
-            }} style={{ cursor: 'pointer' }} />
-        </span>
+          <span>
+            <img src={add_icon} alt="Add Icon"
+              onClick={() => {
+                set_add_new_admin_pop(true);
+              }} style={{ cursor: 'pointer' }} />
+          </span>
         }
       </div>
 
@@ -176,15 +175,15 @@ function AdminDataList({admin_email,accessType}) {
             <th>No</th>
             <th>Admin Name</th>
             <th>Admin email</th>
-            {accessType === 'Full' && (  <th>Access type</th>)}
-          
+            {accessType === 'Full' && (<th>Access type</th>)}
+
             <th></th>
           </tr>
         </thead>
         <tbody>
           {getCurrentItems().map((row, index) => (
             <tr key={index}>
-  
+
               <td>{index + 1}</td>
               <td>
                 <div className="profile_con">
@@ -194,10 +193,10 @@ function AdminDataList({admin_email,accessType}) {
                         index === 1
                           ? user1_icon
                           : index === 2
-                          ? user2_icon
-                          : index === 3
-                          ? user3_icon
-                          : user4_icon
+                            ? user2_icon
+                            : index === 3
+                              ? user3_icon
+                              : user4_icon
                       }
                       alt="User Icon"
                     />
@@ -210,60 +209,62 @@ function AdminDataList({admin_email,accessType}) {
               <td>{row.admin_email}</td>
 
               {accessType === 'Full' && <>
-              <td>
-              <div
-                  className={`set_type ${
-                    row.access_type === "Read Write"
-                      ? "read_write"
-                      : "Full"
-                  }`}
-                >
-                  {row.access_type}
-                </div>
-              </td>
-              <td onClick={()=>{
-
-              }}><img className='more_option_bt' src={more_icon} 
-              onClick={() => set_more_option_pop(more_option_pop === index ? null : index)}
-              alt="Icon" />
-              {more_option_pop === index && 
-              <div className="more_option_pop">
-                
-                <div className="item" 
-                  onClick={()=>{
-                    set_update_admin_pop(true);
-      
-                          }}>
-                  <div className="icon_img">
-                    <img src={edit_icon} alt="" />
+                <td>
+                  <div
+                    className={`set_type ${row.access_type === "Read Write"
+                        ? "read_write"
+                        : "Full"
+                      }`}
+                  >
+                    {row.access_type}
                   </div>
-                  <div className="title">
-                    Edite
-                  </div>
-                </div>
+                </td>
+                <td onClick={() => {
 
-                <div className="item" 
-                  onClick={()=>{set_show_question(true);
-                          set_show_question_data({message:`Are you sure you won't delete access to ${row.admin_email}?`,
-                          onNoClick:()=>{set_show_question(false)}, 
-                          onYesClick:()=>{delete_admin_by_id(row.admin_id);set_show_question(false);},
-                          closeButton:()=>{set_show_question(false)}
-                        },
-                         
-                          
-                          )}}>
-                  <div className="icon_img">
-                    <img src={delete_icon} alt="" />
-                  </div>
-                  <div className="title">
-                  Delete
-                  </div>
-                </div>
+                }}><img className='more_option_bt' src={more_icon}
+                  onClick={() => set_more_option_pop(more_option_pop === index ? null : index)}
+                  alt="Icon" />
+                  {more_option_pop === index &&
+                    <div className="more_option_pop">
+
+                      <div className="item"
+                        onClick={() => {
+                          set_update_admin_pop(true);
+
+                        }}>
+                        <div className="icon_img">
+                          <img src={edit_icon} alt="" />
+                        </div>
+                        <div className="title">
+                          Edite
+                        </div>
+                      </div>
+
+                      <div className="item"
+                        onClick={() => {
+                          set_show_question(true);
+                          set_show_question_data({
+                            message: `Are you sure you won't delete access to ${row.admin_email}?`,
+                            onNoClick: () => { set_show_question(false) },
+                            onYesClick: () => { delete_admin_by_id(row.admin_id); set_show_question(false); },
+                            closeButton: () => { set_show_question(false) }
+                          },
 
 
-                </div>}
+                          )
+                        }}>
+                        <div className="icon_img">
+                          <img src={delete_icon} alt="" />
+                        </div>
+                        <div className="title">
+                          Delete
+                        </div>
+                      </div>
 
-              </td>
+
+                    </div>}
+
+                </td>
 
               </>}
 
@@ -273,14 +274,14 @@ function AdminDataList({admin_email,accessType}) {
       </table>
 
       <div className="pagination">
-        <button 
+        <button
           onClick={handlePrevPage}
           disabled={currentPage === 1}
           className="pagination-button"
         >
           &lt;
         </button>
-        
+
         {currentPage > 2 && getTotalPages() > 3 && (
           <>
             <button
@@ -292,7 +293,7 @@ function AdminDataList({admin_email,accessType}) {
             {currentPage > 3 && <span className="pagination-dots">...</span>}
           </>
         )}
-        
+
         {getPageRange().map(pageNum => (
           <button
             key={pageNum}
@@ -302,7 +303,7 @@ function AdminDataList({admin_email,accessType}) {
             {pageNum}
           </button>
         ))}
-        
+
         {currentPage < getTotalPages() - 1 && getTotalPages() > 3 && (
           <>
             {currentPage < getTotalPages() - 2 && <span className="pagination-dots">...</span>}
@@ -314,8 +315,8 @@ function AdminDataList({admin_email,accessType}) {
             </button>
           </>
         )}
-        
-        <button 
+
+        <button
           onClick={handleNextPage}
           disabled={currentPage === getTotalPages()}
           className="pagination-button"
@@ -324,35 +325,33 @@ function AdminDataList({admin_email,accessType}) {
         </button>
       </div>
 
-      {/* Popup for Adding Admin */}
 
       {add_new_admin_pop && (
-              <AddingAdmin 
-              go_for_re_fetch_data={go_for_re_fetch_data}
-                handleClosePopup={() => set_add_new_admin_pop(false)}
-                is_update={false}
-                new_admin_id={null}
-                 new_profile={null} 
-                 new_Admin_email={null} 
-                 new_Access_type={null}  />
+        <AddingAdmin
+          go_for_re_fetch_data={go_for_re_fetch_data}
+          handleClosePopup={() => set_add_new_admin_pop(false)}
+          is_update={false}
+          new_admin_id={null}
+          new_profile={null}
+          new_Admin_email={null}
+          new_Access_type={null} />
       )}
 
-        {/* Popup for Updating Admin */}
-    {update_admin_pop && (
-      <AddingAdmin
-        go_for_re_fetch_data={go_for_re_fetch_data}
-        handleClosePopup={() => set_update_admin_pop(false)}
-        is_update={true}
-        new_admin_id={all_admin_data[more_option_pop]?.admin_id}
-        new_profile={all_admin_data[more_option_pop]?.admin_name}
-        new_Admin_email={all_admin_data[more_option_pop]?.admin_email}
-        new_Access_type={all_admin_data[more_option_pop]?.access_type}
-      />
-    )}
+      {update_admin_pop && (
+        <AddingAdmin
+          go_for_re_fetch_data={go_for_re_fetch_data}
+          handleClosePopup={() => set_update_admin_pop(false)}
+          is_update={true}
+          new_admin_id={all_admin_data[more_option_pop]?.admin_id}
+          new_profile={all_admin_data[more_option_pop]?.admin_name}
+          new_Admin_email={all_admin_data[more_option_pop]?.admin_email}
+          new_Access_type={all_admin_data[more_option_pop]?.access_type}
+        />
+      )}
 
 
 
-{show_question && (
+      {show_question && (
         <AskQuestion
           message={show_question_data.message}
           onYesClick={show_question_data.onYesClick}
@@ -360,7 +359,7 @@ function AdminDataList({admin_email,accessType}) {
           closeButton={show_question_data.closeButton}
         />
       )}
-   
+
     </div>
   );
 }

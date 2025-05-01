@@ -15,7 +15,7 @@ import edite_icon from "./img/pencil.png";
 import info_icon from "./img/info.png";
 import sort_icon from "./img/sort.png";
 
-import {Server_url} from './../../redux/AllData.js'
+import { Server_url } from './../../redux/AllData.js'
 
 const menuItems = [
   {
@@ -105,48 +105,48 @@ function Admin() {
 
 
 
-  const [sortKey, setSortKey] = useState("client_id"); 
+  const [sortKey, setSortKey] = useState("client_id");
   const [sortDirection, setSortDirection] = useState("asc");
-  
 
-function filterBySearch(owner, searchQuery) {
-  const searchableKeys = [
-    "client_id",
-    "user_name",
-    "user_email",
-    "user_password",
-    "business_name",
-    "business_address",
-    "mobile_number",
-    "gst_number",
-    "user_Status",
-  ];
 
-  return searchableKeys.some((key) =>
-    String(owner[key] || "")
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
-  );
-}
+  function filterBySearch(owner, searchQuery) {
+    const searchableKeys = [
+      "client_id",
+      "user_name",
+      "user_email",
+      "user_password",
+      "business_name",
+      "business_address",
+      "mobile_number",
+      "gst_number",
+      "user_Status",
+    ];
 
-function filterByStatus(owner, status_filter) {
-  if (!status_filter) return true; 
-  return owner.user_Status?.toLowerCase() === status_filter.toLowerCase();
-}
-
-const filteredOwners = Owners_data
-  ?.filter((owner) => {
-    return (
-      filterBySearch(owner, searchQuery) &&
-      filterByStatus(owner, status_filter)
+    return searchableKeys.some((key) =>
+      String(owner[key] || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
     );
-  })
-  .sort((a, b) => {
-    if (!sortKey) return 0;
-    if (a[sortKey] < b[sortKey]) return sortDirection === "asc" ? -1 : 1;
-    if (a[sortKey] > b[sortKey]) return sortDirection === "asc" ? 1 : -1;
-    return 0;
-  });
+  }
+
+  function filterByStatus(owner, status_filter) {
+    if (!status_filter) return true;
+    return owner.user_Status?.toLowerCase() === status_filter.toLowerCase();
+  }
+
+  const filteredOwners = Owners_data
+    ?.filter((owner) => {
+      return (
+        filterBySearch(owner, searchQuery) &&
+        filterByStatus(owner, status_filter)
+      );
+    })
+    .sort((a, b) => {
+      if (!sortKey) return 0;
+      if (a[sortKey] < b[sortKey]) return sortDirection === "asc" ? -1 : 1;
+      if (a[sortKey] > b[sortKey]) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
 
   // Handle sorting
   const handleSort = (key) => {
@@ -155,7 +155,7 @@ const filteredOwners = Owners_data
     setSortDirection(isAscending ? "desc" : "asc");
   };
 
-  
+
 
   const handleMoreClick = (index) => {
     setActiveRow((prev) => (prev === index ? null : index));
@@ -210,7 +210,7 @@ const filteredOwners = Owners_data
     const allEmails = filteredOwners.map(owner => owner.user_email);
     set_selected_check_box(allEmails);
   };
-  
+
 
   const deselect_all_check_box = () => {
     set_selected_check_box([]);
@@ -218,7 +218,7 @@ const filteredOwners = Owners_data
 
   const invert_selection = () => {
     const allEmails = filteredOwners.map(owner => owner.user_email);
-    set_selected_check_box(prevSelected => 
+    set_selected_check_box(prevSelected =>
       allEmails.filter(email => !prevSelected.includes(email))
     );
   };
@@ -237,14 +237,14 @@ const filteredOwners = Owners_data
     fetchOwners();
   }, []);
 
-  function export_as_json(){
-      const data = filteredOwners;
-      const jsonData = JSON.stringify(data, null, 2);
-      const blob = new Blob([jsonData], { type: 'application/json' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'filtered_owners_data.json';
-      link.click();
+  function export_as_json() {
+    const data = filteredOwners;
+    const jsonData = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'filtered_owners_data.json';
+    link.click();
   }
 
   return (
@@ -312,7 +312,6 @@ const filteredOwners = Owners_data
           </div>
         </div>
       </div>
-      {/* main body */}
       <div className="Admin_body">
         {active_page === "Dashboard" && (
           <>
@@ -322,7 +321,7 @@ const filteredOwners = Owners_data
                 <div>
                   <div className="progress_bar_tile">Active user</div>
                   <div className="progress_bar">
-                    <div className="bar_" style={{width:"50%"}}>78%</div>
+                    <div className="bar_" style={{ width: "50%" }}>78%</div>
                   </div>
                 </div>
                 <div className="select_menu">
@@ -336,17 +335,17 @@ const filteredOwners = Owners_data
                 <div className="main_Dashboard_title_bar">
                   <div className="main_title_1">
                     <Menu title="Selection" is_active={selected_check_box.length !== 0 && true}
-                        items={[
-                          {label:"Select All",onClick:()=>{select_all_check_box()}},
-                          {label:"Invert Selection",onClick:()=>{invert_selection()}},
-                          {label:"Clear All",onClick:()=>{deselect_all_check_box()}},
-                          ]} />
-                    <Menu title="Status"   is_active={status_filter !== null && true}
-                    items={[
-                          {label:"All active",onClick:()=>{set_status_filter("active")}},
-                          {label:"All inactive",onClick:()=>{set_status_filter("inactive")}},
-                          {label:"Clear Status",onClick:()=>{set_status_filter(null)}},
-                          ]} />
+                      items={[
+                        { label: "Select All", onClick: () => { select_all_check_box() } },
+                        { label: "Invert Selection", onClick: () => { invert_selection() } },
+                        { label: "Clear All", onClick: () => { deselect_all_check_box() } },
+                      ]} />
+                    <Menu title="Status" is_active={status_filter !== null && true}
+                      items={[
+                        { label: "All active", onClick: () => { set_status_filter("active") } },
+                        { label: "All inactive", onClick: () => { set_status_filter("inactive") } },
+                        { label: "Clear Status", onClick: () => { set_status_filter(null) } },
+                      ]} />
                     <div className="custom_input">
                       <div className="icon">
                         <img src={search_icon} alt="" />
@@ -368,7 +367,7 @@ const filteredOwners = Owners_data
                     <div className="icon">
                       <img src={filter_icon} alt="" />
                     </div>
-                    <div className="icon_title" onClick={()=>{export_as_json()}}>
+                    <div className="icon_title" onClick={() => { export_as_json() }}>
                       <img src={export_icon} alt="" />
                       <div className="title">Export</div>
                     </div>
@@ -379,70 +378,68 @@ const filteredOwners = Owners_data
                     <thead>
                       <tr>
                         <th></th>
-                        <th  onClick={() => handleSort("client_id")}  className={`${sortKey === 'client_id' ? 'active_title' : ''}`}>
-                            {sortKey === 'client_id' ? (
-                              <img  src={sort_icon}  alt="sort_icon"  style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }}  />
-                            ) : (
-                              <img src={unfold_icon} alt="unfold_icon" />
-                            )} Client ID
+                        <th onClick={() => handleSort("client_id")} className={`${sortKey === 'client_id' ? 'active_title' : ''}`}>
+                          {sortKey === 'client_id' ? (
+                            <img src={sort_icon} alt="sort_icon" style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }} />
+                          ) : (
+                            <img src={unfold_icon} alt="unfold_icon" />
+                          )} Client ID
                         </th>
-                        {/* user_name */}
-                        <th  onClick={() => handleSort("user_name")}  className={`${sortKey === 'user_name' ? 'active_title' : ''}`}>
-                            {sortKey === 'user_name' ? (
-                              <img  src={sort_icon}  alt="sort_icon"  style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }}  />
-                            ) : (
-                              <img src={unfold_icon} alt="unfold_icon" />
-                            )} User Name
+                        <th onClick={() => handleSort("user_name")} className={`${sortKey === 'user_name' ? 'active_title' : ''}`}>
+                          {sortKey === 'user_name' ? (
+                            <img src={sort_icon} alt="sort_icon" style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }} />
+                          ) : (
+                            <img src={unfold_icon} alt="unfold_icon" />
+                          )} User Name
                         </th>
-                        {/* user_email */}
-                        <th  onClick={() => handleSort("user_email")}  className={`${sortKey === 'user_email' ? 'active_title' : ''}`}>
-                            {sortKey === 'user_email' ? (
-                              <img  src={sort_icon}  alt="sort_icon"  style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }}  />
-                            ) : (
-                              <img src={unfold_icon} alt="unfold_icon" />
-                            )} User Email
+                        <th onClick={() => handleSort("user_email")} className={`${sortKey === 'user_email' ? 'active_title' : ''}`}>
+                          {sortKey === 'user_email' ? (
+                            <img src={sort_icon} alt="sort_icon" style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }} />
+                          ) : (
+                            <img src={unfold_icon} alt="unfold_icon" />
+                          )} User Email
                         </th>
-                        <th  onClick={() => handleSort("user_password")}  className={`${sortKey === 'user_password' ? 'active_title' : ''}`}>
-                            {sortKey === 'user_password' ? (
-                              <img  src={sort_icon}  alt="sort_icon"  style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }}  />
-                            ) : (
-                              <img src={unfold_icon} alt="unfold_icon" />
-                            )} User password
+                        <th onClick={() => handleSort("user_password")} className={`${sortKey === 'user_password' ? 'active_title' : ''}`}>
+                          {sortKey === 'user_password' ? (
+                            <img src={sort_icon} alt="sort_icon" style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }} />
+                          ) : (
+                            <img src={unfold_icon} alt="unfold_icon" />
+                          )} User password
                         </th>
-                        <th  onClick={() => handleSort("business_name")}  className={`${sortKey === 'business_name' ? 'active_title' : ''}`}>
-                            {sortKey === 'business_name' ? (
-                              <img  src={sort_icon}  alt="sort_icon"  style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }}  />
-                            ) : (
-                              <img src={unfold_icon} alt="unfold_icon" />
-                            )} Business Name
+                        <th onClick={() => handleSort("business_name")} className={`${sortKey === 'business_name' ? 'active_title' : ''}`}>
+                          {sortKey === 'business_name' ? (
+                            <img src={sort_icon} alt="sort_icon" style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }} />
+                          ) : (
+                            <img src={unfold_icon} alt="unfold_icon" />
+                          )} Business Name
                         </th>
-                        <th  onClick={() => handleSort("business_address")}  className={`${sortKey === 'business_address' ? 'active_title' : ''}`}>
-                            {sortKey === 'business_address' ? (
-                              <img  src={sort_icon}  alt="sort_icon"  style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }}  />
-                            ) : (
-                              <img src={unfold_icon} alt="unfold_icon" />
-                            )} Business Address
+                        <th onClick={() => handleSort("business_address")} className={`${sortKey === 'business_address' ? 'active_title' : ''}`}>
+                          {sortKey === 'business_address' ? (
+                            <img src={sort_icon} alt="sort_icon" style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }} />
+                          ) : (
+                            <img src={unfold_icon} alt="unfold_icon" />
+                          )} Business Address
                         </th>
-                        <th  onClick={() => handleSort("mobile_number")}  className={`${sortKey === 'mobile_number' ? 'active_title' : ''}`}>
-                            {sortKey === 'mobile_number' ? (
-                              <img  src={sort_icon}  alt="sort_icon"  style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }}  />
-                            ) : (
-                              <img src={unfold_icon} alt="unfold_icon" />
-                            )} Mobile Number
+                        <th onClick={() => handleSort("mobile_number")} className={`${sortKey === 'mobile_number' ? 'active_title' : ''}`}>
+                          {sortKey === 'mobile_number' ? (
+                            <img src={sort_icon} alt="sort_icon" style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }} />
+                          ) : (
+                            <img src={unfold_icon} alt="unfold_icon" />
+                          )} Mobile Number
                         </th>
-                        <th  onClick={() => handleSort("gst_number")}  className={`${sortKey === 'gst_number' ? 'active_title' : ''}`}>
-                            {sortKey === 'gst_number' ? (
-                              <img  src={sort_icon}  alt="sort_icon"  style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }}  />
-                            ) : (
-                              <img src={unfold_icon} alt="unfold_icon" />
-                            )} GST Number
+                        <th onClick={() => handleSort("gst_number")} className={`${sortKey === 'gst_number' ? 'active_title' : ''}`}>
+                          {sortKey === 'gst_number' ? (
+                            <img src={sort_icon} alt="sort_icon" style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }} />
+                          ) : (
+                            <img src={unfold_icon} alt="unfold_icon" />
+                          )} GST Number
                         </th>
-                        <th  onClick={() => handleSort("user_Status")}  className={`${sortKey === 'user_Status' ? 'active_title' : ''}`}>
-                            {sortKey === 'user_Status' ? (
-                              <img  src={sort_icon}  alt="sort_icon"  style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }}  />
-                            ) : (
-                              <img src={unfold_icon} alt="unfold_icon" />
-                            )} Status
+                        <th onClick={() => handleSort("user_Status")} className={`${sortKey === 'user_Status' ? 'active_title' : ''}`}>
+                          {sortKey === 'user_Status' ? (
+                            <img src={sort_icon} alt="sort_icon" style={{ transform: sortDirection === 'asc' ? 'none' : 'rotate(180deg)' }} />
+                          ) : (
+                            <img src={unfold_icon} alt="unfold_icon" />
+                          )} Status
                         </th>
                         <th></th>
                       </tr>
@@ -490,22 +487,21 @@ const filteredOwners = Owners_data
                                   <img src={edite_icon} alt="Edit Icon" />
                                   Edit
                                 </span>
-                                <span onClick={()=>{set_show_info_pop(true)}}>
-                                  
+                                <span onClick={() => { set_show_info_pop(true) }}>
+
                                   <img src={info_icon} alt="Info Icon" />
                                   Info
                                 </span>
-                                {show_info_pop && <PopMenu owner={owner} onClose={()=>{set_show_info_pop(false)}}/> }
+                                {show_info_pop && <PopMenu owner={owner} onClose={() => { set_show_info_pop(false) }} />}
                               </div>
 
-                              
+
                             )}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  {/*  */}
                 </div>
               </div>
             </div>

@@ -10,9 +10,10 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
+
     /* background: rebeccapurple; */
     /* border-left: 4px solid #e0e0e0; */
-    &:hover{
+    &:hover {
         background-color: #f0f0f0;
     }
 }
@@ -33,6 +34,7 @@
 .data {
     flex: 1;
 }
+
 .data span {
     display: flex;
     gap: 5px;
@@ -53,16 +55,13 @@
     line-height: 1.4;
     width: 230px;
     height: 20px;
-    /* background: rebeccapurple; */
-    overflow: hidden; /* Uncommented for proper ellipsis effect */
+    overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap; /* Corrected property for preventing text wrapping */
+    white-space: nowrap;
 }
 
-.data span .notification-time{
+.data span .notification-time {
     font-size: 0.8rem;
     height: 100%;
     color: #666;
 }
-
-  

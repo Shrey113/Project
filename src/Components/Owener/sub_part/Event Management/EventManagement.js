@@ -455,7 +455,7 @@ function EventManagement({ category }) {
     // Initial check for past events when component mounts
     const checkInitialPastEvents = async () => {
       try {
-        await axios.get(`${Server_url}/owner/check-past-events/${user.user_email}`);
+        await axios.get(`${Server_url}/team_members/check-past-events/${user.user_email}`);
         refreshReceivedData();
       } catch (error) {
         console.error("Error checking past events on mount:", error);

@@ -101,7 +101,7 @@ const OwnerDetails = () => {
     return equipment ? equipment.icon : camera_icon; // Default to Camera icon if no match
   }
 
-  const [packagesMoreThan4, setpackagesMoreThan4] = useState(false);
+  // const [packagesMoreThan4, setpackagesMoreThan4] = useState(false);
   const [equipmentMoreThan4, setEquipmentMoreThan4] = useState(false);
   const [servicesMoreThan4, setServicesMoreThan4] = useState(false);
 
@@ -390,11 +390,11 @@ const OwnerDetails = () => {
   }, [fullViewImage]);
 
   useEffect(() => {
-    if (ownerData?.packages?.length >= 4) {
-      setpackagesMoreThan4(true);
-    } else {
-      setpackagesMoreThan4(false);
-    }
+    // if (ownerData?.packages?.length >= 4) {
+    //   setpackagesMoreThan4(true);
+    // } else {
+    //   setpackagesMoreThan4(false);
+    // }
     if (ownerData?.equipment?.length > 4) {
       setEquipmentMoreThan4(true);
     } else {
@@ -924,7 +924,7 @@ const OwnerDetails = () => {
 
       {/* Packages Section */}
 
-      <div className="section packages_section">
+      {/* <div className="section packages_section">
 
 
         {ownerData.packages?.length > 0 ? (
@@ -941,7 +941,6 @@ const OwnerDetails = () => {
             <hr style={{ width: "98%", margin: "auto" }} />
 
             <div className="swiper_container_for_packages">
-              {/* Previous Button */}
               <div className="custom-swiper-button-prev-packages"
                 style={{
                   display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
@@ -953,7 +952,7 @@ const OwnerDetails = () => {
                 useRef={swiperRefPackage}
                 slidesPerView="auto"
                 autoplay={{
-                  delay: 5000, // Time in milliseconds between slides
+                  delay: 5000,
                 }}
                 loop={true}
                 navigation={{
@@ -1026,7 +1025,6 @@ const OwnerDetails = () => {
                   </SwiperSlide>
                 ))}
               </Swiper>
-              {/* Next Button */}
               <div className="custom-swiper-button-next-packages"
                 style={{
                   display: `${ownerData.packages?.length > 3 ? "flex" : "none"}`,
@@ -1037,7 +1035,7 @@ const OwnerDetails = () => {
         ) : (
           <NoDataComponent type="packages" />
         )}
-      </div>
+      </div> */}
 
       {/* Equipment Section */}
       <div className="section equipment_section">
@@ -1174,7 +1172,7 @@ const OwnerDetails = () => {
                     <div className="container_for_services_name">
                       <div className="servers_icon">
                         {getServiceIcon(item.service_name)}
-                        <p>{item.service_name || "Not Available"}</p>
+                        <p style={{ width: "250px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.service_name || "Not Available"}</p>
                       </div>
                     </div>
 
@@ -1187,7 +1185,7 @@ const OwnerDetails = () => {
                       <hr style={{ width: "98%", marginTop: "20px", marginBottom: "15px" }} />
                       <button onClick={() => handleItemClick(item, "service")}>Book Service</button>
 
-                      <div className="service-description">
+                      <div className="service-description" >
                         {item.description}
                       </div>
                     </div>

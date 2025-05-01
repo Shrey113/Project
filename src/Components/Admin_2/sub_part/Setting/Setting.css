@@ -6,7 +6,7 @@
   height: fit-content;
 }
 
-.settings-wrapper  .settings-overlay {
+.settings-wrapper .settings-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -14,23 +14,23 @@
   height: 100%;
 }
 
-.settings-wrapper  .settings-container {
+.settings-wrapper .settings-container {
   position: relative;
   width: 100%;
   /* margin: 20px; */
-  will-change: transform ;
+  will-change: transform;
 
 }
 
 
-.settings-wrapper  .settings-section {
+.settings-wrapper .settings-section {
   background: var(--admin_ui_coloer, #ffffff);
   border-radius: var(--admin_box_radius, 20px);
   overflow: hidden;
- box-shadow: var(--admin_box_shadow);
+  box-shadow: var(--admin_box_shadow);
 }
 
-.settings-wrapper  .settings-header {
+.settings-wrapper .settings-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -38,14 +38,14 @@
   border-bottom: 2px solid #f0f0f0;
 }
 
-.settings-wrapper  .settings-header h1 {
+.settings-wrapper .settings-header h1 {
   font-size: 24px;
   font-weight: 600;
   color: #1a1a1a;
   margin: 0;
 }
 
-.settings-wrapper  .close-button {
+.settings-wrapper .close-button {
   background: none;
   border: none;
   cursor: pointer;
@@ -59,16 +59,16 @@
   transition: all 0.2s ease;
 }
 
-.settings-wrapper  .close-button:hover {
+.settings-wrapper .close-button:hover {
   background: #f0f0f0;
   color: #333;
 }
 
-.settings-wrapper  .settings-content {
+.settings-wrapper .settings-content {
   padding: 20px 25px;
 }
 
-.settings-wrapper  .setting-item {
+.settings-wrapper .setting-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -80,36 +80,35 @@
   padding: 15px 10px;
 }
 
-.settings-wrapper  .setting-item:last-child {
+.settings-wrapper .setting-item:last-child {
   border-bottom: none;
 }
 
-.settings-wrapper  .setting-item:hover {
+.settings-wrapper .setting-item:hover {
   background-color: #dededeae;
   border-radius: 8px;
-  
+
 }
 
-.settings-wrapper  .setting-info {
+.settings-wrapper .setting-info {
   flex: 1;
   padding-right: 20px;
 }
 
-.settings-wrapper  .setting-info h2 {
+.settings-wrapper .setting-info h2 {
   font-size: 16px;
   font-weight: 500;
   margin: 0;
   color: #2c3e50;
 }
 
-.settings-wrapper  .setting-info p {
+.settings-wrapper .setting-info p {
   font-size: 14px;
   color: #6c757d;
   margin: 5px 0 0 0;
 }
 
-/* Enhanced Toggle Switch */
-.settings-wrapper  .toggle-switch {
+.settings-wrapper .toggle-switch {
   position: relative;
   display: inline-block;
   width: 52px;
@@ -118,7 +117,7 @@
 }
 
 
-.settings-wrapper  .slider {
+.settings-wrapper .slider {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -130,7 +129,7 @@
   border-radius: 34px;
 }
 
-.settings-wrapper  .slider:before {
+.settings-wrapper .slider:before {
   position: absolute;
   content: "";
   height: 22px;
@@ -142,20 +141,21 @@
   border-radius: 50%;
   /* box-shadow: var(--admin_box_shadow); */
 }
-.settings-wrapper  input{
+
+.settings-wrapper input {
   display: none;
 }
 
-.settings-wrapper  input:checked + .slider {
+.settings-wrapper input:checked+.slider {
   background-color: var(--ui_color, #0084da);
 }
 
-.settings-wrapper  input:checked + .slider:before {
+.settings-wrapper input:checked+.slider:before {
   transform: translateX(26px);
 }
 
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
   .settings-wrapper .settings-container {
     width: 95%;
     margin: 10px;
@@ -186,31 +186,30 @@
   }
 }
 
-/* Add new media queries for smaller screens */
 @media (max-width: 480px) {
   .settings-wrapper .settings-header h1 {
     font-size: 18px;
   }
-  
+
   .settings-wrapper .setting-info h2 {
     font-size: 14px;
   }
-  
+
   .settings-wrapper .setting-info p {
     font-size: 12px;
   }
-  
+
   .settings-wrapper .toggle-switch {
     width: 46px;
     height: 23px;
   }
-  
+
   .settings-wrapper .slider:before {
     height: 19px;
     width: 19px;
   }
-  
-  .settings-wrapper input:checked + .slider:before {
+
+  .settings-wrapper input:checked+.slider:before {
     transform: translateX(23px);
   }
 }
@@ -219,15 +218,15 @@
   .settings-wrapper .settings-header h1 {
     font-size: 16px;
   }
-  
+
   .settings-wrapper .setting-info h2 {
     font-size: 13px;
   }
-  
+
   .settings-wrapper .setting-info p {
     font-size: 11px;
   }
-  
+
   .settings-wrapper .settings-content {
     padding: 10px 15px;
   }

@@ -105,17 +105,17 @@ export const UIProvider = ({ children }) => {
         case "/Owner/Invoice":
           newActiveIndex = 3;
           break;
-        case "/Owner/Packages":
-          newActiveIndex = 4;
-          break;
-        case "/Owner/Event/packages":
+        // case "/Owner/Packages":
+        //   newActiveIndex = 4;
+        //   break;
+        // case "/Owner/Event/packages":
+        //   newActiveIndex = 1.1;
+        //   break;
+        case "/Owner/Event/equipment":
           newActiveIndex = 1.1;
           break;
-        case "/Owner/Event/equipment":
-          newActiveIndex = 1.2;
-          break;
         case "/Owner/Event/services":
-          newActiveIndex = 1.3;
+          newActiveIndex = 1.2;
           break;
         case "/Owner/Profile":
           newActiveIndex = 8;
@@ -124,11 +124,11 @@ export const UIProvider = ({ children }) => {
         case "/Owner/drive/home":
         case "/Owner/drive/shared":
         case "/Owner/drive/starred":
-          newActiveIndex = 6;
+          newActiveIndex = 5;
           break;
         default:
           if (location.pathname.includes("/Owner/search_photographer")) {
-            newActiveIndex = 5;
+            newActiveIndex = 4;
           }
           break;
       }
