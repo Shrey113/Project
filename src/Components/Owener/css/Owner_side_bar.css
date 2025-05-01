@@ -1177,11 +1177,11 @@
 
 @keyframes spins_for_refresh {
   0% {
-    transform: rotate(0deg);
+    transform: rotate(0deg) translateY(0) !important;
   }
 
   100% {
-    transform: rotate(360deg);
+    transform: rotate(360deg) translateY(0) !important;
   }
 }
 

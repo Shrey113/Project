@@ -5,7 +5,8 @@ import {
     FiStar,
     FiTrash2,
     FiEdit,
-    FiShare2
+    FiShare2,
+    FiInfo
 } from 'react-icons/fi';
 import {
     FcFolder,
@@ -53,8 +54,12 @@ const FileItem = ({
 }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [showOptions, setShowOptions] = useState(false);
+    const [showInfoOverlay, setShowInfoOverlay] = useState(false);
+    const [itemDetails, setItemDetails] = useState(null);
+    const [isInfoLoading, setIsInfoLoading] = useState(false);
     const optionsRef = useRef(null);
     const itemRef = useRef(null);
+    const infoBoxRef = useRef(null);
     const [sharedWithProfiles, setSharedWithProfiles] = useState([]);
 
     // Generate a unique ID for this item
@@ -77,6 +82,26 @@ const FileItem = ({
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [showOptions]);
+
+    // Add event listener for the info overlay
+    useEffect(() => {
+        const handleClickOutsideInfo = (event) => {
+            if (infoBoxRef.current && !infoBoxRef.current.contains(event.target)) {
+                closeInfoOverlay();
+            }
+        };
+
+        if (showInfoOverlay) {
+            document.addEventListener('mousedown', handleClickOutsideInfo);
+            // Prevent body scrolling when overlay is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutsideInfo);
+            document.body.style.overflow = '';
+        };
+    }, [showInfoOverlay]);
 
     // Sync local popup state with global state
     useEffect(() => {
@@ -119,6 +144,45 @@ const FileItem = ({
         fetchBusinessProfileImage();
     }, [item]);
 
+    // Function to fetch file/folder details from server
+    const fetchItemDetails = async () => {
+        setIsInfoLoading(true);
+        try {
+            const id = type === 'file' ? item.file_id : item.folder_id;
+            const response = await fetch(`${Server_url}/drive/get_file_folder_details`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ type, id })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            const data = await response.json();
+            setItemDetails(data.length > 0 ? data[0] : null);
+        } catch (error) {
+            console.error("Error fetching details:", error);
+        } finally {
+            setIsInfoLoading(false);
+        }
+    };
+
+    // Function to handle info button click
+    const handleInfoClick = (e) => {
+        e.stopPropagation();
+        fetchItemDetails();
+        setShowInfoOverlay(true);
+        setShowOptions(false);
+        setGlobalActivePopup(null);
+    };
+
+    // Function to close info overlay
+    const closeInfoOverlay = () => {
+        setShowInfoOverlay(false);
+    };
 
     // Get appropriate icon based on file type
     const getIcon = () => {
@@ -277,6 +341,148 @@ const FileItem = ({
         }
     };
 
+    // Render info overlay
+    const renderInfoOverlay = () => {
+        if (!showInfoOverlay) return null;
+
+        return (
+            <div className="info-overlay">
+                <div className="info-box" ref={infoBoxRef}>
+                    <div className="info-header">
+                        <h2>{type === 'file' ? 'File Information' : 'Folder Information'}</h2>
+                        <button className="close-info-btn" onClick={closeInfoOverlay}>×</button>
+                    </div>
+                    
+                    {isInfoLoading ? (
+                        <div className="info-content">
+                            <div className="info-loading">
+                                <div className="loading-spinner"></div>
+                                <p>Loading information...</p>
+                            </div>
+                        </div>
+                    ) : itemDetails ? (
+                        <div className="info-content">
+                            <div className="info-top-section">
+                                <div className="info-icon-large">
+                                    {getIcon()}
+                                </div>
+                                <h3 className="info-name">{itemName}</h3>
+                                <div className="info-badges">
+                                    {isStarred && <span className="info-badge starred"><FiStar /> Starred</span>}
+                                    {itemDetails.is_shared == 1 && <span className="info-badge shared"><FiShare2 /> Shared</span>}
+                                    {itemDetails.is_root == 1 && <span className="info-badge root">Root</span>}
+                                </div>
+                            </div>
+                            
+                            <div className="info-compact-layout">
+                                <div className="info-column">
+                                    <div className="info-field">
+                                        <span className="info-label">Type</span>
+                                        <span className="info-value">{type === 'file' ? `${itemDetails.file_type || 'File'}` : 'Folder'}</span>
+                                    </div>
+                                    
+                                    {itemDetails.parent_folder_id && (
+                                        <div className="info-field">
+                                            <span className="info-label">Location</span>
+                                            <span className="info-value parent-folder">{itemDetails.parent_folder_id}</span>
+                                        </div>
+                                    )}
+                                    
+                                    {type === 'file' && itemDetails.file_size && (
+                                        <div className="info-field">
+                                            <span className="info-label">Size</span>
+                                            <span className="info-value">{formatFileSize(itemDetails.file_size)}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="info-column">
+                                    <div className="info-field">
+                                        <span className="info-label">Created</span>
+                                        <span className="info-value">
+                                            {formatDate ? formatDate(itemDetails.created_date) : new Date(itemDetails.created_date).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    
+                                    <div className="info-field">
+                                        <span className="info-label">Modified</span>
+                                        <span className="info-value">
+                                            {formatDate ? formatDate(itemDetails.modified_date) : new Date(itemDetails.modified_date).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    
+                                    {itemDetails.user_email && (
+                                        <div className="info-field">
+                                            <span className="info-label">Owner</span>
+                                            <span className="info-value">{itemDetails.user_email}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            {sharedWith && sharedWith.length > 0 && (
+                                <div className="info-section no-border">
+                                    <h4 className="info-section-title">Shared With</h4>
+                                    <div className="info-shared-list">
+                                        {sharedWith.map((user, index) => (
+                                            <div key={index} className="info-shared-user">
+                                                {user.avatar && (
+                                                    <div className="info-shared-avatar">
+                                                        {user.avatar.substring(0, 1)}
+                                                    </div>
+                                                )}
+                                                <span>{user.id}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div className="info-actions">
+                                {type === 'file' && onDownload && (
+                                    <button onClick={handleDownload} className="info-action-btn download">
+                                        <FiDownload /> Download
+                                    </button>
+                                )}
+                                {onShare && (
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onShare(itemIdValue, type, itemName);
+                                            closeInfoOverlay();
+                                        }} 
+                                        className="info-action-btn share"
+                                    >
+                                        <FiShare2 /> Share
+                                    </button>
+                                )}
+                                {onEdit && (
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onEdit(itemIdValue, type, itemName);
+                                            closeInfoOverlay();
+                                        }} 
+                                        className="info-action-btn edit"
+                                    >
+                                        <FiEdit /> Rename
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="info-content">
+                            <div className="info-not-found">
+                                <div className="info-not-found-icon">?</div>
+                                <p>Information not available</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
     if (viewMode === 'grid') {
         return (
             <div
@@ -373,6 +579,13 @@ const FileItem = ({
                                     <span>Share</span>
                                 </button>
                             )}
+                            <button
+                                onClick={handleInfoClick}
+                                className="option-item"
+                            >
+                                <FiInfo />
+                                <span>Information</span>
+                            </button>
                             {onDelete && (
                                 <button
                                     onClick={(e) => {
@@ -390,6 +603,7 @@ const FileItem = ({
                         </div>
                     )}
                 </div>
+                {renderInfoOverlay()}
             </div>
         );
     }
@@ -524,6 +738,13 @@ const FileItem = ({
                                 <span>Share</span>
                             </button>
                         )}
+                        <button
+                            onClick={handleInfoClick}
+                            className="option-item"
+                        >
+                            <FiInfo />
+                            <span>Information</span>
+                        </button>
                         {onDelete && (
                             <button
                                 onClick={(e) => {
@@ -540,6 +761,7 @@ const FileItem = ({
                         )}
                     </div>
                 )}
+                {renderInfoOverlay()}
             </td>
         </tr>
     );
