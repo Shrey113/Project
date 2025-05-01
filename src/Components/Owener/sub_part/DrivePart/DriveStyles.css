@@ -1800,6 +1800,31 @@
   grid-template-columns: repeat(5, 20px);
 }
 
+.shared-with-me-container {
+  width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: 100%;
+  /* display: flex;
+  align-items: center;
+  justify-content: flex-start; */
+}
+
+.shared-with-me-container img {
+  width: 30px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.shared-with-me-container span {
+  font-size: 13px;
+  color: #777;
+}
+
 .shared-user-container {
   height: 30px;
   width: 30px;

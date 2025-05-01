@@ -86,6 +86,7 @@ const FileItem = ({
     }, [globalActivePopup, itemId]);
 
     useEffect(() => {
+        console.log("currentTab", item);
         async function fetchBusinessProfileImage() {
             if (currentTab === "shared-by-me") {
                 try {
@@ -428,7 +429,7 @@ const FileItem = ({
             </td>
 
             <td className="shared-cell">
-                {item.user_email ? (
+                {currentTab === "shared-by-me" ? (
                     <div className="shared-by">
                         <div className="shared-by-container">
                             {sharedWithProfiles.map((user, index) => (
@@ -443,9 +444,14 @@ const FileItem = ({
 
                         </div>
                     </div>
-                ) : (
-                    renderSharedAvatars()
-                )}
+                ) : currentTab === "shared-with-me" ? (
+                    <div className="shared-by">
+                        <div className="shared-with-me-container">
+                            <img src={`${Server_url}/owner/business-profile-image/${item.shared_by}`} alt={item.shared_by} />
+                            <span>{item.shared_by}</span>
+                        </div>
+                    </div>
+                ) : renderSharedAvatars()}
             </td>
 
             <td className="date-cell">

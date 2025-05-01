@@ -894,6 +894,7 @@ function SharedFilesPage() {
                                         setGlobalActivePopup={setGlobalActivePopup}
                                         globalActivePopup={globalActivePopup}
                                         onClick={(item) => handleItemClick(item)}
+                                        currentTab={activeTab}
                                     />
                                 );
                             })
