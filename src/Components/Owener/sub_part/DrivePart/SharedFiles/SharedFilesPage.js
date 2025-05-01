@@ -461,7 +461,7 @@ function SharedFilesPage() {
 
             // Fetch folder contents using the owner's email (shared_by) 
             // Make sure we use the correct API endpoint matching what's in DriveHome.js
-            const response = await fetch(`${Server_url}/drive/folders/${folderId}/contents?user_email=${encodeURIComponent(user_email)}&created_by=${encodeURIComponent(sharedBy || user_email)}`, {
+            const response = await fetch(`${Server_url}/drive/folder/${folderId}/contents?user_email=${encodeURIComponent(user_email)}&created_by=${encodeURIComponent(sharedBy || user_email)}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
