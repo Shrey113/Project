@@ -47,13 +47,15 @@ const FileItem = ({
     onClick,
     onPreview,
     selectionMode = false,
-    setGlobalActivePopup, // New prop for managing global popup state
-    globalActivePopup // New prop for tracking active popup
+    setGlobalActivePopup,
+    globalActivePopup,
+    currentTab
 }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [showOptions, setShowOptions] = useState(false);
     const optionsRef = useRef(null);
     const itemRef = useRef(null);
+    const [sharedWithProfiles, setSharedWithProfiles] = useState([]);
 
     // Generate a unique ID for this item
     const itemId = type === 'file' ? `file-${item.file_id}` : `folder-${item.folder_id}`;
@@ -82,6 +84,40 @@ const FileItem = ({
             setShowOptions(false);
         }
     }, [globalActivePopup, itemId]);
+
+    useEffect(() => {
+        async function fetchBusinessProfileImage() {
+            if (currentTab === "shared-by-me") {
+                try {
+                    const response = await fetch(`${Server_url}/share_drive/business-profile-image/${item.user_email}`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    const data = await response.json();
+                    console.log("data", data);
+
+                    // ✅ Filter out duplicates based on user_email
+                    const uniqueProfiles = [];
+                    const seenEmails = new Set();
+
+                    data.forEach(profile => {
+                        if (!seenEmails.has(profile.user_email)) {
+                            seenEmails.add(profile.user_email);
+                            uniqueProfiles.push(profile);
+                        }
+                    });
+
+                    setSharedWithProfiles(uniqueProfiles);
+                } catch (error) {
+                    console.error("Error fetching profile images:", error);
+                }
+            }
+        }
+        fetchBusinessProfileImage();
+    }, [item]);
+
 
     // Get appropriate icon based on file type
     const getIcon = () => {
@@ -392,17 +428,19 @@ const FileItem = ({
             </td>
 
             <td className="shared-cell">
-                {item.shared_by ? (
-                    <div className="shared-by" style={{ width: "120px", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {item.user_email ? (
+                    <div className="shared-by">
                         <div className="shared-by-container">
-                            {item.shared_by_profile_image && (
-                                <img
-                                    src={`${Server_url}/owner/business-profile-image/${item.shared_by}?t=${new Date().getTime()}`}
-                                    alt={item.shared_by}
-                                    className="shared-by-avatar"
-                                />
-                            )}
-                            <span className="shared-by-email">{item.shared_by}</span>
+                            {sharedWithProfiles.map((user, index) => (
+                                <div key={index} className="shared-user-container">
+                                    <img
+                                        src={`${Server_url}/owner/business-profile-image/${user.user_email}`}
+                                        alt={user.user_email}
+                                        className="shared-user-avatar"
+                                    />
+                                </div>
+                            ))}
+
                         </div>
                     </div>
                 ) : (

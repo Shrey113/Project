@@ -1796,9 +1796,22 @@
 }
 
 .shared-by-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(5, 20px);
+}
+
+.shared-user-container {
+  height: 30px;
+  width: 30px;
+}
+
+.shared-user-container img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  border: 1px solid #72b7ef;
 }
 
 .shared-by-avatar {

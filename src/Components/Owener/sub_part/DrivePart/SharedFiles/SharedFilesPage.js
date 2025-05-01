@@ -462,7 +462,7 @@ function SharedFilesPage() {
             let fetch_folder_url;
             if (activeTab === 'shared-by-me') {
                 console.log("Shared by me", sharedBy, user_email);
-                
+
                 fetch_folder_url = `${Server_url}/drive/folder/${folderId}/contents?user_email=${encodeURIComponent(user_email)}&created_by=${encodeURIComponent(sharedBy)}`
             } else {
                 console.log("Shared with me", sharedBy, user_email);
@@ -832,6 +832,7 @@ function SharedFilesPage() {
                                                     setGlobalActivePopup={setGlobalActivePopup}
                                                     globalActivePopup={globalActivePopup}
                                                     onClick={(item) => handleItemClick(item)}
+                                                    currentTab={activeTab}
                                                 />
                                             );
                                         })

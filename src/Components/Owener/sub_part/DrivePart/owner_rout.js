@@ -27,7 +27,7 @@ const {
   get_otp,
   clear_otp,
 } = require("./../modules/OTP_generate");
-const { route } = require("./other_rout_shrey_11");
+const { route } = require("./shrey_11");
 const JWT_SECRET_KEY = "Jwt_key_for_photography_website";
 require('dotenv').config();
 function create_jwt_token(user_email, user_name) {
@@ -3553,35 +3553,5 @@ router.get("/owner/portfolio-image-file", (req, res) => {
   req.url = "/portfolio-image-file";
   router.handle(req, res);
 });
-
-router.put('/drive/:type/:id', async (req, res) => {
-  const { type, id } = req.params;
-  const { is_starred } = req.body;
-  console.log("for starring message", type, id, is_starred);
-
-  if (type !== 'files' && type !== 'folders') {
-    return res.status(400).json({ error: 'Invalid item type' });
-  }
-
-  const tableName = type === 'files' ? 'drive_files' : 'drive_folders';
-  const idColumn = type === 'files' ? 'photo_id' : 'folder_id';
-
-  try {
-    const query = `
-      UPDATE ${tableName}
-      SET is_starred = ?
-      WHERE ${idColumn} = ?
-    `;
-
-    // Use promise interface to execute query
-    await db.promise().query(query, [is_starred ? 1 : 0, id]);
-
-    res.status(200).json({ message: 'Star status updated successfully' });
-  } catch (error) {
-    console.error('Error updating star status:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
 
 module.exports = router;
