@@ -7,7 +7,7 @@ import {
     faStar, faCaretDown, faFolder, faFile
 } from '@fortawesome/free-solid-svg-icons'
 import './DriveStyles.css'
-import { Server_url, FULL_DRIVE_LIMIT, IS_UNLIMITED, FileLoaderToast, showAcceptToast, showWarningToast, showRejectToast, ConfirmMessage } from '../../../../redux/AllData'
+import { Server_url, FULL_DRIVE_LIMIT, IS_UNLIMITED, FileLoaderToast, showAcceptToast, showRejectToast, ConfirmMessage } from '../../../../redux/AllData'
 import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import FileItem from './FileItem'
@@ -255,6 +255,62 @@ function DriveHome() {
             console.log("Skipping normal fetch due to direct folder opening - data will be fetched separately");
             return;
         }
+
+          // Add a function to fetch storage stats
+    const fetchStorageStats = async () => {
+        try {
+            const response = await fetch(`${Server_url}/drive/get_storage_stats`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_email,
+                    created_by
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to get storage statistics');
+            }
+
+            const stats = await response.json();
+
+            // IMPORTANT: Always override server's storage limit with our frontend setting
+            // Parse FULL_DRIVE_LIMIT to get the correct storage limit
+            let maxStorage = 0;
+            if (!IS_UNLIMITED && FULL_DRIVE_LIMIT) {
+                if (FULL_DRIVE_LIMIT.endsWith('GB')) {
+                    maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024 * 1024;
+                } else if (FULL_DRIVE_LIMIT.endsWith('MB')) {
+                    maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024;
+                } else if (FULL_DRIVE_LIMIT.endsWith('TB')) {
+                    maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024 * 1024 * 1024;
+                }
+            }
+
+            // Always use our frontend storage limit, ignoring what the server sent
+            const usedStorage = stats.usedStorage || 0;
+
+            // Recalculate all stats based on our frontend FULL_DRIVE_LIMIT
+            const totalStorage = maxStorage;
+            const remainingStorage = totalStorage - usedStorage;
+            let percentageUsed = 0;
+            if (totalStorage > 0) {
+                percentageUsed = (usedStorage / totalStorage) * 100;
+            }
+
+            setStorageStats({
+                usedStorage,
+                totalStorage,
+                percentageUsed,
+                remainingStorage
+            });
+
+        } catch (error) {
+            console.error('Error fetching storage stats:', error);
+        }
+    };
 
         const fetchFilesAndFolders = async () => {
             setIsLoading(true);
@@ -880,7 +936,7 @@ function DriveHome() {
         // Update path for backward compatibility
         setCurrentPath(currentPath === '/' ? `/${folderName}` : `${currentPath}/${folderName}`);
 
-        // No need to call refreshDrive() as the useEffect will trigger due to currentFolder change
+        // No need to call refreshDrive() as the use Effect will trigger due to currentFolder change
     }
 
     const navigateUp = () => {

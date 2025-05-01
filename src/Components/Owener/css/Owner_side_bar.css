@@ -1211,3 +1211,214 @@
 .storage-type-item.others .storage-type-icon {
   color: #f59e0b;
 }
+
+
+
+/* Storage Progress Bar Styles */
+.storage-progress {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.storage-progress-bar {
+  height: 8px;
+  width: 100%;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.storage-progress-filled {
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 4px;
+  background: linear-gradient(to right, #4364f7 55%, #f27121 15%, #6a3093 10%, #8BC6EC 10%, #9599E2 10%);
+  transition: width 0.3s ease;
+}
+
+.storage-progress-unlimited {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, #4364f7 60%, #f27121 20%, #6a3093 20%);
+  animation: progress-pulse 2s infinite;
+}
+
+.storage-type-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+.storage-type-color.images {
+  background-color: #4364f7;
+}
+
+.storage-type-color.documents {
+  background-color: #f27121;
+}
+
+.storage-type-color.videos {
+  background-color: #6a3093;
+}
+
+.storage-type-color.others {
+  background-color: #9599E2;
+}
+
+/* Storage popup styles */
+.storage-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.storage-popup {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.storage-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.popup-header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.close-popup-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+}
+
+.storage-popup-content {
+  padding: 20px;
+}
+
+.storage-total {
+  margin-bottom: 24px;
+}
+
+.storage-total-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.storage-total-progress .storage-progress-bar {
+  height: 12px;
+}
+
+.storage-progress-segment {
+  height: 100%;
+  float: left;
+}
+
+.storage-type-segment.images {
+  background-color: #4364f7;
+}
+
+.storage-type-segment.documents {
+  background-color: #f27121;
+}
+
+.storage-type-segment.videos {
+  background-color: #6a3093;
+}
+
+.storage-type-segment.others {
+  background-color: #9599E2;
+}
+
+.storage-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.storage-type-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.storage-type-icon {
+  margin-right: 12px;
+  color: #555;
+}
+
+.storage-type-details {
+  flex: 1;
+}
+
+.storage-type-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.storage-type-size {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.storage-type-percentage {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Refresh button styles */
+.storage-refresh-btn, 
+.storage-refresh-btn-for-storage-popup {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  margin-left: 8px;
+}
+
+.storage-refresh-btn.refreshing svg,
+.storage-refresh-btn-for-storage-popup.refreshing svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes progress-pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+} 
