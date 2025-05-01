@@ -96,8 +96,6 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    console.log("selectedData", selectedData);
-    console.log("selectedOwner", selectedOwner);
     if (type === "equipment" && selectedData.equipment_id) {
       fetch(`${Server_url}/get_equpment_by_time`, {
         method: "POST",

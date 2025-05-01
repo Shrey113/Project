@@ -574,7 +574,20 @@ function OwnerSideBar() {
                       <div
                         className="storage-progress-filled"
                         style={{ width: `${calculateUsagePercentage()}%` }}
-                      ></div>
+                      >
+                        {Object.keys(storageStats).filter(key => key !== 'usedStorage' && key !== 'totalStorage' && key !== 'remainingStorage' && key !== 'percentageUsed').map((type, index) => (
+                          <div
+                            key={index}
+                            className={`storage-progress-segment storage-type-${type}`}
+                            style={{ 
+                              width: `${(storageStats[type]?.size / totalStorageSize) * 100}%`,
+                              backgroundColor: type === 'images' ? '#4364f7' : 
+                                             type === 'documents' ? '#f27121' : 
+                                             type === 'videos' ? '#6a3093' : '#9599E2'
+                            }}
+                          ></div>
+                        ))}
+                      </div>
                     ) : (
                       <div className="storage-progress-unlimited"></div>
                     )}
@@ -740,16 +753,23 @@ function OwnerSideBar() {
                 <div className="storage-total-progress">
                   <div className="storage-progress-bar">
                     {!IS_UNLIMITED ? (
-                      <>
-                        {Object.keys(storageStats || {}).map((type) => (
+                      <div
+                        className="storage-progress-filled"
+                        style={{ width: `${calculateUsagePercentage()}%` }}
+                      >
+                        {Object.keys(storageStats).filter(key => key !== 'usedStorage' && key !== 'totalStorage' && key !== 'remainingStorage' && key !== 'percentageUsed').map((type, index) => (
                           <div
-                            key={type}
+                            key={index}
                             className={`storage-progress-segment storage-type-${type}`}
-                            style={{ width: `${storageStats?.[type]?.percentage || 0}%` }}
-                            title={`${type}: ${formatStorageSize(storageStats?.[type]?.size || 0)}`}
+                            style={{ 
+                              width: `${(storageStats[type]?.size / totalStorageSize) * 100}%`,
+                              backgroundColor: type === 'images' ? '#4364f7' : 
+                                             type === 'documents' ? '#f27121' : 
+                                             type === 'videos' ? '#6a3093' : '#9599E2'
+                            }}
                           ></div>
                         ))}
-                      </>
+                      </div>
                     ) : (
                       <div className="storage-progress-unlimited"></div>
                     )}
