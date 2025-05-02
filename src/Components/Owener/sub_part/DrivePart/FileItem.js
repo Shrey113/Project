@@ -28,8 +28,6 @@ import {
 import './DriveStyles.css';
 import { Server_url } from '../../../../redux/AllData';
 
-// Global variable to track the active popup
-let activePopupId = null;
 
 const FileItem = ({
     item,
@@ -52,7 +50,6 @@ const FileItem = ({
     globalActivePopup,
     currentTab
 }) => {
-    const [isHovered, setIsHovered] = useState(false);
     const [showOptions, setShowOptions] = useState(false);
     const [showInfoOverlay, setShowInfoOverlay] = useState(false);
     const [itemDetails, setItemDetails] = useState(null);
@@ -142,7 +139,7 @@ const FileItem = ({
             }
         }
         fetchBusinessProfileImage();
-    }, [item]);
+    }, [item, currentTab]);
 
     // Function to fetch file/folder details from server
     const fetchItemDetails = async () => {
@@ -278,13 +275,6 @@ const FileItem = ({
         onSelect(itemId, type);
     };
 
-    const handleMouseEnter = () => {
-        setIsHovered(true);
-    };
-
-    const handleMouseLeave = () => {
-        setIsHovered(false);
-    };
 
     // Determine item details based on type
     const itemIdValue = type === 'file' ? item.file_id : item.folder_id;
@@ -368,8 +358,8 @@ const FileItem = ({
                                 <h3 className="info-name">{itemName}</h3>
                                 <div className="info-badges">
                                     {isStarred && <span className="info-badge starred"><FiStar /> Starred</span>}
-                                    {itemDetails.is_shared == 1 && <span className="info-badge shared"><FiShare2 /> Shared</span>}
-                                    {itemDetails.is_root == 1 && <span className="info-badge root">Root</span>}
+                                    {itemDetails.is_shared === 1 && <span className="info-badge shared"><FiShare2 /> Shared</span>}
+                                    {itemDetails.is_root === 1 && <span className="info-badge root">Root</span>}
                                 </div>
                             </div>
                             
@@ -488,8 +478,6 @@ const FileItem = ({
                 ref={itemRef}
                 className={`file-item-grid ${type} ${isSelected ? 'selected' : ''} ${selectionMode ? 'selection-mode' : ''}`}
                 onClick={handleItemClick}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
             >
                 <div className="file-select-grid" onClick={handleCheckboxClick}>
                     <input
@@ -613,8 +601,6 @@ const FileItem = ({
             ref={itemRef}
             className={`table-row ${type} ${isSelected ? 'selected' : ''} ${selectionMode ? 'selection-mode' : ''}`}
             onClick={handleItemClick}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
         >
             <td className="checkbox-cell">
                 <div className="file-select" onClick={handleCheckboxClick}>
