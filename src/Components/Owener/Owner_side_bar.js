@@ -77,6 +77,7 @@ function OwnerSideBar() {
     message_title: "",
     message: "",
     onConfirm: () => { },
+    is_logout: false
   });
 
   const isProfilePage = location.pathname === "/Owner/Profile";
@@ -450,6 +451,7 @@ function OwnerSideBar() {
         window.location.href = "/";
         localStorage.removeItem(localstorage_key_for_jwt_user_side_key);
       },
+      is_logout: true
     });
   }, []);
 
@@ -716,6 +718,7 @@ function OwnerSideBar() {
               isVisible: false,
             }));
           }}
+          button_text={showDeleteConfirm.is_logout ? "Logout" : "Cancel"}
         />
       )}
       {/* Storage Details Popup */}

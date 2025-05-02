@@ -755,8 +755,9 @@ function DriveHome() {
                 const formattedUsed = formatFileSize(usedStorage);
 
                 showRejectToast({
-                    message: `Not enough storage space. You have ${formattedRemaining} available but need ${formattedUploadSize} for this upload.`
-                });
+                    message: `Insufficient storage: ${formattedRemaining},\n but ${formattedUploadSize} required for upload.`
+                  });
+                  
 
                 // Show more detailed storage information
                 console.log(`Storage details: Used ${formattedUsed} of ${formattedTotal} (${(usedStorage / storageLimit * 100).toFixed(1)}%)`);

@@ -108,10 +108,10 @@
     border: 2px solid #f3f3f3;
     border-top: 2px solid #1a73e8;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin_52 1s linear infinite;
 }
 
-@keyframes spin {
+@keyframes spin_52 {
     0% {
         transform: translateY(-50%) rotate(0deg);
     }

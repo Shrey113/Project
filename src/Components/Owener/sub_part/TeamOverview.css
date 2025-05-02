@@ -1936,10 +1936,10 @@
   border: 2px solid rgba(79, 70, 229, 0.2);
   border-radius: 50%;
   border-top-color: #4f46e5;
-  animation: spin 0.8s linear infinite;
+  animation: spin_22 0.8s linear infinite;
 }
 
-@keyframes spin {
+@keyframes spin_22 {
   to {
     transform: translateY(-50%) rotate(360deg);
   }
