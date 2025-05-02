@@ -350,7 +350,6 @@ const FileItem = ({
                 <div className="info-box" ref={infoBoxRef}>
                     <div className="info-header">
                         <h2>{type === 'file' ? 'File Information' : 'Folder Information'}</h2>
-                        <button className="close-info-btn" onClick={closeInfoOverlay}>×</button>
                     </div>
                     
                     {isInfoLoading ? (

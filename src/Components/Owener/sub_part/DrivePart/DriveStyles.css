@@ -2080,12 +2080,10 @@
     width: 480px;
     max-width: 90%;
     height: 100vh;
-    max-height: 550px;
     display: flex;
     flex-direction: column;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
-    margin-right: 20px;
     animation: slideInFromRight 0.3s ease-out;
 }
 
@@ -2115,29 +2113,6 @@
     color: #333;
     font-weight: 600;
 }
-
-.close-info-btn {
-    background: none;
-    border: none;
-    font-size: 22px;
-    cursor: pointer;
-    color: #666;
-    padding: 0;
-    margin: 0;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.2s;
-}
-
-.close-info-btn:hover {
-    background-color: #f0f0f0;
-    color: #333;
-}
-
 .info-content {
     display: flex;
     flex-direction: column;
