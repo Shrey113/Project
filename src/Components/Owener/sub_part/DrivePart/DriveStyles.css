@@ -1897,11 +1897,6 @@
   margin-bottom: 10px;
 }
 
-.storage-usage-text {
-  font-size: 13px;
-  color: #666;
-  font-weight: 500;
-}
 
 .total-items-count {
   display: flex;

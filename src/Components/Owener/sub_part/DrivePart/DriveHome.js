@@ -1844,14 +1844,7 @@ function DriveHome() {
                 </div>
             </div>
 
-            {/* Static storage display at the top of the page - consistently using FULL_DRIVE_LIMIT */}
-            <div className="static-storage-display">
-                {storageStats.usedStorage !== undefined && (
-                    <div className="storage-usage-text">
-                        {formatFileSize(storageStats.usedStorage || 0)} of {FULL_DRIVE_LIMIT} used ({(storageStats.percentageUsed || 0).toFixed(1)}%) · {formatFileSize(storageStats.remainingStorage || 0)} available
-                    </div>
-                )}
-            </div>
+
 
             {/* Total Items Count */}
             <div className="total-items-count">
