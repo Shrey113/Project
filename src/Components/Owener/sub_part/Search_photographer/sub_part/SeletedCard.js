@@ -194,7 +194,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       return;
     }
 
-    if (!selectedOwner || !selectedOwner.user_email) {
+    if (!selectedOwner) {
       showRejectToast({ message: "Owner information is missing" });
       return;
     }
@@ -238,7 +238,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       return;
     }
 
-    if (!selectedOwner || !selectedOwner.user_email) {
+    if (!selectedOwner) {
       showRejectToast({ message: "Owner information is missing" });
       return;
     }
@@ -278,7 +278,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       return;
     }
 
-    if (!selectedOwner || !selectedOwner.user_email) {
+    if (!selectedOwner) {
       showRejectToast({ message: "Owner information is missing" });
       return;
     }
