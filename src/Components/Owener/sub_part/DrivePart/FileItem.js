@@ -457,7 +457,7 @@ const FileItem = ({
                                         <FiEdit /> Rename
                                     </button>
                                 )}
-                            </div>
+                            </div>  
                         </div>
                     ) : (
                         <div className="info-content">
@@ -626,7 +626,7 @@ const FileItem = ({
                     )}
                 </div>
             </td>
-
+ 
             <td className="shared-cell">
                 {currentTab === "shared-by-me" ? (
                     <div className="shared-by">
