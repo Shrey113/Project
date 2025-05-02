@@ -82,7 +82,7 @@ function Calendar() {
     }
   }, [showEventModal, showEventDetails, showContextMenu]); // eslint-disable-line react-hooks/exhaustive-deps
   // We're using scrollPositionRef instead of scrollPosition state to avoid the dependency
-
+ 
   // Original overflow effect for body
   useEffect(() => {
     if (showEventDetails || showEventModal) {
