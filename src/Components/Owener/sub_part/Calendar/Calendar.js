@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback, useReducer, createContext, useContext } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+
 import { Calendar as BigCalendar, dateFnsLocalizer, Views } from 'react-big-calendar'
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
@@ -8,604 +9,398 @@ import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import { DndProvider } from 'react-dnd';
+
+
 import { HTML5Backend } from 'react-dnd-html5-backend';
+
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
+
+
+// my part files
 import EventDetailsPop from './part/EventDetailsPop'
 import AddDetailsPop from './part/AddDetailsPop'
 import ShowContextMenuForCalendar from './part/showContextMenuForCalendar'
 import CustomToolbar from './part/CustomToolbar.js'
+
+// my css files
 import './custom_css/Mui_add.css'
 import './custom_css/custom_css.css'
 import './Calendar.css'
 import CustomYearView from './part/CustomYearView.js'
 
-const CalendarContext = createContext(null);
+const locales = {
+  'en-US': require('date-fns/locale/en-US')
+}
 
-const TEMPORAL_CONSTANTS = {
-  SCROLL_DELAY_MS: 50,
-  DEFAULT_VIEW: Views.MONTH,
-  BACKGROUND_COLOR: '#6366F1',
-  DAY_BACKGROUND: {
-    TODAY: '#e6f3ff',
-    ACTIVE: '#cce7ff',
-    HOVER: '#f0f0f0'
-  },
-  EVENT_STYLES: {
-    borderRadius: '5px',
-    padding: '5px',
-    fontSize: '14px',
-    color: 'white'
-  },
-  I18N_CONFIG: {
-    noEventsInRange: 'No events to display.',
-    allDay: 'All Day',
-    date: 'Date',
-    time: 'Time',
-  }
-};
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+})
 
-const DateUtilityFactory = (function() {
-  return {
-    createNormalizedDate: () => {
-      const normalizedDate = new Date();
-      normalizedDate.setHours(0, 0, 0, 0);
-      return normalizedDate;
-    },
-    compareDates: (firstDate, secondDate) => {
-      return new Date(firstDate).getTime() - new Date(secondDate).getTime();
-    },
-    isPastDate: (dateToCheck) => {
-      const normalizedNow = DateUtilityFactory.createNormalizedDate();
-      return new Date(dateToCheck) < normalizedNow;
-    }
-  };
-})();
-
-const EventStateActionTypes = {
-  SET_EVENTS: 'SET_EVENTS',
-  ADD_EVENT: 'ADD_EVENT',
-  UPDATE_EVENT: 'UPDATE_EVENT',
-  DELETE_EVENT: 'DELETE_EVENT'
-};
-
-const eventStateReducer = (state, action) => {
-  switch (action.type) {
-    case EventStateActionTypes.SET_EVENTS:
-      return action.payload;
-    case EventStateActionTypes.ADD_EVENT:
-      return [...state, action.payload];
-    case EventStateActionTypes.UPDATE_EVENT:
-      return state.map(event => event.id === action.payload.id ? action.payload : event);
-    case EventStateActionTypes.DELETE_EVENT:
-      return state.filter(event => event.id !== action.payload);
-    default:
-      return state;
-  }
-};
-
-const useEventStateManager = (initialEvents = []) => {
-  const [events, dispatch] = useReducer(eventStateReducer, initialEvents);
-  
-  const setEvents = useCallback((newEvents) => {
-    dispatch({ type: EventStateActionTypes.SET_EVENTS, payload: newEvents });
-  }, []);
-  
-  const addEvent = useCallback((event) => {
-    dispatch({ type: EventStateActionTypes.ADD_EVENT, payload: event });
-  }, []);
-  
-  const updateEvent = useCallback((event) => {
-    dispatch({ type: EventStateActionTypes.UPDATE_EVENT, payload: event });
-  }, []);
-  
-  const deleteEvent = useCallback((eventId) => {
-    dispatch({ type: EventStateActionTypes.DELETE_EVENT, payload: eventId });
-  }, []);
-  
-  return { events, setEvents, addEvent, updateEvent, deleteEvent };
-};
-
-const LocalizerSingleton = (() => {
-  const locales = {
-    'en-US': require('date-fns/locale/en-US')
-  };
-  
-  let instance = null;
-  
-  return {
-    getInstance: () => {
-      if (!instance) {
-        instance = dateFnsLocalizer({
-          format,
-          parse,
-          startOfWeek,
-          getDay,
-          locales,
-        });
-      }
-      return instance;
-    }
-  };
-})();
-
-const EnhancedDraggableCalendar = withDragAndDrop(BigCalendar);
-
-const useScrollPositionManager = () => {
-  const scrollPositionRef = useRef(0);
-  
-  const saveScrollPosition = useCallback(() => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const currentPosition = window.pageYOffset || document.documentElement.scrollTop;
-        scrollPositionRef.current = currentPosition;
-        resolve(currentPosition);
-      }, 0);
-    });
-  }, []);
-  
-  const restoreScrollPosition = useCallback(() => {
-    return new Promise(resolve => {
-      if (scrollPositionRef.current > 0) {
-        setTimeout(() => {
-          window.scrollTo(0, scrollPositionRef.current);
-          resolve(true);
-        }, TEMPORAL_CONSTANTS.SCROLL_DELAY_MS);
-      } else {
-        resolve(false);
-      }
-    });
-  }, []);
-  
-  return { scrollPositionRef, saveScrollPosition, restoreScrollPosition };
-};
-
-const useViewTransitionState = (initialView = TEMPORAL_CONSTANTS.DEFAULT_VIEW) => {
-  const [view, setViewState] = useState(initialView);
-  const [activeDate, setActiveDate] = useState(null);
-  
-  const setView = useCallback((newView) => {
-    return new Promise(resolve => {
-      setViewState(newView);
-      resolve(newView);
-    });
-  }, []);
-  
-  return { view, setView, activeDate, setActiveDate };
-};
-
-const EventAttributeProcessor = {
-  processForDisplay: (event) => ({
-    ...event,
-    start: new Date(event.start),
-    end: new Date(event.end)
-  }),
-  
-  extractEventMetadata: (event) => ({
-    id: event.id,
-    title: event.title,
-    startTime: new Date(event.start).toISOString(),
-    endTime: new Date(event.end).toISOString(),
-  })
-};
+const DraggableCalendar = withDragAndDrop(BigCalendar)
 
 function Calendar() {
   const user = useSelector(state => state.user);
-  const { events, setEvents } = useEventStateManager([]);
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [showEventDetails, setShowEventDetails] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const [events, setEvents] = useState([])
+  const [showEventModal, setShowEventModal] = useState(false)
+  const [showEventDetails, setShowEventDetails] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState(null)
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuEvent, setContextMenuEvent] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const { view, setView, activeDate, setActiveDate } = useViewTransitionState();
+  const [view, setView] = useState(Views.MONTH);
   const [is_button_disabled, set_is_button_disabled] = useState(false);
-  
-  const calendarContainerRef = useRef(null);
-  const { scrollPositionRef, saveScrollPosition, restoreScrollPosition } = useScrollPositionManager();
 
-  const uiStateBundle = useMemo(() => ({
-    showEventModal, 
-    showEventDetails, 
-    showContextMenu
-  }), [showEventModal, showEventDetails, showContextMenu]);
   
+  // Reference to the calendar container
+  const calendarContainerRef = useRef(null);
+  // Ref to track the latest scroll position to avoid dependency issues
+  const scrollPositionRef = useRef(0);
+
+  // Save and restore scroll position when modals open/close
   useEffect(() => {
-    const shouldHandleScroll = Object.values(uiStateBundle).some(Boolean);
+    const shouldHandleScroll = showEventModal || showEventDetails || showContextMenu;
     
-    const executeScrollOperations = async () => {
-      if (shouldHandleScroll) {
-        const position = await saveScrollPosition();
-      } else {
-        await restoreScrollPosition();
-      }
-    };
-    
-    executeScrollOperations();
-  }, [uiStateBundle, saveScrollPosition, restoreScrollPosition]);
-  
+    if (shouldHandleScroll) {
+      // Get the scroll position of the calendar container or the window
+      const currentPosition = window.pageYOffset || document.documentElement.scrollTop;
+
+      scrollPositionRef.current = currentPosition;
+      console.log("Saving scroll position:", currentPosition);
+    } else if (scrollPositionRef.current > 0) {
+      // When popups close, restore the saved scroll position
+      console.log("Restoring scroll position:", scrollPositionRef.current);
+      setTimeout(() => {
+        window.scrollTo(0, scrollPositionRef.current);
+      }, 50);
+    }
+  }, [showEventModal, showEventDetails, showContextMenu]); // eslint-disable-line react-hooks/exhaustive-deps
+  // We're using scrollPositionRef instead of scrollPosition state to avoid the dependency
+
+  // Original overflow effect for body
   useEffect(() => {
-    const documentBodyStyleHandler = (isModalOpen) => {
-      document.body.style.overflow = isModalOpen ? 'hidden' : 'auto';
-    };
-    
-    const isAnyModalOpen = showEventDetails || showEventModal;
-    documentBodyStyleHandler(isAnyModalOpen);
+    if (showEventDetails || showEventModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
   }, [showEventDetails, showEventModal]);
 
   useEffect(() => {
-    const applyMainPartHeightStrategy = () => {
-      const mainPart = document.querySelector('.main_part');
-      
-      if (mainPart) {
-        const heightStrategy = useMemo(() => {
-          if (showEventModal || showEventDetails) {
-            return '100vh';
-          }
-          return 'fit-content';
-        }, [showEventModal, showEventDetails]);
-        
-        mainPart.style.minHeight = heightStrategy;
-      }
-    };
+    const mainPart = document.querySelector('.main_part');
     
-    applyMainPartHeightStrategy();
+    if (mainPart) {
+      switch (true) {
+        case showEventModal:
+        case showEventDetails:
+          mainPart.style.minHeight = '100vh';
+          break;
+        default:
+          mainPart.style.minHeight = 'fit-content';
+          break;
+      }
+    }
   }, [showEventModal, showEventDetails]);
   
+  // Original fetchEvents effect
   useEffect(() => {
-    const initiateDataRetrieval = async () => {
-      try {
-        const eventServiceClient = {
-          fetchUserEvents: async (userEmail) => {
-            const eventRequestPayload = { user_email: userEmail };
-            const eventEndpoint = `${Server_url}/calendar/events_by_user`;
-            
-            const response = await fetch(eventEndpoint, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(eventRequestPayload),
+    const fetchEvents = async () => {
+        try {
+            const response = await fetch(`${Server_url}/calendar/events_by_user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_email: user.user_email }),
             });
-            
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.error || 'Event retrieval failure');
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // setEvents(data);
+                const formated_data = data.map(event => ({
+                    ...event,
+                    start: new Date(event.start),
+                    end: new Date(event.end)
+                }));
+                setEvents(formated_data);
+            } else {
+                console.log(data.error || 'An error occurred while fetching events');
             }
-            
-            return await response.json();
-          }
-        };
-        
-        if (user.user_email) {
-          const rawEventData = await eventServiceClient.fetchUserEvents(user.user_email);
-          const normalizedEvents = rawEventData.map(EventAttributeProcessor.processForDisplay);
-          setEvents(normalizedEvents);
+        } catch (err) {
+            console.log('Failed to fetch events: ' + err.message);
         }
-      } catch (error) {
-        console.log('Failed to fetch events: ' + error.message);
-      }
     };
 
-    initiateDataRetrieval();
-  }, [user.user_email, setEvents]);
+    if (user.user_email) {
+        fetchEvents();
+    }
+  }, [user.user_email]);
 
-  const newEventInitialState = useMemo(() => ({
+  const [newEvent, setNewEvent] = useState({
     id: events.length,
     title: '',
     start: new Date(),
     end: new Date(),
     description: '',
-    backgroundColor: TEMPORAL_CONSTANTS.BACKGROUND_COLOR,
+    backgroundColor: '#6366F1',
     titleError: ''
-  }), [events.length]);
-  
-  const [newEvent, setNewEvent] = useState(newEventInitialState);
+  })
 
-  const handleDayClick = useCallback((date) => {
-    const viewTransitionHandler = async () => {
-      await setActiveDate(date);
-      await setView(Views.DAY);
-    };
-    
-    viewTransitionHandler();
-  }, [setActiveDate, setView]);
+  const [activeDate, setActiveDate] = useState(null); // Keep track of the active date
 
-  const openEventModal = useCallback((slotInfo) => {
-    return new Promise(resolve => {
-      setNewEvent(prevState => ({
-        ...prevState,
-        start: slotInfo.start,
-        end: slotInfo.end
-      }));
-      setShowEventModal(true);
-      resolve(true);
+  const handleDayClick = (date) => {
+    setActiveDate(date); // Set the clicked date as the active date
+    setView(Views.DAY);
+  };
+
+  // Custom open handlers to save scroll position
+  const openEventModal = (slotInfo) => {
+    setNewEvent({
+      ...newEvent,
+      start: slotInfo.start,
+      end: slotInfo.end
     });
-  }, []);
+    setShowEventModal(true);
+  }
 
-  const openEventDetails = useCallback((event) => {
-    return new Promise(resolve => {
-      setSelectedEvent(event);
-      setShowEventDetails(true);
-      resolve(true);
-    });
-  }, []);
+  const openEventDetails = (event) => {
+    // Save scroll position before opening details
+    setSelectedEvent(event);
+    setShowEventDetails(true);
+  }
 
-  const handleSelectSlot = useCallback((slotInfo) => {
-    const slotValidationHandler = async () => {
-      const normalizedDate = DateUtilityFactory.createNormalizedDate();
-      
-      if (DateUtilityFactory.isPastDate(slotInfo.start)) {
-        await Promise.resolve(showWarningToast({message: "You cannot select past dates" }));
-        return false;
-      }
-      
-      return await openEventModal(slotInfo);
+  const handleSelectSlot = (slotInfo) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
+
+    if (slotInfo.start < currentDate) {
+      showWarningToast({message: "You cannot select past dates" });
+      return; // Prevent creating events in the past
+    }
+
+    openEventModal(slotInfo);
+  }
+
+  const handleSelectEvent = (event) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    const formattedEvent = {
+      ...event,
+      start: new Date(event.start),
+      end: new Date(event.end)
     };
     
-    slotValidationHandler();
-  }, [openEventModal]);
+    // Allow viewing but disable editing for past events
+    setIsEditing(event.start >= currentDate);
+    set_is_button_disabled(event.start > currentDate);
+    openEventDetails(formattedEvent);
+  }
 
-  const handleSelectEvent = useCallback((event) => {
-    const eventSelectionProcessor = async () => {
-      const normalizedDate = DateUtilityFactory.createNormalizedDate();
-      
-      const formattedEvent = EventAttributeProcessor.processForDisplay(event);
-      
-      const isEventInFuture = !DateUtilityFactory.isPastDate(event.start);
-      setIsEditing(isEventInFuture);
-      set_is_button_disabled(isEventInFuture);
-      
-      await openEventDetails(formattedEvent);
-    };
-    
-    eventSelectionProcessor();
-  }, [openEventDetails]);
-
-  const CustomEvent = useCallback(({ event }) => {
+  const CustomEvent = ({ event }) => {
     return (
       <div className='custom-event-container'>
         <strong>{event.title}</strong>
       </div>
     );
-  }, []);
+  };
   
-  const handleEventDrop = useCallback(async ({ event, start, end }) => {
-    const eventModificationValidator = async () => {
-      if (DateUtilityFactory.isPastDate(start)) {
-        await Promise.resolve(showWarningToast({message: "You cannot drop past events" }));
-        return false;
-      }
-      return true;
-    };
+  const handleEventDrop = async ({ event, start, end }) => {
+   
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); 
     
-    return await eventModificationValidator();
-  }, []);
+    if (start < currentDate) {
+        showWarningToast({message: "You cannot drop past events" });
+        return; // Keep the event in its original position
+    }else{
+      return;
+    }
+  };
 
-  const handleEventResize = useCallback(async ({ event, start, end }) => {
-    const eventResizeValidator = async () => {
-      if (DateUtilityFactory.isPastDate(start)) {
-        await Promise.resolve(showWarningToast({message: "You cannot resize past events" }));
-        return false;
-      }
-      return true;
-    };
-    
-    return await eventResizeValidator();
-  }, []);
+  const handleEventResize = async ({ event, start, end }) => {
+    // return;
+    // Update the event locally
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); 
 
-  const handleEventContextMenu = useCallback((event, e) => {
-    const contextMenuHandler = async () => {
-      if (DateUtilityFactory.isPastDate(event.start)) {
-        await Promise.resolve(showWarningToast({message: "You cannot edit past events" }));
-        return false;
-      }
-      
-      e.preventDefault();
-      
-      setContextMenuEvent(event);
-      setContextMenuPosition({ x: e.clientX, y: e.clientY });
-      setShowContextMenu(true);
-      return true;
-    };
-    
-    contextMenuHandler();
-  }, []);
+
+    if (start < currentDate) {
+      showWarningToast({message: "You cannot resize past events" });
+      return; // Keep the event in its original position
+    }else{
+      return;
+    }
+  };
+
+
+  const handleEventContextMenu = (event, e) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
+
+    if (event.start < currentDate) {
+      showWarningToast({message: "You cannot edit past events" });
+      return; // Prevent creating events in the past
+    }
+
+    e.preventDefault();
+    // Save scroll position before showing context menu
+    setContextMenuEvent(event);
+    setContextMenuPosition({ x: e.clientX, y: e.clientY });
+    setShowContextMenu(true);
+  };
 
   useEffect(() => {
-    const contextMenuOutsideClickHandler = () => {
+    const handleClickOutside = () => {
       setShowContextMenu(false);
     };
 
-    document.addEventListener('click', contextMenuOutsideClickHandler);
+    document.addEventListener('click', handleClickOutside);
     return () => {
-      document.removeEventListener('click', contextMenuOutsideClickHandler);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, []);
 
-  const handleDateSelect = useCallback((date) => {
-    const calendarViewTransition = async () => {
-      const calendarApi = document.querySelector('.rbc-calendar');
-      
-      if (calendarApi) {
-        await setView(Views.MONTH);
-        
-        if (typeof calendarApi.scrollTo === 'function') {
-          calendarApi.scrollTo(date);
-        }
-      }
-    };
-    
-    calendarViewTransition();
-  }, [setView]);
+  const handleDateSelect = (date) => {
+    // Update the calendar view to show the selected date
+    const calendarApi = document.querySelector('.rbc-calendar');
+    if (calendarApi) {
+      setView(Views.MONTH);
+      calendarApi.scrollTo(date);
+    }
+  };
 
-  const eventPropProcessor = useCallback((event) => ({
-    style: {
-      ...TEMPORAL_CONSTANTS.EVENT_STYLES,
-      backgroundColor: event.backgroundColor,
-    },
-  }), []);
 
-  const dayPropProcessor = useCallback((date) => {
-    const today = new Date();
-    const isToday = 
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear();
 
-    const isActiveDateMatch = activeDate && date.toDateString() === activeDate.toDateString();
-    
-    return {
-      style: {
-        backgroundColor: isToday 
-          ? TEMPORAL_CONSTANTS.DAY_BACKGROUND.TODAY 
-          : isActiveDateMatch 
-            ? TEMPORAL_CONSTANTS.DAY_BACKGROUND.ACTIVE 
-            : undefined,
-        transition: 'background-color 0.2s',
-        cursor: 'pointer',
-        '&:hover': {
-          backgroundColor: TEMPORAL_CONSTANTS.DAY_BACKGROUND.HOVER,
-        }
-      },
-      className: 'calendar-day',
-      onClick: () => handleDayClick(date),
-    };
-  }, [activeDate, handleDayClick]);
-
-  const calendarViewConfig = useMemo(() => ({
-    month: true,
-    week: true,
-    day: true,
-    year: CustomYearView
-  }), []);
-
-  const eventHandlers = useMemo(() => ({
-    onSelectSlot: handleSelectSlot,
-    onSelectEvent: handleSelectEvent,
-    onEventDrop: handleEventDrop,
-    onEventResize: handleEventResize,
-    onView: setView,
-  }), [handleSelectSlot, handleSelectEvent, handleEventDrop, handleEventResize, setView]);
-
-  const calendarComponents = useMemo(() => ({
-    event: (props) => (
-      <div onContextMenu={(e) => handleEventContextMenu(props.event, e)}>
-        <CustomEvent {...props} />
-      </div>
-    ),
-    toolbar: CustomToolbar
-  }), [CustomEvent, handleEventContextMenu]);
-
-  const renderCalendarContent = useMemo(() => {
-    if (view === 'year') {
-      return (
+  return (
+    <div className='owner-calendar-main-container' ref={calendarContainerRef}>
+      {view === 'year' ? (
         <CustomYearView 
           date={new Date()} 
           events={events}
           onDateSelect={handleDateSelect}
           onView={setView}
         />
-      );
-    }
-    
-    return (
-      <DndProvider backend={HTML5Backend}>
-        <EnhancedDraggableCalendar
-          localizer={LocalizerSingleton.getInstance()}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: 'calc(100vh - 100px)' }}
-          {...eventHandlers}
-          selectable
-          resizable
-          draggableAccessor={() => true}
-          defaultView={TEMPORAL_CONSTANTS.DEFAULT_VIEW}
-          view={view}
-          views={calendarViewConfig}
-          messages={TEMPORAL_CONSTANTS.I18N_CONFIG}
-          components={calendarComponents}
-          eventPropGetter={eventPropProcessor}
-          length={30}
-          dayPropGetter={dayPropProcessor}
-        />
-      </DndProvider>
-    );
-  }, [view, events, handleDateSelect, setView, eventHandlers, calendarViewConfig, calendarComponents, eventPropProcessor, dayPropProcessor]);
+      ) : (
+        <DndProvider backend={HTML5Backend}>
+          <DraggableCalendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 'calc(100vh - 100px)' }}
+            onSelectSlot={handleSelectSlot}
+            onSelectEvent={handleSelectEvent}
+            onEventDrop={handleEventDrop}
+            onEventResize={handleEventResize}
+            selectable
+            resizable
+            draggableAccessor={() => true}
+            defaultView={Views.MONTH}
+            view={view}
+            onView={setView}
+            views={{
+              month: true,
+              week: true,
+              day: true,
+              year: CustomYearView
+            }}
+            messages={{
+              noEventsInRange: 'No events to display.',
+              allDay: 'All Day',
+              date: 'Date',
+              time: 'Time',
+            }}
+            components={{
+              event: (props) => (
+                <div onContextMenu={(e) => handleEventContextMenu(props.event, e)}>
+                  <CustomEvent {...props} />
+                </div>
+              ),
+              toolbar: CustomToolbar
+            }}
+            eventPropGetter={(event) => ({
+              style: {
+                backgroundColor: event.backgroundColor,
+                color: 'white',
+                borderRadius: '5px',
+                padding: '5px',
+                fontSize: '14px',
+              },
+            })}
+            length={30}
+            dayPropGetter={(date) => {
+              const today = new Date();
+              const isToday = 
+                date.getDate() === today.getDate() &&
+                date.getMonth() === today.getMonth() &&
+                date.getFullYear() === today.getFullYear();
 
-  const contextValue = useMemo(() => ({
-    events,
-    setEvents,
-    showEventModal,
-    setShowEventModal,
-    showEventDetails,
-    setShowEventDetails,
-    selectedEvent,
-    setSelectedEvent,
-    isEditing,
-    setIsEditing,
-    is_button_disabled,
-    contextMenuEvent,
-    contextMenuPosition,
-    showContextMenu,
-    setShowContextMenu
-  }), [
-    events, 
-    setEvents,
-    showEventModal,
-    showEventDetails,
-    selectedEvent, 
-    isEditing,
-    is_button_disabled,
-    contextMenuEvent,
-    contextMenuPosition,
-    showContextMenu
-  ]);
-
-  return (
-    <CalendarContext.Provider value={contextValue}>
-      <div className='owner-calendar-main-container' ref={calendarContainerRef}>
-        {renderCalendarContent}
+                const isActiveDate = activeDate && date.toDateString() === activeDate.toDateString(); // Check if date is active
+              
+              return {
+                style: {
+                  backgroundColor: isToday ? '#e6f3ff' : isActiveDate ? '#cce7ff' : undefined, // Highlight active date
+                  transition: 'background-color 0.2s',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: '#f0f0f0',
+                  }
+                },
+                className: 'calendar-day',
+                onClick: () => handleDayClick(date),
+              };
+            }}
+          />
+        </DndProvider>
+      )}
  
-        {showContextMenu && (
-          <ShowContextMenuForCalendar 
-            contextMenuPosition={contextMenuPosition}
-            contextMenuEvent={contextMenuEvent}
-            setEvents={setEvents}
-            events={events}
-            setShowContextMenu={setShowContextMenu}
-            setIsEditing={setIsEditing}
-            setShowEventDetails={setShowEventDetails}
-            setSelectedEvent={setSelectedEvent}
-          />
-        )}
+      {showContextMenu && (
+    <ShowContextMenuForCalendar 
+    
+    contextMenuPosition={contextMenuPosition}
+    contextMenuEvent={contextMenuEvent}
+    setEvents={setEvents}
+    events={events}
+    setShowContextMenu={setShowContextMenu}
+    setIsEditing={setIsEditing}
+    setShowEventDetails={setShowEventDetails}
+    setSelectedEvent={setSelectedEvent}
+    />
+      )}
 
-        {showEventModal && (
-          <AddDetailsPop 
-            setShowEventModal={setShowEventModal} 
-            newEvent={newEvent} 
-            setNewEvent={setNewEvent} 
-            events={events}
-            setEvents={setEvents}
-          />
-        )}
+      {/* Add Event pop */}
+      {showEventModal && (
+        <AddDetailsPop 
+        setShowEventModal={setShowEventModal} 
+        newEvent={newEvent} 
+        setNewEvent={setNewEvent} 
+        events={events}
+        setEvents={setEvents}
+        
+        />
+      )}
 
-        {showEventDetails && selectedEvent && (
-          <EventDetailsPop 
-            setShowEventDetails={setShowEventDetails} 
-            selectedEvent={selectedEvent}
-            setEvents={setEvents} 
-            events={events}
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            is_button_disabled={is_button_disabled}
-          />
-        )}
+      {/* Event Details pop */}
+      {showEventDetails && selectedEvent && (
+        <EventDetailsPop 
+        setShowEventDetails={setShowEventDetails} 
+        selectedEvent={selectedEvent}
+        setEvents={setEvents} events={events}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        is_button_disabled={is_button_disabled}
+        />
+      )}
 
-      </div>
-    </CalendarContext.Provider>
+    </div>
   )
 }
 
