@@ -111,11 +111,14 @@ export const UIProvider = ({ children }) => {
         // case "/Owner/Event/packages":
         //   newActiveIndex = 1.1;
         //   break;
-        case "/Owner/Event/equipment":
+        case "/Owner/Event/all_events":
           newActiveIndex = 1.1;
           break;
-        case "/Owner/Event/services":
+        case "/Owner/Event/equipment":
           newActiveIndex = 1.2;
+          break;
+        case "/Owner/Event/services":
+          newActiveIndex = 1.3;
           break;
         case "/Owner/Profile":
           newActiveIndex = 8;

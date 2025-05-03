@@ -245,20 +245,21 @@ function OwnerSideBar() {
       name: "Event",
       icon: (<EventIcon className={`menu-icon ${activeIndex === 1 ? "active" : ""}`} />
       ),
-      path: "/Owner/Event/equipment",
+      path: "/Owner/Event/all_events",
       subMenu: [
-        // {
-        //   name: "Packages",
-        //   path: "/Owner/Event/packages",
-        //   icon: (<LocalOfferIcon className={`menu-icon ${activeIndex === 1.1 ? "active" : ""}`} />
-        //   ),
-        // },
-        { name: "Equipment", path: "/Owner/Event/equipment", icon: (<CameraAltIcon className={`menu-icon ${activeIndex === 1.1 ? "active" : ""}`} />), },
+        {
+          name: "All Events",
+          path: "/Owner/Event/all_events",
+          icon: (<LocalOfferIcon className={`menu-icon ${activeIndex === 1.1 ? "active" : ""}`} />
+          ),
+        },
+
+        { name: "Equipment", path: "/Owner/Event/equipment", icon: (<CameraAltIcon className={`menu-icon ${activeIndex === 1.2 ? "active" : ""}`} />), },
 
         {
           name: "Services", path: "/Owner/Event/services", icon: (
             <LocalOfferIcon
-              className={`menu-icon ${activeIndex === 1.2 ? "active" : ""}`}
+              className={`menu-icon ${activeIndex === 1.3 ? "active" : ""}`}
             />
           ),
         }
@@ -581,11 +582,11 @@ function OwnerSideBar() {
                           <div
                             key={index}
                             className={`storage-progress-segment storage-type-${type}`}
-                            style={{ 
+                            style={{
                               width: `${(storageStats[type]?.size / totalStorageSize) * 100}%`,
-                              backgroundColor: type === 'images' ? '#4364f7' : 
-                                             type === 'documents' ? '#f27121' : 
-                                             type === 'videos' ? '#6a3093' : '#9599E2'
+                              backgroundColor: type === 'images' ? '#4364f7' :
+                                type === 'documents' ? '#f27121' :
+                                  type === 'videos' ? '#6a3093' : '#9599E2'
                             }}
                           ></div>
                         ))}
@@ -764,11 +765,11 @@ function OwnerSideBar() {
                           <div
                             key={index}
                             className={`storage-progress-segment storage-type-${type}`}
-                            style={{ 
+                            style={{
                               width: `${(storageStats[type]?.size / totalStorageSize) * 100}%`,
-                              backgroundColor: type === 'images' ? '#4364f7' : 
-                                             type === 'documents' ? '#f27121' : 
-                                             type === 'videos' ? '#6a3093' : '#9599E2'
+                              backgroundColor: type === 'images' ? '#4364f7' :
+                                type === 'documents' ? '#f27121' :
+                                  type === 'videos' ? '#6a3093' : '#9599E2'
                             }}
                           ></div>
                         ))}

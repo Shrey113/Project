@@ -30,8 +30,11 @@ function SharedFilesPage() {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [deleteItem, setDeleteItem] = useState(null)
     const [showRenameDialog, setShowRenameDialog] = useState(false)
-    const [renameItem, setRenameItem] = useState(null)
-    const [newItemName, setNewItemName] = useState('')
+    const [renameItemType, setRenameItemType] = useState('')
+    const [renameItemId, setRenameItemId] = useState(null)
+    const [renameItemOldName, setRenameItemOldName] = useState('')
+    const [renameItemNewName, setRenameItemNewName] = useState('')
+    const [dialogMode, setDialogMode] = useState('rename')
     const [sharePopup, setSharePopup] = useState({
         show: false,
         item: null
@@ -273,50 +276,123 @@ function SharedFilesPage() {
 
     // Handle renaming items
     const handleOpenRenameDialog = (id, type, currentName) => {
-        setRenameItem({ id, type, currentName });
-        setNewItemName(currentName);
+        console.log("Opening rename dialog:", { id, type, currentName });
+
+        // Ensure we have the current name
+        if (!currentName) {
+            // Try to find the name from the items based on ID and type
+            if (type === 'folder') {
+                const folder = currentFolder ?
+                    folderContents.folders.find(f => f.folder_id === id) :
+                    sharedWithMe.find(f => f.folder_id === id && f.type === 'folder');
+                currentName = folder ? folder.folder_name || folder.name : '';
+                console.log("Found folder name from state:", currentName);
+            } else if (type === 'file') {
+                const file = currentFolder ?
+                    folderContents.files.find(f => f.file_id === id) :
+                    sharedWithMe.find(f => f.file_id === id && f.type === 'file');
+                currentName = file ? file.file_name || file.name : '';
+                console.log("Found file name from state:", currentName);
+            }
+        }
+
+        // For files, remove the extension from the name shown in the dialog
+        let displayName = currentName;
+        if (type === 'file') {
+            const lastDotIndex = currentName.lastIndexOf('.');
+            if (lastDotIndex !== -1) {
+                displayName = currentName.substring(0, lastDotIndex);
+            }
+        }
+
+        console.log("Setting rename dialog values:", {
+            id,
+            type,
+            oldName: currentName,
+            newName: displayName
+        });
+
+        setRenameItemId(id);
+        setRenameItemType(type);
+        setRenameItemOldName(currentName);
+        setRenameItemNewName(displayName);
+        setDialogMode('rename');
         setShowRenameDialog(true);
     };
 
-    const handleRenameCancel = () => {
-        setShowRenameDialog(false);
-        setRenameItem(null);
-        setNewItemName('');
-    };
+    const handleDialogSubmit = async () => {
+        // Validate input - safely check if the value exists and is not empty
+        if (!renameItemNewName || !renameItemNewName.trim()) {
+            setShowRenameDialog(false);
+            return;
+        }
 
-    const handleRenameSubmit = async () => {
-        if (!renameItem || !newItemName.trim()) return;
+        // Check character limit
+        if (renameItemNewName.length > 100) {
+            alert('File name cannot exceed 100 characters');
+            return;
+        }
+
+        // If renaming and name hasn't changed, just close dialog
+        if (dialogMode === 'rename' && renameItemNewName === renameItemOldName) {
+            setShowRenameDialog(false);
+            return;
+        }
+
+        setIsLoading(true);
 
         try {
-            const endpoint = renameItem.type === 'folder' ? 'folders' : 'files';
-            const nameField = renameItem.type === 'folder' ? 'folder_name' : 'file_name';
+            // For files, preserve the extension
+            let finalName = renameItemNewName;
+            if (renameItemType === 'file') {
+                const lastDotIndex = renameItemOldName.lastIndexOf('.');
+                if (lastDotIndex !== -1) {
+                    const extension = renameItemOldName.substring(lastDotIndex);
+                    finalName = renameItemNewName + extension;
+                }
+            }
 
-            const response = await fetch(`${Server_url}/drive/${endpoint}/${renameItem.id}?created_by=${user_email}&user_email=${user_email}`, {
+            // RENAME OPERATION
+            const endpoint = renameItemType === 'file'
+                ? `${Server_url}/drive/files/${renameItemId}?created_by=${user_email}&user_email=${user_email}`
+                : `${Server_url}/drive/folders/${renameItemId}?created_by=${user_email}&user_email=${user_email}`;
+
+            console.log(`Renaming ${renameItemType} from "${renameItemOldName}" to "${finalName}"`);
+
+            const response = await fetch(endpoint, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    [nameField]: newItemName,
-                    modified_by: user_email
+                    [renameItemType === 'file' ? 'file_name' : 'folder_name']: finalName,
+                    modified_by: user_email,
+                    is_shared: false // Maintain current sharing status
                 })
             });
 
-            if (response.ok) {
-                showAcceptToast({ message: `${renameItem.type} renamed successfully` });
-                fetchSharedItems();
-            } else {
-                const errorData = await response.json();
-                showRejectToast({ message: errorData.error || `Failed to rename ${renameItem.type}` });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to rename ${renameItemType}: ${errorText}`);
             }
+
+            const result = await response.json();
+            console.log("Rename successful:", result);
+            showAcceptToast({ message: `${renameItemType} renamed successfully` });
+
+            // Update the UI and refresh data
+            fetchSharedItems();
         } catch (error) {
-            console.error(`Error renaming ${renameItem.type}:`, error);
-            showRejectToast({ message: `Failed to rename ${renameItem.type}` });
+            console.error(`Error renaming ${renameItemType}:`, error);
+            showRejectToast({ message: `Failed to rename ${renameItemType}: ${error.message}` });
         } finally {
+            setIsLoading(false);
             setShowRenameDialog(false);
-            setRenameItem(null);
-            setNewItemName('');
         }
+    };
+
+    const handleRenameCancel = () => {
+        setShowRenameDialog(false);
     };
 
     // Handle deleting items
@@ -597,20 +673,53 @@ function SharedFilesPage() {
             )}
 
             {/* Rename Dialog */}
-            {showRenameDialog && renameItem && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h2>Rename {renameItem.type}</h2>
+            {showRenameDialog && (
+                <div className="rename-dialog-overlay" onClick={handleRenameCancel}>
+                    <div className="rename-dialog" onClick={(e) => e.stopPropagation()}>
+                        <h3>{dialogMode === 'rename' ? `Rename ${renameItemType}` : 'Create new folder'}</h3>
                         <input
-                            type="text"
-                            value={newItemName}
-                            onChange={(e) => setNewItemName(e.target.value)}
-                            placeholder={`Enter new name for ${renameItem.type}`}
+                            maxLength={100}
+                            placeholder={dialogMode === 'rename' ? "New name" : "Folder name"}
+                            value={renameItemNewName || (dialogMode === 'rename' ? renameItemOldName : '')}
+                            onChange={(e) => {
+                                const newValue = e.target.value;
+                                if (newValue.length <= 100) {
+                                    setRenameItemNewName(newValue);
+                                }
+                            }}
                             autoFocus
+                            onFocus={(e) => {
+                                // Select all text when focused for easier editing
+                                if (dialogMode === 'rename') {
+                                    e.target.select();
+                                }
+                            }}
                         />
-                        <div className="modal-actions">
-                            <button onClick={handleRenameCancel}>Cancel</button>
-                            <button onClick={handleRenameSubmit}>Rename</button>
+                        <div className="character-count">
+                            {renameItemNewName.length}/100 characters
+                        </div>
+                        <div className="rename-dialog-buttons">
+                            <button
+                                onClick={handleRenameCancel}
+                                className="cancel-btn"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDialogSubmit}
+                                className="rename-btn"
+                                disabled={
+                                    !renameItemNewName ||
+                                    !renameItemNewName.trim() ||
+                                    (dialogMode === 'rename' && renameItemNewName === renameItemOldName) ||
+                                    isLoading
+                                }
+                            >
+                                {isLoading ?
+                                    (dialogMode === 'rename' ? 'Renaming...' : 'Creating...') :
+                                    (dialogMode === 'rename' ? 'Rename' : 'Create')
+                                }
+                            </button>
                         </div>
                     </div>
                 </div>

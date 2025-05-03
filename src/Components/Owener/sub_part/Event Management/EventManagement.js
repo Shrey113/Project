@@ -527,11 +527,11 @@ function EventManagement({ category }) {
                           value={selected_sent_item.sender_email}
                         />
 
-                        {selected_sent_item.event_request_type === "package" ? (
+                        {selected_sent_item.event_request_type === "Event" ? (
                           <>
                             <TRow
-                              label="Package Name"
-                              value={selected_sent_item.package_name}
+                              label="Event Name"
+                              value={selected_sent_item.event_name}
                             />
                             <TRow
                               label="Service"
@@ -672,7 +672,7 @@ function EventManagement({ category }) {
           )}
 
           <div id="EventManagement">
-            {["Packages"].includes(category) && (
+            {["All Events"].includes(category) && (
               <div className="section-container">
                 <div className="table-container">
                   {sent_package_data.length > 0 ? (
@@ -705,12 +705,11 @@ function EventManagement({ category }) {
                       </tbody>
                     </table>
                   ) : (
-                    <p className="no-data-message">No Sent Package Requests</p>
+                    <p className="no-data-message">No Sent Event Requests</p>
                   )}
                 </div>
               </div>
             )}
-
 
             {["Equipment"].includes(category) && (
               <div className="section-container">
@@ -796,7 +795,7 @@ function EventManagement({ category }) {
       {!sent_request && (
         <div className="received_request">
           <div id="EventManagement">
-            {category === "Packages" && (
+            {category === "All Events" && (
               <div className="section-container">
                 <div className="table-container">
                   {receiver_package_data?.filter(
@@ -891,7 +890,7 @@ function EventManagement({ category }) {
                       </tbody>
                     </table>
                   ) : (
-                    <p className="no-data-message">No Data Available</p>
+                    <p className="no-data-message">No Event Requests Available</p>
                   )}
                 </div>
               </div>
@@ -995,7 +994,7 @@ function EventManagement({ category }) {
                       </tbody>
                     </table>
                   ) : (
-                    <p className="no-data-message">No Data Available</p>
+                    <p className="no-data-message">No Equipment Requests Available</p>
                   )}
                 </div>
               </div>
@@ -1148,7 +1147,7 @@ function EventManagement({ category }) {
                         )}
                     </>
                   ) : (
-                    <p className="no-data-message">No data available</p>
+                    <p className="no-data-message">No Service Requests Available</p>
                   )}
                 </div>
               </div>

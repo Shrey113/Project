@@ -343,16 +343,16 @@ function App() {
             }
           />
 
-          {/* <Route
-            path="/Owner/Event/packages"
+          <Route
+            path="/Owner/Event/all_events"
             element={
               authStatus.owner ? (
-                <SetOwnerPage ActivePage={EventManagement} category="Packages" />
+                <SetOwnerPage ActivePage={EventManagement} category="All Events" />
               ) : (
                 <LoginRegisterOwener />
               )
             }
-          /> */}
+          />
           <Route
             path="/Owner/Event/equipment"
             element={
