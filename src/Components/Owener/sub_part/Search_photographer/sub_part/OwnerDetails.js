@@ -7,8 +7,8 @@ import { Server_url } from "../../../../../redux/AllData";
 // import { IoArrowBack } from "react-icons/io5";
 // import {  FaMapMarkerAlt } from "react-icons/fa";
 import SeletedCard from "./SeletedCard";
-import { MdOutlineAttachEmail, MdOutlineInsertLink, MdOutlineDesignServices, MdBusinessCenter, MdOutlineKeyboardDoubleArrowRight, MdLocationPin } from "react-icons/md";
-import { IoIosShareAlt } from "react-icons/io";
+import { MdOutlineAttachEmail, MdOutlineInsertLink, MdOutlineDesignServices, MdBusinessCenter, MdOutlineKeyboardDoubleArrowRight, MdLocationPin, MdPhone } from "react-icons/md";
+import { IoIosShareAlt, IoMdCall } from "react-icons/io";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -135,9 +135,9 @@ const OwnerDetails = () => {
 
   useEffect(() => {
     if (showSelectedCard) {
-      document.querySelector(".main_part").style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
     } else {
-      document.querySelector(".main_part").style.overflow = "auto";
+      document.documentElement.style.overflow = "auto";
     }
   }, [showSelectedCard]);
 
@@ -715,7 +715,33 @@ const OwnerDetails = () => {
             </div>
             <div className="owner-status">
               <p>{selectedOwner?.user_name || "Not Available"}</p>
-              <hr style={{ width: "90%", border: " 1px solid #c1c1c1" }} />
+
+              {/* Skills section */}
+              <div className="skills-container">
+                {/* <div className="skills-header">
+                  <MdOutlineDesignServices className="skills-icon" />
+                  <h3>Skills</h3>
+                </div> */}
+                <div className="skills-list">
+                  {true ? (
+                    <div className="skills-items">
+                      <span className="skill-tag">Portrait Photography</span>
+                      <span className="skill-tag">Landscape</span>
+                      <span className="skill-tag">Product Shoots</span>
+                      <span className="skill-tag">Wedding</span>
+                      <span className="skill-tag">Photo Editing</span>
+                      <span className="skill-tag">Videography</span>
+                      <span className="skill-tag">Drone Photography</span>
+                      <span className="skill-tag">Studio Lighting</span>
+                    </div>
+                  ) : (
+                    <div className="no-skills-message">
+                      <p>No skills listed</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* <hr style={{ width: "90%", border: " 1px solid #c1c1c1" }} /> */}
               <div className="all_links">
                 {selectedOwner?.social_media_links?.length > 0 ? (
                   selectedOwner.social_media_links.map((link, index) => {
@@ -741,8 +767,9 @@ const OwnerDetails = () => {
                   <p> </p>
                 )}
               </div>
-
             </div>
+
+
           </div>
 
           <div className="owner-profile-right">
@@ -765,6 +792,28 @@ const OwnerDetails = () => {
                         {selectedOwner?.user_email}
                       </a>
 
+                    </div>
+                  </div>
+                </div>
+                <div className="info-card">
+                  <div className="info-item">
+                    <div className="icon-container">
+                      <MdPhone className="icon" />
+                    </div>
+                    <div>
+                      <label>Mobile</label>
+                      <div className="mobile-with-call-button">
+                        <p>{selectedOwner?.mobile_number || "Not Available"}</p>
+                        {selectedOwner?.mobile_number && (
+                          <a
+                            href={`tel:${selectedOwner.mobile_number}`}
+                            className="call-button"
+                          >
+                            <IoMdCall className="call-icon" />
+                            <span>Call</span>
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -818,7 +867,7 @@ const OwnerDetails = () => {
                   <MdOutlineDesignServices className="icon" />
                 </div>
                 <div className="service-list">
-                  <div className="service_title">Services</div>
+                  <div className="service_title">Freelancing Services</div>
                   <div className="service_items">
                     {services && services?.length > 0 ? (
                       services?.map((service, index) => (
@@ -1125,7 +1174,7 @@ const OwnerDetails = () => {
         {ownerData.services?.length > 0 ? (
           <ul className="services-list">
             <div className="profile_preview_services_title">
-              <div className="services-card-title">Services</div>
+              <div className="services-card-title">Freelancing Services</div>
               {servicesMoreThan4 && (
                 <div onClick={() => handleShowAllClick("services")} className="see_all_button">
                   See All <MdOutlineKeyboardDoubleArrowRight style={{ fontSize: "20px" }} />

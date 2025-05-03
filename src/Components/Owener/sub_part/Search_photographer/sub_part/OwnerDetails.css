@@ -127,7 +127,7 @@
 }
 
 /* for back button  */
-.owner-details-container .back_with_owner_title  .back-button {
+.owner-details-container .back_with_owner_title .back-button {
   padding: 8px 14px !important;
   background: linear-gradient(135deg, #4361ee, #3046c9) !important;
   color: white;
@@ -194,9 +194,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 30%;
   padding: 0px 10px;
+  height: 100%;
+  overflow: hidden;
 }
 
 .owner-details-container .owner-profile-img {
@@ -2142,11 +2144,11 @@
   }
 
   .owner-details-container .owner-status .all_links {
-    gap: 12px;
+    gap: 14px;
   }
 
   .owner-details-container .owner-status .all_links a {
-    font-size: 15px;
+    font-size: 20px;
     border-radius: 5px;
     padding: 4px;
   }
@@ -2247,6 +2249,10 @@
   .owner-details-container .owner-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .skills-container {
+    max-width: 400px;
   }
 }
 
@@ -2578,4 +2584,206 @@
     font-size: 11px;
   }
 
+}
+
+/* Mobile number and Call button styling */
+.mobile-with-call-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  max-width: 200px;
+}
+
+.call-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #4361ee, #3046c9);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 550;
+  font-family: var(--Heading);
+  text-decoration: none;
+  /* box-shadow: 0 4px 8px rgba(67, 97, 238, 0.25); */
+  transition: all 0.3s ease;
+}
+
+/* .call-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(67, 97, 238, 0.35);
+} */
+
+.call-button .call-icon {
+  font-size: 15px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Media queries for call button */
+@media (max-width: 800px) {
+  .mobile-with-call-button {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .call-button {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 500px) {
+  .call-button {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+
+  .call-button .call-icon {
+    font-size: 12px;
+  }
+}
+
+/* Skills section styling */
+.skills-container {
+  width: 100%;
+  padding: 10px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.skills-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  align-self: center;
+}
+
+.skills-icon {
+  font-size: 20px;
+  color: #4361ee;
+}
+
+.skills-header h3 {
+  font-size: 16px;
+  color: #2d3748;
+  font-weight: 600;
+  font-family: var(--Heading);
+  margin: 0;
+}
+
+.skills-list {
+  width: 100%;
+}
+
+.skills-items {
+  /* display: flex; */
+  display: flex;
+  max-width: 100%;
+  gap: 8px;
+  width: 300px;
+  max-height: 120px;
+  padding: 0 10px;
+  overflow-x: auto;
+}
+
+.skills-items::-webkit-scrollbar {
+  width: 4px;
+  height: 0px;
+}
+
+.skills-items::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.skills-items::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.skill-tag {
+  min-width: fit-content;
+  font-size: 13px;
+  background-color: rgba(67, 97, 238, 0.1);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-family: var(--Heading);
+  background: #64748b36;
+}
+
+/* Media queries for skills section */
+@media (max-width: 768px) {
+  .skills-container {
+    margin-top: 10px;
+  }
+
+  .skills-items {
+    max-height: 100px;
+  }
+
+  .skill-tag {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 500px) {
+  .skills-header h3 {
+    font-size: 15px;
+  }
+
+  .skills-icon {
+    font-size: 18px;
+  }
+
+  .skills-items {
+    max-height: 90px;
+  }
+
+  .skill-tag {
+    font-size: 11px;
+    padding: 3px 7px;
+  }
+
+  .skills-container {
+    padding: 8px;
+    margin-top: 10px;
+  }
+}
+
+.no-skills-message {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.no-skills-message p {
+  font-size: 14px;
+  color: #64748b;
+  font-family: var(--Heading);
+  font-style: italic;
 }
