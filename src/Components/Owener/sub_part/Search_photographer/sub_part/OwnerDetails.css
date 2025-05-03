@@ -127,7 +127,7 @@
 }
 
 /* for back button  */
-.owner-details-container .back-button {
+.owner-details-container .back_with_owner_title  .back-button {
   padding: 8px 14px !important;
   background: linear-gradient(135deg, #4361ee, #3046c9) !important;
   color: white;

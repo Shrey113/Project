@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./SeletedCard.css";
 import { IoClose } from "react-icons/io5";
-import { IoLocationOutline, IoCalendarOutline } from "react-icons/io5";
+import { IoLocationOutline, IoCalendarOutline, IoArrowBack } from "react-icons/io5";
 import { BsCurrencyRupee, BsCheckCircleFill, BsChevronDown } from "react-icons/bs";
-import { MdBusinessCenter, MdCategory } from "react-icons/md";
+import { MdBusinessCenter, MdCategory, MdLocationOn } from "react-icons/md";
+import { FaMapMarkerAlt, FaTasks } from "react-icons/fa";
 import {
   Server_url,
   showAcceptToast,
@@ -94,6 +95,9 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
   const user = useSelector((state) => state.user);
   const [blockedDates, setBlockedDates] = useState([]);
   const containerRef = useRef(null);
+  const [eventType, setEventType] = useState("1-day");
+  const [dayDetails, setDayDetails] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (type === "equipment" && selectedData.equipment_id) {
@@ -155,6 +159,48 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     start_date: "",
     end_date: "",
   });
+
+  useEffect(() => {
+    if (eventType === "multi-day" && formData.start_date && formData.end_date) {
+      generateDayDetails();
+    }
+  }, [formData.start_date, formData.end_date, eventType]);
+  
+  // Reset to page 1 when switching event types
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [eventType]);
+  
+  const generateDayDetails = () => {
+    const startDate = dayjs(formData.start_date);
+    const endDate = dayjs(formData.end_date);
+    const diffDays = endDate.diff(startDate, 'day') + 1;
+    
+    if (diffDays <= 0) return;
+    
+    const newDayDetails = [];
+    for (let i = 0; i < diffDays; i++) {
+      const currentDate = startDate.add(i, 'day');
+      newDayDetails.push({
+        date: currentDate.format('YYYY-MM-DD'),
+        dayLabel: `Day ${i + 1} - ${currentDate.format('MMM D, YYYY')}`,
+        title: "",
+        location: "",
+        description: ""
+      });
+    }
+    
+    setDayDetails(newDayDetails);
+  };
+  
+  const handleDayDetailChange = (index, field, value) => {
+    const updatedDayDetails = [...dayDetails];
+    updatedDayDetails[index] = {
+      ...updatedDayDetails[index],
+      [field]: value
+    };
+    setDayDetails(updatedDayDetails);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -362,12 +408,59 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     return Object.values(errors).every((error) => error === "");
   };
 
+  const handleNextPage = (e) => {
+    e.preventDefault();
+    
+    // Validate dates before proceeding to the next page
+    if (validateDates()) {
+      setCurrentPage(2);
+      // Scroll to top when navigating to next page
+      scrollToTop();
+    }
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage(1);
+  };
+
+  const handleOpenMapPicker = (index = -1) => {
+    // This would open a map picker modal in a real implementation
+    // For demonstration, we'll just show a toast message
+    const message = index >= 0 
+      ? `Opening map picker for Day ${index + 1}...` 
+      : "Opening map picker...";
+    
+    showAcceptToast({ message });
+    
+    // In a real implementation, you would:
+    // 1. Open a modal with a map (Google Maps, Mapbox, etc.)
+    // 2. Let the user select a location
+    // 3. Update the location value with the selected address
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate all fields
-    if (!validateDates()) {
+    // For multi-day event on first page, go to second page
+    if (eventType === "multi-day" && currentPage === 1) {
+      handleNextPage(e);
       return;
+    }
+
+    // Validate all fields
+    if (eventType === "multi-day") {
+      if (!validateDates()) {
+        return;
+      }
+    } else {
+      // Validate single date
+      if (!formData.start_date) {
+        setDateErrors({
+          ...dateErrors,
+          start_date: "Date is required"
+        });
+        return;
+      }
     }
 
     // Validate location
@@ -858,164 +951,339 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
         {type === "service" && (
           <div className="service-card-container-selected">
-            <div className="service-card-title-selected">Service Booking</div>
+            <div className="service-card-title-selected">
+              {eventType === "multi-day" && currentPage === 2 ? (
+                <div className="page-header">
+                  <button className="back-button" onClick={handlePrevPage}>
+                    <IoArrowBack />
+                  </button>
+                  <span>Daily Schedule</span>
+                </div>
+              ) : (
+                "Service Booking"
+              )}
+            </div>
+            
             <form onSubmit={handleSubmit} className="booking-form">
-              {/* Information Display Section */}
-              <CollapsibleSection
-                title="Service Details"
-                icon={<MdCategory size={16} />}
-              >
-                <div className="info-section">
-                  <div className="info-group">
-                    <label>Service Name</label>
-                    <div className="info-value">{formData.service_name}</div>
-                  </div>
-                  <div className="info-group" style={{ gridColumn: "1 / -1" }}>
-                    <label>Description</label>
-                    <div className="info-value">{formData.description}</div>
-                  </div>
-                  <div className="info-group">
-                    <label>Price</label>
-                    <div className="info-value" style={{ display: 'flex', alignItems: 'center' }}>
-                      <BsCurrencyRupee /> {formData.service_price}
+              {/* Only show service details and toggle on first page */}
+              {!(eventType === "multi-day" && currentPage === 2) && (
+                <>
+                  <CollapsibleSection
+                    title="Service Details"
+                    icon={<MdCategory size={16} />}
+                  >
+                    <div className="info-section">
+                      <div className="info-group">
+                        <label>Service Name</label>
+                        <div className="info-value">{formData.service_name}</div>
+                      </div>
+                      <div className="info-group" style={{ gridColumn: "1 / -1" }}>
+                        <label>Description</label>
+                        <div className="info-value">{formData.description}</div>
+                      </div>
+                      <div className="info-group">
+                        <label>Price</label>
+                        <div className="info-value" style={{ display: 'flex', alignItems: 'center' }}>
+                          <BsCurrencyRupee /> {formData.service_price}
+                        </div>
+                      </div>
+                    </div>
+                  </CollapsibleSection>
+
+                  {/* Event Type Toggle */}
+                  <div className="event-toggle-container">
+                    <div className="event-toggle-label">Event Type:</div>
+                    <div className="toggle-switch-container">
+                      <div 
+                        className={`toggle-option ${eventType === "1-day" ? "toggle-option-active" : ""}`}
+                        onClick={() => setEventType("1-day")}
+                      >
+                        1-Day Event
+                      </div>
+                      <div 
+                        className={`toggle-option ${eventType === "multi-day" ? "toggle-option-active" : ""}`}
+                        onClick={() => setEventType("multi-day")}
+                      >
+                        Multi-Day Event
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CollapsibleSection>
+                </>
+              )}
 
-              {/* Combined Booking Details Section */}
+              {/* First page for both event types OR second page for multi-day */}
               <div className="booking-section">
+                {/* 1-Day Event OR Multi-Day First Page */}
+                {(eventType === "1-day" || (eventType === "multi-day" && currentPage === 1)) && (
+                  <>
+                    {/* Date Selection - based on event type */}
+                    <div style={{ marginBottom: "16px" }}>
+                      <div className="date-time-container">
+                        <ThemeProvider theme={theme}>
+                          {eventType === "1-day" ? (
+                            <div className="single-date-input-group">
+                              <label className="form-label">
+                                <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                                Service Date
+                              </label>
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  value={
+                                    formData.start_date
+                                      ? dayjs(formData.start_date)
+                                      : null
+                                  }
+                                  onChange={(newValue) =>
+                                    handleDateChange("start_date", newValue)
+                                  }
+                                  minDate={dayjs()}
+                                  format="DD-MM-YYYY"
+                                  shouldDisableDate={shouldDisableDate}
+                                  renderDay={renderDay}
+                                  slotProps={{
+                                    textField: {
+                                      className: "form-input",
+                                      error: !!dateErrors.start_date,
+                                      helperText: dateErrors.start_date,
+                                      size: "small",
+                                      sx: {
+                                        "& .MuiFormHelperText-root": {
+                                          color: "#d32f2f",
+                                          marginLeft: "0",
+                                          fontSize: "0.7rem",
+                                        },
+                                      },
+                                    },
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="date-input-group">
+                                <label className="form-label">
+                                  <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                                  Start Date
+                                </label>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                  <DatePicker
+                                    value={
+                                      formData.start_date
+                                        ? dayjs(formData.start_date)
+                                        : null
+                                    }
+                                    onChange={(newValue) =>
+                                      handleDateChange("start_date", newValue)
+                                    }
+                                    minDate={dayjs()}
+                                    format="DD-MM-YYYY"
+                                    shouldDisableDate={shouldDisableDate}
+                                    renderDay={renderDay}
+                                    slotProps={{
+                                      textField: {
+                                        className: "form-input",
+                                        error: !!dateErrors.start_date,
+                                        helperText: dateErrors.start_date,
+                                        size: "small",
+                                        sx: {
+                                          "& .MuiFormHelperText-root": {
+                                            color: "#d32f2f",
+                                            marginLeft: "0",
+                                            fontSize: "0.7rem",
+                                          },
+                                        },
+                                      },
+                                    }}
+                                  />
+                                </LocalizationProvider>
+                              </div>
 
-                {/* Date Selection */}
-                <div style={{ marginBottom: "16px" }}>
-                  <div className="date-time-container">
-                    <ThemeProvider theme={theme}>
-                      <div className="date-input-group">
-                        <label className="form-label">
-                          <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
-                          Start Date
-                        </label>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            value={
-                              formData.start_date
-                                ? dayjs(formData.start_date)
-                                : null
-                            }
-                            onChange={(newValue) =>
-                              handleDateChange("start_date", newValue)
-                            }
-                            minDate={dayjs()}
-                            format="DD-MM-YYYY"
-                            shouldDisableDate={shouldDisableDate}
-                            renderDay={renderDay}
-                            slotProps={{
-                              textField: {
-                                className: "form-input",
-                                error: !!dateErrors.start_date,
-                                helperText: dateErrors.start_date,
-                                size: "small",
-                                sx: {
-                                  "& .MuiFormHelperText-root": {
-                                    color: "#d32f2f",
-                                    marginLeft: "0",
-                                    fontSize: "0.7rem",
-                                  },
-                                },
-                              },
-                            }}
+                              <div className="date-input-group">
+                                <label className="form-label">
+                                  <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                                  End Date
+                                </label>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                  <DatePicker
+                                    value={
+                                      formData.end_date ? dayjs(formData.end_date) : null
+                                    }
+                                    onChange={(newValue) =>
+                                      handleDateChange("end_date", newValue)
+                                    }
+                                    minDate={dayjs()}
+                                    format="DD-MM-YYYY"
+                                    shouldDisableDate={shouldDisableDate}
+                                    renderDay={renderDay}
+                                    slotProps={{
+                                      textField: {
+                                        className: "form-input",
+                                        error: !!dateErrors.end_date,
+                                        helperText: dateErrors.end_date,
+                                        size: "small",
+                                        sx: {
+                                          "& .MuiFormHelperText-root": {
+                                            color: "#d32f2f",
+                                            marginLeft: "0",
+                                            fontSize: "0.7rem",
+                                          },
+                                        },
+                                      },
+                                    }}
+                                  />
+                                </LocalizationProvider>
+                              </div>
+                            </>
+                          )}
+                        </ThemeProvider>
+                      </div>
+                    </div>
+
+                    {/* Only show location and requirements for 1-day event */}
+                    {eventType === "1-day" && (
+                      <>
+                        <div className="compact-fields">
+                          <div className="form-group">
+                            <label>
+                              <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                              Location
+                            </label>
+                            <div className="location-input-container">
+                              <div className="location-input-wrapper">
+                                <input
+                                  type="text"
+                                  name="location"
+                                  value={formData.location}
+                                  onChange={handleChange}
+                                  placeholder="Enter service location"
+                                  required
+                                />
+                                <button 
+                                  type="button" 
+                                  className="map-picker-button"
+                                  onClick={() => handleOpenMapPicker()}
+                                >
+                                  <MdLocationOn size={18} />
+                                </button>
+                              </div>
+                              {formData.location && (
+                                <a href={`https://maps.google.com/?q=${encodeURIComponent(formData.location)}`} 
+                                  className="map-link" 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                >
+                                  <FaMapMarkerAlt /> View on Map
+                                </a>
+                              )}
+                            </div>
+                            {formData.location_error && (
+                              <div className="error-message">{formData.location_error}</div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="form-group">
+                          <label>Requirements (Optional)</label>
+                          <textarea
+                            name="requirements"
+                            value={formData.requirements}
+                            onChange={handleChange}
+                            rows="2"
+                            placeholder="Any specific requirements for this service"
                           />
-                        </LocalizationProvider>
-                      </div>
-
-                      <div className="date-input-group">
-                        <label className="form-label">
-                          <IoCalendarOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
-                          End Date
-                        </label>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            value={
-                              formData.end_date ? dayjs(formData.end_date) : null
-                            }
-                            onChange={(newValue) =>
-                              handleDateChange("end_date", newValue)
-                            }
-                            minDate={dayjs()}
-                            format="DD-MM-YYYY"
-                            shouldDisableDate={shouldDisableDate}
-                            renderDay={renderDay}
-                            slotProps={{
-                              textField: {
-                                className: "form-input",
-                                error: !!dateErrors.end_date,
-                                helperText: dateErrors.end_date,
-                                size: "small",
-                                sx: {
-                                  "& .MuiFormHelperText-root": {
-                                    color: "#d32f2f",
-                                    marginLeft: "0",
-                                    fontSize: "0.7rem",
-                                  },
-                                },
-                              },
-                            }}
-                          />
-                        </LocalizationProvider>
-                      </div>
-                    </ThemeProvider>
-                  </div>
-                </div>
-
-                {/* Other Booking Details */}
-                <div className="compact-fields">
-                  <div className="form-group">
-                    <label>Days Required</label>
-                    <input
-                      type="number"
-                      name="days_required"
-                      value={formData.days_required}
-                      onChange={handleChange}
-                      min="1"
-                      required
-                    />
-                    {formData.days_required_error && (
-                      <div className="error-message">
-                        {formData.days_required_error}
-                      </div>
+                        </div>
+                      </>
                     )}
+                  </>
+                )}
+
+                {/* Multi-Day Event Second Page */}
+                {eventType === "multi-day" && currentPage === 2 && (
+                  <div className="multi-day-details">
+                    <div className="date-summary">
+                      <div className="date-summary-item">
+                        <label>START:</label>
+                        <span>{dayjs(formData.start_date).format('MMM D, YYYY')}</span>
+                      </div>
+                      <div className="date-summary-item">
+                        <label>END:</label>
+                        <span>{dayjs(formData.end_date).format('MMM D, YYYY')}</span>
+                      </div>
+                      <div className="date-summary-item">
+                        <label>DAYS:</label>
+                        <span>{dayDetails.length}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="days-container">
+                      {dayDetails.map((day, index) => (
+                        <CollapsibleSection
+                          key={index}
+                          title={`Day ${index + 1} - ${dayjs(day.date).format('MMM D, YYYY')}`}
+                          icon={<IoCalendarOutline size={18} style={{ marginRight: "8px" }} />}
+                          defaultOpen={index === 0}
+                        >
+                          <div className="day-details-form">
+                            <div className="form-group">
+                              <label>Title/Task for the Day</label>
+                              <input
+                                type="text"
+                                value={day.title}
+                                onChange={(e) => handleDayDetailChange(index, 'title', e.target.value)}
+                                placeholder="What's planned for this day?"
+                              />
+                            </div>
+                            
+                            <div className="form-group">
+                              <label>
+                                <IoLocationOutline />
+                                Location
+                              </label>
+                              <div className="location-input-container">
+                                <div className="location-input-wrapper">
+                                  <input
+                                    type="text"
+                                    value={day.location}
+                                    onChange={(e) => handleDayDetailChange(index, 'location', e.target.value)}
+                                    placeholder="Enter location for this day"
+                                  />
+                                  <button 
+                                    type="button" 
+                                    className="map-picker-button"
+                                    onClick={() => handleOpenMapPicker(index)}
+                                  >
+                                    <MdLocationOn size={18} />
+                                  </button>
+                                </div>
+                                {day.location && (
+                                  <a href={`https://maps.google.com/?q=${encodeURIComponent(day.location)}`} 
+                                    className="map-link" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                  >
+                                    <FaMapMarkerAlt /> View on Map
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="form-group">
+                              <label>Description or Notes</label>
+                              <textarea
+                                value={day.description}
+                                onChange={(e) => handleDayDetailChange(index, 'description', e.target.value)}
+                                rows="3"
+                                placeholder="Add any details or specific requirements for this day"
+                              />
+                            </div>
+                          </div>
+                        </CollapsibleSection>
+                      ))}
+                    </div>
                   </div>
+                )}
 
-                  <div className="form-group">
-                    <label>
-                      <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
-                      Location
-                    </label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      placeholder="Enter service location"
-                      required
-                    />
-                    {formData.location_error && (
-                      <div className="error-message">{formData.location_error}</div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>Requirements (Optional)</label>
-                  <textarea
-                    name="requirements"
-                    value={formData.requirements}
-                    onChange={handleChange}
-                    rows="2"
-                    placeholder="Any specific requirements for this service"
-                  />
-                </div>
-
+                {/* Always show total amount */}
                 <div className="info-group total-amount">
                   <label>Total Amount</label>
                   <div className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -1024,8 +1292,12 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                 </div>
               </div>
 
+              {/* Button text based on context */}
               <button type="submit" className="submit-btn">
-                <BsCheckCircleFill style={{ marginRight: "8px" }} /> Book Service
+                <BsCheckCircleFill style={{ marginRight: "8px" }} />
+                {eventType === "multi-day" && currentPage === 1 
+                  ? "Next Page" 
+                  : "Book Service"}
               </button>
             </form>
           </div>
@@ -1036,3 +1308,4 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 }
 
 export default SeletedCard;
+//  need to manage a total-amount  like all day like for one day and mnay day all totola aomout will not count that need to fix in this ...... and in location need to fix that like 2 input fild in one line like side bay side in this one is locaitn and locatin link this 2 input fild side by side on it in this way we need to udpate a a full ui on it .... and Date piker like out sdie clcik to clsoe this is a bug  and then we need to add a like start day and end day will be like start day wil nevery less then a end date thsi way i need on it like if user will pikc a start day 5th then it will not able to pikc a less then 5 this way we need to fix a all ui and logic on it 
