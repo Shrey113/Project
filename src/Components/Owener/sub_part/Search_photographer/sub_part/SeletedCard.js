@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./SeletedCard.css";
 import { IoClose } from "react-icons/io5";
-import { IoLocationOutline, IoCalendarOutline, IoArrowBack } from "react-icons/io5";
+import { IoLocationOutline, IoCalendarOutline, IoArrowBack, IoCopyOutline } from "react-icons/io5";
 import { BsCurrencyRupee, BsCheckCircleFill, BsChevronDown } from "react-icons/bs";
-import { MdBusinessCenter, MdCategory, MdLocationOn } from "react-icons/md";
-import { FaMapMarkerAlt, FaTasks } from "react-icons/fa";
+import { MdBusinessCenter, MdCategory, } from "react-icons/md";
 import {
   Server_url,
   showAcceptToast,
@@ -17,6 +16,8 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { PickersDay } from "@mui/x-date-pickers/PickersDay";
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 const theme = createTheme({
   palette: {
@@ -61,6 +62,22 @@ const theme = createTheme({
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
         }
       }
+    },
+    MuiPickersPopper: {
+      styleOverrides: {
+        root: {
+          zIndex: 9999,
+          position: 'fixed'
+        }
+      }
+    },
+    MuiClickAwayListener: {
+      styleOverrides: {
+        root: {
+          width: '100%',
+          height: '100%'
+        }
+      }
     }
   },
 });
@@ -98,6 +115,8 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
   const [eventType, setEventType] = useState("1-day");
   const [dayDetails, setDayDetails] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [copyFirstDay, setCopyFirstDay] = useState(false);
 
   useEffect(() => {
     if (type === "equipment" && selectedData.equipment_id) {
@@ -144,6 +163,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     start_date: new Date(),
     end_date: new Date(new Date().setDate(new Date().getDate() + 1)),
     location: "",
+    locationLink: "",
     location_error: "",
     requirements: "",
     requirements_error: "",
@@ -162,6 +182,28 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
   useEffect(() => {
     if (eventType === "multi-day" && formData.start_date && formData.end_date) {
+      const generateDayDetails = () => {
+        const startDate = dayjs(formData.start_date);
+        const endDate = dayjs(formData.end_date);
+        const diffDays = endDate.diff(startDate, 'day') + 1;
+        
+        if (diffDays <= 0) return;
+        
+        const newDayDetails = [];
+        for (let i = 0; i < diffDays; i++) {
+          const currentDate = startDate.add(i, 'day');
+          newDayDetails.push({
+            date: currentDate.format('YYYY-MM-DD'),
+            dayLabel: `Day ${i + 1} - ${currentDate.format('MMM D, YYYY')}`,
+            title: "",
+            location: "",
+            locationLink: "",
+            description: ""
+          });
+        }
+        
+        setDayDetails(newDayDetails);
+      };
       generateDayDetails();
     }
   }, [formData.start_date, formData.end_date, eventType]);
@@ -171,34 +213,26 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     setCurrentPage(1);
   }, [eventType]);
   
-  const generateDayDetails = () => {
-    const startDate = dayjs(formData.start_date);
-    const endDate = dayjs(formData.end_date);
-    const diffDays = endDate.diff(startDate, 'day') + 1;
-    
-    if (diffDays <= 0) return;
-    
-    const newDayDetails = [];
-    for (let i = 0; i < diffDays; i++) {
-      const currentDate = startDate.add(i, 'day');
-      newDayDetails.push({
-        date: currentDate.format('YYYY-MM-DD'),
-        dayLabel: `Day ${i + 1} - ${currentDate.format('MMM D, YYYY')}`,
-        title: "",
-        location: "",
-        description: ""
-      });
-    }
-    
-    setDayDetails(newDayDetails);
-  };
   
   const handleDayDetailChange = (index, field, value) => {
     const updatedDayDetails = [...dayDetails];
+    
+    // Update the specific day's field
     updatedDayDetails[index] = {
       ...updatedDayDetails[index],
       [field]: value
     };
+    
+    // If this is the first day and copy is enabled, update all other days too
+    if (index === 0 && copyFirstDay) {
+      for (let i = 1; i < updatedDayDetails.length; i++) {
+        updatedDayDetails[i] = {
+          ...updatedDayDetails[i],
+          [field]: value
+        };
+      }
+    }
+    
     setDayDetails(updatedDayDetails);
   };
 
@@ -230,6 +264,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       setFormData({
         ...formData,
         [name]: value,
+        ...(name === 'location' ? { location_error: "" } : {})
       });
     }
   };
@@ -317,41 +352,162 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     }
   };
 
-  const add_service_request = async () => {
-    console.log("add_service_request", selectedOwner);
-    if (!user || !user.user_email) {
-      showRejectToast({ message: "User information is missing" });
-      return;
-    }
+  const print_booking_details = () => {
+    const formatBookingData = () => {
+      const isOneDayEvent = eventType === "1-day";
+      
+      // Format dates properly for server with time component (YYYY-MM-DD HH:MM:SS format)
+      const formatDate = (dateString) => {
+        if (!dateString) return null;
+        return dayjs(dateString).format('YYYY-MM-DD HH:mm:ss');
+      };
+      
+      // Get formatted dates for the overall booking
+      const formattedStartDate = formatDate(formData.start_date);
+      const formattedEndDate = isOneDayEvent 
+        ? formatDate(dayjs(formData.start_date).add(1, 'day')) // Add 1 day gap for end date
+        : formatDate(formData.end_date);
+      
+      const baseData = {
+        event_request_type: "service",
+        event_name: type,
+        service_name: formData.service_name,
+        service_description: formData.description,
+        service_price_per_day: formData.service_price,
+        services_id: formData.service_id,
+        sender_email: user.user_email,
+        receiver_email: selectedOwner,
+        requirements: formData.requirements || "",
+        days_required: isOneDayEvent ? 1 : dayDetails.length,
+        total_amount: totalAmount,
+        event_status: "Pending",
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
+      };
 
-    if (!selectedOwner) {
-      showRejectToast({ message: "Owner information is missing" });
-      return;
-    }
+      if (isOneDayEvent) {
+        return {
+          ...baseData,
+          location: formData.location,
+          location_link: formData.locationLink,
+          title: `${formData.service_name} booking`,
+          schedule: [
+            {
+              day_number: 1,
+              title: `${formData.service_name} Day 1`,
+              start_date: formattedStartDate,
+              end_date: formattedEndDate,
+              location: formData.location,
+              location_link: formData.locationLink,
+              description: formData.description || "",
+            }
+          ]
+        };
+      } else {
+        // Generate the schedule with proper date formatting including one-day gap
+        const generateScheduleDates = () => {
+          const startDate = dayjs(formData.start_date);
+          const dates = [];
+          
+          for (let i = 0; i < dayDetails.length; i++) {
+            const currentDate = startDate.add(i, 'day');
+            const nextDate = currentDate.add(1, 'day'); // Next day for the end date
+            
+            dates.push({
+              start: currentDate.format('YYYY-MM-DD HH:mm:ss'),
+              end: nextDate.format('YYYY-MM-DD HH:mm:ss')
+            });
+          }
+          
+          return dates;
+        };
+        
+        // Get all dates for the booking period
+        const scheduleDates = generateScheduleDates();
+        
+        // Create schedule with properly formatted dates and one-day gaps
+        const schedule = dayDetails.map((day, index) => ({
+          day_number: index + 1,
+          title: day.title || `Day ${index + 1}`,
+          start_date: scheduleDates[index].start,
+          end_date: scheduleDates[index].end,
+          location: day.location || "",
+          location_link: day.locationLink || "",
+          description: day.description || "",
+        }));
 
-    const data = {
-      ...formData,
-      event_name: type,
-      sender_email: user.user_email,
-      receiver_email: selectedOwner,
+        return {
+          ...baseData,
+          location: dayDetails[0]?.location || "",
+          location_link: dayDetails[0]?.locationLink || "",
+          title: dayDetails[0]?.title || `${formData.service_name} booking`,
+          schedule: schedule,
+        };
+      }
     };
-    console.log("Service form data", data);
+
+    const validateBookingData = (data) => {
+      const errors = [];
+
+      if (!user?.user_email) errors.push("User information is missing");
+      if (!selectedOwner) errors.push("Service provider information is missing");
+      if (!data.services_id || !data.service_name) errors.push("Service information is incomplete");
+      if (!data.start_date) errors.push("Start date is required");
+      if (eventType === "multi-day" && !data.end_date) errors.push("End date is required");
+      if (!data.location) errors.push("Location is required");
+
+      return {
+        isValid: errors.length === 0,
+        errors,
+      };
+    };
+
+    const bookingData = formatBookingData();
+    const validationResult = validateBookingData(bookingData);
+
+    if (!validationResult.isValid) {
+      showRejectToast({
+        message: `Validation failed: ${validationResult.errors.join(", ")}`,
+      });
+      console.error("Validation errors:", validationResult.errors);
+      return;
+    }
+
+    console.log("Booking Data (Ready for submission):", JSON.stringify(bookingData, null, 2));
+
+    showAcceptToast({
+      message: "Booking data ready for submission",
+    });
+
+    return bookingData;
+  };
+  
+  
+
+  const add_service_request = async () => {
+    const bookingData = print_booking_details();
+    
+    if (!bookingData) {
+      // Validation failed
+      return;
+    }
 
     try {
+      // Send the formatted booking data to the server
       const response = await fetch(`${Server_url}/owner/add-service-request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(bookingData),
       });
 
       if (!response.ok) {
         showRejectToast({ message: "Service request failed" });
         throw new Error("Request failed");
       }
+      
       showAcceptToast({ message: "Service request added successfully" });
-
       onClose();
     } catch (error) {
       console.error("Error adding service request:", error);
@@ -423,21 +579,6 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     setCurrentPage(1);
   };
 
-  const handleOpenMapPicker = (index = -1) => {
-    // This would open a map picker modal in a real implementation
-    // For demonstration, we'll just show a toast message
-    const message = index >= 0 
-      ? `Opening map picker for Day ${index + 1}...` 
-      : "Opening map picker...";
-    
-    showAcceptToast({ message });
-    
-    // In a real implementation, you would:
-    // 1. Open a modal with a map (Google Maps, Mapbox, etc.)
-    // 2. Let the user select a location
-    // 3. Update the location value with the selected address
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -482,36 +623,123 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
   };
 
   const handleDateChange = (name, newValue) => {
-    if (newValue) {
-      setFormData((prev) => {
-        const updatedFormData = {
-          ...prev,
-          [name]: dayjs(newValue).toISOString(),
-        };
-
-        // If start_date is changed, update days_required based on end_date
-        if (name === "start_date") {
-          const endDate = dayjs(updatedFormData.end_date);
-          const daysRequired = endDate.diff(dayjs(newValue), 'day') + 1; // +1 to include the start date
-          updatedFormData.days_required = daysRequired > 0 ? daysRequired : 1; // Ensure at least 1 day
+    if (!newValue) return;
+    
+    const newDate = dayjs(newValue);
+    
+    // Create updated form data
+    const updatedFormData = {
+      ...formData,
+      [name]: newDate.toISOString(),
+    };
+    
+    // Handle start date change with minimum gap logic
+    if (name === "start_date") {
+      // If changing start date, check if we need to adjust end date
+      if (formData.end_date) {
+        const currentEndDate = dayjs(formData.end_date);
+        
+        // Calculate the minimum end date (start date + 2 days)
+        const minimumEndDate = newDate.add(2, 'day');
+        
+        // If current end date is before the minimum end date, update it
+        if (currentEndDate.isBefore(minimumEndDate)) {
+          updatedFormData.end_date = minimumEndDate.toISOString();
+          
+          
         }
-
-        // If end_date is changed, update days_required based on start_date
-        if (name === "end_date") {
-          const startDate = dayjs(updatedFormData.start_date);
-          const daysRequired = dayjs(newValue).diff(startDate, 'day') + 1; // +1 to include the start date
-          updatedFormData.days_required = daysRequired > 0 ? daysRequired : 1; // Ensure at least 1 day
-        }
-
-        return updatedFormData;
-      });
-
-      // Clear error when date is changed
-      setDateErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
+      } else {
+        // If no end date is set, set it to start date + 2 days
+        updatedFormData.end_date = newDate.add(2, 'day').toISOString();
+      }
     }
+    
+    // Handle end date change validation
+    if (name === "end_date") {
+      const startDate = dayjs(formData.start_date);
+      const minimumEndDate = startDate.add(2, 'day');
+      
+      // Check if end date is before minimum required
+      if (newDate.isBefore(minimumEndDate)) {
+        setDateErrors(prev => ({
+          ...prev,
+          end_date: "End date must be at least 2 days after start date"
+        }));
+        return;
+      }
+    }
+    
+    // Update days_required based on the two dates
+    if (updatedFormData.start_date && updatedFormData.end_date) {
+      const start = dayjs(updatedFormData.start_date);
+      const end = dayjs(updatedFormData.end_date);
+      const daysRequired = end.diff(start, 'day') + 1; // +1 to include the start date
+      updatedFormData.days_required = daysRequired;
+    }
+    
+    // Update state
+    setFormData(updatedFormData);
+    
+    // Clear error
+    setDateErrors(prev => ({
+      ...prev,
+      [name]: ""
+    }));
+    
+    // If dates have changed, regenerate day details
+    if ((name === "start_date" || name === "end_date") && 
+        updatedFormData.start_date && updatedFormData.end_date) {
+      regenerateDayDetails(updatedFormData);
+    }
+  };
+
+  // Function to regenerate day details when dates change
+  const regenerateDayDetails = (updatedFormData) => {
+    const startDate = dayjs(updatedFormData.start_date);
+    const endDate = dayjs(updatedFormData.end_date);
+    const diffDays = endDate.diff(startDate, 'day') + 1;
+    
+    if (diffDays <= 0) return;
+    
+    // If there are existing day details, preserve their content when possible
+    const newDayDetails = [];
+    for (let i = 0; i < diffDays; i++) {
+      const currentDate = startDate.add(i, 'day');
+      const dateStr = currentDate.format('YYYY-MM-DD');
+      
+      // Check if we had this date in previous details
+      const existingDay = dayDetails.find(day => day.date === dateStr);
+      
+      if (existingDay) {
+        // Use existing data
+        newDayDetails.push(existingDay);
+      } else {
+        // Create new day with empty data or copy from day 1 if checkbox is checked
+        if (i > 0 && copyFirstDay && dayDetails.length > 0) {
+          // Copy from first day
+          newDayDetails.push({
+            date: dateStr,
+            dayLabel: `Day ${i + 1} - ${currentDate.format('MMM D, YYYY')}`,
+            title: dayDetails[0]?.title || "",
+            location: dayDetails[0]?.location || "",
+            locationLink: dayDetails[0]?.locationLink || "",
+            description: dayDetails[0]?.description || ""
+          });
+        } else {
+          // Create fresh entry
+          newDayDetails.push({
+            date: dateStr,
+            dayLabel: `Day ${i + 1} - ${currentDate.format('MMM D, YYYY')}`,
+            title: "",
+            location: "",
+            locationLink: "",
+            description: ""
+          });
+        }
+      }
+    }
+    
+    setDayDetails(newDayDetails);
   };
 
   // Add this function to check if a date should be disabled
@@ -561,6 +789,59 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     );
   };
 
+  // Calculate total amount whenever relevant values change
+  useEffect(() => {
+    // Calculate total amount based on event type
+  const calculateTotalAmount = () => {
+    let amount = 0;
+    
+    if (eventType === "1-day") {
+      // For 1-day events, use the service price
+      amount = type === "service" ? formData.service_price : 0;
+    } else {
+      // For multi-day events, multiply by days
+      amount = type === "service" ? formData.service_price * dayDetails.length : 0;
+    }
+    
+    setTotalAmount(amount);
+    
+    // Also update in formData
+    setFormData(prev => ({
+      ...prev,
+      total_amount: amount
+    }));
+  };
+
+    calculateTotalAmount();
+  }, [formData.days_required, formData.service_price, eventType, dayDetails,type]);
+  
+  
+  
+  // Handle copying first day data to all days
+  const handleCopyToAllDays = (e) => {
+    const isChecked = e.target.checked;
+    setCopyFirstDay(isChecked);
+    
+    if (isChecked && dayDetails.length > 1 && dayDetails[0]) {
+      // Get the first day data
+      const firstDay = dayDetails[0];
+      
+      // Update all other days with first day data
+      const updatedDayDetails = dayDetails.map((day, index) => {
+        if (index === 0) return day; // Keep first day unchanged
+        return {
+          ...day,
+          title: firstDay.title,
+          location: firstDay.location,
+          locationLink: firstDay.locationLink,
+          description: firstDay.description
+        };
+      });
+      
+      setDayDetails(updatedDayDetails);
+    }
+  };
+  
   return (
     <div
       className="owner-selected-overlay-container"
@@ -636,18 +917,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                         </label>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
-                            value={
-                              formData.start_date
-                                ? dayjs(formData.start_date)
-                                : null
-                            }
-                            onChange={(newValue) =>
-                              handleDateChange("start_date", newValue)
-                            }
+                            value={formData.start_date ? dayjs(formData.start_date) : null}
+                            onChange={(newValue) => handleDateChange("start_date", newValue)}
                             minDate={dayjs()}
                             format="DD-MM-YYYY"
                             shouldDisableDate={shouldDisableDate}
                             renderDay={renderDay}
+                            closeOnSelect={true}
                             slotProps={{
                               textField: {
                                 className: "form-input",
@@ -662,6 +938,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                   },
                                 },
                               },
+                              popper: {
+                                disablePortal: false,
+                                modifiers: [
+                                  {
+                                    name: 'preventOverflow',
+                                    enabled: true,
+                                    options: {
+                                      boundary: document.body
+                                    }
+                                  }
+                                ]
+                              },
+                              paper: {
+                                sx: {
+                                  zIndex: 9999
+                                }
+                              }
+                            }}
+                            onClose={() => {
+                              // Force popper to close on outside click
+                              document.activeElement.blur();
                             }}
                           />
                         </LocalizationProvider>
@@ -674,16 +971,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                         </label>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
-                            value={
-                              formData.end_date ? dayjs(formData.end_date) : null
-                            }
-                            onChange={(newValue) =>
-                              handleDateChange("end_date", newValue)
-                            }
-                            minDate={dayjs()}
+                            value={formData.end_date ? dayjs(formData.end_date) : null}
+                            onChange={(newValue) => handleDateChange("end_date", newValue)}
+                            minDate={dayjs(formData.start_date || new Date())}
                             format="DD-MM-YYYY"
                             shouldDisableDate={shouldDisableDate}
                             renderDay={renderDay}
+                            closeOnSelect={true}
                             slotProps={{
                               textField: {
                                 className: "form-input",
@@ -698,6 +992,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                   },
                                 },
                               },
+                              popper: {
+                                disablePortal: false,
+                                modifiers: [
+                                  {
+                                    name: 'preventOverflow',
+                                    enabled: true,
+                                    options: {
+                                      boundary: document.body
+                                    }
+                                  }
+                                ]
+                              },
+                              paper: {
+                                sx: {
+                                  zIndex: 9999
+                                }
+                              }
+                            }}
+                            onClose={() => {
+                              // Force popper to close on outside click
+                              document.activeElement.blur();
                             }}
                           />
                         </LocalizationProvider>
@@ -727,20 +1042,44 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
                   <div className="form-group">
                     <label>
-                      <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                      <IoLocationOutline />
                       Location
                     </label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      placeholder="Enter delivery location"
-                      required
-                    />
-                    {formData.location_error && (
-                      <div className="error-message">{formData.location_error}</div>
-                    )}
+                    <div className="location-input-container">
+                      <div className="location-row">
+                        <div className="location-input-col">
+                          <div className="location-input-wrapper">
+                            <input
+                              type="text"
+                              name="location"
+                              value={formData.location}
+                              onChange={handleChange}
+                              placeholder="Enter service location"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="location-row mt-2">
+                        <div className="location-input-col">
+                          <label className="location-link-label">Location Link</label>
+                          <div className="location-input-wrapper">
+                            <input
+                              type="text"
+                              name="locationLink"
+                              value={formData.locationLink}
+                              onChange={handleChange}
+                              placeholder="Enter location link (optional)"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {formData.location_error && (
+                        <div className="error-message">{formData.location_error}</div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -815,18 +1154,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                         </label>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
-                            value={
-                              formData.start_date
-                                ? dayjs(formData.start_date)
-                                : null
-                            }
-                            onChange={(newValue) =>
-                              handleDateChange("start_date", newValue)
-                            }
+                            value={formData.start_date ? dayjs(formData.start_date) : null}
+                            onChange={(newValue) => handleDateChange("start_date", newValue)}
                             minDate={dayjs()}
                             format="DD-MM-YYYY"
                             shouldDisableDate={shouldDisableDate}
                             renderDay={renderDay}
+                            closeOnSelect={true}
                             slotProps={{
                               textField: {
                                 className: "form-input",
@@ -841,6 +1175,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                   },
                                 },
                               },
+                              popper: {
+                                disablePortal: false,
+                                modifiers: [
+                                  {
+                                    name: 'preventOverflow',
+                                    enabled: true,
+                                    options: {
+                                      boundary: document.body
+                                    }
+                                  }
+                                ]
+                              },
+                              paper: {
+                                sx: {
+                                  zIndex: 9999
+                                }
+                              }
+                            }}
+                            onClose={() => {
+                              // Force popper to close on outside click
+                              document.activeElement.blur();
                             }}
                           />
                         </LocalizationProvider>
@@ -853,16 +1208,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                         </label>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
-                            value={
-                              formData.end_date ? dayjs(formData.end_date) : null
-                            }
-                            onChange={(newValue) =>
-                              handleDateChange("end_date", newValue)
-                            }
-                            minDate={dayjs()}
+                            value={formData.end_date ? dayjs(formData.end_date) : null}
+                            onChange={(newValue) => handleDateChange("end_date", newValue)}
+                            minDate={dayjs(formData.start_date || new Date())}
                             format="DD-MM-YYYY"
                             shouldDisableDate={shouldDisableDate}
                             renderDay={renderDay}
+                            closeOnSelect={true}
                             slotProps={{
                               textField: {
                                 className: "form-input",
@@ -877,6 +1229,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                   },
                                 },
                               },
+                              popper: {
+                                disablePortal: false,
+                                modifiers: [
+                                  {
+                                    name: 'preventOverflow',
+                                    enabled: true,
+                                    options: {
+                                      boundary: document.body
+                                    }
+                                  }
+                                ]
+                              },
+                              paper: {
+                                sx: {
+                                  zIndex: 9999
+                                }
+                              }
+                            }}
+                            onClose={() => {
+                              // Force popper to close on outside click
+                              document.activeElement.blur();
                             }}
                           />
                         </LocalizationProvider>
@@ -906,20 +1279,44 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
                   <div className="form-group">
                     <label>
-                      <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                      <IoLocationOutline />
                       Location
                     </label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      placeholder="Enter event location"
-                      required
-                    />
-                    {formData.location_error && (
-                      <div className="error-message">{formData.location_error}</div>
-                    )}
+                    <div className="location-input-container">
+                      <div className="location-row">
+                        <div className="location-input-col">
+                          <div className="location-input-wrapper">
+                            <input
+                              type="text"
+                              name="location"
+                              value={formData.location}
+                              onChange={handleChange}
+                              placeholder="Enter event location"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="location-row mt-2">
+                        <div className="location-input-col">
+                          <label className="location-link-label">Location Link</label>
+                          <div className="location-input-wrapper">
+                            <input
+                              type="text"
+                              name="locationLink"
+                              value={formData.locationLink}
+                              onChange={handleChange}
+                              placeholder="Enter location link (optional)"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {formData.location_error && (
+                        <div className="error-message">{formData.location_error}</div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -1028,18 +1425,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                               </label>
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DatePicker
-                                  value={
-                                    formData.start_date
-                                      ? dayjs(formData.start_date)
-                                      : null
-                                  }
-                                  onChange={(newValue) =>
-                                    handleDateChange("start_date", newValue)
-                                  }
+                                  value={formData.start_date ? dayjs(formData.start_date) : null}
+                                  onChange={(newValue) => handleDateChange("start_date", newValue)}
                                   minDate={dayjs()}
                                   format="DD-MM-YYYY"
                                   shouldDisableDate={shouldDisableDate}
                                   renderDay={renderDay}
+                                  closeOnSelect={true}
                                   slotProps={{
                                     textField: {
                                       className: "form-input",
@@ -1054,6 +1446,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                         },
                                       },
                                     },
+                                    popper: {
+                                      disablePortal: false,
+                                      modifiers: [
+                                        {
+                                          name: 'preventOverflow',
+                                          enabled: true,
+                                          options: {
+                                            boundary: document.body
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    paper: {
+                                      sx: {
+                                        zIndex: 9999
+                                      }
+                                    }
+                                  }}
+                                  onClose={() => {
+                                    // Force popper to close on outside click
+                                    document.activeElement.blur();
                                   }}
                                 />
                               </LocalizationProvider>
@@ -1067,18 +1480,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                 </label>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                   <DatePicker
-                                    value={
-                                      formData.start_date
-                                        ? dayjs(formData.start_date)
-                                        : null
-                                    }
-                                    onChange={(newValue) =>
-                                      handleDateChange("start_date", newValue)
-                                    }
+                                    value={formData.start_date ? dayjs(formData.start_date) : null}
+                                    onChange={(newValue) => handleDateChange("start_date", newValue)}
                                     minDate={dayjs()}
                                     format="DD-MM-YYYY"
                                     shouldDisableDate={shouldDisableDate}
                                     renderDay={renderDay}
+                                    closeOnSelect={true}
                                     slotProps={{
                                       textField: {
                                         className: "form-input",
@@ -1093,6 +1501,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                           },
                                         },
                                       },
+                                      popper: {
+                                        disablePortal: false,
+                                        modifiers: [
+                                          {
+                                            name: 'preventOverflow',
+                                            enabled: true,
+                                            options: {
+                                              boundary: document.body
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      paper: {
+                                        sx: {
+                                          zIndex: 9999
+                                        }
+                                      }
+                                    }}
+                                    onClose={() => {
+                                      // Force popper to close on outside click
+                                      document.activeElement.blur();
                                     }}
                                   />
                                 </LocalizationProvider>
@@ -1105,16 +1534,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                 </label>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                   <DatePicker
-                                    value={
-                                      formData.end_date ? dayjs(formData.end_date) : null
-                                    }
-                                    onChange={(newValue) =>
-                                      handleDateChange("end_date", newValue)
-                                    }
+                                    value={formData.end_date ? dayjs(formData.end_date) : null}
+                                    onChange={(newValue) => handleDateChange("end_date", newValue)}
                                     minDate={dayjs()}
                                     format="DD-MM-YYYY"
                                     shouldDisableDate={shouldDisableDate}
                                     renderDay={renderDay}
+                                    closeOnSelect={true}
                                     slotProps={{
                                       textField: {
                                         className: "form-input",
@@ -1129,6 +1555,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                           },
                                         },
                                       },
+                                      popper: {
+                                        disablePortal: false,
+                                        modifiers: [
+                                          {
+                                            name: 'preventOverflow',
+                                            enabled: true,
+                                            options: {
+                                              boundary: document.body
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      paper: {
+                                        sx: {
+                                          zIndex: 9999
+                                        }
+                                      }
+                                    }}
+                                    onClose={() => {
+                                      // Force popper to close on outside click
+                                      document.activeElement.blur();
                                     }}
                                   />
                                 </LocalizationProvider>
@@ -1145,40 +1592,44 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                         <div className="compact-fields">
                           <div className="form-group">
                             <label>
-                              <IoLocationOutline style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                              <IoLocationOutline />
                               Location
                             </label>
                             <div className="location-input-container">
-                              <div className="location-input-wrapper">
-                                <input
-                                  type="text"
-                                  name="location"
-                                  value={formData.location}
-                                  onChange={handleChange}
-                                  placeholder="Enter service location"
-                                  required
-                                />
-                                <button 
-                                  type="button" 
-                                  className="map-picker-button"
-                                  onClick={() => handleOpenMapPicker()}
-                                >
-                                  <MdLocationOn size={18} />
-                                </button>
+                              <div className="location-row">
+                                <div className="location-input-col">
+                                  <div className="location-input-wrapper">
+                                    <input
+                                      type="text"
+                                      name="location"
+                                      value={formData.location}
+                                      onChange={handleChange}
+                                      placeholder="Enter service location"
+                                      required
+                                    />
+                                  </div>
+                                </div>
                               </div>
-                              {formData.location && (
-                                <a href={`https://maps.google.com/?q=${encodeURIComponent(formData.location)}`} 
-                                  className="map-link" 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                >
-                                  <FaMapMarkerAlt /> View on Map
-                                </a>
+                              
+                              <div className="location-row mt-2">
+                                <div className="location-input-col">
+                                  <label className="location-link-label">Location Link</label>
+                                  <div className="location-input-wrapper">
+                                    <input
+                                      type="text"
+                                      name="locationLink"
+                                      value={formData.locationLink}
+                                      onChange={handleChange}
+                                      placeholder="Enter location link (optional)"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {formData.location_error && (
+                                <div className="error-message">{formData.location_error}</div>
                               )}
                             </div>
-                            {formData.location_error && (
-                              <div className="error-message">{formData.location_error}</div>
-                            )}
                           </div>
                         </div>
 
@@ -1215,6 +1666,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                       </div>
                     </div>
                     
+                    {/* Copy first day to all days checkbox */}
+                    {dayDetails.length > 1 && (
+                      <div className="copy-first-day-container">
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              checked={copyFirstDay}
+                              onChange={handleCopyToAllDays}
+                              color="primary"
+                            />
+                          }
+                          label={
+                            <div className="copy-label">
+                              <IoCopyOutline />
+                              <span>Copy Day 1 details to all days</span>
+                            </div>
+                          }
+                        />
+                      </div>
+                    )}
+                    
                     <div className="days-container">
                       {dayDetails.map((day, index) => (
                         <CollapsibleSection
@@ -1229,8 +1701,20 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                               <input
                                 type="text"
                                 value={day.title}
-                                onChange={(e) => handleDayDetailChange(index, 'title', e.target.value)}
+                                disabled={copyFirstDay && index > 0}
+                                onChange={(e) => {
+                                  handleDayDetailChange(index, 'title', e.target.value);
+                                  if (copyFirstDay && index === 0) {
+                                    // If copying is enabled and this is the first day, update all days
+                                    const newValue = e.target.value;
+                                    const updatedDayDetails = dayDetails.map((d, i) => 
+                                      i === 0 ? d : {...d, title: newValue}
+                                    );
+                                    setDayDetails(updatedDayDetails);
+                                  }
+                                }}
                                 placeholder="What's planned for this day?"
+                                className={copyFirstDay && index > 0 ? "disabled-input" : ""}
                               />
                             </div>
                             
@@ -1240,30 +1724,36 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                 Location
                               </label>
                               <div className="location-input-container">
-                                <div className="location-input-wrapper">
-                                  <input
-                                    type="text"
-                                    value={day.location}
-                                    onChange={(e) => handleDayDetailChange(index, 'location', e.target.value)}
-                                    placeholder="Enter location for this day"
-                                  />
-                                  <button 
-                                    type="button" 
-                                    className="map-picker-button"
-                                    onClick={() => handleOpenMapPicker(index)}
-                                  >
-                                    <MdLocationOn size={18} />
-                                  </button>
+                                <div className="location-row">
+                                  <div className="location-input-col">
+                                    <div className="location-input-wrapper">
+                                      <input
+                                        type="text"
+                                        value={day.location}
+                                        disabled={copyFirstDay && index > 0}
+                                        onChange={(e) => handleDayDetailChange(index, 'location', e.target.value)}
+                                        placeholder="Enter location for this day"
+                                        className={copyFirstDay && index > 0 ? "disabled-input" : ""}
+                                      />
+                                    </div>
+                                  </div>
                                 </div>
-                                {day.location && (
-                                  <a href={`https://maps.google.com/?q=${encodeURIComponent(day.location)}`} 
-                                    className="map-link" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                  >
-                                    <FaMapMarkerAlt /> View on Map
-                                  </a>
-                                )}
+                                
+                                <div className="location-row mt-2">
+                                  <div className="location-input-col">
+                                    <label className="location-link-label">Location Link</label>
+                                    <div className="location-input-wrapper">
+                                      <input
+                                        type="text"
+                                        value={day.locationLink || ""}
+                                        disabled={copyFirstDay && index > 0}
+                                        onChange={(e) => handleDayDetailChange(index, 'locationLink', e.target.value)}
+                                        placeholder="Enter location link (optional)"
+                                        className={copyFirstDay && index > 0 ? "disabled-input" : ""}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                             
@@ -1271,9 +1761,21 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                               <label>Description or Notes</label>
                               <textarea
                                 value={day.description}
-                                onChange={(e) => handleDayDetailChange(index, 'description', e.target.value)}
+                                disabled={copyFirstDay && index > 0}
+                                onChange={(e) => {
+                                  handleDayDetailChange(index, 'description', e.target.value);
+                                  if (copyFirstDay && index === 0) {
+                                    // If copying is enabled and this is the first day, update all days
+                                    const newValue = e.target.value;
+                                    const updatedDayDetails = dayDetails.map((d, i) => 
+                                      i === 0 ? d : {...d, description: newValue}
+                                    );
+                                    setDayDetails(updatedDayDetails);
+                                  }
+                                }}
                                 rows="3"
                                 placeholder="Add any details or specific requirements for this day"
+                                className={copyFirstDay && index > 0 ? "disabled-input" : ""}
                               />
                             </div>
                           </div>
@@ -1285,16 +1787,16 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
                 {/* Always show total amount */}
                 <div className="info-group total-amount">
-                  <label>Total Amount</label>
+                  <label>TOTAL AMOUNT</label>
                   <div className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <BsCurrencyRupee /> {formData.total_amount}
+                    <BsCurrencyRupee /> {totalAmount}
                   </div>
                 </div>
               </div>
 
               {/* Button text based on context */}
-              <button type="submit" className="submit-btn">
-                <BsCheckCircleFill style={{ marginRight: "8px" }} />
+              <button type="submit" className="submit-btn" onClick={print_booking_details}>
+                <BsCheckCircleFill style={{ marginRight: "8px" }}  />
                 {eventType === "multi-day" && currentPage === 1 
                   ? "Next Page" 
                   : "Book Service"}
@@ -1308,4 +1810,3 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 }
 
 export default SeletedCard;
-//  need to manage a total-amount  like all day like for one day and mnay day all totola aomout will not count that need to fix in this ...... and in location need to fix that like 2 input fild in one line like side bay side in this one is locaitn and locatin link this 2 input fild side by side on it in this way we need to udpate a a full ui on it .... and Date piker like out sdie clcik to clsoe this is a bug  and then we need to add a like start day and end day will be like start day wil nevery less then a end date thsi way i need on it like if user will pikc a start day 5th then it will not able to pikc a less then 5 this way we need to fix a all ui and logic on it 

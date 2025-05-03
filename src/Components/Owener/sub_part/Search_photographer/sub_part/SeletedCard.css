@@ -452,21 +452,62 @@ input[type="number"]:focus {
   border-radius: 0 8px 8px 0;
 }
 
-/* Location input with map link */
+/* Copy feature styling */
+.copy-first-day-container {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background-color: #f3f4f7;
+  border-radius: 8px;
+  border: 1px dashed #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.copy-first-day-container:has(.Mui-checked) {
+  background-color: #eef2ff;
+  border-color: #a5b4fc;
+}
+
+.copy-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+/* Location input with map link - side by side layout */
 .location-input-container {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
 }
 
 .location-input-wrapper {
   position: relative;
   width: 100%;
+  display: flex;
+  align-items: center;
 }
 
-.location-input-wrapper input {
-  padding-right: 40px;
+/* Input and link side by side on the same row */
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.location-input-col {
+  flex: 1;
+  position: relative;
+}
+
+.map-link-col {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
 .map-picker-button {
@@ -484,6 +525,7 @@ input[type="number"]:focus {
   justify-content: center;
   transition: all 0.2s ease;
   border-radius: 50%;
+  z-index: 5;
 }
 
 .map-picker-button:hover {
@@ -496,17 +538,96 @@ input[type="number"]:focus {
   align-items: center;
   gap: 6px;
   color: #6366f1;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   text-decoration: none;
-  padding: 4px 0;
+  padding: 8px 12px;
   transition: all 0.2s ease;
   font-weight: 500;
-  margin-top: 6px;
+  background: #f5f7ff;
+  border-radius: 6px;
+  white-space: nowrap;
+  border: 1px solid #e0e7ff;
 }
 
 .map-link:hover {
   color: #4f46e5;
-  text-decoration: underline;
+  background: #eff1fe;
+  border-color: #c7d2fe;
+}
+
+/* Total amount styling */
+.total-amount {
+  margin-top: 24px !important;
+  padding: 16px !important;
+  border-radius: 8px !important;
+  background: #f0f9ff !important;
+  border: 1px solid #bae6fd !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+}
+
+.total-amount label {
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  color: #0c4a6e !important;
+  letter-spacing: 0.5px !important;
+}
+
+.total-amount .info-value {
+  font-size: 1.35rem !important;
+  color: #0369a1 !important;
+  font-weight: 700 !important;
+}
+
+/* Make the form group layout better for location */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .location-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .map-link-col {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .map-link {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .copy-first-day-container {
+    padding: 8px 12px;
+  }
+  
+  .copy-label {
+    font-size: 0.85rem;
+  }
+}
+
+/* Hide default checkbox styling and use custom */
+.MuiCheckbox-root {
+  color: #6366f1 !important;
+}
+
+.MuiCheckbox-root.Mui-checked {
+  color: #4f46e5 !important;
+}
+
+.MuiFormControlLabel-label {
+  margin-left: 4px;
 }
 
 /* Multi-day event styles */
@@ -798,4 +919,84 @@ input[type="number"]:focus {
 .selected-card-container {
   scroll-behavior: smooth;
   scrollbar-width: thin;
+}
+
+/* Disabled input styling */
+.disabled-input {
+  background-color: #f5f5f5 !important;
+  color: #6b7280 !important;
+  cursor: not-allowed !important;
+  border-color: #e5e7eb !important;
+  opacity: 0.8;
+}
+
+.disabled-input::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Improve disabled state for map picker buttons */
+button:disabled,
+button[disabled],
+.map-picker-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
+/* Error message styling for date pickers */
+.MuiFormHelperText-root {
+  color: #ef4444 !important;
+  margin-left: 0 !important;
+  font-size: 0.75rem !important;
+  margin-top: 2px !important;
+}
+
+/* Date picker with error */
+.MuiOutlinedInput-root.Mui-error {
+  border-color: #ef4444 !important;
+}
+
+/* Add styles for the location link input and related elements */
+.mt-2 {
+  margin-top: 10px;
+}
+
+.location-link-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.location-row {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+}
+
+.location-input-col {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Improve input styles */
+.form-group input, 
+.form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus, 
+.form-group textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  background: #fff;
 }
