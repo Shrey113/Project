@@ -23,7 +23,7 @@ function SharedFilesPage() {
     const [sortBy, setSortBy] = useState('name')
     const [sortOrder, setSortOrder] = useState('asc')
     const [searchTerm, setSearchTerm] = useState('')
-    const [viewMode, setViewMode] = useState('list')
+    const [viewMode] = useState('list')
     const [selectedItems, setSelectedItems] = useState({})
     const [globalActivePopup, setGlobalActivePopup] = useState(null)
     const [previewFile, setPreviewFile] = useState(null)
@@ -42,7 +42,6 @@ function SharedFilesPage() {
 
     // Add new state variables for folder navigation
     const [currentFolder, setCurrentFolder] = useState(null)
-    const [currentPath, setCurrentPath] = useState('/')
     const [breadcrumbPath, setBreadcrumbPath] = useState([])
     const [folderContents, setFolderContents] = useState({ files: [], folders: [] })
 
@@ -55,7 +54,94 @@ function SharedFilesPage() {
         if (activeProfileSection !== 'Shared Files') {
             setActiveProfileSection('Shared Files')
         }
-
+        const fetchSharedItems = async () => {
+            setIsLoading(true)
+            try {
+                if (activeTab === 'shared-with-me') {
+                    // Use the new POST endpoint for shared-with-me
+                    const response = await fetch(`${Server_url}/share_drive/share_drive_with_me`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ user_email })
+                    })
+    
+                    if (!response.ok) {
+                        throw new Error(`Server responded with ${response.status}`)
+                    }
+    
+                    const data = await response.json()
+                    console.log("shared with me", data)
+    
+                    // Process the new data format
+                    const combinedItems = [
+                        ...(data.shared_folders || []).map(folder => ({
+                            ...folder,
+                            type: 'folder',
+                            name: folder.folder_name,
+                            shared_at: folder.created_at,
+                            shared_by: folder.shared_by
+                        })),
+                        ...(data.shared_files || []).map(file => ({
+                            ...file,
+                            type: 'file',
+                            name: file.file_name,
+                            file_type: file.file_extension || file.type || 'file',
+                            shared_at: file.created_at,
+                            shared_by: file.shared_by
+                        }))
+                    ]
+    
+                    console.log("combined items", combinedItems)
+                    setSharedWithMe(combinedItems)
+                } else {
+                    // Use the new POST endpoint for shared-by-me
+                    const response = await fetch(`${Server_url}/share_drive/share_drive_by_me`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ user_email })
+                    })
+    
+                    if (!response.ok) {
+                        throw new Error(`Server responded with ${response.status}`)
+                    }
+    
+                    const data = await response.json()
+                    console.log("shared by me", data)
+    
+                    // Process the new data format
+                    const combinedItems = [
+                        ...(data.shared_folders || []).map(folder => ({
+                            ...folder,
+                            type: 'folder',
+                            shared_with: folder.shared_with ? folder.shared_with.split(',') : []
+                        })),
+                        ...(data.shared_files || []).map(file => ({
+                            ...file,
+                            type: 'file',
+                            file_type: file.file_extension || file.type || 'file',
+                            shared_with: file.shared_with ? file.shared_with.split(',') : []
+                        }))
+                    ]
+    
+                    console.log("combined items", combinedItems)
+                    setSharedByMe(combinedItems)
+                }
+            } catch (error) {
+                console.error(`Error fetching ${activeTab} items:`, error)
+                // Set empty arrays instead of fake data
+                if (activeTab === 'shared-with-me') {
+                    setSharedWithMe([])
+                } else {
+                    setSharedByMe([])
+                }
+            } finally {
+                setIsLoading(false)
+            }
+        }
         // Fetch shared items based on active tab
         fetchSharedItems()
     }, [activeProfileSection, setActiveProfileSection, activeTab, user_email])
@@ -530,7 +616,6 @@ function SharedFilesPage() {
         try {
             // Update current folder and path
             setCurrentFolder(folderId);
-            setCurrentPath(prevPath => prevPath === '/' ? `/${folderName}` : `${prevPath}/${folderName}`);
 
             // Update breadcrumb path with shared_by information
             setBreadcrumbPath(prevPath => [...prevPath, { id: folderId, name: folderName, shared_by: sharedBy }]);
@@ -593,7 +678,6 @@ function SharedFilesPage() {
         if (breadcrumbPath.length <= 1) {
             // If at root or only one level deep, go to root
             setCurrentFolder(null);
-            setCurrentPath('/');
             setBreadcrumbPath([]);
             setFolderContents({ files: [], folders: [] });
             return;
@@ -610,11 +694,9 @@ function SharedFilesPage() {
         if (parentFolder) {
             setCurrentFolder(parentFolder.id);
             setBreadcrumbPath(newBreadcrumbPath);
-            setCurrentPath(newBreadcrumbPath.map(item => item.name).join('/'));
         } else {
             // If something went wrong with the breadcrumb, go to root
             setCurrentFolder(null);
-            setCurrentPath('/');
             setBreadcrumbPath([]);
             setFolderContents({ files: [], folders: [] });
         }
@@ -782,7 +864,6 @@ function SharedFilesPage() {
                             className="breadcrumb-item clickable"
                             onClick={() => {
                                 setCurrentFolder(null);
-                                setCurrentPath('/');
                                 setBreadcrumbPath([]);
                                 setFolderContents({ files: [], folders: [] });
                             }}
@@ -977,7 +1058,6 @@ function SharedFilesPage() {
                             sortedItems.map(item => {
                                 const itemType = item.type || (item.file_id ? 'file' : 'folder');
                                 const itemId = itemType === 'file' ? item.file_id || item.id : item.folder_id || item.id;
-                                const itemName = item.file_name || item.folder_name || item.name;
                                 const isItemSelected = !!selectedItems[`${itemType}-${itemId}`];
 
                                 return (
