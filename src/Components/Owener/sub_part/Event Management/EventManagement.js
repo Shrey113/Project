@@ -161,7 +161,7 @@ function EventManagement({ category }) {
         if (response.data) {
           set_receiver_package_data(response.data.package);
           set_receiver_equipment_data(response.data.equipment);
-          set_receiver_service_data(response.data.service);
+          // set_receiver_service_data(response.data.service);
         } else {
           console.log("No data received or an error occurred");
         }
@@ -172,6 +172,32 @@ function EventManagement({ category }) {
 
     get_owner_equipment_details();
   }, [user.user_email]);
+
+  useEffect(() => {
+    const get_service_received_request = async () => {
+      try {
+        const response = await fetch(`${Server_url}/owner/get_received_service_requests/${user.user_email}`, {
+          method: "GET",
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch service requests');
+        }
+        if (response.ok) {
+          const data = await response.json();
+          console.log("data received for the receiver end ", data.service)
+          set_receiver_service_data(data.service);
+        }
+
+      } catch (err) {
+        console.error("Error fetching service details:", err);
+      }
+    }
+
+    get_service_received_request();
+  }, [user.user_email])
 
   useEffect(() => {
     if (socket) {
@@ -233,7 +259,7 @@ function EventManagement({ category }) {
         if (!response.error) {
           set_sent_package_data(response.data.package);
           set_sent_equipment_data(response.data.equipment);
-          set_sent_service_data(response.data.service);
+          // set_sent_service_data(response.data.service);
         } else {
           console.log("No data received or an error occurred");
         }
@@ -244,6 +270,32 @@ function EventManagement({ category }) {
 
     get_sent_all_details();
   }, [user.user_email]);
+
+  useEffect(() => {
+    const fetchServiceRequests = async () => {
+      try {
+        const response = await fetch(`${Server_url}/get-sent-service-requests-by/${user.user_email}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch service requests');
+        }
+
+        const data = await response.json();
+        console.log(data.service);
+        set_sent_service_data(data.service);
+        // Update state with service and event data
+      } catch (err) {
+        console.error('Error fetching service requests:', err);
+      }
+    };
+
+    fetchServiceRequests();
+  }, [user?.user_email]);
 
   const EmptyState = ({ title = "No data available", subtitle, icon }) => {
     return (
@@ -431,7 +483,7 @@ function EventManagement({ category }) {
       if (response.data) {
         set_receiver_package_data(response.data.package);
         set_receiver_equipment_data(response.data.equipment);
-        set_receiver_service_data(response.data.service);
+        // set_receiver_service_data(response.data.service);
       }
     } catch (error) {
       console.error("Error refreshing event data:", error);
@@ -753,7 +805,7 @@ function EventManagement({ category }) {
             {["Service"].includes(category) && (
               <div className="section-container">
                 <div className="table-container">
-                  {sent_service_data.length > 0 ? (
+                  {Array.isArray(sent_service_data) && sent_service_data.flat().length > 0 ? (
                     <table className="sent_service_table">
                       <thead>
                         <tr>
@@ -766,18 +818,25 @@ function EventManagement({ category }) {
                         </tr>
                       </thead>
                       <tbody>
-                        {sent_service_data.map((item, index) => (
-                          <tr key={index} onClick={() => set_selected_sent_item(item)}>
-                            <td>{index + 1}</td>
-                            <td>{item.service_name}</td>
-                            <td>₹{item.total_amount}</td>
-                            <td>{item.days_required}</td>
-                            <td>{item.receiver_email}</td>
-                            <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
-                              <span>{getDisplayStatus(item)}</span>
-                            </td>
-                          </tr>
-                        ))}
+                        {sent_service_data.map((innerArray, index) => {
+                          // Use the first item in the inner array for field values
+                          const item = innerArray[0] || {};
+                          return (
+                            <tr
+                              key={index}
+                              onClick={() => set_selected_sent_item(item)}
+                            >
+                              <td>{index + 1}</td>
+                              <td>{item.event_name || 'N/A'}</td>
+                              <td>₹{item.total_amount || '0'}</td>
+                              <td>{item.days_required || 'N/A'}</td>
+                              <td>{item.receiver_email || 'N/A'}</td>
+                              <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                                <span>{getDisplayStatus(item)}</span>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   ) : (
@@ -1044,89 +1103,95 @@ function EventManagement({ category }) {
                         <tbody>
                           {receiver_service_data
                             .filter(
-                              (item) =>
-                                selected_service_data === "All" ||
-                                getDisplayStatus(item) === selected_service_data
+                              (innerArray) =>
+                                Array.isArray(innerArray) &&
+                                innerArray.length > 0 &&
+                                (selected_service_data === "All" ||
+                                  getDisplayStatus(innerArray[0]) === selected_service_data)
                             )
-                            .map((item, index) => (
-                              <tr key={item.id || index}>
-                                <td>{index + 1}</td>
-                                <td>{item.sender_email}</td>
-                                <td>{item.service_name}</td>
-                                <td>{item.days_required}</td>
-                                <td
-                                  style={{
-                                    maxWidth: "240px",
-                                    overflow: "hidden",
-                                    whiteSpace: "nowrap",
-                                    textOverflow: "ellipsis",
-                                  }}
-                                >
-                                  {item.location}
-                                </td>
-                                <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
-                                  <span>{getDisplayStatus(item)}</span>
-                                </td>
-                                <td className="action-buttons">
-                                  {window.innerWidth <= 660 ? (
-                                    <div style={{ position: "relative" }}>
-                                      <button
-                                        className="mobile-action-btn"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
-                                        }}
-                                        style={{
-                                          fontSize: "20px",
-                                          padding: "4px 12px",
-                                          borderRadius: "4px",
-                                          background: "transparent",
-                                          border: "1px solid #ddd",
-                                        }}
-                                      >
-                                        ⋮
-                                      </button>
-                                      {isMenuOpen === item.id && (
-                                        <div ref={menuRef}>
-                                          <ActionMenu
-                                            eventStatus={getDisplayStatus(item)}
-                                            onApprove={() => {
-                                              set_data(item);
-                                              setIsMenuOpen(null);
-                                            }}
-                                            onReject={() => {
-                                              handleRejectClick(item);
-                                              setIsMenuOpen(null);
-                                            }}
-                                            onInfo={() => {
-                                              handleInfoClick(item);
-                                              setIsMenuOpen(null);
-                                            }}
-                                          />
-                                        </div>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <>
-                                      {getDisplayStatus(item).toLowerCase() === "pending" && (
-                                        <>
-                                          <button className="approve-btn" onClick={() => set_data(item)}>
-                                            Approve
-                                          </button>
-                                          <button className="reject-btn" onClick={() => handleRejectClick(item)}>
-                                            <IoCloseOutline style={{ height: "20px", width: "20px" }} />
-                                          </button>
-                                        </>
-                                      )}
-                                      <button className="info-btn" onClick={() => handleInfoClick(item)}>
-                                        <IoInformation style={{ height: "20px", width: "20px" }} />
-                                      </button>
-                                    </>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
+                            .map((innerArray, index) => {
+                              const item = innerArray[0]; // Use the first item
+                              return (
+                                <tr key={item.id || index}>
+                                  <td>{index + 1}</td>
+                                  <td>{item.sender_email || 'N/A'}</td>
+                                  <td>{item.service_name || 'N/A'}</td>
+                                  <td>{item.days_required || 'N/A'}</td>
+                                  <td
+                                    style={{
+                                      maxWidth: "240px",
+                                      overflow: "hidden",
+                                      whiteSpace: "nowrap",
+                                      textOverflow: "ellipsis",
+                                    }}
+                                  >
+                                    {item.location || 'N/A'}
+                                  </td>
+                                  <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                                    <span>{getDisplayStatus(item)}</span>
+                                  </td>
+                                  <td className="action-buttons">
+                                    {window.innerWidth <= 660 ? (
+                                      <div style={{ position: "relative" }}>
+                                        <button
+                                          className="mobile-action-btn"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
+                                          }}
+                                          style={{
+                                            fontSize: "20px",
+                                            padding: "4px 12px",
+                                            borderRadius: "4px",
+                                            background: "transparent",
+                                            border: "1px solid #ddd",
+                                          }}
+                                        >
+                                          ⋮
+                                        </button>
+                                        {isMenuOpen === item.id && (
+                                          <div ref={menuRef}>
+                                            <ActionMenu
+                                              eventStatus={getDisplayStatus(item)}
+                                              onApprove={() => {
+                                                set_data(item);
+                                                setIsMenuOpen(null);
+                                              }}
+                                              onReject={() => {
+                                                handleRejectClick(item);
+                                                setIsMenuOpen(null);
+                                              }}
+                                              onInfo={() => {
+                                                handleInfoClick(item);
+                                                setIsMenuOpen(null);
+                                              }}
+                                            />
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <>
+                                        {getDisplayStatus(item).toLowerCase() === "pending" && (
+                                          <>
+                                            <button className="approve-btn" onClick={() => set_data(item)}>
+                                              Approve
+                                            </button>
+                                            <button className="reject-btn" onClick={() => handleRejectClick(item)}>
+                                              <IoCloseOutline style={{ height: "20px", width: "20px" }} />
+                                            </button>
+                                          </>
+                                        )}
+                                        <button className="info-btn" onClick={() => handleInfoClick(item)}>
+                                          <IoInformation style={{ height: "20px", width: "20px" }} />
+                                        </button>
+                                      </>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                         </tbody>
+
                       </table>
 
                       {/* Show fallback message when filtered results are empty */}

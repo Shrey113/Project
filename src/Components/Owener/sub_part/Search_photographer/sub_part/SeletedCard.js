@@ -3,7 +3,7 @@ import "./SeletedCard.css";
 import { IoClose } from "react-icons/io5";
 import { IoLocationOutline, IoCalendarOutline, IoArrowBack, IoCopyOutline } from "react-icons/io5";
 import { BsCurrencyRupee, BsCheckCircleFill, BsChevronDown } from "react-icons/bs";
-import { MdBusinessCenter, MdCategory, } from "react-icons/md";
+import { MdBusinessCenter, MdCategory } from "react-icons/md";
 import {
   Server_url,
   showAcceptToast,
@@ -186,9 +186,9 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         const startDate = dayjs(formData.start_date);
         const endDate = dayjs(formData.end_date);
         const diffDays = endDate.diff(startDate, 'day') + 1;
-        
+
         if (diffDays <= 0) return;
-        
+
         const newDayDetails = [];
         for (let i = 0; i < diffDays; i++) {
           const currentDate = startDate.add(i, 'day');
@@ -201,28 +201,27 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
             description: ""
           });
         }
-        
+
         setDayDetails(newDayDetails);
       };
       generateDayDetails();
     }
   }, [formData.start_date, formData.end_date, eventType]);
-  
+
   // Reset to page 1 when switching event types
   useEffect(() => {
     setCurrentPage(1);
   }, [eventType]);
-  
-  
+
   const handleDayDetailChange = (index, field, value) => {
     const updatedDayDetails = [...dayDetails];
-    
+
     // Update the specific day's field
     updatedDayDetails[index] = {
       ...updatedDayDetails[index],
       [field]: value
     };
-    
+
     // If this is the first day and copy is enabled, update all other days too
     if (index === 0 && copyFirstDay) {
       for (let i = 1; i < updatedDayDetails.length; i++) {
@@ -232,7 +231,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         };
       }
     }
-    
+
     setDayDetails(updatedDayDetails);
   };
 
@@ -353,21 +352,32 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
   };
 
   const print_booking_details = () => {
+    // Check if we have the required dates
+    if (!validateDates()) {
+      console.error("Date validation failed in print_booking_details");
+      return null;
+    }
+
     const formatBookingData = () => {
       const isOneDayEvent = eventType === "1-day";
-      
+
       // Format dates properly for server with time component (YYYY-MM-DD HH:MM:SS format)
       const formatDate = (dateString) => {
         if (!dateString) return null;
         return dayjs(dateString).format('YYYY-MM-DD HH:mm:ss');
       };
-      
+
       // Get formatted dates for the overall booking
       const formattedStartDate = formatDate(formData.start_date);
-      const formattedEndDate = isOneDayEvent 
+      const formattedEndDate = isOneDayEvent
         ? formatDate(dayjs(formData.start_date).add(1, 'day')) // Add 1 day gap for end date
         : formatDate(formData.end_date);
-      
+
+      if (!formattedStartDate || (eventType !== "1-day" && !formattedEndDate)) {
+        console.error("Missing formatted dates");
+        return null;
+      }
+
       const baseData = {
         event_request_type: "service",
         event_name: type,
@@ -389,7 +399,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         return {
           ...baseData,
           location: formData.location,
-          location_link: formData.locationLink,
+          location_link: formData.locationLink || "",
           title: `${formData.service_name} booking`,
           schedule: [
             {
@@ -398,34 +408,34 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
               start_date: formattedStartDate,
               end_date: formattedEndDate,
               location: formData.location,
-              location_link: formData.locationLink,
+              location_link: formData.locationLink || "",
               description: formData.description || "",
             }
           ]
         };
       } else {
-        // Generate the schedule with proper date formatting including one-day gap
+        // Generate the schedule with proper date formatting
         const generateScheduleDates = () => {
           const startDate = dayjs(formData.start_date);
           const dates = [];
-          
+
           for (let i = 0; i < dayDetails.length; i++) {
             const currentDate = startDate.add(i, 'day');
-            const nextDate = currentDate.add(1, 'day'); // Next day for the end date
-            
+            const nextDate = currentDate.add(i, 'day'); // Next day for the end date
+
             dates.push({
               start: currentDate.format('YYYY-MM-DD HH:mm:ss'),
               end: nextDate.format('YYYY-MM-DD HH:mm:ss')
             });
           }
-          
+
           return dates;
         };
-        
+
         // Get all dates for the booking period
         const scheduleDates = generateScheduleDates();
-        
-        // Create schedule with properly formatted dates and one-day gaps
+
+        // Create schedule with properly formatted dates
         const schedule = dayDetails.map((day, index) => ({
           day_number: index + 1,
           title: day.title || `Day ${index + 1}`,
@@ -447,6 +457,8 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     };
 
     const validateBookingData = (data) => {
+      if (!data) return { isValid: false, errors: ["Failed to create booking data"] };
+
       const errors = [];
 
       if (!user?.user_email) errors.push("User information is missing");
@@ -454,7 +466,10 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       if (!data.services_id || !data.service_name) errors.push("Service information is incomplete");
       if (!data.start_date) errors.push("Start date is required");
       if (eventType === "multi-day" && !data.end_date) errors.push("End date is required");
-      if (!data.location) errors.push("Location is required");
+      if (!data.location && eventType !== "multi-day") errors.push("Location is required");
+      if (eventType === "multi-day" && (!dayDetails[0]?.location || dayDetails.some(day => !day.location))) {
+        errors.push("Location is required for all days");
+      }
 
       return {
         isValid: errors.length === 0,
@@ -462,37 +477,40 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
       };
     };
 
-    const bookingData = formatBookingData();
-    const validationResult = validateBookingData(bookingData);
+    try {
+      const bookingData = formatBookingData();
+      const validationResult = validateBookingData(bookingData);
 
-    if (!validationResult.isValid) {
+      if (!validationResult.isValid) {
+        showRejectToast({
+          message: `Validation failed: ${validationResult.errors.join(", ")}`,
+        });
+        console.error("Validation errors:", validationResult.errors);
+        return null;
+      }
+
+      console.log("Booking Data (Ready for submission):", JSON.stringify(bookingData, null, 2));
+      return bookingData;
+    } catch (error) {
+      console.error("Error preparing booking data:", error);
       showRejectToast({
-        message: `Validation failed: ${validationResult.errors.join(", ")}`,
+        message: `Error preparing booking data: ${error.message}`,
       });
-      console.error("Validation errors:", validationResult.errors);
-      return;
+      return null;
     }
-
-    console.log("Booking Data (Ready for submission):", JSON.stringify(bookingData, null, 2));
-
-    showAcceptToast({
-      message: "Booking data ready for submission",
-    });
-
-    return bookingData;
   };
-  
-  
 
   const add_service_request = async () => {
-    const bookingData = print_booking_details();
-    
-    if (!bookingData) {
-      // Validation failed
-      return;
-    }
-
     try {
+      const bookingData = print_booking_details();
+
+      if (!bookingData) {
+        showRejectToast({ message: "Booking data is missing or invalid" });
+        return;
+      }
+
+      console.log("Sending service request to server:", bookingData);
+
       // Send the formatted booking data to the server
       const response = await fetch(`${Server_url}/owner/add-service-request`, {
         method: "POST",
@@ -502,11 +520,17 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         body: JSON.stringify(bookingData),
       });
 
+      // Check if response is ok
       if (!response.ok) {
-        showRejectToast({ message: "Service request failed" });
-        throw new Error("Request failed");
+        const errorData = await response.json().catch(() => null);
+        const errorMessage = errorData?.error || "Service request failed";
+        console.error("Server error response:", errorData);
+        showRejectToast({ message: errorMessage });
+        throw new Error(errorMessage);
       }
-      
+
+      const responseData = await response.json();
+      console.log("Service request succeeded:", responseData);
       showAcceptToast({ message: "Service request added successfully" });
       onClose();
     } catch (error) {
@@ -524,49 +548,81 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     }
   };
 
-  const validateDates = () => {
-    const errors = {};
-    const start = dayjs(formData.start_date);
-    const end = dayjs(formData.end_date);
+  // Add this function to log form data to help with debugging
+  const logFormData = () => {
+    console.log("Current form data:", {
+      eventType,
+      start_date: formData.start_date,
+      end_date: formData.end_date,
+      location: formData.location,
+      service_name: formData.service_name,
+      service_id: formData.service_id,
+      service_price: formData.service_price,
+      days_required: formData.days_required,
+      total_amount: formData.total_amount,
+      dayDetails // Log dayDetails to see location data
+    });
+  };
 
-    // Clear previous errors
-    errors.start_date = "";
-    errors.end_date = "";
+  const validateDates = () => {
+    console.log("Inside validateDates for event type:", eventType);
+    const errors = {};
+
+    // Ensure consistent date formatting using dayjs
+    const start = formData.start_date ? dayjs(formData.start_date) : null;
+    const end = formData.end_date ? dayjs(formData.end_date) : null;
 
     // Check if dates are selected
     if (!formData.start_date) {
       errors.start_date = "Start date is required";
-    }
-    if (!formData.end_date) {
-      errors.end_date = "End date is required";
+      console.log("Start date is required");
     }
 
-    // Check if end date is after start date
-    if (start && end && end.isBefore(start)) {
-      errors.end_date = "End date must be after start date";
+    // Only require end date for multi-day events
+    if (eventType === "multi-day" && !formData.end_date) {
+      errors.end_date = "End date is required";
+      console.log("End date is required");
+    }
+
+    // Check if end date is after start date for multi-day events
+    if (eventType === "multi-day" && start && end) {
+      if (end.isBefore(start) || end.isSame(start, "day")) {
+        errors.end_date = "End date must be after start date";
+        console.log("End date must be after start date");
+      }
     }
 
     // Check if dates are blocked
     if (start && shouldDisableDate(start)) {
       errors.start_date = "This date is not available";
+      console.log("Start date is not available");
     }
-    if (end && shouldDisableDate(end)) {
+
+    if (eventType === "multi-day" && end && shouldDisableDate(end)) {
       errors.end_date = "This date is not available";
+      console.log("End date is not available");
     }
 
-    setDateErrors(errors);
+    // Update date errors
+    setDateErrors({
+      start_date: errors.start_date || "",
+      end_date: errors.end_date || ""
+    });
 
-    // If there are errors, scroll to top
-    if (Object.values(errors).some((error) => error !== "")) {
+    console.log("Validation errors:", errors);
+
+    // Scroll to top if there are errors
+    if (errors.start_date || errors.end_date) {
       scrollToTop();
+      return false;
     }
 
-    return Object.values(errors).every((error) => error === "");
+    return true;
   };
 
   const handleNextPage = (e) => {
     e.preventDefault();
-    
+
     // Validate dates before proceeding to the next page
     if (validateDates()) {
       setCurrentPage(2);
@@ -582,113 +638,164 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // For multi-day event on first page, go to second page
+    // Log form data to help with debugging
+    logFormData();
+
+    console.log("Handling submit for eventType:", eventType);
+    // For multi-day event on first page, go to next page
     if (eventType === "multi-day" && currentPage === 1) {
       handleNextPage(e);
       return;
     }
 
-    // Validate all fields
-    if (eventType === "multi-day") {
-      if (!validateDates()) {
-        return;
-      }
-    } else {
-      // Validate single date
-      if (!formData.start_date) {
-        setDateErrors({
-          ...dateErrors,
-          start_date: "Date is required"
-        });
-        return;
-      }
-    }
-
-    // Validate location
-    if (!formData.location.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        location_error: "Location is required",
-      }));
+    // Validate dates
+    if (!validateDates()) {
+      console.log("Date validation failed");
+      showRejectToast({ message: "Please select valid dates" });
       return;
     }
 
-    if (type === "equipment") {
-      await add_equipment_request();
-    } else if (type === "package") {
-      await add_package_request();
-    } else if (type === "service") {
-      await add_service_request();
+    // Validate location based on event type
+    if (eventType === "1-day") {
+      if (!formData.location.trim()) {
+        setFormData((prev) => ({
+          ...prev,
+          location_error: "Location is required",
+        }));
+        showRejectToast({ message: "Location is required" });
+        scrollToTop();
+        return;
+      }
+    } else {
+      // For multi-day events, check if all days have a location
+      const missingLocation = dayDetails.some(day => !day.location.trim());
+      if (missingLocation) {
+        showRejectToast({ message: "Location is required for all days" });
+        scrollToTop();
+        return;
+      }
+    }
+
+    // Prepare data for submission based on request type
+    try {
+      if (type === "equipment") {
+        await add_equipment_request();
+      } else if (type === "package") {
+        await add_package_request();
+      } else if (type === "service") {
+        // For service, we need formatted data
+        if (eventType === "multi-day" && dayDetails.length === 0) {
+          showRejectToast({ message: "Day details are missing" });
+          return;
+        }
+
+        // For 1-day events, ensure we have the required data
+        if (eventType === "1-day") {
+          if (!formData.start_date) {
+            setDateErrors({
+              start_date: "Start date is required",
+              end_date: ""
+            });
+            showRejectToast({ message: "Please select a date" });
+            return;
+          }
+
+          // For 1-day events, set end_date to start_date + 1 day if not already set
+          if (!formData.end_date) {
+            setFormData(prev => ({
+              ...prev,
+              end_date: dayjs(formData.start_date).add(1, 'day').toISOString()
+            }));
+          }
+        }
+
+        const bookingData = print_booking_details();
+        if (!bookingData) {
+          console.log("Booking data preparation failed");
+          showRejectToast({ message: "Failed to prepare booking data" });
+          return;
+        }
+
+        console.log("Submitting service request with data:", bookingData);
+        await add_service_request();
+      }
+    } catch (error) {
+      console.error("Error submitting request:", error);
+      showRejectToast({ message: `Error: ${error.message}` });
     }
   };
 
   const handleDateChange = (name, newValue) => {
     if (!newValue) return;
-    
+
     const newDate = dayjs(newValue);
-    
+
     // Create updated form data
     const updatedFormData = {
       ...formData,
       [name]: newDate.toISOString(),
     };
-    
-    // Handle start date change with minimum gap logic
+
+    // Handle start date change with validation
     if (name === "start_date") {
-      // If changing start date, check if we need to adjust end date
-      if (formData.end_date) {
-        const currentEndDate = dayjs(formData.end_date);
-        
-        // Calculate the minimum end date (start date + 2 days)
-        const minimumEndDate = newDate.add(2, 'day');
-        
-        // If current end date is before the minimum end date, update it
-        if (currentEndDate.isBefore(minimumEndDate)) {
-          updatedFormData.end_date = minimumEndDate.toISOString();
-          
-          
+      // If eventType is multi-day, ensure end date is valid
+      if (eventType === "multi-day") {
+        if (formData.end_date) {
+          const currentEndDate = dayjs(formData.end_date);
+
+          // End date must be at least 1 day after start date
+          if (currentEndDate.isSame(newDate, 'day') || currentEndDate.isBefore(newDate)) {
+            // Set end date to start date + 1 day
+            updatedFormData.end_date = newDate.add(1, 'day').toISOString();
+          }
+        } else {
+          // If no end date is set, set it to start date + 1 day
+          updatedFormData.end_date = newDate.add(1, 'day').toISOString();
         }
-      } else {
-        // If no end date is set, set it to start date + 2 days
-        updatedFormData.end_date = newDate.add(2, 'day').toISOString();
       }
     }
-    
-    // Handle end date change validation
-    if (name === "end_date") {
+
+    // Handle end date change validation for multi-day events
+    if (name === "end_date" && eventType === "multi-day") {
       const startDate = dayjs(formData.start_date);
-      const minimumEndDate = startDate.add(2, 'day');
-      
-      // Check if end date is before minimum required
-      if (newDate.isBefore(minimumEndDate)) {
+
+      // Check if end date is before or same as start date
+      if (newDate.isBefore(startDate) || newDate.isSame(startDate, 'day')) {
+        // Show error but still update the date
         setDateErrors(prev => ({
           ...prev,
-          end_date: "End date must be at least 2 days after start date"
+          end_date: "End date must be after start date"
         }));
-        return;
+      } else {
+        // Clear end date error if valid
+        setDateErrors(prev => ({
+          ...prev,
+          end_date: ""
+        }));
       }
     }
-    
-    // Update days_required based on the two dates
-    if (updatedFormData.start_date && updatedFormData.end_date) {
+
+    // Update days_required based on the two dates for multi-day events
+    if (updatedFormData.start_date && updatedFormData.end_date && eventType === "multi-day") {
       const start = dayjs(updatedFormData.start_date);
       const end = dayjs(updatedFormData.end_date);
       const daysRequired = end.diff(start, 'day') + 1; // +1 to include the start date
       updatedFormData.days_required = daysRequired;
     }
-    
+
     // Update state
     setFormData(updatedFormData);
-    
-    // Clear error
+
+    // Clear error for the field being changed
     setDateErrors(prev => ({
       ...prev,
       [name]: ""
     }));
-    
-    // If dates have changed, regenerate day details
-    if ((name === "start_date" || name === "end_date") && 
-        updatedFormData.start_date && updatedFormData.end_date) {
+
+    // If dates have changed for multi-day event, regenerate day details
+    if (eventType === "multi-day" &&
+      (name === "start_date" || name === "end_date") &&
+      updatedFormData.start_date && updatedFormData.end_date) {
       regenerateDayDetails(updatedFormData);
     }
   };
@@ -698,18 +805,18 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
     const startDate = dayjs(updatedFormData.start_date);
     const endDate = dayjs(updatedFormData.end_date);
     const diffDays = endDate.diff(startDate, 'day') + 1;
-    
+
     if (diffDays <= 0) return;
-    
+
     // If there are existing day details, preserve their content when possible
     const newDayDetails = [];
     for (let i = 0; i < diffDays; i++) {
       const currentDate = startDate.add(i, 'day');
       const dateStr = currentDate.format('YYYY-MM-DD');
-      
+
       // Check if we had this date in previous details
       const existingDay = dayDetails.find(day => day.date === dateStr);
-      
+
       if (existingDay) {
         // Use existing data
         newDayDetails.push(existingDay);
@@ -738,7 +845,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
         }
       }
     }
-    
+
     setDayDetails(newDayDetails);
   };
 
@@ -792,40 +899,38 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
   // Calculate total amount whenever relevant values change
   useEffect(() => {
     // Calculate total amount based on event type
-  const calculateTotalAmount = () => {
-    let amount = 0;
-    
-    if (eventType === "1-day") {
-      // For 1-day events, use the service price
-      amount = type === "service" ? formData.service_price : 0;
-    } else {
-      // For multi-day events, multiply by days
-      amount = type === "service" ? formData.service_price * dayDetails.length : 0;
-    }
-    
-    setTotalAmount(amount);
-    
-    // Also update in formData
-    setFormData(prev => ({
-      ...prev,
-      total_amount: amount
-    }));
-  };
+    const calculateTotalAmount = () => {
+      let amount = 0;
+
+      if (eventType === "1-day") {
+        // For 1-day events, use the service price
+        amount = type === "service" ? formData.service_price : 0;
+      } else {
+        // For multi-day events, multiply by days
+        amount = type === "service" ? formData.service_price * dayDetails.length : 0;
+      }
+
+      setTotalAmount(amount);
+
+      // Also update in formData
+      setFormData(prev => ({
+        ...prev,
+        total_amount: amount
+      }));
+    };
 
     calculateTotalAmount();
-  }, [formData.days_required, formData.service_price, eventType, dayDetails,type]);
-  
-  
-  
+  }, [formData.days_required, formData.service_price, eventType, dayDetails, type]);
+
   // Handle copying first day data to all days
   const handleCopyToAllDays = (e) => {
     const isChecked = e.target.checked;
     setCopyFirstDay(isChecked);
-    
+
     if (isChecked && dayDetails.length > 1 && dayDetails[0]) {
       // Get the first day data
       const firstDay = dayDetails[0];
-      
+
       // Update all other days with first day data
       const updatedDayDetails = dayDetails.map((day, index) => {
         if (index === 0) return day; // Keep first day unchanged
@@ -837,11 +942,11 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
           description: firstDay.description
         };
       });
-      
+
       setDayDetails(updatedDayDetails);
     }
   };
-  
+
   return (
     <div
       className="owner-selected-overlay-container"
@@ -904,7 +1009,6 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
               {/* Combined Booking Details Section */}
               <div className="booking-section">
-
 
                 {/* Date Selection */}
                 <div style={{ marginBottom: "16px" }}>
@@ -1060,7 +1164,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="location-row mt-2">
                         <div className="location-input-col">
                           <label className="location-link-label">Location Link</label>
@@ -1075,7 +1179,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                           </div>
                         </div>
                       </div>
-                      
+
                       {formData.location_error && (
                         <div className="error-message">{formData.location_error}</div>
                       )}
@@ -1297,7 +1401,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="location-row mt-2">
                         <div className="location-input-col">
                           <label className="location-link-label">Location Link</label>
@@ -1312,7 +1416,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                           </div>
                         </div>
                       </div>
-                      
+
                       {formData.location_error && (
                         <div className="error-message">{formData.location_error}</div>
                       )}
@@ -1360,7 +1464,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                 "Service Booking"
               )}
             </div>
-            
+
             <form onSubmit={handleSubmit} className="booking-form">
               {/* Only show service details and toggle on first page */}
               {!(eventType === "multi-day" && currentPage === 2) && (
@@ -1391,13 +1495,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                   <div className="event-toggle-container">
                     <div className="event-toggle-label">Event Type:</div>
                     <div className="toggle-switch-container">
-                      <div 
+                      <div
                         className={`toggle-option ${eventType === "1-day" ? "toggle-option-active" : ""}`}
                         onClick={() => setEventType("1-day")}
                       >
                         1-Day Event
                       </div>
-                      <div 
+                      <div
                         className={`toggle-option ${eventType === "multi-day" ? "toggle-option-active" : ""}`}
                         onClick={() => setEventType("multi-day")}
                       >
@@ -1610,7 +1714,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                   </div>
                                 </div>
                               </div>
-                              
+
                               <div className="location-row mt-2">
                                 <div className="location-input-col">
                                   <label className="location-link-label">Location Link</label>
@@ -1625,7 +1729,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                   </div>
                                 </div>
                               </div>
-                              
+
                               {formData.location_error && (
                                 <div className="error-message">{formData.location_error}</div>
                               )}
@@ -1665,13 +1769,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                         <span>{dayDetails.length}</span>
                       </div>
                     </div>
-                    
+
                     {/* Copy first day to all days checkbox */}
                     {dayDetails.length > 1 && (
                       <div className="copy-first-day-container">
                         <FormControlLabel
                           control={
-                            <Checkbox 
+                            <Checkbox
                               checked={copyFirstDay}
                               onChange={handleCopyToAllDays}
                               color="primary"
@@ -1686,7 +1790,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                         />
                       </div>
                     )}
-                    
+
                     <div className="days-container">
                       {dayDetails.map((day, index) => (
                         <CollapsibleSection
@@ -1707,8 +1811,8 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                   if (copyFirstDay && index === 0) {
                                     // If copying is enabled and this is the first day, update all days
                                     const newValue = e.target.value;
-                                    const updatedDayDetails = dayDetails.map((d, i) => 
-                                      i === 0 ? d : {...d, title: newValue}
+                                    const updatedDayDetails = dayDetails.map((d, i) =>
+                                      i === 0 ? d : { ...d, title: newValue }
                                     );
                                     setDayDetails(updatedDayDetails);
                                   }
@@ -1717,7 +1821,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                 className={copyFirstDay && index > 0 ? "disabled-input" : ""}
                               />
                             </div>
-                            
+
                             <div className="form-group">
                               <label>
                                 <IoLocationOutline />
@@ -1733,12 +1837,13 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                         disabled={copyFirstDay && index > 0}
                                         onChange={(e) => handleDayDetailChange(index, 'location', e.target.value)}
                                         placeholder="Enter location for this day"
+                                        required
                                         className={copyFirstDay && index > 0 ? "disabled-input" : ""}
                                       />
                                     </div>
                                   </div>
                                 </div>
-                                
+
                                 <div className="location-row mt-2">
                                   <div className="location-input-col">
                                     <label className="location-link-label">Location Link</label>
@@ -1756,7 +1861,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                 </div>
                               </div>
                             </div>
-                            
+
                             <div className="form-group">
                               <label>Description or Notes</label>
                               <textarea
@@ -1767,8 +1872,8 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
                                   if (copyFirstDay && index === 0) {
                                     // If copying is enabled and this is the first day, update all days
                                     const newValue = e.target.value;
-                                    const updatedDayDetails = dayDetails.map((d, i) => 
-                                      i === 0 ? d : {...d, description: newValue}
+                                    const updatedDayDetails = dayDetails.map((d, i) =>
+                                      i === 0 ? d : { ...d, description: newValue }
                                     );
                                     setDayDetails(updatedDayDetails);
                                   }
@@ -1795,10 +1900,15 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
               </div>
 
               {/* Button text based on context */}
-              <button type="submit" className="submit-btn" onClick={print_booking_details}>
-                <BsCheckCircleFill style={{ marginRight: "8px" }}  />
-                {eventType === "multi-day" && currentPage === 1 
-                  ? "Next Page" 
+              <button type={eventType === "multi-day" && currentPage === 1 ? "button" : "submit"} className="submit-btn" onClick={(e) => {
+                if (eventType === "multi-day" && currentPage === 1) {
+                  e.preventDefault(); // Prevent form submission
+                  handleNextPage(e);
+                }
+              }}>
+                <BsCheckCircleFill style={{ marginRight: "8px" }} />
+                {eventType === "multi-day" && currentPage === 1
+                  ? "Next Page"
                   : "Book Service"}
               </button>
             </form>
