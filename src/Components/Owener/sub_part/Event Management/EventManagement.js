@@ -517,6 +517,10 @@ function EventManagement({ category }) {
     // Return original status if not passed
     return item.event_status;
   };
+  const handleEditClick = (item) => {
+    console.log("edit button clicked", item);
+  }
+
 
   // Function to refresh data after status updates
   const refreshReceivedData = useCallback(async () => {
@@ -859,6 +863,7 @@ function EventManagement({ category }) {
                           <th>Days</th>
                           <th>Receiver</th>
                           <th>Status</th>
+                          <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -877,6 +882,12 @@ function EventManagement({ category }) {
                               <td>{item.receiver_email || 'N/A'}</td>
                               <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
                                 <span>{getDisplayStatus(item)}</span>
+                              </td>
+                              <td className="sent_button_edit" onClick={(e) => { e.stopPropagation() }} style={{ minHeight: "100% ", padding: "12px 15px" }}>
+                                <button onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditClick(innerArray)
+                                }}>Edit</button>
                               </td>
                             </tr>
                           );
