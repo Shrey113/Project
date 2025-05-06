@@ -421,7 +421,7 @@ function SeletedCard({ type, onClose, selectedData, selectedOwner }) {
 
           for (let i = 0; i < dayDetails.length; i++) {
             const currentDate = startDate.add(i, 'day');
-            const nextDate = currentDate.add(i, 'day'); // Next day for the end date
+            const nextDate = currentDate.add(1, 'day'); 
 
             dates.push({
               start: currentDate.format('YYYY-MM-DD HH:mm:ss'),

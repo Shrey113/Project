@@ -325,9 +325,11 @@
 .modal-content-container {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
+  max-height: 80vh;
 }
-
+.modal-content-container form{
+  width: 50%;
+}
 /* Left Side */
 .modal-left {
   flex: 1;

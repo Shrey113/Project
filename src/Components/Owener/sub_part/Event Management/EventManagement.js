@@ -124,20 +124,63 @@ function EventManagement({ category }) {
         event_location: item.location,
       });
     } else if (item.event_request_type === "service") {
-      setNewEvent({
-        id: item.id,
-        title: `service - ${item.service_name}`,
-        start: item.start_date,
-        end: item.end_date,
-        description: item.requirements,
-        event_request_type: item.event_request_type,
-        sender_email: item.sender_email,
-        event_location: item.location,
-      });
+      // Check if this is part of a multi-day service event
+      const serviceEvents = findRelatedServiceEvents(item);
+      
+      if (serviceEvents.length > 1) {
+        // This is a multi-day event
+        setNewEvent({
+          id: item.id,
+          title: `service - ${item.service_name}`,
+          start: serviceEvents[0].start_date, // First day
+          end: serviceEvents[serviceEvents.length - 1].end_date, // Last day
+          description: item.requirements,
+          event_request_type: item.event_request_type,
+          sender_email: item.sender_email,
+          event_location: item.location,
+          multi_day_data: serviceEvents, // Pass all days' data
+        });
+      } else {
+        // Single day event
+        setNewEvent({
+          id: item.id,
+          title: `service - ${item.service_name}`,
+          start: item.start_date,
+          end: item.end_date,
+          description: item.requirements,
+          event_request_type: item.event_request_type,
+          sender_email: item.sender_email,
+          event_location: item.location,
+        });
+      }
     }
 
     set_show_calender_popup(true);
   }
+  
+  // Helper function to find all related service events (multi-day)
+  const findRelatedServiceEvents = (item) => {
+    // If receiver_service_data is not in expected format, return just this item
+    if (!Array.isArray(receiver_service_data) || receiver_service_data.length === 0) {
+      return [item];
+    }
+    
+    // Find the array containing this item
+    const relatedEvents = receiver_service_data.find(innerArray => {
+      if (!Array.isArray(innerArray)) return false;
+      
+      return innerArray.some(event => 
+        event.id === item.id || 
+        (event.services_id === item.services_id && 
+         event.sender_email === item.sender_email &&
+         event.total_amount === item.total_amount &&
+         Math.abs(new Date(event.time_stamp) - new Date(item.time_stamp)) < 1000 * 60 * 5) // Within 5 minutes
+      );
+    });
+    
+    return Array.isArray(relatedEvents) ? relatedEvents : [item];
+  };
+
   const handleInfoClick = (request) => {
     setSelectedRequest(request);
     setPopupType("info");
@@ -221,7 +264,7 @@ function EventManagement({ category }) {
           if (!response.error) {
             set_sent_package_data(response.data.package);
             set_sent_equipment_data(response.data.equipment);
-            set_sent_service_data(response.data.service);
+            // set_sent_service_data(response.data.service);
           } else {
             console.log("No data received or an error occurred");
           }
@@ -288,6 +331,7 @@ function EventManagement({ category }) {
         const data = await response.json();
         console.log(data.service);
         set_sent_service_data(data.service);
+        console.log("set_sent_service_data..............", data.service);
         // Update state with service and event data
       } catch (err) {
         console.error('Error fetching service requests:', err);

@@ -2,14 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-
 import { CiCirclePlus, CiCircleMinus } from "react-icons/ci";
 import { FaBuilding, FaMapMarkerAlt, FaUser, FaArrowRight, FaClock, FaCheck, FaTimes, FaEnvelope } from "react-icons/fa";
-import dayjs from "dayjs";
 
 import user_backicon from "./../../../Owener/img/user_backicon.png"
 import { Server_url, showAcceptToast, showRejectToast, showWarningToast } from "../../../../redux/AllData";
@@ -30,30 +24,7 @@ const COLOR_OPTIONS = [
   { id: "red", value: "#EF4444", label: "Red", default: false },
 ];
 
-const theme = createTheme({
-  palette: {
-    primary: { main: "#4f46e5" },
-  },
-  components: {
-    MuiOutlinedInput: {
-      styleOverrides: {
-        root: {
-          borderRadius: "8px",
-          "&:hover": {
-            "& .MuiOutlinedInput-notchedOutline": {
-              borderColor: "#4f46e5",
-            },
-          },
-        },
-      },
-    },
-    MuiInputLabel: {
-      styleOverrides: {
-        root: { color: "#6b7280" },
-      },
-    },
-  },
-});
+
 
 const formatDate = (isoString) => {
   const date = new Date(isoString);
@@ -78,8 +49,6 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
       return profile_pic_user1;
     }
   }
-  // Determine status icon based on member's confirmation status
-  // console.log("member", member)
   const getMemberStatusIcon = () => {
     if (!member.confirmation_status || member.confirmation_status === 'Pending') {
       return <FaClock style={{ color: "#F59E0B" }} title="Awaiting response" />;
@@ -167,6 +136,8 @@ const EmailSendingLoader = () => {
   );
 };
 
+
+
 const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_package_data, set_receiver_equipment_data, set_receiver_service_data, profile_data }) => {
   const user = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -175,44 +146,113 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   const [DisabledTeamMembers, setDisabledTeamMembers] = useState([]);
   const [teamResponseStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // New state for multi-day event handling
+  const [isMultiDayEvent, setIsMultiDayEvent] = useState(false);
+  const [eventDays, setEventDays] = useState([]);
+  const [dayAssignments, setDayAssignments] = useState({});
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+
+  // Add formStep state to track which page we're on
+  const [formStep, setFormStep] = useState(1);
+
+  // Add new state for assignment modal
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [assignmentDetails, setAssignmentDetails] = useState({
+    role: "",
+    payment: ""
+  });
+
+  useEffect(() => {
+    console.log("newEvent", newEvent);
+    console.log("set_receiver_service_data", set_receiver_service_data);
+    console.log("profile_data", profile_data);
+    console.log("teamMembers", teamMembers);
+    console.log("assignedMembers", assignedMembers);
+    console.log("DisabledTeamMembers", DisabledTeamMembers);
+    console.log("teamResponseStatus", teamResponseStatus);
+    console.log("isLoading", isLoading);
+  }, [newEvent, set_receiver_service_data, profile_data, teamMembers, assignedMembers, DisabledTeamMembers, teamResponseStatus, isLoading]);
 
   useEffect(() => {
     const defaultColor = COLOR_OPTIONS.find(color => color.default).value;
     setNewEvent(prev => ({ ...prev, backgroundColor: defaultColor }));
-  }, [setNewEvent]);
+    
+    // Check if this is a multi-day event by looking at the data format
+    if (Array.isArray(newEvent.multi_day_data) && newEvent.multi_day_data.length > 1) {
+      setIsMultiDayEvent(true);
+      setEventDays(newEvent.multi_day_data);
+      console.log("Multi-day event detected with days:", newEvent.multi_day_data.length);
+    }
+  }, [setNewEvent, newEvent.multi_day_data]);
 
-  // Helper function to assign team members - simplified version
+  // Function to update day assignments for multi-day events
+  const updateDayAssignments = (assignments) => {
+    setDayAssignments(assignments);
+    console.log("Updated day assignments:", assignments);
+  };
+
+  // Helper function to assign team members - updated for multi-day support
   const assignTeamMembers = async (eventId) => {
     // Show loading overlay
     setIsLoading(true);
 
-    // Ensure you're only sending member_id in each object
-    const formattedMembers = assignedMembers.map((member) => ({
-      member_id: member.member_id,
-    }));
-
-    console.log("Assigning team members to event ID:", eventId, "Members:", formattedMembers);
-
     try {
-      const response = await fetch(`${Server_url}/team_members/add-team-members`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_email: user.user_email,
-          team_members: formattedMembers,
-          event_id: eventId,
-          socket_id: socket.id || null
-        }),
-      });
+      if (isMultiDayEvent) {
+        // For multi-day events, process each day's assignments
+        const dayAssignmentPromises = Object.entries(dayAssignments).map(async ([dayIndex, members]) => {
+          const dayId = eventDays[dayIndex].id;
+          const formattedMembers = members.map((member) => ({
+            member_id: member.member_id,
+          }));
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error assigning team members:", response.status, errorText);
-        throw new Error(`Failed to assign team members: ${response.status} ${errorText}`);
+          const response = await fetch(`${Server_url}/team_members/add-team-members`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              user_email: user.user_email,
+              team_members: formattedMembers,
+              event_id: dayId,
+              socket_id: socket.id || null
+            }),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to assign team members for day ${parseInt(dayIndex) + 1}: ${response.status} ${errorText}`);
+          }
+
+          return await response.json();
+        });
+
+        await Promise.all(dayAssignmentPromises);
+        
+      } else {
+        // Original single-day event handling
+        const formattedMembers = assignedMembers.map((member) => ({
+          member_id: member.member_id,
+        }));
+
+        const response = await fetch(`${Server_url}/team_members/add-team-members`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_email: user.user_email,
+            team_members: formattedMembers,
+            event_id: eventId,
+            socket_id: socket.id || null
+          }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Error assigning team members:", response.status, errorText);
+          throw new Error(`Failed to assign team members: ${response.status} ${errorText}`);
+        }
+        
+        await response.json();
       }
-
-      const data = await response.json();
-      console.log("Team assignment response:", data);
 
       // Hide loader and close modal only after API call completes successfully
       setIsLoading(false);
@@ -226,7 +266,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         titleError: "",
       });
 
-      return data.status || "Waiting on Team";
+      return "Waiting on Team";
     } catch (error) {
       // Hide loader on error
       setIsLoading(false);
@@ -249,6 +289,20 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       }));
       return false;
     }
+
+    // Validate multi-day event assignments
+    if (isMultiDayEvent) {
+      // Check if at least one member is assigned to each day
+      const hasAssignmentsForAllDays = eventDays.every((day, index) => 
+        dayAssignments[index] && dayAssignments[index].length > 0
+      );
+      
+      if (!hasAssignmentsForAllDays) {
+        showWarningToast({ message: "Please assign at least one team member to each day of the event." });
+        return false;
+      }
+    }
+    
     return true;
   };
 
@@ -332,71 +386,172 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     }
   };
 
+  // Function to handle opening the assignment modal
+  const openAssignmentModal = (member) => {
+    setSelectedMember(member);
+    setAssignmentDetails({ role: "", payment: "" });
+    setShowAssignmentModal(true);
+  };
+
+  // Function to handle confirming the assignment
+  const confirmAssignment = () => {
+    if (!assignmentDetails.role || !assignmentDetails.payment) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    if (isMultiDayEvent) {
+      const newAssignments = { ...dayAssignments };
+      if (!newAssignments[selectedDayIndex]) {
+        newAssignments[selectedDayIndex] = [];
+      }
+      
+      // Replace any existing assignment for this day (only one member per day)
+      newAssignments[selectedDayIndex] = [{
+        ...selectedMember,
+        role: assignmentDetails.role,
+        payment: assignmentDetails.payment
+      }];
+      
+      setDayAssignments(newAssignments);
+      updateDayAssignments(newAssignments);
+    } else {
+      // For single-day events, replace all assigned members
+      setAssignedMembers([{
+        ...selectedMember,
+        role: assignmentDetails.role,
+        payment: assignmentDetails.payment
+      }]);
+    }
+    
+    setShowAssignmentModal(false);
+  };
+
+  // Function to render the assignment modal
+  const renderAssignmentModal = () => {
+    if (!showAssignmentModal || !selectedMember) return null;
+    
+    return (
+      <div className="assignment-modal-overlay">
+        <div className="assignment-modal">
+          <h3>Assign Team Member</h3>
+          <div className="member-info-summary">
+            <div className="member-avatar-container">
+              <img
+                src={selectedMember.member_profile_img ? 
+                  (["1", "2", "3", "4"].includes(selectedMember.member_profile_img) ? 
+                    `${profile_pic_user1}` : // This is a placeholder, should match your profile image logic
+                    `${Server_url}/owner/profile-image/${selectedMember.team_member_email}`) : 
+                  user_backicon}
+                alt={selectedMember.member_name}
+                className="member-img"
+              />
+            </div>
+            <div className="member-name">{selectedMember.member_name}</div>
+          </div>
+          
+          <div className="assignment-form">
+            <div className="form-field">
+              <label>Role for this Event</label>
+              <input 
+                type="text"
+                placeholder="e.g. Photographer, Assistant, etc."
+                value={assignmentDetails.role}
+                onChange={(e) => setAssignmentDetails({...assignmentDetails, role: e.target.value})}
+              />
+            </div>
+            
+            <div className="form-field">
+              <label>Payment Amount (per day)</label>
+              <div className="payment-input">
+                <span className="currency-symbol">$</span>
+                <input 
+                  type="number"
+                  placeholder="0.00"
+                  value={assignmentDetails.payment}
+                  onChange={(e) => setAssignmentDetails({...assignmentDetails, payment: e.target.value})}
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div className="modal-actions">
+            <button className="cancel-btn" onClick={() => setShowAssignmentModal(false)}>Cancel</button>
+            <button className="confirm-btn" onClick={confirmAssignment}>Assign</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const handleAddEvent = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
-    // Add validation for minimum one team member requirement
-    if (assignedMembers.length === 0) {
-      showWarningToast({ message: "Please assign at least one team member before confirming the event." });
+    // Validate team member assignment
+    if (isMultiDayEvent) {
+      // Check if at least one day has a team member assigned
+      const hasMembersAssigned = Object.values(dayAssignments).some(members => members && members.length > 0);
+      if (!hasMembersAssigned) {
+        showWarningToast({ message: "Please assign at least one team member to a day of the event." });
+        return;
+      }
+    } else if (assignedMembers.length === 0) {
+      showWarningToast({ message: "Please assign a team member before confirming the event." });
       return;
     }
 
-    try {
-      const response = await fetch(`${Server_url}/calendar/add-event-with-success`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_email: user.user_email,
-          title: newEvent.title + " from " + newEvent.sender_email,
-          start: newEvent.start,
-          end: newEvent.end,
-          description: newEvent.description,
-          backgroundColor: newEvent.backgroundColor,
-          sender_email: newEvent.sender_email,
-          event_location: newEvent.event_location
-        })
+    // Format team assignments as an array of objects with specific fields
+    let formattedTeamAssignments = [];
+
+    if (isMultiDayEvent) {
+      // Process multi-day assignments
+      Object.entries(dayAssignments).forEach(([dayIndex, members]) => {
+        if (members && members.length > 0) {
+          const member = members[0]; // Since we only allow one member per day
+          const day = eventDays[parseInt(dayIndex)];
+          
+          formattedTeamAssignments.push({
+            price_in_event: member.payment,
+            role_in_event: member.role,
+            event_id: day.id || `day_${dayIndex}`,
+            member_id: member.member_id,
+            assigned_by_email: user.user_email,
+            start_date: day.start_date,
+            end_date: day.end_date
+          });
+        }
       });
-
-      const data = await response.json();
-
-      if (data.message === "Event created successfully") {
-        const eventId = data.event_id || newEvent.id;
-
-        updateRequestStatus(data);
-
-        if ((newEvent.event_request_type === "package" || newEvent.event_request_type === "service")
-          && assignedMembers.length > 0) {
-          const eventStatus = await assignTeamMembers(eventId);
-          showAcceptToast({
-            message: `Event created and team members notified. Status: ${eventStatus}`
-          });
-        } else if (newEvent.event_request_type === "equipment") {
-          await confirmEquipmentEvent(newEvent.id);
-        } else {
-          showAcceptToast({ message: "Event created successfully!" });
-        }
-
-        // Only close the modal after the process is complete and if loader is not showing
-        if (!isLoading) {
-          setShowEventModal(false);
-          setNewEvent({
-            title: "",
-            start: new Date(),
-            end: new Date(),
-            description: "",
-            backgroundColor: "#6366F1",
-            titleError: "",
-            event_status: "Waiting on Team",
-          });
-        }
+    } else {
+      // Process single-day assignment
+      if (assignedMembers.length > 0) {
+        const member = assignedMembers[0];
+        formattedTeamAssignments.push({
+          price_in_event: member.payment,
+          role_in_event: member.role,
+          event_id: newEvent.id || 'single_day_event',
+          member_id: member.member_id,
+          assigned_by_email: user.user_email,
+          start_date: newEvent.start,
+          end_date: newEvent.end
+        });
       }
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error in handle Add Event:", error);
-      showRejectToast({ message: error.message || "Failed to create event or assign team members." });
     }
+
+    // Log the event data with the new format
+    console.log("Event Data:", {
+      title: newEvent.title,
+      start: newEvent.start,
+      end: newEvent.end,
+      description: newEvent.description,
+      backgroundColor: newEvent.backgroundColor,
+      isMultiDayEvent,
+      teamAssignments: formattedTeamAssignments
+    });
+
+    showAcceptToast({ message: "Event data logged to console - no server action taken." });
+    setShowEventModal(false);
   };
 
   useEffect(() => {
@@ -405,8 +560,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       try {
         const formattedStartDate = formatDate(newEvent.start);
         const formattedEndDate = formatDate(newEvent.end);
-
-        console.log("Fetching team members for date range:", formattedStartDate, "to", formattedEndDate);
 
         const [inactiveResponse, filteredResponse] = await Promise.all([
           fetch(`${Server_url}/team_members/get_inactive_members`, {
@@ -434,9 +587,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         const inactiveData = await inactiveResponse.json();
         const filteredData = await filteredResponse.json();
 
-        console.log("Available team members:", inactiveData);
-        console.log("Filtered data response:", filteredData);
-        console.log("Busy team members:", filteredData.assignedTeamMembers || []);
 
         // Mark team members who are event owners or handlers
         const processedTeamMembers = inactiveData.map(member => {
@@ -465,12 +615,10 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           }).filter(id => !isNaN(id));
         }
 
-        console.log("Final list of busy member IDs:", busyIds);
         setDisabledTeamMembers(busyIds);
 
         if (newEvent.id) {
           try {
-            console.log("Fetching assigned team members for event ID:", newEvent.id);
             const assignedResponse = await fetch(`${Server_url}/team_members/get-event-team-members`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -484,7 +632,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
             }
 
             const assignedData = await assignedResponse.json();
-            console.log("Currently assigned members:", assignedData);
 
             if (Array.isArray(assignedData) && assignedData.length > 0) {
               // Mark assigned members who are event owners or handlers
@@ -527,7 +674,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       member.member_id : parseInt(member.member_id);
 
     const result = DisabledTeamMembers.includes(memberId);
-    console.log(`Checking if member ${member.member_name} (ID: ${memberId}) is busy:`, result);
     return result;
   };
 
@@ -559,9 +705,11 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     setTeamMembers(teamMembers.filter((m) => m.member_id !== member.member_id));
   };
 
-  const renderEventForm = () => (
-    <form>
+  // First step form showing basic event info
+  const renderBasicInfoForm = () => (
+    <form className="basic-info-form">
       <h2>Add New Event</h2>
+      
       <div className="form-field">
         <label className="form-label">Event Title</label>
         <input
@@ -571,78 +719,31 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           value={newEvent.title + " from " + newEvent.sender_email}
           readOnly
         />
-
         {newEvent.titleError && (
           <p className="error-text">{newEvent.titleError}</p>
         )}
       </div>
-
-      <div className="date-time-container">
-        <ThemeProvider theme={theme}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <div className="date-input-group">
-              <label>Start Date</label>
-              <DatePicker
-                readOnly
-                value={newEvent.start ? dayjs(newEvent.start) : null}
-                onChange={(newValue) => {
-                  const newDate = newValue.toDate();
-                  const currentTime = dayjs(newEvent.start);
-                  newDate.setHours(
-                    currentTime.hour(),
-                    currentTime.minute()
-                  );
-                  setNewEvent({
-                    ...newEvent,
-                    start: newDate,
-                    end: newValue.isAfter(dayjs(newEvent.end))
-                      ? newDate
-                      : newEvent.end,
-                  });
-                }}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    required: true,
-                    className: "modern-date-picker",
-                  },
-                }}
-                minDate={dayjs()}
-                format="MMM DD, YYYY"
-              />
-            </div>
-            <div className="date-input-group">
-              <label>End Date</label>
-              <DatePicker
-                readOnly
-                value={newEvent.start ? dayjs(newEvent.end) : null}
-                onChange={(newValue) => setNewEvent(newValue, "start")}
-                className="form-control"
-                format="MMM DD, YYYY"
-                slotProps={{
-                  textField: {
-                    variant: "outlined",
-                    size: "small",
-                  },
-                }}
-              />
-            </div>
-          </LocalizationProvider>
-        </ThemeProvider>
-      </div>
-
+      
       <div className="form-field">
-        <label className="form-label">Description</label>
-        <textarea
-          readOnly
-          className="event-description"
-          placeholder="Enter event description"
-          value={newEvent.description}
-          onChange={(e) =>
-            setNewEvent({ ...newEvent, description: e.target.value })
-          }
-          rows="2"
-        />
+        <label className="form-label">Event Info</label>
+        <div className="event-info-box">
+          <div className="event-date-time">
+            <div className="info-row">
+              <span className="info-label">Start:</span>
+              <span className="info-value">{formatDate(newEvent.start)}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">End:</span>
+              <span className="info-value">{formatDate(newEvent.end)}</span>
+            </div>
+          </div>
+          {isMultiDayEvent && (
+            <div className="info-row days-count">
+              <span className="info-label">Total Days:</span>
+              <span className="info-value day-count">{eventDays.length}</span>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="form-field">
@@ -651,8 +752,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           {COLOR_OPTIONS.map((color) => (
             <div
               key={color.id}
-              className={`color-option ${newEvent.backgroundColor === color.value ? "selected" : ""
-                }`}
+              className={`color-option ${newEvent.backgroundColor === color.value ? "selected" : ""}`}
               style={{ backgroundColor: color.value }}
               onClick={() => setNewEvent({ ...newEvent, backgroundColor: color.value })}
               title={color.label}
@@ -660,83 +760,235 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           ))}
         </div>
       </div>
-
+      
+      <div className="step-actions">
+        <button 
+          type="button" 
+          className="cancel-btn" 
+          onClick={() => setShowEventModal(false)}
+        >
+          Cancel
+        </button>
+        <button 
+          type="button" 
+          className="next-btn" 
+          onClick={() => setFormStep(2)}
+        >
+          Next
+        </button>
+      </div>
     </form>
   );
 
-  const renderTeamStatusOverview = () => {
-    if (!teamResponseStatus) return null;
-
-    return (
-      <div className="team-status-overview">
-        <h4>Team Member Responses</h4>
-        <div className="status-counts">
-          <div className="status-item">
-            <span className="status-label">Accepted:</span>
-            <span className="status-count confirmed-count">{teamResponseStatus.confirmed}</span>
-          </div>
-          <div className="status-item">
-            <span className="status-label">Pending:</span>
-            <span className="status-count pending-count">{teamResponseStatus.pending}</span>
-          </div>
-          <div className="status-item">
-            <span className="status-label">Declined:</span>
-            <span className="status-count declined-count">{teamResponseStatus.declined}</span>
-          </div>
-        </div>
-        <div className="event-status">
-          <strong>Event Status: </strong>
-          <span
-            className={`status-tag ${newEvent.event_status === "Accepted" ? "status-accepted" : newEvent.event_status === "Waiting on Team" ? "status-waiting-on-team" : newEvent.event_status === "Declined" ? "status-declined" : "status-pending"}`}
-          >
-            {newEvent.event_status === "Accepted" ? "Accepted" : newEvent.event_status || "Pending"}
-          </span>
-        </div>
-      </div>
-    );
-  };
-
-  const renderTeamMemberSection = () => (
-    <div className="assign_team_member_section">
-      <h3>Team Members</h3>
-      {newEvent.event_status === "Waiting on Team" && renderTeamStatusOverview()}
-      <div className="team-members-section">
-        <ul className="team-list">
-          {assignedMembers.map((member) => (
-            <TeamMember
-              key={member.member_id}
-              member={{ ...member, status: 'assigned' }}
-              onAction={removeAssignedMember}
-              actionIcon={CiCircleMinus}
-              actionButtonClass="remove-btn"
-            />
-          ))}
-
-          {teamMembers.map((member) => {
-            const isDisabled = isMemberBusy(member);
-
-            if (assignedMembers.some(m => m.member_id === member.member_id)) {
-              return null;
-            }
-
-            return (
-              <TeamMember
-                key={member.member_id}
-                member={{ ...member, status: isDisabled ? 'busy' : 'available' }}
-                onAction={assignMember}
-                actionIcon={CiCirclePlus}
-                isDisabled={isDisabled}
-                actionButtonClass="assign-btn"
-              />
-            );
-          })}
-        </ul>
-
-        {teamMembers.length === 0 && assignedMembers.length === 0 && (
-          <div className="no-members-message">
-            <p>No team members available.</p>
+  // Second step form showing team assignment
+  const renderTeamAssignmentForm = () => (
+    <div className="team-assignment-form">
+      <h2>Assign Team Members</h2>
+      
+      <div className="team-assignment-container">
+        {/* Left side: Day selection */}
+        {isMultiDayEvent && (
+          <div className="days-sidebar">
+            <h4>Event Days</h4>
+            <div className="day-items-container">
+              {eventDays.map((day, index) => {
+                const hasAssignment = dayAssignments[index] && dayAssignments[index].length > 0;
+                
+                return (
+                  <div 
+                    key={index} 
+                    className={`day-item ${selectedDayIndex === index ? 'day-item-active' : ''} ${hasAssignment ? 'has-assignment' : ''}`}
+                    onClick={() => setSelectedDayIndex(index)}
+                  >
+                    <div className="day-item-number">Day {index + 1}</div>
+                    <div className="day-item-date">{formatDate(day.start_date)}</div>
+                    {hasAssignment ? (
+                      <div className="day-item-member">
+                        <span className="assigned-icon">✓</span>
+                        {dayAssignments[index][0].member_name}
+                      </div>
+                    ) : (
+                      <div className="day-item-status unassigned">Not assigned</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
+        
+        {/* Right side: Team members */}
+        <div className="team-members-container">
+          {isMultiDayEvent ? (
+            <div className="day-assignment">
+              <h3>Assign Team Member for Day {selectedDayIndex + 1}</h3>
+              
+              {/* Current assignment for this day */}
+              {dayAssignments[selectedDayIndex] && dayAssignments[selectedDayIndex].length > 0 && (
+                <div className="current-assignment">
+                  <h4>Current Assignment</h4>
+                  <div className="assigned-member-card">
+                    <div className="member-avatar-container">
+                      <img
+                        src={dayAssignments[selectedDayIndex][0].member_profile_img ? 
+                          (["1", "2", "3", "4"].includes(dayAssignments[selectedDayIndex][0].member_profile_img) ? 
+                            `${profile_pic_user1}` : // This is a placeholder
+                            `${Server_url}/owner/profile-image/${dayAssignments[selectedDayIndex][0].team_member_email}`) : 
+                          user_backicon}
+                        alt={dayAssignments[selectedDayIndex][0].member_name}
+                        className="member-img"
+                      />
+                    </div>
+                    <div className="assigned-member-details">
+                      <div className="member-name">{dayAssignments[selectedDayIndex][0].member_name}</div>
+                      <div className="member-role">{dayAssignments[selectedDayIndex][0].role}</div>
+                      <div className="member-payment">${dayAssignments[selectedDayIndex][0].payment}/day</div>
+                    </div>
+                    <button 
+                      className="remove-btn" 
+                      onClick={() => {
+                        const newAssignments = { ...dayAssignments };
+                        newAssignments[selectedDayIndex] = [];
+                        setDayAssignments(newAssignments);
+                        updateDayAssignments(newAssignments);
+                      }}
+                    >
+                      <CiCircleMinus />
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Available members list */}
+              <div className="available-members">
+                <h4>Available Team Members</h4>
+                <div className="team-members-section">
+                  <ul className="team-list">
+                    {teamMembers.map((member) => {
+                      const isDisabled = isMemberBusy(member);
+                      
+                      // Don't show if already assigned to this day or is owner/handler
+                      if ((dayAssignments[selectedDayIndex] && 
+                           dayAssignments[selectedDayIndex].some(m => m.member_id === member.member_id)) || 
+                          member.isEventOwner || 
+                          member.isEventHandler) {
+                        return null;
+                      }
+
+                      return (
+                        <TeamMember
+                          key={member.member_id}
+                          member={{ ...member, status: isDisabled ? 'busy' : 'available' }}
+                          onAction={() => openAssignmentModal(member)}
+                          actionIcon={CiCirclePlus}
+                          isDisabled={isDisabled}
+                          actionButtonClass="assign-btn"
+                        />
+                      );
+                    })}
+                  </ul>
+                  
+                  {teamMembers.filter(m => !m.isEventOwner && !m.isEventHandler).length === 0 && (
+                    <div className="no-members-message">
+                      <p>No team members available.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="team-members-section">
+              <h3>Assign Team Member</h3>
+              
+              {/* Current assignment for single day event */}
+              {assignedMembers.length > 0 && (
+                <div className="current-assignment">
+                  <h4>Current Assignment</h4>
+                  <div className="assigned-member-card">
+                    <div className="member-avatar-container">
+                      <img
+                        src={assignedMembers[0].member_profile_img ? 
+                          (["1", "2", "3", "4"].includes(assignedMembers[0].member_profile_img) ? 
+                            `${profile_pic_user1}` : // This is a placeholder
+                            `${Server_url}/owner/profile-image/${assignedMembers[0].team_member_email}`) : 
+                          user_backicon}
+                        alt={assignedMembers[0].member_name}
+                        className="member-img"
+                      />
+                    </div>
+                    <div className="assigned-member-details">
+                      <div className="member-name">{assignedMembers[0].member_name}</div>
+                      <div className="member-role">{assignedMembers[0].role}</div>
+                      <div className="member-payment">${assignedMembers[0].payment}/day</div>
+                    </div>
+                    <button 
+                      className="remove-btn" 
+                      onClick={() => setAssignedMembers([])}
+                    >
+                      <CiCircleMinus />
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Available members list */}
+              <div className="available-members">
+                <h4>Available Team Members</h4>
+                <ul className="team-list">
+                  {teamMembers.map((member) => {
+                    const isDisabled = isMemberBusy(member);
+                    
+                    // Don't show if already assigned or is owner/handler
+                    if (assignedMembers.some(m => m.member_id === member.member_id) || 
+                        member.isEventOwner || 
+                        member.isEventHandler) {
+                      return null;
+                    }
+
+                    return (
+                      <TeamMember
+                        key={member.member_id}
+                        member={{ ...member, status: isDisabled ? 'busy' : 'available' }}
+                        onAction={() => openAssignmentModal(member)}
+                        actionIcon={CiCirclePlus}
+                        isDisabled={isDisabled}
+                        actionButtonClass="assign-btn"
+                      />
+                    );
+                  })}
+                </ul>
+
+                {teamMembers.length === 0 && assignedMembers.length === 0 && (
+                  <div className="no-members-message">
+                    <p>No team members available.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className="step-actions">
+        <button 
+          type="button" 
+          className="back-btn" 
+          onClick={() => setFormStep(1)}
+        >
+          Back
+        </button>
+        <button
+          type="button"
+          className="confirm-btn"
+          onClick={handleAddEvent}
+          disabled={newEvent.event_status === "Waiting on Team" || isLoading}
+        >
+          {newEvent.event_status === "Waiting on Team" ? (
+            <span className="waiting-status">
+              <FaClock /> Team Confirmation
+            </span>
+          ) : isLoading ? "Processing..." : "Confirm Event"}
+        </button>
       </div>
     </div>
   );
@@ -793,45 +1045,34 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   )
 
   return (
-    // Event management popup 
-    <div className="modal-overlay_add_event"
-      onClick={() => setShowEventModal(false)}
-    >
-      <div className={`modal-content add_event_modal ${newEvent.event_request_type === "equipment" ? "set_equipment_event" : ""}`}
+    <div className="modal-overlay_add_event" onClick={() => setShowEventModal(false)}>
+      <div 
+        className={`modal-content add_event_modal 
+          ${newEvent.event_request_type === "equipment" ? "set_equipment_event" : ""} 
+          ${formStep === 2 ? "step-two" : ""} 
+          ${isMultiDayEvent && formStep === 2 ? "if_is_multi_day_and_page_2" : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="modal-close" onClick={() => setShowEventModal(false)} >
+        <button className="modal-close" onClick={() => setShowEventModal(false)}>
           ×
         </button>
+        
         <div className="modal-content-container">
-          {renderEventForm()}
-
-          {newEvent.event_request_type === "equipment" ? renderUserProfileSection() : renderTeamMemberSection()}
+          {formStep === 1 ? (
+            renderBasicInfoForm()
+          ) : (
+            newEvent.event_request_type === "equipment" ? 
+            renderUserProfileSection() : 
+            renderTeamAssignmentForm()
+          )}
         </div>
-        <div className="modal-actions">
-          <button
-            type="submit"
-            onClick={handleAddEvent}
-            disabled={newEvent.event_status === "Waiting on Team" || isLoading}
-            className={newEvent.event_status === "Waiting on Team" || isLoading ? "disabled-btn" : ""}
-          >
-            {newEvent.event_status === "Waiting on Team" ? (
-              <span className="waiting-status">
-                <FaClock /> Team Confirmation
-              </span>
-            ) : isLoading ? "Processing..." : "Confirm Event"}
-          </button>
-          <button type="button" onClick={() => setShowEventModal(false)}>
-            Cancel
-          </button>
-        </div>
+        
+        {isLoading && <EmailSendingLoader />}
+        {renderAssignmentModal()}
       </div>
-
-      {isLoading && (
-        <EmailSendingLoader />
-      )}
     </div>
   );
 };
 
 export default AddDetailsPop;
+
