@@ -146,7 +146,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   const [DisabledTeamMembers, setDisabledTeamMembers] = useState([]);
   const [teamResponseStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // New state for multi-day event handling
   const [isMultiDayEvent, setIsMultiDayEvent] = useState(false);
   const [eventDays, setEventDays] = useState([]);
@@ -178,7 +178,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   useEffect(() => {
     const defaultColor = COLOR_OPTIONS.find(color => color.default).value;
     setNewEvent(prev => ({ ...prev, backgroundColor: defaultColor }));
-    
+
     // Check if this is a multi-day event by looking at the data format
     if (Array.isArray(newEvent.multi_day_data) && newEvent.multi_day_data.length > 1) {
       setIsMultiDayEvent(true);
@@ -227,7 +227,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         });
 
         await Promise.all(dayAssignmentPromises);
-        
+
       } else {
         // Original single-day event handling
         const formattedMembers = assignedMembers.map((member) => ({
@@ -250,7 +250,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           console.error("Error assigning team members:", response.status, errorText);
           throw new Error(`Failed to assign team members: ${response.status} ${errorText}`);
         }
-        
+
         await response.json();
       }
 
@@ -293,16 +293,16 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     // Validate multi-day event assignments
     if (isMultiDayEvent) {
       // Check if at least one member is assigned to each day
-      const hasAssignmentsForAllDays = eventDays.every((day, index) => 
+      const hasAssignmentsForAllDays = eventDays.every((day, index) =>
         dayAssignments[index] && dayAssignments[index].length > 0
       );
-      
+
       if (!hasAssignmentsForAllDays) {
         showWarningToast({ message: "Please assign at least one team member to each day of the event." });
         return false;
       }
     }
-    
+
     return true;
   };
 
@@ -405,14 +405,14 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       if (!newAssignments[selectedDayIndex]) {
         newAssignments[selectedDayIndex] = [];
       }
-      
+
       // Replace any existing assignment for this day (only one member per day)
       newAssignments[selectedDayIndex] = [{
         ...selectedMember,
         role: assignmentDetails.role,
         payment: assignmentDetails.payment
       }];
-      
+
       setDayAssignments(newAssignments);
       updateDayAssignments(newAssignments);
     } else {
@@ -423,14 +423,14 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         payment: assignmentDetails.payment
       }]);
     }
-    
+
     setShowAssignmentModal(false);
   };
 
   // Function to render the assignment modal
   const renderAssignmentModal = () => {
     if (!showAssignmentModal || !selectedMember) return null;
-    
+
     return (
       <div className="assignment-modal-overlay">
         <div className="assignment-modal">
@@ -438,10 +438,10 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           <div className="member-info-summary">
             <div className="member-avatar-container">
               <img
-                src={selectedMember.member_profile_img ? 
-                  (["1", "2", "3", "4"].includes(selectedMember.member_profile_img) ? 
+                src={selectedMember.member_profile_img ?
+                  (["1", "2", "3", "4"].includes(selectedMember.member_profile_img) ?
                     `${profile_pic_user1}` : // This is a placeholder, should match your profile image logic
-                    `${Server_url}/owner/profile-image/${selectedMember.team_member_email}`) : 
+                    `${Server_url}/owner/profile-image/${selectedMember.team_member_email}`) :
                   user_backicon}
                 alt={selectedMember.member_name}
                 className="member-img"
@@ -449,32 +449,32 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
             </div>
             <div className="member-name">{selectedMember.member_name}</div>
           </div>
-          
+
           <div className="assignment-form">
             <div className="form-field">
               <label>Role for this Event</label>
-              <input 
+              <input
                 type="text"
                 placeholder="e.g. Photographer, Assistant, etc."
                 value={assignmentDetails.role}
-                onChange={(e) => setAssignmentDetails({...assignmentDetails, role: e.target.value})}
+                onChange={(e) => setAssignmentDetails({ ...assignmentDetails, role: e.target.value })}
               />
             </div>
-            
+
             <div className="form-field">
               <label>Payment Amount (per day)</label>
               <div className="payment-input">
                 <span className="currency-symbol">$</span>
-                <input 
+                <input
                   type="number"
                   placeholder="0.00"
                   value={assignmentDetails.payment}
-                  onChange={(e) => setAssignmentDetails({...assignmentDetails, payment: e.target.value})}
+                  onChange={(e) => setAssignmentDetails({ ...assignmentDetails, payment: e.target.value })}
                 />
               </div>
             </div>
           </div>
-          
+
           <div className="modal-actions">
             <button className="cancel-btn" onClick={() => setShowAssignmentModal(false)}>Cancel</button>
             <button className="confirm-btn" onClick={confirmAssignment}>Assign</button>
@@ -511,7 +511,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         if (members && members.length > 0) {
           const member = members[0]; // Since we only allow one member per day
           const day = eventDays[parseInt(dayIndex)];
-          
+
           formattedTeamAssignments.push({
             price_in_event: member.payment,
             role_in_event: member.role,
@@ -549,6 +549,43 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       isMultiDayEvent,
       teamAssignments: formattedTeamAssignments
     });
+    const eventData = {
+      user_email: user.user_email,
+      title: newEvent.title,
+      start: newEvent.start,
+      end: newEvent.end,
+      description: newEvent.description,
+      backgroundColor: newEvent.backgroundColor,
+      isMultiDayEvent,
+      teamAssignments: formattedTeamAssignments
+    };
+
+    try {
+      const response = await fetch(`${Server_url}/owner/add_team_member_for_service`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit event data');
+      }
+
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.message) {
+          assignTeamMembers()
+        }
+      }
+      showAcceptToast({ message: "Event data successfully submitted!" });
+      setShowEventModal(false);
+    } catch (error) {
+      console.error('Error submitting event data:', error);
+      showWarningToast({ message: "Failed to submit event data. Please try again." });
+    }
 
     showAcceptToast({ message: "Event data logged to console - no server action taken." });
     setShowEventModal(false);
@@ -709,7 +746,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   const renderBasicInfoForm = () => (
     <form className="basic-info-form">
       <h2>Add New Event</h2>
-      
+
       <div className="form-field">
         <label className="form-label">Event Title</label>
         <input
@@ -723,7 +760,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           <p className="error-text">{newEvent.titleError}</p>
         )}
       </div>
-      
+
       <div className="form-field">
         <label className="form-label">Event Info</label>
         <div className="event-info-box">
@@ -760,18 +797,18 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           ))}
         </div>
       </div>
-      
+
       <div className="step-actions">
-        <button 
-          type="button" 
-          className="cancel-btn" 
+        <button
+          type="button"
+          className="cancel-btn"
           onClick={() => setShowEventModal(false)}
         >
           Cancel
         </button>
-        <button 
-          type="button" 
-          className="next-btn" 
+        <button
+          type="button"
+          className="next-btn"
           onClick={() => setFormStep(2)}
         >
           Next
@@ -784,7 +821,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   const renderTeamAssignmentForm = () => (
     <div className="team-assignment-form">
       <h2>Assign Team Members</h2>
-      
+
       <div className="team-assignment-container">
         {/* Left side: Day selection */}
         {isMultiDayEvent && (
@@ -793,10 +830,10 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
             <div className="day-items-container">
               {eventDays.map((day, index) => {
                 const hasAssignment = dayAssignments[index] && dayAssignments[index].length > 0;
-                
+
                 return (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`day-item ${selectedDayIndex === index ? 'day-item-active' : ''} ${hasAssignment ? 'has-assignment' : ''}`}
                     onClick={() => setSelectedDayIndex(index)}
                   >
@@ -816,13 +853,13 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
             </div>
           </div>
         )}
-        
+
         {/* Right side: Team members */}
         <div className="team-members-container">
           {isMultiDayEvent ? (
             <div className="day-assignment">
               <h3>Assign Team Member for Day {selectedDayIndex + 1}</h3>
-              
+
               {/* Current assignment for this day */}
               {dayAssignments[selectedDayIndex] && dayAssignments[selectedDayIndex].length > 0 && (
                 <div className="current-assignment">
@@ -830,10 +867,10 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                   <div className="assigned-member-card">
                     <div className="member-avatar-container">
                       <img
-                        src={dayAssignments[selectedDayIndex][0].member_profile_img ? 
-                          (["1", "2", "3", "4"].includes(dayAssignments[selectedDayIndex][0].member_profile_img) ? 
+                        src={dayAssignments[selectedDayIndex][0].member_profile_img ?
+                          (["1", "2", "3", "4"].includes(dayAssignments[selectedDayIndex][0].member_profile_img) ?
                             `${profile_pic_user1}` : // This is a placeholder
-                            `${Server_url}/owner/profile-image/${dayAssignments[selectedDayIndex][0].team_member_email}`) : 
+                            `${Server_url}/owner/profile-image/${dayAssignments[selectedDayIndex][0].team_member_email}`) :
                           user_backicon}
                         alt={dayAssignments[selectedDayIndex][0].member_name}
                         className="member-img"
@@ -844,8 +881,8 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                       <div className="member-role">{dayAssignments[selectedDayIndex][0].role}</div>
                       <div className="member-payment">${dayAssignments[selectedDayIndex][0].payment}/day</div>
                     </div>
-                    <button 
-                      className="remove-btn" 
+                    <button
+                      className="remove-btn"
                       onClick={() => {
                         const newAssignments = { ...dayAssignments };
                         newAssignments[selectedDayIndex] = [];
@@ -858,7 +895,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                   </div>
                 </div>
               )}
-              
+
               {/* Available members list */}
               <div className="available-members">
                 <h4>Available Team Members</h4>
@@ -866,12 +903,12 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                   <ul className="team-list">
                     {teamMembers.map((member) => {
                       const isDisabled = isMemberBusy(member);
-                      
+
                       // Don't show if already assigned to this day or is owner/handler
-                      if ((dayAssignments[selectedDayIndex] && 
-                           dayAssignments[selectedDayIndex].some(m => m.member_id === member.member_id)) || 
-                          member.isEventOwner || 
-                          member.isEventHandler) {
+                      if ((dayAssignments[selectedDayIndex] &&
+                        dayAssignments[selectedDayIndex].some(m => m.member_id === member.member_id)) ||
+                        member.isEventOwner ||
+                        member.isEventHandler) {
                         return null;
                       }
 
@@ -887,7 +924,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                       );
                     })}
                   </ul>
-                  
+
                   {teamMembers.filter(m => !m.isEventOwner && !m.isEventHandler).length === 0 && (
                     <div className="no-members-message">
                       <p>No team members available.</p>
@@ -899,7 +936,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           ) : (
             <div className="team-members-section">
               <h3>Assign Team Member</h3>
-              
+
               {/* Current assignment for single day event */}
               {assignedMembers.length > 0 && (
                 <div className="current-assignment">
@@ -907,10 +944,10 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                   <div className="assigned-member-card">
                     <div className="member-avatar-container">
                       <img
-                        src={assignedMembers[0].member_profile_img ? 
-                          (["1", "2", "3", "4"].includes(assignedMembers[0].member_profile_img) ? 
+                        src={assignedMembers[0].member_profile_img ?
+                          (["1", "2", "3", "4"].includes(assignedMembers[0].member_profile_img) ?
                             `${profile_pic_user1}` : // This is a placeholder
-                            `${Server_url}/owner/profile-image/${assignedMembers[0].team_member_email}`) : 
+                            `${Server_url}/owner/profile-image/${assignedMembers[0].team_member_email}`) :
                           user_backicon}
                         alt={assignedMembers[0].member_name}
                         className="member-img"
@@ -921,8 +958,8 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                       <div className="member-role">{assignedMembers[0].role}</div>
                       <div className="member-payment">${assignedMembers[0].payment}/day</div>
                     </div>
-                    <button 
-                      className="remove-btn" 
+                    <button
+                      className="remove-btn"
                       onClick={() => setAssignedMembers([])}
                     >
                       <CiCircleMinus />
@@ -930,18 +967,18 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                   </div>
                 </div>
               )}
-              
+
               {/* Available members list */}
               <div className="available-members">
                 <h4>Available Team Members</h4>
                 <ul className="team-list">
                   {teamMembers.map((member) => {
                     const isDisabled = isMemberBusy(member);
-                    
+
                     // Don't show if already assigned or is owner/handler
-                    if (assignedMembers.some(m => m.member_id === member.member_id) || 
-                        member.isEventOwner || 
-                        member.isEventHandler) {
+                    if (assignedMembers.some(m => m.member_id === member.member_id) ||
+                      member.isEventOwner ||
+                      member.isEventHandler) {
                       return null;
                     }
 
@@ -968,11 +1005,11 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
           )}
         </div>
       </div>
-      
+
       <div className="step-actions">
-        <button 
-          type="button" 
-          className="back-btn" 
+        <button
+          type="button"
+          className="back-btn"
           onClick={() => setFormStep(1)}
         >
           Back
@@ -1046,7 +1083,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
 
   return (
     <div className="modal-overlay_add_event" onClick={() => setShowEventModal(false)}>
-      <div 
+      <div
         className={`modal-content add_event_modal 
           ${newEvent.event_request_type === "equipment" ? "set_equipment_event" : ""} 
           ${formStep === 2 ? "step-two" : ""} 
@@ -1056,17 +1093,17 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
         <button className="modal-close" onClick={() => setShowEventModal(false)}>
           ×
         </button>
-        
+
         <div className="modal-content-container">
           {formStep === 1 ? (
             renderBasicInfoForm()
           ) : (
-            newEvent.event_request_type === "equipment" ? 
-            renderUserProfileSection() : 
-            renderTeamAssignmentForm()
+            newEvent.event_request_type === "equipment" ?
+              renderUserProfileSection() :
+              renderTeamAssignmentForm()
           )}
         </div>
-        
+
         {isLoading && <EmailSendingLoader />}
         {renderAssignmentModal()}
       </div>
