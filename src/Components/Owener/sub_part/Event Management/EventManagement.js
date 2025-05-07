@@ -517,8 +517,25 @@ function EventManagement({ category }) {
     // Return original status if not passed
     return item.event_status;
   };
-  const handleEditClick = (item) => {
+  const handleEditClick = async (item) => {
     console.log("edit button clicked", item);
+      fetch(`${Server_url}/get_info_for_event`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          event_id: item,
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("data", data);
+      })
+      .catch(error => {
+        console.error("Error fetching event info:", error);
+      });
   }
 
 
@@ -886,7 +903,7 @@ function EventManagement({ category }) {
                               <td className="sent_button_edit" onClick={(e) => { e.stopPropagation() }} style={{ minHeight: "100% ", padding: "12px 15px" }}>
                                 <button onClick={(e) => {
                                   e.stopPropagation();
-                                  handleEditClick(innerArray)
+                                  handleEditClick(sent_service_data[index])
                                 }}>Edit</button>
                               </td>
                             </tr>
