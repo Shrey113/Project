@@ -504,6 +504,22 @@ function EventManagement({ category }) {
     return item.event_status;
   };
 
+  // to show the confirmation status 
+  const getAllMemberConfirmation = (innerArray) => {
+    console.log("this is the data for confirmation... ", innerArray);
+
+    const statuses = innerArray.map(item => item.event_status);
+
+    if (statuses.every(status => status === "Accepted")) {
+      return "Accepted";
+    }
+
+    if (statuses.some(status => status === "waiting on team")) {
+      return "waiting on team";
+    }
+    return "Pending"
+  };
+
   const handleFetchServiceInfo = async (item) => {
     const eventIds = item.map(event => ({ id: event.id }));
     console.log("Sending event IDs:", eventIds);
@@ -623,7 +639,7 @@ function EventManagement({ category }) {
   return (
     <div id="owner-main-container-EventManagement">
       {/* Include the status updater component */}
-      <EventStatusUpdater user_email={user.user_email} updateReceivedData={refreshReceivedData} />
+      {/* <EventStatusUpdater user_email={user.user_email} updateReceivedData={refreshReceivedData} /> */}
 
       {/* received request count  */}
       <div className="requests_count">
@@ -1031,12 +1047,12 @@ function EventManagement({ category }) {
                               onClick={() => handleFetchServiceInfo(sent_service_data[index])}
                             >
                               <td>{index + 1}</td>
-                              <td>{item.event_name || 'N/A'}</td>
+                              <td>{item.service_name || 'N/A'}</td>
                               <td>₹{item.total_amount || '0'}</td>
                               <td>{item.days_required || 'N/A'}</td>
                               <td>{item.receiver_email || 'N/A'}</td>
-                              <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
-                                <span>{getDisplayStatus(item)}</span>
+                              <td className={`status ${getStatusClass(getAllMemberConfirmation(innerArray))}`}>
+                                <span>{getAllMemberConfirmation(innerArray)}</span>
                               </td>
                               <td className="sent_button_edit" onClick={(e) => { e.stopPropagation() }} style={{ minHeight: "100% ", padding: "12px 15px" }}>
                                 <button onClick={(e) => {
@@ -1337,8 +1353,8 @@ function EventManagement({ category }) {
                                   >
                                     {item.location || 'N/A'}
                                   </td>
-                                  <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
-                                    <span>{getDisplayStatus(item)}</span>
+                                  <td className={`status ${getStatusClass(getAllMemberConfirmation(innerArray))}`}>
+                                    <span>{getAllMemberConfirmation(innerArray)}</span>
                                   </td>
                                   <td className="action-buttons">
                                     {window.innerWidth <= 660 ? (

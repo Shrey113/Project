@@ -6,8 +6,7 @@ import { CiCirclePlus, CiCircleMinus } from "react-icons/ci";
 import { FaBuilding, FaMapMarkerAlt, FaUser, FaArrowRight, FaClock, FaCheck, FaTimes, FaEnvelope } from "react-icons/fa";
 
 import user_backicon from "./../../../Owener/img/user_backicon.png"
-import { Server_url, showAcceptToast, showRejectToast, showWarningToast } from "../../../../redux/AllData";
-import socket from "../../../../redux/socket";
+import { Server_url, showAcceptToast, showWarningToast } from "../../../../redux/AllData";
 import "./../Calendar/part/AddDetailsPop.css";
 
 import profile_pic_user1 from "./profile_pic/user1.jpg";
@@ -145,7 +144,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   const [assignedMembers, setAssignedMembers] = useState([]);
   const [DisabledTeamMembers, setDisabledTeamMembers] = useState([]);
   const [teamResponseStatus] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   // New state for multi-day event handling
   const [isMultiDayEvent, setIsMultiDayEvent] = useState(false);
@@ -194,85 +193,85 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   };
 
   // Helper function to assign team members - updated for multi-day support
-  const assignTeamMembers = async (eventId) => {
-    // Show loading overlay
-    setIsLoading(true);
+  // const assignTeamMembers = async (eventId) => {
+  //   // Show loading overlay
+  //   setIsLoading(true);
 
-    try {
-      if (isMultiDayEvent) {
-        // For multi-day events, process each day's assignments
-        const dayAssignmentPromises = Object.entries(dayAssignments).map(async ([dayIndex, members]) => {
-          const dayId = eventDays[dayIndex].id;
-          const formattedMembers = members.map((member) => ({
-            member_id: member.member_id,
-          }));
+  //   try {
+  //     if (isMultiDayEvent) {
+  //       // For multi-day events, process each day's assignments
+  //       const dayAssignmentPromises = Object.entries(dayAssignments).map(async ([dayIndex, members]) => {
+  //         const dayId = eventDays[dayIndex].id;
+  //         const formattedMembers = members.map((member) => ({
+  //           member_id: member.member_id,
+  //         }));
 
-          const response = await fetch(`${Server_url}/team_members/add-team-members`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              user_email: user.user_email,
-              team_members: formattedMembers,
-              event_id: dayId,
-              socket_id: socket.id || null
-            }),
-          });
+  //         const response = await fetch(`${Server_url}/team_members/add-team-members`, {
+  //           method: "POST",
+  //           headers: { "Content-Type": "application/json" },
+  //           body: JSON.stringify({
+  //             user_email: user.user_email,
+  //             team_members: formattedMembers,
+  //             event_id: dayId,
+  //             socket_id: socket.id || null
+  //           }),
+  //         });
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Failed to assign team members for day ${parseInt(dayIndex) + 1}: ${response.status} ${errorText}`);
-          }
+  //         if (!response.ok) {
+  //           const errorText = await response.text();
+  //           throw new Error(`Failed to assign team members for day ${parseInt(dayIndex) + 1}: ${response.status} ${errorText}`);
+  //         }
 
-          return await response.json();
-        });
+  //         return await response.json();
+  //       });
 
-        await Promise.all(dayAssignmentPromises);
+  //       await Promise.all(dayAssignmentPromises);
 
-      } else {
-        // Original single-day event handling
-        const formattedMembers = assignedMembers.map((member) => ({
-          member_id: member.member_id,
-        }));
+  //     } else {
+  //       // Original single-day event handling
+  //       const formattedMembers = assignedMembers.map((member) => ({
+  //         member_id: member.member_id,
+  //       }));
 
-        const response = await fetch(`${Server_url}/team_members/add-team-members`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_email: user.user_email,
-            team_members: formattedMembers,
-            event_id: eventId,
-            socket_id: socket.id || null
-          }),
-        });
+  //       const response = await fetch(`${Server_url}/team_members/add-team-members`, {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           user_email: user.user_email,
+  //           team_members: formattedMembers,
+  //           event_id: eventId,
+  //           socket_id: socket.id || null
+  //         }),
+  //       });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error("Error assigning team members:", response.status, errorText);
-          throw new Error(`Failed to assign team members: ${response.status} ${errorText}`);
-        }
+  //       if (!response.ok) {
+  //         const errorText = await response.text();
+  //         console.error("Error assigning team members:", response.status, errorText);
+  //         throw new Error(`Failed to assign team members: ${response.status} ${errorText}`);
+  //       }
 
-        await response.json();
-      }
+  //       await response.json();
+  //     }
 
-      // Hide loader and close modal only after API call completes successfully
-      setIsLoading(false);
-      setShowEventModal(false);
-      setNewEvent({
-        title: "",
-        start: new Date(),
-        end: new Date(),
-        description: "",
-        backgroundColor: "#6366F1",
-        titleError: "",
-      });
+  //     // Hide loader and close modal only after API call completes successfully
+  //     setIsLoading(false);
+  //     setShowEventModal(false);
+  //     setNewEvent({
+  //       title: "",
+  //       start: new Date(),
+  //       end: new Date(),
+  //       description: "",
+  //       backgroundColor: "#6366F1",
+  //       titleError: "",
+  //     });
 
-      return "Waiting on Team";
-    } catch (error) {
-      // Hide loader on error
-      setIsLoading(false);
-      throw error;
-    }
-  };
+  //     return "Waiting on Team";
+  //   } catch (error) {
+  //     // Hide loader on error
+  //     setIsLoading(false);
+  //     throw error;
+  //   }
+  // };
 
   const validateForm = () => {
     if (!newEvent.title.trim()) {
@@ -306,87 +305,88 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     return true;
   };
 
-  const updateRequestStatus = (data) => {
-    const { reason } = data;
-    if (newEvent.event_request_type === "equipment") {
-      set_receiver_equipment_data(prevData =>
-        prevData.map(item =>
-          item.id === newEvent.id ? { ...item, event_status: "Accepted", reason } : item
-        )
-      );
-    } else if (newEvent.event_request_type === "package") {
-      set_receiver_package_data(prevData =>
-        prevData.map(item =>
-          item.id === newEvent.id ? { ...item, assigned_team_member: teamMembers, event_status: "Waiting on Team", reason } : item
-        )
-      );
-    } else if (newEvent.event_request_type === "service") {
-      set_receiver_service_data(prevData =>
-        prevData.map(item =>
-          item.id === newEvent.id ? { ...item, event_status: "Waiting on Team", reason } : item
-        )
-      );
-    } else {
-      throw new Error(`Invalid event type: ${newEvent.event_request_type}`);
-    }
-  };
+  // const updateRequestStatus = (data) => {
+  //   const { reason } = data;
+  //   if (newEvent.event_request_type === "equipment") {
+  //     set_receiver_equipment_data(prevData =>
+  //       prevData.map(item =>
+  //         item.id === newEvent.id ? { ...item, event_status: "Accepted", reason } : item
+  //       )
+  //     );
+  //   } else if (newEvent.event_request_type === "package") {
+  //     set_receiver_package_data(prevData =>
+  //       prevData.map(item =>
+  //         item.id === newEvent.id ? { ...item, assigned_team_member: teamMembers, event_status: "Waiting on Team", reason } : item
+  //       )
+  //     );
+  //   } else if (newEvent.event_request_type === "service") {
+  //     set_receiver_service_data(prevData =>
+  //       prevData.map(item =>
+  //         item.id === newEvent.id ? { ...item, event_status: "Waiting on Team", reason } : item
+  //       )
+  //     );
+  //   } else {
+  //     throw new Error(`Invalid event type: ${newEvent.event_request_type}`);
+  //   }
+  // };
 
-  const confirmEquipmentEvent = async (eventId) => {
-    try {
-      const response = await fetch(`${Server_url}/confirm-equipment-event`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          event_id: eventId,
-          user_email: user.user_email,
-          sender_email: newEvent.sender_email
-        })
-      });
-      const data = await response.json();
+  // const confirmEquipmentEvent = async (eventId) => {
+  //   try {
+  //     const response = await fetch(`${Server_url}/confirm-equipment-event`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         event_id: eventId,
+  //         user_email: user.user_email,
+  //         sender_email: newEvent.sender_email
+  //       })
+  //     });
+  //     const data = await response.json();
 
-      if (data.message !== "Equipment event confirmed successfully") {
-        showRejectToast({ message: "Failed to confirm equipment event" });
-        throw new Error("Failed to confirm equipment event");
-      }
+  //     if (data.message !== "Equipment event confirmed successfully") {
+  //       showRejectToast({ message: "Failed to confirm equipment event" });
+  //       throw new Error("Failed to confirm equipment event");
+  //     }
 
-      const calendarResponse = await fetch(`${Server_url}/calendar/add-event`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_email: user.user_email,
-          title: newEvent.title + " from " + newEvent.sender_email,
-          start: newEvent.start,
-          end: newEvent.end,
-          description: newEvent.description,
-          backgroundColor: newEvent.backgroundColor,
-          sender_email: newEvent.sender_email,
-          event_location: newEvent.event_location
-        })
-      });
+  //     const calendarResponse = await fetch(`${Server_url}/calendar/add-event`, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({
+  //         user_email: user.user_email,
+  //         title: newEvent.title + " from " + newEvent.sender_email,
+  //         start: newEvent.start,
+  //         end: newEvent.end,
+  //         description: newEvent.description,
+  //         backgroundColor: newEvent.backgroundColor,
+  //         sender_email: newEvent.sender_email,
+  //         event_location: newEvent.event_location
+  //       })
+  //     });
 
-      const calendarData = await calendarResponse.json();
+  //     const calendarData = await calendarResponse.json();
 
-      if (calendarData.message === 'Event created successfully') {
-        showAcceptToast({ message: "Equipment event confirmed successfully" });
-        setShowEventModal(false);
-        setNewEvent({
-          title: '',
-          start: new Date(),
-          end: new Date(),
-          description: '',
-          backgroundColor: '#6366F1',
-          titleError: ''
-        });
-      } else {
-        throw new Error("Failed to create calendar event");
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showRejectToast({ message: error.message || "An error occurred while processing the equipment event" });
-    }
-  };
+  //     if (calendarData.message === 'Event created successfully') {
+  //       showAcceptToast({ message: "Equipment event confirmed successfully" });
+  //       setShowEventModal(false);
+  //       setNewEvent({
+  //         title: '',
+  //         start: new Date(),
+  //         end: new Date(),
+  //         description: '',
+  //         backgroundColor: '#6366F1',
+  //         titleError: ''
+  //       });
+  //     } else {
+  //       throw new Error("Failed to create calendar event");
+  //     }
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //     showRejectToast({ message: error.message || "An error occurred while processing the equipment event" });
+  //   }
+  // };
 
   // Function to handle opening the assignment modal
+
   const openAssignmentModal = (member) => {
     setSelectedMember(member);
     setAssignmentDetails({ role: "", payment: "" });
@@ -714,33 +714,33 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     return result;
   };
 
-  const removeAssignedMember = (member) => {
-    setTeamMembers([...teamMembers, member]);
-    setAssignedMembers(
-      assignedMembers.filter((m) => m.member_id !== member.member_id)
-    );
-  };
+  // const removeAssignedMember = (member) => {
+  //   setTeamMembers([...teamMembers, member]);
+  //   setAssignedMembers(
+  //     assignedMembers.filter((m) => m.member_id !== member.member_id)
+  //   );
+  // };
 
-  const assignMember = (member) => {
-    if (isMemberBusy(member)) {
-      showWarningToast({ message: `${member.member_name} is not available during this time period.` });
-      return;
-    }
+  // const assignMember = (member) => {
+  //   if (isMemberBusy(member)) {
+  //     showWarningToast({ message: `${member.member_name} is not available during this time period.` });
+  //     return;
+  //   }
 
-    // Prevent assigning members who are event owners or handlers
-    if (member.isEventOwner) {
-      showWarningToast({ message: `${member.member_name} is the owner of this event and cannot be assigned.` });
-      return;
-    }
+  //   // Prevent assigning members who are event owners or handlers
+  //   if (member.isEventOwner) {
+  //     showWarningToast({ message: `${member.member_name} is the owner of this event and cannot be assigned.` });
+  //     return;
+  //   }
 
-    if (member.isEventHandler) {
-      showWarningToast({ message: `${member.member_name} is the event handler and cannot be assigned.` });
-      return;
-    }
+  //   if (member.isEventHandler) {
+  //     showWarningToast({ message: `${member.member_name} is the event handler and cannot be assigned.` });
+  //     return;
+  //   }
 
-    setAssignedMembers([...assignedMembers, member]);
-    setTeamMembers(teamMembers.filter((m) => m.member_id !== member.member_id));
-  };
+  //   setAssignedMembers([...assignedMembers, member]);
+  //   setTeamMembers(teamMembers.filter((m) => m.member_id !== member.member_id));
+  // };
 
   // First step form showing basic event info
   const renderBasicInfoForm = () => (
