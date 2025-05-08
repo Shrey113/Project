@@ -464,7 +464,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
             <div className="form-field">
               <label>Payment Amount (per day)</label>
               <div className="payment-input">
-                <span className="currency-symbol">$</span>
+                <span className="currency-symbol">Rs.</span>
                 <input
                   type="number"
                   placeholder="0.00"
