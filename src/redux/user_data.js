@@ -18,6 +18,7 @@ const initialState = {
   website: '',
   services: '',
   business_email: '',
+  skill: '',
 
   user_profile_image_base64: '',
   business_profile_base64: '',
@@ -34,14 +35,14 @@ const user_data = (state = initialState, action) => {
       // Only create a new state object if something actually changed
       const newState = { ...state };
       let hasChanged = false;
-      
+
       Object.entries(action.payload).forEach(([key, value]) => {
         if (state[key] !== value) {
           newState[key] = value;
           hasChanged = true;
         }
       });
-      
+
       return hasChanged ? newState : state;
     }
     case 'RESET_USER_Owner':

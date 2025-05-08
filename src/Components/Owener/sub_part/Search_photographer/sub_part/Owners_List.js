@@ -211,6 +211,7 @@ const OwnerList = ({ owners, filteredUsers, isLoading, selectedLocation }) => {
           <div className="owner-info">
             <h3><MdCamera className="icon" />{owner.user_name}</h3>
             <p className="email"> <FaEnvelope className="icon" />{owner.user_email}</p>
+            {/* <p>{owner.mobile_number}</p> */}
             <p className="location">
               <span>
                 <FaMapMarkerAlt className="icon" />

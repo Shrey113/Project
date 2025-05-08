@@ -215,7 +215,7 @@ function App() {
               'gst_number', 'user_Status', 'admin_message',
               'set_status_by_admin', 'first_name', 'last_name', 'gender',
               'social_media', 'website', 'services', 'business_email',
-              'business_profile_base64', 'user_profile_image_base64'
+              'business_profile_base64', 'user_profile_image_base64', 'skill'
             ];
 
             const payload = {};
@@ -257,6 +257,8 @@ function App() {
           );
 
           const data = await response.json();
+          console.log("ssssssssssssssssssssssssssssss", data);
+
           if (data.user) {
             dispatch({
               type: "SET_USER_Client",
@@ -269,6 +271,7 @@ function App() {
                 business_address: data.user.business_address || null,
                 mobile_number: data.user.mobile_number || null,
                 gst_number: data.user.gst_number || null,
+                skill: data.skill || null
               },
             });
             setAuthStatus((prev) => ({ ...prev, client: true }));
@@ -306,15 +309,15 @@ function App() {
           <Route path="/Admin2" element={<Admin2 socket={socket} />} />
 
           <Route path="/BeforeLogin" element={<BeforeLogin2 />} />
-          < Route   
+          < Route
             path="/external-access"
             element={<ExternalUserPortal />}
-            />
+          />
 
-            < Route   
+          < Route
             path="/share/:accessToken"
             element={<PublicAccessView />}
-            />
+          />
 
 
           <Route
@@ -580,13 +583,13 @@ function App() {
 
           <Route path="*" element={<PageNotFound />} />
         </Routes>
-        {authStatus.owner && OwnerStatus === "Accept" 
-  && !window.location.pathname.includes("/Owner/share_profile") 
-  && !window.location.pathname.includes("/external-access") 
-  && !window.location.pathname.includes("/share/")
-  && (
-    <OwnerSideBar />
-)}
+        {authStatus.owner && OwnerStatus === "Accept"
+          && !window.location.pathname.includes("/Owner/share_profile")
+          && !window.location.pathname.includes("/external-access")
+          && !window.location.pathname.includes("/share/")
+          && (
+            <OwnerSideBar />
+          )}
 
 
         <Toaster position="top-right" />
