@@ -1473,3 +1473,285 @@
   color: #ffffff;
   border: 1px solid #fa8633;
 }
+
+/* Service Details Popup Styles */
+.service-details-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.service-details-popup-content {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 25px;
+  animation: fadeInUp 0.3s ease;
+}
+
+.service-details-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.service-details-popup-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+/* Main service information styles */
+.service-main-info {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-left: 4px solid #6366F1;
+}
+
+.service-info-row {
+  display: flex;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.service-info-row.full-width {
+  flex-direction: column;
+}
+
+.service-info-item {
+  flex: 1;
+  min-width: 200px;
+  margin-right: 15px;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #555;
+  margin-right: 8px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.info-value {
+  color: #333;
+  word-break: break-word;
+}
+
+.info-value.status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.info-value.status.pending {
+  background-color: #fff8e1;
+  color: #f57f17;
+}
+
+.info-value.status.accepted {
+  background-color: #e0f7fa;
+  color: #00838f;
+}
+
+.info-value.status.rejected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.info-value.status.waiting-on-team {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.location-link {
+  color: #6366F1;
+  text-decoration: none;
+  transition: color 0.2s;
+  word-break: break-word;
+}
+
+.location-link:hover {
+  color: #4338ca;
+  text-decoration: underline;
+}
+
+/* Day breakdown section */
+.day-breakdown {
+  margin-top: 25px;
+}
+
+.day-breakdown h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.days-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.day-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.day-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.day-header {
+  background-color: #6366F1;
+  color: white;
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.day-number {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.day-date {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.team-member-details {
+  padding: 15px;
+}
+
+.team-member-row {
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.team-label {
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 5px;
+  font-size: 0.875rem;
+}
+
+.team-value {
+  color: #333;
+}
+
+.team-value.status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 5px;
+}
+
+.team-value.status.pending {
+  background-color: #fff8e1;
+  color: #f57f17;
+}
+
+.team-value.status.accepted {
+  background-color: #e0f7fa;
+  color: #00838f;
+}
+
+.team-value.status.rejected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.team-value.status.waiting-on-team {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .service-details-popup-content {
+    width: 95%;
+    padding: 20px 15px;
+  }
+  
+  .service-info-row {
+    flex-direction: column;
+  }
+  
+  .service-info-item {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+  
+  .days-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .day-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .day-date {
+    margin-top: 5px;
+  }
+}

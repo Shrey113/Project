@@ -76,6 +76,8 @@ function EventManagement({ category }) {
   const [isMenuOpen, setIsMenuOpen] = useState(null);
   const menuRef = useRef(null);
 
+  const [serviceDetailsPopup, setServiceDetailsPopup] = useState(null);
+
   const TRow = ({ label, value }) => {
     return (
       <tr>
@@ -559,11 +561,10 @@ function EventManagement({ category }) {
       .then(response => response.json())  // Parse the response as JSON
       .then(data => {
         console.log("Response from server:", data);
-        // Handle the response data here
+        setServiceDetailsPopup(data.data);
       })
       .catch(error => {
         console.error("Error sending request:", error);
-        // Handle the error here
       });
   }
 
@@ -1475,6 +1476,122 @@ function EventManagement({ category }) {
       {boolean_edit_service &&
         (<EditableService editableData={edit_service_location} set_boolean_edit_service={set_boolean_edit_service} />)
       }
+      
+      {/* Service Details Popup */}
+      {serviceDetailsPopup && (
+        <div className="service-details-popup-overlay" onClick={() => setServiceDetailsPopup(null)}>
+          <div className="service-details-popup-content" onClick={(e) => e.stopPropagation()}>
+            <div className="service-details-popup-header">
+              <h2>Service Request Details</h2>
+              <button className="close-btn" onClick={() => setServiceDetailsPopup(null)}>
+                <IoCloseOutline />
+              </button>
+            </div>
+            
+            {/* Main service info */}
+            {serviceDetailsPopup.length > 0 && (
+              <div className="service-main-info">
+                <div className="service-info-row">
+                  <div className="service-info-item">
+                    <span className="info-label">Service Name:</span>
+                    <span className="info-value">{serviceDetailsPopup[0].event_data.service_name}</span>
+                  </div>
+                  <div className="service-info-item">
+                    <span className="info-label">Total Amount:</span>
+                    <span className="info-value">₹{serviceDetailsPopup[0].event_data.total_amount}</span>
+                  </div>
+                </div>
+                <div className="service-info-row">
+                  <div className="service-info-item">
+                    <span className="info-label">Sender:</span>
+                    <span className="info-value">{serviceDetailsPopup[0].event_data.sender_email}</span>
+                  </div>
+                  <div className="service-info-item">
+                    <span className="info-label">Duration:</span>
+                    <span className="info-value">{serviceDetailsPopup[0].event_data.days_required} days</span>
+                  </div>
+                </div>
+                <div className="service-info-row">
+                  <div className="service-info-item">
+                    <span className="info-label">Location:</span>
+                    <span className="info-value">{serviceDetailsPopup[0].event_data.location}</span>
+                  </div>
+                  <div className="service-info-item">
+                    <span className="info-label">Status:</span>
+                    <span className={`info-value status ${serviceDetailsPopup[0].event_data.event_status?.toLowerCase().replace(/\s+/g, '-')}`}>
+                      {serviceDetailsPopup[0].event_data.event_status}
+                    </span>
+                  </div>
+                </div>
+                {serviceDetailsPopup[0].event_data.requirements && (
+                  <div className="service-info-row full-width">
+                    <div className="service-info-item">
+                      <span className="info-label">Requirements:</span>
+                      <span className="info-value">{serviceDetailsPopup[0].event_data.requirements}</span>
+                    </div>
+                  </div>
+                )}
+                <div className="service-info-row full-width">
+                  <div className="service-info-item">
+                    <span className="info-label">Location Link:</span>
+                    <a 
+                      href={serviceDetailsPopup[0].event_data.location_link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="location-link"
+                    >
+                      {serviceDetailsPopup[0].event_data.location_link}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Day-by-day breakdown */}
+            <div className="day-breakdown">
+              <h3>Day-by-Day Schedule & Team Assignments</h3>
+              <div className="days-container">
+                {serviceDetailsPopup.map((dayData, index) => (
+                  <div key={index} className="day-card">
+                    <div className="day-header">
+                      <span className="day-number">Day {dayData.event_data.day_number}</span>
+                      <span className="day-date">
+                        {formatDate(dayData.event_data.start_date)} - {formatDate(dayData.event_data.end_date)}
+                      </span>
+                    </div>
+                    <div className="team-member-details">
+                      <div className="team-member-row">
+                        <span className="team-label">Team Member:</span>
+                        <span className="team-value">{dayData.team_member_details.member_name}</span>
+                      </div>
+                      <div className="team-member-row">
+                        <span className="team-label">Email:</span>
+                        <span className="team-value">{dayData.team_member_details.team_member_email}</span>
+                      </div>
+                      <div className="team-member-row">
+                        <span className="team-label">Role:</span>
+                        <span className="team-value">{dayData.event_team_members.role_in_event}</span>
+                      </div>
+                      <div className="team-member-row">
+                        <span className="team-label">Status:</span>
+                        <span className={`team-value status ${dayData.event_team_members.confirmation_status?.toLowerCase()}`}>
+                          {dayData.event_team_members.confirmation_status}
+                        </span>
+                      </div>
+                      {dayData.event_team_members.price_in_event && (
+                        <div className="team-member-row">
+                          <span className="team-label">Price:</span>
+                          <span className="team-value">₹{dayData.event_team_members.price_in_event}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
