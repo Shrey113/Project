@@ -352,8 +352,8 @@ function EventManagement({ category }) {
 
   const EmptyState = ({ title = "No data available", subtitle, icon }) => {
     return (
-      <div s="empty-state">
-        {icon && <div s="empty-icon">{icon}</div>}
+      <div className="empty-state">
+        {icon && <div className="empty-icon">{icon}</div>}
         <h3>{title}</h3>
         {subtitle && <p>{subtitle}</p>}
       </div>
@@ -407,22 +407,22 @@ function EventManagement({ category }) {
     const isFinal = eventStatus === "Accepted" || eventStatus === "Rejected" ||
       eventStatus === "Completed" || eventStatus === "Event Expired";
     return (
-      <div s="action-menu">
+      <div className="action-menu">
         {!isFinal && (
           <>
-            <button onClick={onApprove} s="action-menu-btn approve">
-              <span s="icon">✓</span>
-              <span s="text">Approve</span>
+            <button onClick={onApprove} className="action-menu-btn approve">
+              <span className="icon">✓</span>
+              <span className="text">Approve</span>
             </button>
-            <button onClick={onReject} s="action-menu-btn reject">
-              <span s="icon">✕</span>
-              <span s="text">Reject</span>
+            <button onClick={onReject} className="action-menu-btn reject">
+              <span className="icon">✕</span>
+              <span className="text">Reject</span>
             </button>
           </>
         )}
-        <button onClick={onInfo} s="action-menu-btn info">
-          <span s="icon">ℹ</span>
-          <span s="text">Info</span>
+        <button onClick={onInfo} className="action-menu-btn info">
+          <span className="icon">ℹ</span>
+          <span className="text">Info</span>
         </button>
       </div>
     );
@@ -643,23 +643,23 @@ function EventManagement({ category }) {
       {/* <EventStatusUpdater user_email={user.user_email} updateReceivedData={refreshReceivedData} /> */}
 
       {/* received request count  */}
-      <div s="requests_count">
-        <div s="received_request_total_count">
-          <div s="heading_for_total_requests">Total Request</div>
-          <div s="numbers_of_total_request">{count_for_package + count_for_equipment + count_for_service}</div>
+      <div className="requests_count">
+        <div className="received_request_total_count">
+          <div className="heading_for_total_requests">Total Request</div>
+          <div className="numbers_of_total_request">{count_for_package + count_for_equipment + count_for_service}</div>
         </div>
-        <div s="received_request_count">
-          <div s="total_packages">{location.pathname === "/Owner/Event/packages" ? "Package Requests" : location.pathname === "/Owner/Event/equipment" ? "Equipment Request" : "Service Request"}</div>
-          <div s="numbers_of_package_request">{location.pathname === "/Owner/Event/packages" ? count_for_package : location.pathname === "/Owner/Event/equipment" ? count_for_equipment : location.pathname === "/Owner/Event/services" ? count_for_service : null}</div>
+        <div className="received_request_count">
+          <div className="total_packages">{location.pathname === "/Owner/Event/packages" ? "Package Requests" : location.pathname === "/Owner/Event/equipment" ? "Equipment Request" : "Service Request"}</div>
+          <div className="numbers_of_package_request">{location.pathname === "/Owner/Event/packages" ? count_for_package : location.pathname === "/Owner/Event/equipment" ? count_for_equipment : location.pathname === "/Owner/Event/services" ? count_for_service : null}</div>
         </div>
       </div>
 
       {/* Toggle Button */}
-      <div s="heading_container_event_management">
-        <div s="event_mangement_heading">{category}</div>
-        <div s="toggle_button_con_event_management">
+      <div className="heading_container_event_management">
+        <div className="event_mangement_heading">{category}</div>
+        <div className="toggle_button_con_event_management">
           <div
-            s="active_button"
+            className="active_button"
             style={{
               left: sent_request ? "110px" : "0px",
             }}
@@ -677,21 +677,21 @@ function EventManagement({ category }) {
 
       {/* sent requests  */}
       {sent_request && (
-        <div s="sent_request">
+        <div className="sent_request">
           {selected_sent_item && (
-            <div s="details-modal-overlay" onClick={handleClose}>
-              <div s="details-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="details-modal-overlay" onClick={handleClose}>
+              <div className="details-modal" onClick={(e) => e.stopPropagation()}>
 
-                <div s="modal-header-container">
-                  <h3 s="modal-header">Request Details</h3>
-                  <span s={`status ${selected_sent_item?.event_status === "Waiting on Team" ? "status-waiting-on-team" : selected_sent_item?.event_status === "Accepted" ? "status-accepted" : selected_sent_item?.event_status === "Rejected" ? "status-rejected" : "status-pending"}`}>
+                <div className="modal-header-container">
+                  <h3 className="modal-header">Request Details</h3>
+                  <span className={`status ${selected_sent_item?.event_status === "Waiting on Team" ? "status-waiting-on-team" : selected_sent_item?.event_status === "Accepted" ? "status-accepted" : selected_sent_item?.event_status === "Rejected" ? "status-rejected" : "status-pending"}`}>
                     {selected_sent_item?.event_status || "Pending"}
                   </span>
                 </div>
-                <div s="modal-content-container">
+                <div className="modal-content-container">
                   {/* Left Side: Main Request Details */}
-                  <div s="modal-left">
-                    <table s="details-table">
+                  <div className="modal-left">
+                    <table className="details-table">
                       <tbody>
                         {/* <TRow label="ID" value={selected_sent_item.id} /> */}
                         <TRow
@@ -775,12 +775,12 @@ function EventManagement({ category }) {
                   </div>
 
                   {/* Right Side: Status Display */}
-                  <div s="modal-right">
+                  <div className="modal-right">
                     {selected_sent_item && (
                       <div
-                        s={`status-box ${selected_sent_item.event_status?.toLowerCase()}`}
+                        className={`status-box ${selected_sent_item.event_status?.toLowerCase()}`}
                       >
-                        <table s="details-table">
+                        <table className="details-table">
                           <tbody>
                             <TRow
                               label="Start Date"
@@ -836,7 +836,7 @@ function EventManagement({ category }) {
                   </div>
                 </div>
 
-                <button s="close-button" onClick={() => set_selected_sent_item(null)} >
+                <button className="close-button" onClick={() => set_selected_sent_item(null)} >
                   Close
                 </button>
               </div>
@@ -844,14 +844,14 @@ function EventManagement({ category }) {
           )}
 
           {Array.isArray(show_edit_info_popup) && show_edit_info_popup.length > 0 && (
-            <div s="details-modal-overlay" onClick={() => set_show_edit_info_popup(null)}>
-              <div s="details-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="details-modal-overlay" onClick={() => set_show_edit_info_popup(null)}>
+              <div className="details-modal" onClick={(e) => e.stopPropagation()}>
 
-                <h3 s="modal-header">Request Details</h3>
+                <h3 className="modal-header">Request Details</h3>
                 {show_edit_info_popup.map((innerArray, index) => (
                   <div key={index}>
-                    <div s="modal-header-container">
-                      <span s={`status ${innerArray.event_status === "Waiting on Team"
+                    <div className="modal-header-container">
+                      <span className={`status ${innerArray.event_status === "Waiting on Team"
                         ? "status-waiting-on-team"
                         : innerArray.event_status === "Accepted"
                           ? "status-accepted"
@@ -863,10 +863,10 @@ function EventManagement({ category }) {
                       </span>
                     </div>
 
-                    <div s="modal-content-container">
+                    <div className="modal-content-container">
                       {/* Left Side */}
-                      <div s="modal-left">
-                        <table s="details-table">
+                      <div className="modal-left">
+                        <table className="details-table">
                           <tbody>
                             <TRow label="Sender Email" value={innerArray.sender_email} />
 
@@ -899,9 +899,9 @@ function EventManagement({ category }) {
                       </div>
 
                       {/* Right Side */}
-                      <div s="modal-right">
-                        <div s={`status-box ${innerArray.event_status?.toLowerCase()}`}>
-                          <table s="details-table">
+                      <div className="modal-right">
+                        <div className={`status-box ${innerArray.event_status?.toLowerCase()}`}>
+                          <table className="details-table">
                             <tbody>
                               <TRow label="Start Date" value={formatDate(innerArray.start_date)} />
                               <TRow label="End Date" value={formatDate(innerArray.end_date)} />
@@ -935,7 +935,7 @@ function EventManagement({ category }) {
                   </div>
                 ))}
 
-                <button s="close-button" onClick={() => set_show_edit_info_popup(null)}>
+                <button className="close-button" onClick={() => set_show_edit_info_popup(null)}>
                   Close
                 </button>
               </div>
@@ -944,10 +944,10 @@ function EventManagement({ category }) {
 
           <div id="EventManagement">
             {["All Events"].includes(category) && (
-              <div s="section-container">
-                <div s="table-container">
+              <div className="section-container">
+                <div className="table-container">
                   {sent_package_data.length > 0 ? (
-                    <table s="sent_package_table">
+                    <table className="sent_package_table">
                       <thead>
                         <tr>
                           <th style={{ width: "10px" }}>NO.</th>
@@ -963,12 +963,12 @@ function EventManagement({ category }) {
                         {sent_package_data.map((item, index) => (
                           <tr key={index} onClick={() => set_selected_sent_item(item)}>
                             <td>{index + 1}</td>
-                            <td s="package_name">{item.package_name}</td>
+                            <td className="package_name">{item.package_name}</td>
                             <td>{item.service}</td>
-                            <td s="description">{item.requirements}</td>
+                            <td className="description">{item.requirements}</td>
                             <td>₹{item.price}</td>
                             <td>{item.receiver_email}</td>
-                            <td s={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                            <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
                               <span>{getDisplayStatus(item)}</span>
                             </td>
                           </tr>
@@ -976,17 +976,17 @@ function EventManagement({ category }) {
                       </tbody>
                     </table>
                   ) : (
-                    <p s="no-data-message">No Sent Event Requests</p>
+                    <p className="no-data-message">No Sent Event Requests</p>
                   )}
                 </div>
               </div>
             )}
 
             {["Equipment"].includes(category) && (
-              <div s="section-container">
-                <div s="table-container">
+              <div className="section-container">
+                <div className="table-container">
                   {sent_equipment_data.length > 0 ? (
-                    <table s="sent_equipment_table">
+                    <table className="sent_equipment_table">
                       <thead>
                         <tr>
                           <th>No.</th>
@@ -1007,7 +1007,7 @@ function EventManagement({ category }) {
                             <td>{item.equipment_type}</td>
                             <td>{item.days_required}</td>
                             <td>{item.receiver_email}</td>
-                            <td s={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                            <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
                               <span>{getDisplayStatus(item)}</span>
                             </td>
                           </tr>
@@ -1015,17 +1015,17 @@ function EventManagement({ category }) {
                       </tbody>
                     </table>
                   ) : (
-                    <p s="no-data-message">No Sent Equipment Requests</p>
+                    <p className="no-data-message">No Sent Equipment Requests</p>
                   )}
                 </div>
               </div>
             )}
 
             {["Service"].includes(category) && (
-              <div s="section-container">
-                <div s="table-container">
+              <div className="section-container">
+                <div className="table-container">
                   {Array.isArray(sent_service_data) && sent_service_data.flat().length > 0 ? (
-                    <table s="sent_service_table">
+                    <table className="sent_service_table">
                       <thead>
                         <tr>
                           <th>NO.</th>
@@ -1052,10 +1052,10 @@ function EventManagement({ category }) {
                               <td>₹{item.total_amount || '0'}</td>
                               <td>{item.days_required || 'N/A'}</td>
                               <td>{item.receiver_email || 'N/A'}</td>
-                              <td s={`status ${getStatusClass(getAllMemberConfirmation(innerArray))}`}>
+                              <td className={`status ${getStatusClass(getAllMemberConfirmation(innerArray))}`}>
                                 <span>{getAllMemberConfirmation(innerArray)}</span>
                               </td>
-                              <td s="sent_button_edit" onClick={(e) => { e.stopPropagation() }} style={{ minHeight: "100% ", padding: "12px 15px" }}>
+                              <td className="sent_button_edit" onClick={(e) => { e.stopPropagation() }} style={{ minHeight: "100% ", padding: "12px 15px" }}>
                                 <button onClick={(e) => {
                                   e.stopPropagation();
                                   handleEditClick(sent_service_data[index])
@@ -1067,7 +1067,7 @@ function EventManagement({ category }) {
                       </tbody>
                     </table>
                   ) : (
-                    <p s="no-data-message">No Sent Service Requests</p>
+                    <p className="no-data-message">No Sent Service Requests</p>
                   )}
                 </div>
               </div>
@@ -1079,15 +1079,15 @@ function EventManagement({ category }) {
 
       {/* received request section  */}
       {!sent_request && (
-        <div s="received_request">
+        <div className="received_request">
           <div id="EventManagement">
             {category === "All Events" && (
-              <div s="section-container">
-                <div s="table-container">
+              <div className="section-container">
+                <div className="table-container">
                   {receiver_package_data?.filter(
                     (item) => packageFilter === "all" || item.event_status === packageFilter
                   ).length > 0 ? (
-                    <table s="received_package_table">
+                    <table className="received_package_table">
                       <thead>
                         <tr>
                           <th>NO.</th>
@@ -1111,14 +1111,14 @@ function EventManagement({ category }) {
                               <td>{item.package_name}</td>
                               <td>₹{item.price}</td>
                               <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                              <td s={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                              <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
                                 <span>{getDisplayStatus(item)}</span>
                               </td>
-                              <td s="action-buttons">
+                              <td className="action-buttons">
                                 {window.innerWidth <= 660 ? (
                                   <div style={{ position: "relative" }}>
                                     <button
-                                      s="mobile-action-btn"
+                                      className="mobile-action-btn"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
@@ -1157,15 +1157,15 @@ function EventManagement({ category }) {
                                   <>
                                     {getDisplayStatus(item).toLowerCase() === "pending" && (
                                       <>
-                                        <button s="approve-btn" onClick={() => set_data(item)}>
+                                        <button className="approve-btn" onClick={() => set_data(item)}>
                                           Approve
                                         </button>
-                                        <button s="reject-btn" onClick={() => handleRejectClick(item)}>
+                                        <button className="reject-btn" onClick={() => handleRejectClick(item)}>
                                           <IoCloseOutline style={{ height: "20px", width: "20px" }} />
                                         </button>
                                       </>
                                     )}
-                                    <button s="info-btn" onClick={() => handleInfoClick(item)}>
+                                    <button className="info-btn" onClick={() => handleInfoClick(item)}>
                                       <IoInformation style={{ height: "20px", width: "20px" }} />
                                     </button>
                                   </>
@@ -1176,7 +1176,7 @@ function EventManagement({ category }) {
                       </tbody>
                     </table>
                   ) : (
-                    <p s="no-data-message">No Event Requests Available</p>
+                    <p className="no-data-message">No Event Requests Available</p>
                   )}
                 </div>
               </div>
@@ -1184,12 +1184,12 @@ function EventManagement({ category }) {
 
 
             {category === "Equipment" && (
-              <div s="section-container">
-                <div s="table-container">
+              <div className="section-container">
+                <div className="table-container">
                   {receiver_equipment_data?.filter(
                     (item) => equipmentFilter === "all" || item.event_status === equipmentFilter
                   ).length > 0 ? (
-                    <table s="received_equipment_table">
+                    <table className="received_equipment_table">
                       <thead>
                         <tr>
                           <th style={{ width: "100px" }}>NO.</th>
@@ -1215,14 +1215,14 @@ function EventManagement({ category }) {
                               <td>{item.equipment_company}</td>
                               <td>{item.days_required}</td>
                               <td style={{ maxWidth: "240px", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{item.location}</td>
-                              <td s={`status ${getStatusClass(getDisplayStatus(item))}`}>
+                              <td className={`status ${getStatusClass(getDisplayStatus(item))}`}>
                                 <span>{getDisplayStatus(item)}</span>
                               </td>
-                              <td s="action-buttons">
+                              <td className="action-buttons">
                                 {window.innerWidth <= 660 ? (
                                   <div style={{ position: "relative" }}>
                                     <button
-                                      s="mobile-action-btn"
+                                      className="mobile-action-btn"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
@@ -1261,15 +1261,15 @@ function EventManagement({ category }) {
                                   <>
                                     {getDisplayStatus(item).toLowerCase() === "pending" && (
                                       <>
-                                        <button s="approve-btn" onClick={() => { fetchProfileData(item.sender_email); set_data(item) }}>
+                                        <button className="approve-btn" onClick={() => { fetchProfileData(item.sender_email); set_data(item) }}>
                                           Approve
                                         </button>
-                                        <button s="reject-btn" onClick={() => handleRejectClick(item)}>
+                                        <button className="reject-btn" onClick={() => handleRejectClick(item)}>
                                           <IoCloseOutline style={{ height: "20px", width: "20px" }} />
                                         </button>
                                       </>
                                     )}
-                                    <button s="info-btn" onClick={() => handleInfoClick(item)}>
+                                    <button className="info-btn" onClick={() => handleInfoClick(item)}>
                                       <IoInformation style={{ height: "20px", width: "20px" }} />
                                     </button>
                                   </>
@@ -1280,7 +1280,7 @@ function EventManagement({ category }) {
                       </tbody>
                     </table>
                   ) : (
-                    <p s="no-data-message">No Equipment Requests Available</p>
+                    <p className="no-data-message">No Equipment Requests Available</p>
                   )}
                 </div>
               </div>
@@ -1288,19 +1288,19 @@ function EventManagement({ category }) {
 
 
             {category === "Service" && (
-              <div s="section-container">
+              <div className="section-container">
                 {category === "Service" && (
-                  <div s="service-filter-container">
-                    <div s="dropdown" ref={dropdownRef_service_data}>
-                      <button s="dropdown-toggle" onClick={() => setIsOpen_service_data(!isOpen_service_data)}>
+                  <div className="service-filter-container">
+                    <div className="dropdown" ref={dropdownRef_service_data}>
+                      <button className="dropdown-toggle" onClick={() => setIsOpen_service_data(!isOpen_service_data)}>
                         <IoFilter /> <span>{selected_service_data}</span>
                       </button>
                       {isOpen_service_data && (
-                        <div s="dropdown-menu">
+                        <div className="dropdown-menu">
                           {options.map((option) => (
                             <div
                               key={option}
-                              s={`dropdown-item ${option === selected_service_data ? "selected" : ""}`}
+                              className={`dropdown-item ${option === selected_service_data ? "selected" : ""}`}
                               onClick={() => handleSelect(option)}
                             >
                               {option}
@@ -1312,10 +1312,10 @@ function EventManagement({ category }) {
                   </div>
                 )}
 
-                <div s="table-container">
+                <div className="table-container">
                   {receiver_service_data?.length > 0 ? (
                     <>
-                      <table s="received_service_table">
+                      <table className="received_service_table">
                         <thead>
                           <tr>
                             <th>NO.</th>
@@ -1354,14 +1354,14 @@ function EventManagement({ category }) {
                                   >
                                     {item.location || 'N/A'}
                                   </td>
-                                  <td s={`status ${getStatusClass(getAllMemberConfirmation(innerArray))}`}>
+                                  <td className={`status ${getStatusClass(getAllMemberConfirmation(innerArray))}`}>
                                     <span>{getAllMemberConfirmation(innerArray)}</span>
                                   </td>
-                                  <td s="action-buttons">
+                                  <td className="action-buttons">
                                     {window.innerWidth <= 660 ? (
                                       <div style={{ position: "relative" }}>
                                         <button
-                                          s="mobile-action-btn"
+                                          className="mobile-action-btn"
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             setIsMenuOpen(isMenuOpen === item.id ? null : item.id);
@@ -1400,15 +1400,15 @@ function EventManagement({ category }) {
                                       <>
                                         {getDisplayStatus(item).toLowerCase() === "pending" && (
                                           <>
-                                            <button s="approve-btn" onClick={() => set_data(item)}>
+                                            <button className="approve-btn" onClick={() => set_data(item)}>
                                               Approve
                                             </button>
-                                            <button s="reject-btn" onClick={() => handleRejectClick(item)}>
+                                            <button className="reject-btn" onClick={() => handleRejectClick(item)}>
                                               <IoCloseOutline style={{ height: "20px", width: "20px" }} />
                                             </button>
                                           </>
                                         )}
-                                        <button s="info-btn" onClick={() => handleServiceInfoClick(innerArray)}>
+                                        <button className="info-btn" onClick={() => handleServiceInfoClick(innerArray)}>
                                           <IoInformation style={{ height: "20px", width: "20px" }} />
                                         </button>
                                       </>
@@ -1430,7 +1430,7 @@ function EventManagement({ category }) {
                           <EmptyState
                             title={
                               <>
-                                No <span s="highlight">{selected_service_data.toLowerCase()}</span> service available
+                                No <span className="highlight">{selected_service_data.toLowerCase()}</span> service available
                               </>
                             }
                             subtitle="Try selecting a different filter or check back later."
@@ -1439,7 +1439,7 @@ function EventManagement({ category }) {
                         )}
                     </>
                   ) : (
-                    <p s="no-data-message">No Service Requests Available</p>
+                    <p className="no-data-message">No Service Requests Available</p>
                   )}
                 </div>
               </div>
@@ -1479,66 +1479,66 @@ function EventManagement({ category }) {
       
       {/* Service Details Popup */}
       {serviceDetailsPopup && (
-        <div s="service-details-popup-overlay" onClick={() => setServiceDetailsPopup(null)}>
-          <div s="service-details-popup-content" onClick={(e) => e.stopPropagation()}>
-            <div s="service-details-popup-header">
+        <div className="service-details-popup-overlay" onClick={() => setServiceDetailsPopup(null)}>
+          <div className="service-details-popup-content" onClick={(e) => e.stopPropagation()}>
+            <div className="service-details-popup-header">
               <h2>Service Request Details</h2>
-              <button s="close-btn" onClick={() => setServiceDetailsPopup(null)}>
+              <button className="close-btn" onClick={() => setServiceDetailsPopup(null)}>
                 <IoCloseOutline />
               </button>
             </div>
             
             {/* Main service info */}
             {serviceDetailsPopup.length > 0 && (
-              <div s="service-main-info">
-                <div s="service-info-row">
-                  <div s="service-info-item">
-                    <span s="info-label">Service Name:</span>
-                    <span s="info-value">{serviceDetailsPopup[0].event_data.service_name}</span>
+              <div className="service-main-info">
+                <div className="service-info-row">
+                  <div className="service-info-item">
+                    <span className="info-label">Service Name:</span>
+                    <span className="info-value">{serviceDetailsPopup[0].event_data.service_name}</span>
                   </div>
-                  <div s="service-info-item">
-                    <span s="info-label">Total Amount:</span>
-                    <span s="info-value">₹{serviceDetailsPopup[0].event_data.total_amount}</span>
-                  </div>
-                </div>
-                <div s="service-info-row">
-                  <div s="service-info-item">
-                    <span s="info-label">Sender:</span>
-                    <span s="info-value">{serviceDetailsPopup[0].event_data.sender_email}</span>
-                  </div>
-                  <div s="service-info-item">
-                    <span s="info-label">Duration:</span>
-                    <span s="info-value">{serviceDetailsPopup[0].event_data.days_required} days</span>
+                  <div className="service-info-item">
+                    <span className="info-label">Total Amount:</span>
+                    <span className="info-value">₹{serviceDetailsPopup[0].event_data.total_amount}</span>
                   </div>
                 </div>
-                <div s="service-info-row">
-                  <div s="service-info-item">
-                    <span s="info-label">Location:</span>
-                    <span s="info-value">{serviceDetailsPopup[0].event_data.location}</span>
+                <div className="service-info-row">
+                  <div className="service-info-item">
+                    <span className="info-label">Sender:</span>
+                    <span className="info-value">{serviceDetailsPopup[0].event_data.sender_email}</span>
                   </div>
-                  <div s="service-info-item">
-                    <span s="info-label">Status:</span>
-                    <span s={`info-value status ${serviceDetailsPopup[0].event_data.event_status?.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <div className="service-info-item">
+                    <span className="info-label">Duration:</span>
+                    <span className="info-value">{serviceDetailsPopup[0].event_data.days_required} days</span>
+                  </div>
+                </div>
+                <div className="service-info-row">
+                  <div className="service-info-item">
+                    <span className="info-label">Location:</span>
+                    <span className="info-value">{serviceDetailsPopup[0].event_data.location}</span>
+                  </div>
+                  <div className="service-info-item">
+                    <span className="info-label">Status:</span>
+                    <span className={`info-value status ${serviceDetailsPopup[0].event_data.event_status?.toLowerCase().replace(/\s+/g, '-')}`}>
                       {serviceDetailsPopup[0].event_data.event_status}
                     </span>
                   </div>
                 </div>
                 {serviceDetailsPopup[0].event_data.requirements && (
-                  <div s="service-info-row full-width">
-                    <div s="service-info-item">
-                      <span s="info-label">Requirements:</span>
-                      <span s="info-value">{serviceDetailsPopup[0].event_data.requirements}</span>
+                  <div className="service-info-row full-width">
+                    <div className="service-info-item">
+                      <span className="info-label">Requirements:</span>
+                      <span className="info-value">{serviceDetailsPopup[0].event_data.requirements}</span>
                     </div>
                   </div>
                 )}
-                <div s="service-info-row full-width">
-                  <div s="service-info-item">
-                    <span s="info-label">Location Link:</span>
+                <div className="service-info-row full-width">
+                  <div className="service-info-item">
+                    <span className="info-label">Location Link:</span>
                     <a 
                       href={serviceDetailsPopup[0].event_data.location_link} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      s="location-link"
+                      className="location-link"
                     >
                       {serviceDetailsPopup[0].event_data.location_link}
                     </a>
@@ -1548,40 +1548,40 @@ function EventManagement({ category }) {
             )}
             
             {/* Day-by-day breakdown */}
-            <div s="day-breakdown">
+            <div className="day-breakdown">
               <h3>Day-by-Day Schedule & Team Assignments</h3>
-              <div s="days-container">
+              <div className="days-container">
                 {serviceDetailsPopup.map((dayData, index) => (
-                  <div key={index} s="day-card">
-                    <div s="day-header">
-                      <span s="day-number">Day {dayData.event_data.day_number}</span>
-                      <span s="day-date">
+                  <div key={index} className="day-card">
+                    <div className="day-header">
+                      <span className="day-number">Day {dayData.event_data.day_number}</span>
+                      <span className="day-date">
                         {formatDate(dayData.event_data.start_date)} - {formatDate(dayData.event_data.end_date)}
                       </span>
                     </div>
-                    <div s="team-member-details">
-                      <div s="team-member-row">
-                        <span s="team-label">Team Member:</span>
-                        <span s="team-value">{dayData.team_member_details.member_name}</span>
+                    <div className="team-member-details">
+                      <div className="team-member-row">
+                        <span className="team-label">Team Member:</span>
+                        <span className="team-value">{dayData.team_member_details.member_name}</span>
                       </div>
-                      <div s="team-member-row">
-                        <span s="team-label">Email:</span>
-                        <span s="team-value">{dayData.team_member_details.team_member_email}</span>
+                      <div className="team-member-row">
+                        <span className="team-label">Email:</span>
+                        <span className="team-value">{dayData.team_member_details.team_member_email}</span>
                       </div>
-                      <div s="team-member-row">
-                        <span s="team-label">Role:</span>
-                        <span s="team-value">{dayData.event_team_members.role_in_event}</span>
+                      <div className="team-member-row">
+                        <span className="team-label">Role:</span>
+                        <span className="team-value">{dayData.event_team_members.role_in_event}</span>
                       </div>
-                      <div s="team-member-row">
-                        <span s="team-label">Status:</span>
-                        <span s={`team-value status ${dayData.event_team_members.confirmation_status?.toLowerCase()}`}>
+                      <div className="team-member-row">
+                        <span className="team-label">Status:</span>
+                        <span className={`team-value status ${dayData.event_team_members.confirmation_status?.toLowerCase()}`}>
                           {dayData.event_team_members.confirmation_status}
                         </span>
                       </div>
                       {dayData.event_team_members.price_in_event && (
-                        <div s="team-member-row">
-                          <span s="team-label">Price:</span>
-                          <span s="team-value">₹{dayData.event_team_members.price_in_event}</span>
+                        <div className="team-member-row">
+                          <span className="team-label">Price:</span>
+                          <span className="team-value">₹{dayData.event_team_members.price_in_event}</span>
                         </div>
                       )}
                     </div>
