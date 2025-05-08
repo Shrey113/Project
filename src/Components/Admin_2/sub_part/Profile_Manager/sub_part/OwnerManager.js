@@ -5,7 +5,7 @@ import accept from './sub_img/correct.png';
 import reject from './sub_img/remove.png';
 import info from './sub_img/letter-i.png';
 import PopupMenu from '../../Dashboard/question/PopupMenu';
-
+import CloudIcon from '@mui/icons-material/Cloud';
 
 import { Server_url, showRejectToast, showAcceptToast } from '../../../../../redux/AllData';
 import CheckUserPage from './CheckUserPage';
@@ -24,13 +24,16 @@ function OwnerManager({ admin_email }) {
     handleClose: () => { }
   });
 
-
-
+  const [showDriveLimitPopup, setShowDriveLimitPopup] = useState(false);
+  const [selectedUserForDriveLimit, setSelectedUserForDriveLimit] = useState(null);
+  const [driveLimit, setDriveLimit] = useState({
+    value: 5,
+    unit: 'GB'
+  });
+  const [driveLimitLoading, setDriveLimitLoading] = useState(false);
 
   const [rejectedUsers, setRejectedUsers] = useState([]);
   const [allOwners, setAllOwners] = useState([]);
-
-
 
   const [activeList, setActiveList] = useState('pending');
 
@@ -108,7 +111,86 @@ function OwnerManager({ admin_email }) {
     setCurrentPage(prev => Math.min(prev + 1, getTotalPages()));
   };
 
-  // Function to fetch owner data by email
+  const handleOpenDriveLimitPopup = (user) => {
+    setSelectedUserForDriveLimit(user);
+    
+    const userDriveLimit = user.drive_limit;
+    
+    if (userDriveLimit) {
+      if (userDriveLimit.toLowerCase() === 'unlimited') {
+        setDriveLimit({
+          value: 0,
+          unit: 'unlimited'
+        });
+      } else {
+        const match = userDriveLimit.match(/^(\d+)([GMT]B)$/i);
+        if (match) {
+          setDriveLimit({
+            value: parseInt(match[1]),
+            unit: match[2].toUpperCase()
+          });
+        } else {
+          setDriveLimit({
+            value: 5,
+            unit: 'GB'
+          });
+        }
+      }
+    } else {
+      setDriveLimit({
+        value: 5,
+        unit: 'GB'
+      });
+    }
+    
+    setShowDriveLimitPopup(true);
+  };
+
+  const updateDriveLimit = async () => {
+    if (!selectedUserForDriveLimit) return;
+    
+    setDriveLimitLoading(true);
+    
+    try {
+      const formattedDriveLimit = driveLimit.unit === 'unlimited' 
+        ? 'unlimited' 
+        : `${driveLimit.value}${driveLimit.unit}`;
+      
+      const response = await fetch(`${Server_url}/drive/set_drive_limit_by_admin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_email: selectedUserForDriveLimit.user_email,
+          drive_limit: formattedDriveLimit
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        showAcceptToast({ message: data.message || 'Drive limit updated successfully' });
+        
+        const updatedAllOwners = allOwners.map(user => 
+          user.user_email === selectedUserForDriveLimit.user_email 
+            ? { ...user, drive_limit: formattedDriveLimit } 
+            : user
+        );
+        setAllOwners(updatedAllOwners);
+        
+        setShowDriveLimitPopup(false);
+      } else {
+        showRejectToast({ message: data.error || 'Failed to update drive limit' });
+      }
+    } catch (error) {
+      console.error('Error updating drive limit:', error);
+      showRejectToast({ message: 'Error updating drive limit' });
+    } finally {
+      setDriveLimitLoading(false);
+    }
+  };
+
   const fetchOwnerByEmail = (email) => {
     return fetch(`${Server_url}/Admin/owner`, {
       method: 'POST',
@@ -129,8 +211,8 @@ function OwnerManager({ admin_email }) {
         set_selected_user(data)
       })
       .catch(error => {
-        console.error('Error:', error); // Handle any errors
-        throw error; // Optional: rethrow to handle in the calling code
+        console.error('Error:', error);
+        throw error;
       });
   };
 
@@ -143,10 +225,10 @@ function OwnerManager({ admin_email }) {
         return response.json();
       })
       .then(data => {
-        setPendingUsers(data); // Set the fetched data to the state
+        setPendingUsers(data);
       })
       .catch(error => {
-        setError(error.message); // Set error message if there's an issue
+        setError(error.message);
       });
   }
 
@@ -178,8 +260,8 @@ function OwnerManager({ admin_email }) {
         if (data.message === 'Status updated') {
           showAcceptToast({ message: 'Status updated' });
           get_admin_data();
-          getRejectedUsers(); // Refresh rejected users list
-          getAllOwners(); // Refresh all owners list
+          getRejectedUsers();
+          getAllOwners();
           if (showPopup) {
             setShowPopup(false);
           }
@@ -237,11 +319,9 @@ function OwnerManager({ admin_email }) {
     getRejectedUsers();
   }, []);
 
-  // Add this new function to get the range of pages to display
   const getPageRange = () => {
     const totalPages = getTotalPages();
 
-    // For 3 pages or less, show all pages
     if (totalPages <= 3) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
@@ -249,15 +329,12 @@ function OwnerManager({ admin_email }) {
     let start, end;
 
     if (currentPage <= 2) {
-      // Near the start
       start = 1;
       end = 3;
     } else if (currentPage >= totalPages - 1) {
-      // Near the end
       start = totalPages - 2;
       end = totalPages;
     } else {
-      // In the middle
       start = currentPage - 1;
       end = currentPage + 1;
     }
@@ -521,6 +598,15 @@ function OwnerManager({ admin_email }) {
                           onClick={() => fetchOwnerByEmail(user.user_email)}
                         />
                       </div>
+                      {user.user_Status === "Accept" && (
+                        <div 
+                          className="icon_img drive-icon"
+                          onClick={() => handleOpenDriveLimitPopup(user)}
+                          title="Set Drive Limit"
+                        >
+                          <CloudIcon style={{ color: '#1976d2', fontSize: '20px' }} />
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -638,6 +724,69 @@ function OwnerManager({ admin_email }) {
         </div>
       )}
 
+      {showDriveLimitPopup && selectedUserForDriveLimit && (
+        <div className="popup-overlay" onClick={() => setShowDriveLimitPopup(false)}>
+          <div className="drive-limit-popup" onClick={(e) => e.stopPropagation()}>
+            <h2>Set Drive Storage Limit</h2>
+            <p>User: <strong>{selectedUserForDriveLimit.user_name}</strong> ({selectedUserForDriveLimit.user_email})</p>
+            
+            <div className="drive-limit-form">
+              <div className="drive-limit-input-container">
+                <input
+                  type="number"
+                  className="drive-limit-input"
+                  value={driveLimit.value}
+                  onChange={(e) => setDriveLimit({...driveLimit, value: parseInt(e.target.value) || 0})}
+                  min="1"
+                  disabled={driveLimit.unit === 'unlimited'}
+                />
+                
+                <select
+                  className="drive-limit-unit"
+                  value={driveLimit.unit}
+                  onChange={(e) => {
+                    const newUnit = e.target.value;
+                    setDriveLimit({
+                      value: newUnit === 'unlimited' ? 0 : driveLimit.value,
+                      unit: newUnit
+                    });
+                  }}
+                >
+                  <option value="GB">GB</option>
+                  <option value="TB">TB</option>
+                  <option value="unlimited">Unlimited</option>
+                </select>
+              </div>
+              
+              <div className="drive-limit-current">
+                {selectedUserForDriveLimit.drive_limit ? (
+                  <p>Current limit: <strong>{selectedUserForDriveLimit.drive_limit}</strong></p>
+                ) : (
+                  <p>No drive limit currently set</p>
+                )}
+              </div>
+              
+              <div className="drive-limit-actions">
+                <button 
+                  className="update-drive-button"
+                  onClick={updateDriveLimit}
+                  disabled={driveLimitLoading}
+                >
+                  {driveLimitLoading ? 'Updating...' : 'Update Limit'}
+                </button>
+                <button 
+                  className="cancel-drive-button"
+                  onClick={() => setShowDriveLimitPopup(false)}
+                  disabled={driveLimitLoading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showConfirm.isOpen && (
         <PopupMenu
           email={showConfirm.email}
@@ -657,7 +806,92 @@ function OwnerManager({ admin_email }) {
         )
       }
 
-
+      <style jsx>{`
+        .drive-icon {
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .drive-icon:hover {
+          transform: scale(1.1);
+        }
+        .drive-limit-popup {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          width: 400px;
+          max-width: 90%;
+          position: relative;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .drive-limit-popup h2 {
+          margin-top: 0;
+          color: #333;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 10px;
+        }
+        .drive-limit-form {
+          margin-top: 20px;
+        }
+        .drive-limit-input-container {
+          display: flex;
+          margin-bottom: 15px;
+        }
+        .drive-limit-input {
+          flex: 1;
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 4px 0 0 4px;
+          font-size: 16px;
+        }
+        .drive-limit-unit {
+          width: 120px;
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-left: none;
+          border-radius: 0 4px 4px 0;
+          background-color: #f8f8f8;
+          font-size: 16px;
+        }
+        .drive-limit-current {
+          margin-bottom: 20px;
+          padding: 10px;
+          background-color: #f5f5f5;
+          border-radius: 4px;
+        }
+        .drive-limit-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+          margin-top: 20px;
+        }
+        .update-drive-button {
+          background-color: #1976d2;
+          color: white;
+          border: none;
+          padding: 10px 15px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 500;
+        }
+        .update-drive-button:hover {
+          background-color: #1565c0;
+        }
+        .update-drive-button:disabled {
+          background-color: #bbb;
+          cursor: not-allowed;
+        }
+        .cancel-drive-button {
+          background-color: #f5f5f5;
+          color: #333;
+          border: 1px solid #ddd;
+          padding: 10px 15px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .cancel-drive-button:hover {
+          background-color: #e5e5e5;
+        }
+      `}</style>
 
     </div>
   );

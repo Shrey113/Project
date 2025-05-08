@@ -16,6 +16,7 @@ export const localstorage_key_for_admin_login =
 // localhost  ---------------------------------------------------
 export const Server_url = "http://localhost:4000";
 export const Socket_url = 'ws://localhost:4000';
+export const APP_URL = "http://localhost:3000";
 
 // praharsh  ---------------------------------------------------
 // export const Server_url = 'http://192.168.29.34:4000';
@@ -33,7 +34,6 @@ export const Socket_url = 'ws://localhost:4000';
 //set - "1GB", "1TB", "unlimited"
 export const FULL_DRIVE_LIMIT = "1GB";
 export const IS_UNLIMITED = FULL_DRIVE_LIMIT === "unlimited";
-
 
 export const localstorage_key_for_client = "localstorage_key_for_client";
 export const localstorage_key_for_admin_settings =

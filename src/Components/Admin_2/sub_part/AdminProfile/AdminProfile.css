@@ -429,7 +429,7 @@
   padding: 20px;
 }
 
-.loading-spinner {
+.admin_profile_container  .loading-spinner {
   background: white;
   padding: 20px 30px;
   border-radius: 10px;
@@ -437,7 +437,7 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
-.loading-spinner::after {
+.admin_profile_container  .loading-spinner::after {
   content: '';
   display: block;
   width: 40px;

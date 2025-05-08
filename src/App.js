@@ -25,6 +25,9 @@ import "./Components/Owener/css/Dashboard.css";
 import HomePage from "./Components/Client/HomePage.js";
 
 import PageNotFound from "./PageNotFound.js";
+import ExternalUserPortal from './Components/Owener/sub_part/DrivePart/ExternalUserPortal';
+import PublicAccessView from './Components/Owener/sub_part/DrivePart/PublicAccessView';
+
 
 import {
   localstorage_key_for_client,
@@ -285,6 +288,7 @@ function App() {
     authenticateUser();
   }, [dispatch, user]);
 
+
   // 3. Show Loader
   if (
     authStatus.owner === null ||
@@ -302,6 +306,15 @@ function App() {
           <Route path="/Admin2" element={<Admin2 socket={socket} />} />
 
           <Route path="/BeforeLogin" element={<BeforeLogin2 />} />
+          < Route   
+            path="/external-access"
+            element={<ExternalUserPortal />}
+            />
+
+            < Route   
+            path="/share/:accessToken"
+            element={<PublicAccessView />}
+            />
 
 
           <Route
@@ -548,6 +561,7 @@ function App() {
             }
           />
 
+
           <Route
             path="/Owner/share_profile/:owner_email/all_services"
             element={
@@ -566,9 +580,14 @@ function App() {
 
           <Route path="*" element={<PageNotFound />} />
         </Routes>
-        {authStatus.owner && OwnerStatus === "Accept" && !window.location.pathname.includes("/Owner/share_profile") && (
-          <OwnerSideBar />
-        )}
+        {authStatus.owner && OwnerStatus === "Accept" 
+  && !window.location.pathname.includes("/Owner/share_profile") 
+  && !window.location.pathname.includes("/external-access") 
+  && !window.location.pathname.includes("/share/")
+  && (
+    <OwnerSideBar />
+)}
+
 
         <Toaster position="top-right" />
       </>

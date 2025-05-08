@@ -108,7 +108,6 @@ const FileItem = ({
     }, [globalActivePopup, itemId]);
 
     useEffect(() => {
-        console.log("currentTab", item);
         async function fetchBusinessProfileImage() {
             if (currentTab === "shared-by-me") {
                 try {

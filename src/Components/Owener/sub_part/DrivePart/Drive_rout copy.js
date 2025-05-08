@@ -351,8 +351,6 @@ router.get('/folder/:folderId/contents', (req, res) => {
         return res.status(400).json({ error: 'Missing required parameters: folderId, user_email, or created_by' });
     }
 
-    console.log(`Getting contents for folder ID: ${folderId} for user: ${user_email}`);
-
     // Step 1: Get child folder IDs from drive_folder_structure
     const childFolderQuery = `SELECT child_folder_id FROM drive_folder_structure WHERE parent_folder_id = ?`;
 
@@ -369,11 +367,9 @@ router.get('/folder/:folderId/contents', (req, res) => {
 
         const childFolderIds = childFolderIdsResult.map(row => row.child_folder_id);
 
-        // Step 2: Get folder details for child folder IDs
         const folderQuery = `SELECT * FROM drive_folders WHERE folder_id IN (?) AND created_by = ?`;
         const fileQuery = `SELECT * FROM drive_files WHERE parent_folder_id = ? AND user_email = ?`;
 
-        // Execute both queries in parallel
         Promise.all([
             new Promise((resolve, reject) => {
                 if (childFolderIds.length === 0) {
@@ -388,12 +384,11 @@ router.get('/folder/:folderId/contents', (req, res) => {
             new Promise((resolve, reject) => {
                 db.query(fileQuery, [folderId, user_email], (err, files) => {
                     if (err) reject(err);
-                    else resolve(files);
+                    else resolve(files);    
                 });
             })
         ])
             .then(([folders, files]) => {
-                // Return both folders and files
                 res.status(200).json({
                     success: true,
                     folders: folders,
@@ -1995,6 +1990,153 @@ router.post('/get_storage_stats', (req, res) => {
         console.error('Error in get_storage_stats:', error);
         res.status(500).json({ error: 'Server error' });
     }
+});
+
+function categorizeFilesByType(files) {
+    const categories = {
+        images: { size: 0, percentage: 0, extensions: ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.bmp', '.tiff'] },
+        documents: { size: 0, percentage: 0, extensions: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.odt'] },
+        videos: { size: 0, percentage: 0, extensions: ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.mkv', '.webm', '.m4v', '.3gp'] },
+        others: { size: 0, percentage: 0, extensions: [] }
+    };
+
+    let totalSize = 0;
+
+    files.forEach(file => {
+        const fileExt = '.' + file.file_name.split('.').pop().toLowerCase();
+        const fileSize = parseInt(file.file_size) || 0;
+        totalSize += fileSize;
+
+        let categorized = false;
+
+        // Check which category this file belongs to
+        for (const [category, data] of Object.entries(categories)) {
+            if (category !== 'others' && data.extensions.includes(fileExt)) {
+                categories[category].size += fileSize;
+                categorized = true;
+                break;
+            }
+        }
+
+        // If not categorized, put in others
+        if (!categorized) {
+            categories.others.size += fileSize;
+        }
+    });
+
+    // Calculate percentages if total size is not zero
+    if (totalSize > 0) {
+        for (const category in categories) {
+            categories[category].percentage = Math.round((categories[category].size / totalSize) * 100);
+        }
+    }
+
+    // Remove the extensions array from the result
+    for (const category in categories) {
+        delete categories[category].extensions;
+    }
+
+    return categories;
+}
+
+// Add this new route handler after an existing route
+router.post('/get_storage_stats', (req, res) => {
+    try {
+        const { user_email, created_by } = req.body;
+
+        if (!user_email) {
+            return res.status(400).json({ error: 'User email is required' });
+        }
+
+        // Query all files for this user
+        const query = 'SELECT file_name, file_size FROM drive_files WHERE user_email = ?';
+
+        db.query(query, [user_email], (err, results) => {
+            if (err) {
+                console.error('Error fetching files for storage stats:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            // Calculate total used storage
+            let usedStorage = 0;
+            results.forEach(file => {
+                usedStorage += parseInt(file.file_size) || 0;
+            });
+
+            // Categorize files and calculate stats
+            const stats = categorizeFilesByType(results);
+
+            // Add total used storage to the response
+            const response = {
+                ...stats,
+                usedStorage,
+                totalFiles: results.length
+            };
+
+            // If FULL_DRIVE_LIMIT is defined and not unlimited, calculate percentage used
+            const fullDriveLimit = process.env.FULL_DRIVE_LIMIT || '5GB';
+            const isUnlimited = fullDriveLimit.toLowerCase() === 'unlimited';
+
+            if (!isUnlimited) {
+                let maxStorage = 0;
+                if (fullDriveLimit.endsWith('GB')) {
+                    maxStorage = parseFloat(fullDriveLimit) * 1024 * 1024 * 1024;
+                } else if (fullDriveLimit.endsWith('MB')) {
+                    maxStorage = parseFloat(fullDriveLimit) * 1024 * 1024;
+                } else if (fullDriveLimit.endsWith('TB')) {
+                    maxStorage = parseFloat(fullDriveLimit) * 1024 * 1024 * 1024 * 1024;
+                }
+
+                response.totalStorage = maxStorage;
+                response.percentageUsed = maxStorage > 0 ? (usedStorage / maxStorage) * 100 : 0;
+                response.remainingStorage = maxStorage - usedStorage;
+            }
+
+            res.json(response);
+        });
+    } catch (error) {
+        console.error('Error in get_storage_stats:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+router.post("/get_file_folder_details", (req, res) => {
+    const { type,id } = req.body;
+    let query = "";
+    if(type == "folder"){
+        query = `SELECT * FROM drive_folders WHERE folder_id = ?`;
+    }else if(type == "file"){
+        query = `SELECT * FROM drive_files WHERE file_id = ?`;
+    }
+    db.query(query, [id], (err, results) => {
+        res.json(results);
+    });
+});
+
+router.post("/get_drive_limit", (req, res) => {
+    const { user_email } = req.body;
+    const query = `SELECT drive_limit FROM drive_users WHERE user_email = ?`;
+    db.query(query, [user_email], (err, results) => {
+        if(err){
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        // Check if results exist and have a drive_limit value
+        if (results && results.length > 0 && results[0].drive_limit) {
+            // Return the drive limit from database
+            res.json({
+                drive_limit: results[0].drive_limit,
+                source: 'database'
+            });
+        } else {
+            // Use the environment variable as fallback
+            const defaultLimit = process.env.DRIVE_limit || '5GB';
+            res.json({
+                drive_limit: defaultLimit,
+                source: 'default'
+            });
+        }
+    });
 });
 
 module.exports = router;

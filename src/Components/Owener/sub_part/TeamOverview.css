@@ -2208,13 +2208,13 @@
   margin-top: 20px;
 }
 
-.loading-container p {
+.team-overview-container .loading-container p {
   margin-top: 15px;
   color: #666;
   font-size: 16px;
 }
 
-.loading-spinner {
+.team-overview-container .loading-spinner {
   width: 40px;
   height: 40px;
   border: 3px solid rgba(79, 70, 229, 0.2);
@@ -2270,7 +2270,7 @@
 }
 
 /* Loading spinner for button */
-.loading-spinner-button {
+.team-overview-container .loading-spinner-button {
   display: inline-block;
   width: 14px;
   height: 14px;

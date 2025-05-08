@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, memo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUIContext } from "../../redux/UIContext.js";
-import { logoWithNameBlue, FULL_DRIVE_LIMIT, IS_UNLIMITED } from "./../../redux/AllData.js";
+import { logoWithNameBlue, IS_UNLIMITED } from "./../../redux/AllData.js";
 import "./css/Owner_side_bar.css";
 
 // import app_icon from "./img/app-store.png";
@@ -102,6 +102,7 @@ function OwnerSideBar() {
 
   // Storage stats
   const [totalStorageSize, setTotalStorageSize] = useState(0);
+  const [driveLimit, setDriveLimit] = useState('5GB'); // Default drive limit
   const [storageStats, setStorageStats] = useState({
     images: { size: 0, percentage: 0 },
     documents: { size: 0, percentage: 0 },
@@ -115,7 +116,7 @@ function OwnerSideBar() {
   const calculateUsagePercentage = () => {
     if (IS_UNLIMITED) return 0; // No percentage for unlimited
 
-    const limitInBytes = parseStorageSize(FULL_DRIVE_LIMIT);
+    const limitInBytes = parseStorageSize(driveLimit);
     return Math.min(Math.round((totalStorageSize / limitInBytes) * 100), 100);
   };
 
@@ -163,6 +164,7 @@ function OwnerSideBar() {
     }
   }, [showStoragePopup])
 
+
   const fetchStorageData = useCallback(async () => {
     if (!userEmail) return;
 
@@ -180,15 +182,15 @@ function OwnerSideBar() {
         user_email: userEmail
       });
 
-      // Parse storage limit from FULL_DRIVE_LIMIT
+      // Parse storage limit from driveLimit
       let maxStorage = 0;
-      if (!IS_UNLIMITED && FULL_DRIVE_LIMIT) {
-        if (FULL_DRIVE_LIMIT.endsWith('GB')) {
-          maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024 * 1024;
-        } else if (FULL_DRIVE_LIMIT.endsWith('MB')) {
-          maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024;
-        } else if (FULL_DRIVE_LIMIT.endsWith('TB')) {
-          maxStorage = parseFloat(FULL_DRIVE_LIMIT) * 1024 * 1024 * 1024 * 1024;
+      if (!IS_UNLIMITED && driveLimit) {
+        if (driveLimit.endsWith('GB')) {
+          maxStorage = parseFloat(driveLimit) * 1024 * 1024 * 1024;
+        } else if (driveLimit.endsWith('MB')) {
+          maxStorage = parseFloat(driveLimit) * 1024 * 1024;
+        } else if (driveLimit.endsWith('TB')) {
+          maxStorage = parseFloat(driveLimit) * 1024 * 1024 * 1024 * 1024;
         }
       }
 
@@ -196,8 +198,8 @@ function OwnerSideBar() {
       const receivedStats = statsResponse.data;
       const usedStorage = receivedStats.usedStorage || 0;
 
-      // IMPORTANT: Always use our frontend storage limit, ignoring the server's value
-      // Override server's totalStorage with our frontend setting
+      // IMPORTANT: Always use our fetched drive limit, ignoring the server's value
+      // Override server's totalStorage with our fetched setting
       receivedStats.totalStorage = maxStorage;
 
       // Recalculate percentages based on correct storage limit
@@ -213,13 +215,46 @@ function OwnerSideBar() {
       console.error('Error fetching storage data:', error);
       setIsRefreshing(false);
     }
+  }, [userEmail, driveLimit]);
+
+  useEffect(() => {
+    const fetchDriveLimit = async () => {
+      if (!userEmail) return;
+  
+      try {
+        const response = await fetch(`${Server_url}/drive/get_drive_limit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ user_email: userEmail }),
+        });
+  
+        if (!response.ok) throw new Error('Network response was not ok');
+  
+        const data = await response.json();
+  
+        if (data && data.drive_limit) {
+          setDriveLimit(data.drive_limit);
+          console.log(`Fetched drive limit: ${data.drive_limit} (source: ${data.source})`);
+        }
+      } catch (error) {
+        console.error('Error fetching drive limit:', error);
+        // Keep using default limit if fetching fails
+      }
+    };
+  
+    if (userEmail) {
+      fetchDriveLimit();
+    }
   }, [userEmail]);
+  
 
   useEffect(() => {
     if (userEmail) {
       fetchStorageData();
     }
-  }, [userEmail, fetchStorageData]);
+  }, [userEmail, fetchStorageData, driveLimit]); // Add driveLimit as dependency
 
   // Toggle storage popup
   const toggleStoragePopup = (e) => {
@@ -559,7 +594,7 @@ function OwnerSideBar() {
                   <div className="storage-details">
                     <div className="storage-title">Storage</div>
                     <div className="storage-text">
-                      {formatStorageSize(totalStorageSize || 0)} {!IS_UNLIMITED ? `of ${FULL_DRIVE_LIMIT}` : ''}
+                      {formatStorageSize(totalStorageSize || 0)} {!IS_UNLIMITED ? `of ${driveLimit}` : ''}
                     </div>
                   </div>
                   <button
@@ -749,9 +784,21 @@ function OwnerSideBar() {
                   <div className="storage-type-details">
                     <div className="storage-type-name">Total Storage</div>
                     <div className="storage-type-size">
-                      {formatStorageSize(totalStorageSize || 0)} {!IS_UNLIMITED ? `of ${FULL_DRIVE_LIMIT}` : ''}
+                      {formatStorageSize(totalStorageSize || 0)} {!IS_UNLIMITED ? `of ${driveLimit}` : ''}
                     </div>
                   </div>
+                  {/*  */}
+                  {!IS_UNLIMITED && (
+                  <div className="storage-type-item free-space">
+                    <StorageIcon className="storage-type-icon" />
+                    <div className="storage-type-details">
+                      <div className="storage-type-name">Free Space</div>
+                      <div className="storage-type-size">{formatStorageSize(storageStats?.remainingStorage || 0)} (   {storageStats?.remainingStorage && parseStorageSize(driveLimit) 
+                        ? Math.round((storageStats.remainingStorage / parseStorageSize(driveLimit)) * 100) 
+                        : 0}%)</div>
+                    </div>
+                  </div>
+                )}
                 </div>
 
                 <div className="storage-total-progress">

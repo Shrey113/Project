@@ -358,16 +358,16 @@
   min-width: 120px;
 }
 
-.popup-actions button:hover {
+.Admin_table_date  .popup-actions button:hover {
   opacity: 0.9;
 }
 
-.popup-actions button:first-child {
+.Admin_table_date  .popup-actions button:first-child {
   background-color: #007bff;
   color: #fff;
 }
 
-.popup-actions button:last-child {
+.Admin_table_date  .popup-actions button:last-child {
   background-color: #f44336;
   color: #fff;
   text-align: center;

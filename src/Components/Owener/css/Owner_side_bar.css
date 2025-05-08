@@ -1435,3 +1435,12 @@
     opacity: 0.7;
   }
 }
+
+.free-space {
+  flex: 1 1;
+  &:hover {
+    transform: none;
+    background: none;
+    background-color: none;
+  }
+}
