@@ -13,7 +13,7 @@ import AddDetailsPop from "./AddDetailsPop";
 import socket from "../../../../redux/socket";
 import { IoCloseOutline, IoInformationCircleOutline } from "react-icons/io5";
 import { IoInformation } from "react-icons/io5";
-import EventStatusUpdater from "./EventStatusUpdater";
+// import EventStatusUpdater from "./EventStatusUpdater";
 import { EditableService } from "./../../../../redux/AllData.js";
 // import { HiOutlineChevronUpDown } from "react-icons/hi2";
 // import { add } from "date-fns";
