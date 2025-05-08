@@ -327,9 +327,11 @@
   justify-content: space-between;
   max-height: 80vh;
 }
-.modal-content-container form{
+
+.modal-content-container form {
   width: 50%;
 }
+
 /* Left Side */
 .modal-left {
   flex: 1;

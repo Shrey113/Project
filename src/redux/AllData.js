@@ -1,10 +1,12 @@
 import "./AllData.css";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 import logoWithNameBlack from './../Assets/WebsitLogo/logoWithNameBlack.png'
 import logoWithNameBlue from './../Assets/WebsitLogo/logoWithNameBlue.png'
 import logoBlack from './../Assets/WebsitLogo/logoBlack.png'
 import logoBlue from './../Assets/WebsitLogo/logoBlue.png'
+import { useEffect } from "react";
 
 export const localstorage_key_for_jwt_user_side_key =
   "Jwt_user_localstorage_key_on_photography_website";
@@ -133,6 +135,113 @@ export const FileLoaderToast = ({ uploadProgress }) => {
           </p>
           <p className="upload-hint">Please don't close this window</p>
         </div>
+      </div>
+    </div>
+  );
+};
+export const EditableService = ({ editableData, set_boolean_edit_service }) => {
+  const [formData, setFormData] = useState([]);
+
+  // Initialize local form state
+  useEffect(() => {
+    if (editableData && Array.isArray(editableData)) {
+      // Clone input data into local state
+      const cloned = editableData.map(item => ({
+        ...item,
+        original_location: item.location,
+        original_location_link: item.location_link,
+        isModified: false,
+      }));
+      setFormData(cloned);
+    }
+  }, [editableData]);
+
+  const handleChange = (index, field, value) => {
+    const updated = [...formData];
+    updated[index][field] = value;
+
+    // Check if modified compared to original values
+    const isModified =
+      updated[index].location !== updated[index].original_location ||
+      updated[index].location_link !== updated[index].original_location_link;
+
+    updated[index].isModified = isModified;
+    setFormData(updated);
+  };
+
+  const handleSave = (index) => {
+    const item = formData[index];
+    const payload = {
+      id: item.id,
+      location: item.location,
+      location_link: item.location_link
+    };
+    console.log("payload", payload)
+
+    fetch(`${Server_url}/update_location_service`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to update');
+        return res.json();
+      })
+      .then(data => {
+        console.log('Server response:', data);
+        // Reset modified flag after successful save
+        const updated = [...formData];
+        updated[index].original_location = item.location;
+        updated[index].original_location_link = item.location_link;
+        updated[index].isModified = false;
+        setFormData(updated);
+      })
+      .catch(err => {
+        console.error('Error saving data:', err);
+        alert('Failed to save changes. Please try again.');
+      });
+  };
+
+  const handleEditService_close = () => {
+    set_boolean_edit_service(false);
+  }
+  return (
+    <div className="wrapper_editable_service" onClick={handleEditService_close} >
+      <button className="editable_service_close" onClick={handleEditService_close}>x</button>
+      <div className="inner_editable_service" onClick={(e) => e.stopPropagation()}>
+        {formData.map((item, index) => (
+          <div key={item.id} className="service-box">
+            <h3>{item.service_name}</h3>
+            <p><strong>Owner Email:</strong> {item.receiver_email}</p>
+
+            <label>
+              Location:
+              <input
+                type="text"
+                value={item.location}
+                onChange={(e) => handleChange(index, 'location', e.target.value)}
+              />
+            </label>
+
+            <label>
+              Location Link:
+              <input
+                type="text"
+                value={item.location_link}
+                onChange={(e) => handleChange(index, 'location_link', e.target.value)}
+              />
+            </label>
+
+            <button
+              disabled={!item.isModified}
+              onClick={() => handleSave(index)}
+            >
+              Save
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );

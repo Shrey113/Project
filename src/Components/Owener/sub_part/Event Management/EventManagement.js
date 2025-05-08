@@ -14,6 +14,7 @@ import socket from "../../../../redux/socket";
 import { IoCloseOutline, IoInformationCircleOutline } from "react-icons/io5";
 import { IoInformation } from "react-icons/io5";
 import EventStatusUpdater from "./EventStatusUpdater";
+import { EditableService } from "./../../../../redux/AllData.js";
 // import { HiOutlineChevronUpDown } from "react-icons/hi2";
 // import { add } from "date-fns";
 import { IoFilter } from "react-icons/io5";
@@ -42,6 +43,12 @@ function EventManagement({ category }) {
   const [sent_service_data, set_sent_service_data] = useState([]);
 
   const [selected_sent_item, set_selected_sent_item] = useState(null);
+
+  // const [service_items, set_service_items] = useState(null);
+  const [edit_service_location, set_edit_service_location] = useState("");
+  const [boolean_edit_service, set_boolean_edit_service] = useState(false);
+
+  const [show_edit_info_popup, set_show_edit_info_popup] = useState("");
 
   const [show_calender_popup, set_show_calender_popup] = useState(false);
 
@@ -126,7 +133,7 @@ function EventManagement({ category }) {
     } else if (item.event_request_type === "service") {
       // Check if this is part of a multi-day service event
       const serviceEvents = findRelatedServiceEvents(item);
-      
+
       if (serviceEvents.length > 1) {
         // This is a multi-day event
         setNewEvent({
@@ -157,27 +164,27 @@ function EventManagement({ category }) {
 
     set_show_calender_popup(true);
   }
-  
+
   // Helper function to find all related service events (multi-day)
   const findRelatedServiceEvents = (item) => {
     // If receiver_service_data is not in expected format, return just this item
     if (!Array.isArray(receiver_service_data) || receiver_service_data.length === 0) {
       return [item];
     }
-    
+
     // Find the array containing this item
     const relatedEvents = receiver_service_data.find(innerArray => {
       if (!Array.isArray(innerArray)) return false;
-      
-      return innerArray.some(event => 
-        event.id === item.id || 
-        (event.services_id === item.services_id && 
-         event.sender_email === item.sender_email &&
-         event.total_amount === item.total_amount &&
-         Math.abs(new Date(event.time_stamp) - new Date(item.time_stamp)) < 1000 * 60 * 5) // Within 5 minutes
+
+      return innerArray.some(event =>
+        event.id === item.id ||
+        (event.services_id === item.services_id &&
+          event.sender_email === item.sender_email &&
+          event.total_amount === item.total_amount &&
+          Math.abs(new Date(event.time_stamp) - new Date(item.time_stamp)) < 1000 * 60 * 5) // Within 5 minutes
       );
     });
-    
+
     return Array.isArray(relatedEvents) ? relatedEvents : [item];
   };
 
@@ -362,27 +369,6 @@ function EventManagement({ category }) {
     });
   };
 
-  // const add_filter = (name) => {
-  //   return (
-  //     <span
-  //       style={{
-  //         display: "flex",
-  //         gap: "2px",
-  //       }}
-  //     >
-  //       <div>{name}</div>{" "}
-  //       <div
-  //         style={{
-  //           display: "flex",
-  //           alignItems: "center",
-  //           justifyContent: "center",
-  //         }}
-  //       >
-  //         <HiOutlineChevronUpDown />
-  //       </div>
-  //     </span>
-  //   );
-  // };
 
   useEffect(() => {
     const equipment_count = receiver_equipment_data?.length;
@@ -517,26 +503,78 @@ function EventManagement({ category }) {
     // Return original status if not passed
     return item.event_status;
   };
-  const handleEditClick = async (item) => {
-    console.log("edit button clicked", item);
-      fetch(`${Server_url}/get_info_for_event`,
-      {
+
+  const handleFetchServiceInfo = async (item) => {
+    const eventIds = item.map(event => ({ id: event.id }));
+    console.log("Sending event IDs:", eventIds);
+
+    try {
+      const response = await fetch(`${Server_url}/get_info_for_sent_service_request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          event_id: item,
-        }),
-      })
-      .then(response => response.json())
+        body: JSON.stringify(eventIds), // Send [{ id: 193 }, { id: 194 }, { id: 195 }]
+      });
+
+      const data = await response.json();
+      set_show_edit_info_popup(data);
+      console.log("form of data that i am getting", data)
+    } catch (error) {
+      console.error("Error fetching event info:", error);
+    }
+  }
+
+  // after assigning team members 
+  const handleServiceInfoClick = (innerArray) => {
+    console.log("getting data..........", innerArray)
+
+    const ids = innerArray.map((items) => {
+      return items.id
+    })
+
+    fetch(`${Server_url}/owner/service_and_team_member_details_fetcing`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"  // Specify the content type as JSON
+      },
+      body: JSON.stringify({ ids })  // Send ids as a JSON object
+    })
+      .then(response => response.json())  // Parse the response as JSON
       .then(data => {
-        console.log("data", data);
+        console.log("Response from server:", data);
+        // Handle the response data here
       })
       .catch(error => {
-        console.error("Error fetching event info:", error);
+        console.error("Error sending request:", error);
+        // Handle the error here
       });
   }
+
+  // for edit of service location and location link 
+  const handleEditClick = async (item) => {
+    console.log("edit button clicked", item);
+
+    // Extract only the id from each item
+    const eventIds = item.map(event => ({ id: event.id }));
+    console.log("Sending event IDs:", eventIds);
+
+    try {
+      const response = await fetch(`${Server_url}/get_info_for_sent_service_request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(eventIds), // Send [{ id: 193 }, { id: 194 }, { id: 195 }]
+      });
+
+      const data = await response.json();
+      set_edit_service_location(data);
+      set_boolean_edit_service(true);
+    } catch (error) {
+      console.error("Error fetching event info:", error);
+    }
+  };
 
 
   // Function to refresh data after status updates
@@ -788,6 +826,105 @@ function EventManagement({ category }) {
             </div>
           )}
 
+          {Array.isArray(show_edit_info_popup) && show_edit_info_popup.length > 0 && (
+            <div className="details-modal-overlay" onClick={() => set_show_edit_info_popup(null)}>
+              <div className="details-modal" onClick={(e) => e.stopPropagation()}>
+
+                <h3 className="modal-header">Request Details</h3>
+                {show_edit_info_popup.map((innerArray, index) => (
+                  <div key={index}>
+                    <div className="modal-header-container">
+                      <span className={`status ${innerArray.event_status === "Waiting on Team"
+                        ? "status-waiting-on-team"
+                        : innerArray.event_status === "Accepted"
+                          ? "status-accepted"
+                          : innerArray.event_status === "Rejected"
+                            ? "status-rejected"
+                            : "status-pending"
+                        }`}>
+                        {innerArray.event_status || "Pending"}
+                      </span>
+                    </div>
+
+                    <div className="modal-content-container">
+                      {/* Left Side */}
+                      <div className="modal-left">
+                        <table className="details-table">
+                          <tbody>
+                            <TRow label="Sender Email" value={innerArray.sender_email} />
+
+                            {innerArray.event_request_type === "Event" ? (
+                              <>
+                                <TRow label="Event Name" value={innerArray.event_name} />
+                                <TRow label="Service" value={innerArray.service} />
+                                <TRow label="Requirement" value={innerArray.requirements} />
+                                <TRow label="Price" value={`₹${innerArray.price}`} />
+                              </>
+                            ) : innerArray.event_request_type === "equipment" ? (
+                              <>
+                                <TRow label="Equipment Name" value={innerArray.equipment_name} />
+                                <TRow label="Equipment Company" value={innerArray.equipment_company} />
+                                <TRow label="Equipment Type" value={innerArray.equipment_type} />
+                                <TRow label="Requirement" value={innerArray.requirements} />
+                                <TRow label="Price" value={`₹${innerArray.equipment_price_per_day}`} />
+                                <TRow label="Days Required" value={innerArray.days_required} />
+                                <TRow label="Total Amount" value={`₹${innerArray.total_amount}`} />
+                              </>
+                            ) : innerArray.event_request_type === "service" ? (
+                              <>
+                                <TRow label="Service Name" value={innerArray.service_name} />
+                                <TRow label="Price" value={`₹${innerArray.service_price_per_day}`} />
+                                {innerArray.requirements && <TRow label="Requirement" value={innerArray.requirements} />}
+                              </>
+                            ) : null}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Right Side */}
+                      <div className="modal-right">
+                        <div className={`status-box ${innerArray.event_status?.toLowerCase()}`}>
+                          <table className="details-table">
+                            <tbody>
+                              <TRow label="Start Date" value={formatDate(innerArray.start_date)} />
+                              <TRow label="End Date" value={formatDate(innerArray.end_date)} />
+                              <TRow label="Location" value={innerArray.location} />
+
+                              {innerArray.event_status === "Accepted" &&
+                                Array.isArray(innerArray.assigned_team_member) &&
+                                innerArray.assigned_team_member.length > 0 && (
+                                  <TRow
+                                    label="Assigned Team Members"
+                                    value={
+                                      <ul>
+                                        {innerArray.assigned_team_member.map((member, idx) => (
+                                          <div key={idx}>{member}</div>
+                                        ))}
+                                      </ul>
+                                    }
+                                  />
+                                )}
+
+                              {innerArray.event_status === "Rejected" &&
+                                innerArray.reason && (
+                                  <TRow label="Reason for Rejection" value={innerArray.reason} />
+                                )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <hr />
+                  </div>
+                ))}
+
+                <button className="close-button" onClick={() => set_show_edit_info_popup(null)}>
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
           <div id="EventManagement">
             {["All Events"].includes(category) && (
               <div className="section-container">
@@ -881,6 +1018,7 @@ function EventManagement({ category }) {
                           <th>Receiver</th>
                           <th>Status</th>
                           <th>Action</th>
+                          {/* <th>multiday_id</th> */}
                         </tr>
                       </thead>
                       <tbody>
@@ -890,7 +1028,7 @@ function EventManagement({ category }) {
                           return (
                             <tr
                               key={index}
-                              onClick={() => set_selected_sent_item(item)}
+                              onClick={() => handleFetchServiceInfo(sent_service_data[index])}
                             >
                               <td>{index + 1}</td>
                               <td>{item.event_name || 'N/A'}</td>
@@ -1253,7 +1391,7 @@ function EventManagement({ category }) {
                                             </button>
                                           </>
                                         )}
-                                        <button className="info-btn" onClick={() => handleInfoClick(item)}>
+                                        <button className="info-btn" onClick={() => handleServiceInfoClick(innerArray)}>
                                           <IoInformation style={{ height: "20px", width: "20px" }} />
                                         </button>
                                       </>
@@ -1318,6 +1456,9 @@ function EventManagement({ category }) {
           set_receiver_equipment_data={set_receiver_equipment_data}
         />
       )}
+      {boolean_edit_service &&
+        (<EditableService editableData={edit_service_location} set_boolean_edit_service={set_boolean_edit_service} />)
+      }
     </div>
   );
 }

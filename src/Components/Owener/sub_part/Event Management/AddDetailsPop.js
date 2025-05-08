@@ -577,7 +577,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       if (response.ok) {
         const result = await response.json();
         if (result.message) {
-          assignTeamMembers()
+          // assignTeamMembers()
         }
       }
       showAcceptToast({ message: "Event data successfully submitted!" });
