@@ -1,12 +1,11 @@
 import "./AllData.css";
 import toast from "react-hot-toast";
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import { IoCloseOutline } from "react-icons/io5";
 import logoWithNameBlack from './../Assets/WebsitLogo/logoWithNameBlack.png'
 import logoWithNameBlue from './../Assets/WebsitLogo/logoWithNameBlue.png'
 import logoBlack from './../Assets/WebsitLogo/logoBlack.png'
 import logoBlue from './../Assets/WebsitLogo/logoBlue.png'
-import { useEffect } from "react";
 
 export const localstorage_key_for_jwt_user_side_key =
   "Jwt_user_localstorage_key_on_photography_website";
@@ -141,6 +140,8 @@ export const FileLoaderToast = ({ uploadProgress }) => {
 };
 export const EditableService = ({ editableData, set_boolean_edit_service }) => {
   const [formData, setFormData] = useState([]);
+  const [successStates, setSuccessStates] = useState({});
+  const [isLoading, setIsLoading] = useState({});
 
   // Initialize local form state
   useEffect(() => {
@@ -166,6 +167,15 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
       updated[index].location_link !== updated[index].original_location_link;
 
     updated[index].isModified = isModified;
+    
+    // Reset success state when field is modified again
+    if (isModified && successStates[updated[index].id]) {
+      setSuccessStates(prev => ({
+        ...prev,
+        [updated[index].id]: false
+      }));
+    }
+    
     setFormData(updated);
   };
 
@@ -176,7 +186,12 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
       location: item.location,
       location_link: item.location_link
     };
-    console.log("payload", payload)
+    
+    // Set loading state for this item
+    setIsLoading(prev => ({
+      ...prev,
+      [item.id]: true
+    }));
 
     fetch(`${Server_url}/update_location_service`, {
       method: 'POST',
@@ -190,61 +205,128 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
         return res.json();
       })
       .then(data => {
-        console.log('Server response:', data);
         // Reset modified flag after successful save
         const updated = [...formData];
         updated[index].original_location = item.location;
         updated[index].original_location_link = item.location_link;
         updated[index].isModified = false;
         setFormData(updated);
+        
+        // Set success state for this item
+        setSuccessStates(prev => ({
+          ...prev,
+          [item.id]: true
+        }));
+        
+        // Clear loading state
+        setIsLoading(prev => ({
+          ...prev,
+          [item.id]: false
+        }));
+        
+        // Clear success state after 3 seconds
+        setTimeout(() => {
+          setSuccessStates(prev => ({
+            ...prev,
+            [item.id]: false
+          }));
+        }, 3000);
       })
       .catch(err => {
         console.error('Error saving data:', err);
-        alert('Failed to save changes. Please try again.');
+        
+        // Clear loading state
+        setIsLoading(prev => ({
+          ...prev,
+          [item.id]: false
+        }));
       });
   };
 
   const handleEditService_close = () => {
     set_boolean_edit_service(false);
-  }
+  };
+
   return (
-    <div className="wrapper_editable_service" onClick={handleEditService_close} >
-      <button className="editable_service_close" onClick={handleEditService_close}>x</button>
-      <div className="inner_editable_service" onClick={(e) => e.stopPropagation()}>
-        {formData.map((item, index) => (
-          <div key={item.id} className="service-box">
-            <h3>{item.service_name}</h3>
-            <p><strong>Owner Email:</strong> {item.receiver_email}</p>
-
-            <label>
-              Location:
-              <input
-                type="text"
-                value={item.location}
-                onChange={(e) => handleChange(index, 'location', e.target.value)}
-              />
-            </label>
-
-            <label>
-              Location Link:
-              <input
-                type="text"
-                value={item.location_link}
-                onChange={(e) => handleChange(index, 'location_link', e.target.value)}
-              />
-            </label>
-
-            <button
-              disabled={!item.isModified}
-              onClick={() => handleSave(index)}
-            >
-              Save
-            </button>
-          </div>
-        ))}
+    <div className="editable-service-overlay" onClick={handleEditService_close}>
+      <div className="editable-service-container" onClick={(e) => e.stopPropagation()}>
+        <div className="editable-service-header">
+          <h2>Edit Service Locations</h2>
+          <button className="editable-service-close-btn" onClick={handleEditService_close}>
+            <IoCloseOutline size={24} />
+          </button>
+        </div>
+        
+        <div className="editable-service-content">
+          {formData.length === 0 ? (
+            <div className="editable-service-empty">
+              <p>No services available to edit</p>
+            </div>
+          ) : (
+            <div className="editable-service-grid">
+              {formData.map((item, index) => (
+                <div 
+                  key={item.id} 
+                  className={`editable-service-card ${item.isModified ? 'modified' : ''} ${successStates[item.id] ? 'success' : ''}`}
+                >
+                  <div className="editable-service-card-header">
+                    <h3>{item.service_name || 'Service'}</h3>
+                    {successStates[item.id] && (
+                      <span className="save-success-indicator">Updated successfully</span>
+                    )}
+                  </div>
+                  
+                  <div className="editable-service-details">
+                    <p className="service-owner">
+                      <strong>Owner:</strong> {item.receiver_email}
+                    </p>
+                    
+                    <div className="form-group">
+                      <label htmlFor={`location-${item.id}`}>
+                        Location:
+                      </label>
+                      <input
+                        id={`location-${item.id}`}
+                        type="text"
+                        value={item.location || ''}
+                        onChange={(e) => handleChange(index, 'location', e.target.value)}
+                        placeholder="Enter location"
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label htmlFor={`location-link-${item.id}`}>
+                        Location Link:
+                      </label>
+                      <input
+                        id={`location-link-${item.id}`}
+                        type="url"
+                        value={item.location_link || ''}
+                        onChange={(e) => handleChange(index, 'location_link', e.target.value)}
+                        placeholder="Enter location URL"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="editable-service-actions">
+                    <button
+                      className={`save-button ${!item.isModified ? 'disabled' : ''} ${isLoading[item.id] ? 'loading' : ''}`}
+                      disabled={!item.isModified || isLoading[item.id]}
+                      onClick={() => handleSave(index)}
+                    >
+                      {isLoading[item.id] ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
+
+
 
 export { logoBlack, logoBlue, logoWithNameBlack, logoWithNameBlue }
