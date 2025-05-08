@@ -206,6 +206,11 @@
   color: #b79f6d;
 }
 
+
+
+
+
+
 .wrapper_editable_service {
   position: fixed;
   padding: 20px 10px;
@@ -272,4 +277,314 @@
 .service-box button:disabled {
   background-color: #999;
   cursor: not-allowed;
+}
+
+/* EditableService Component Styling */
+.editable-service-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.editable-service-container {
+  width: 100%;
+  max-width: 1000px;
+  max-height: 85vh;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+.editable-service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.editable-service-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #343a40;
+  font-family: var(--Heading);
+}
+
+.editable-service-close-btn {
+  background: none;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editable-service-close-btn:hover {
+  background-color: #e9ecef;
+  color: #343a40;
+}
+
+.editable-service-content {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(85vh - 80px);
+}
+
+.editable-service-empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+  font-size: 16px;
+  text-align: center;
+}
+
+.editable-service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+.editable-service-card {
+  background-color: #fff;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.editable-service-card.modified {
+  border-color: #4361ee;
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.12);
+}
+
+.editable-service-card.success {
+  border-color: #2ea252;
+  box-shadow: 0 4px 12px rgba(46, 162, 82, 0.12);
+}
+
+.editable-service-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.editable-service-card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+  font-family: var(--Heading);
+}
+
+.save-success-indicator {
+  font-size: 13px;
+  color: #2ea252;
+  font-weight: 600;
+  background: #cdeed8;
+  padding: 4px 10px;
+  border-radius: 16px;
+  white-space: nowrap;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.service-owner {
+  color: #6c757d;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #e9ecef;
+}
+
+.editable-service-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  font-family: var(--Heading);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #212529;
+  background-color: #f8f9fa;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4361ee;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+}
+
+.editable-service-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.save-button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background-color: #4361ee;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 130px;
+  font-family: var(--Heading);
+}
+
+.save-button:hover:not(.disabled) {
+  background-color: #3a56d4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+}
+
+.save-button.disabled {
+  background-color: #ced4da;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.save-button.loading {
+  background-color: #4361ee;
+  opacity: 0.8;
+  cursor: wait;
+  position: relative;
+}
+
+.save-button.loading::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s infinite linear;
+  margin-left: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .editable-service-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .editable-service-container {
+    max-width: 95%;
+    max-height: 90vh;
+  }
+  
+  .editable-service-header h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .editable-service-content {
+    padding: 16px;
+  }
+  
+  .editable-service-card {
+    padding: 16px;
+  }
+  
+  .editable-service-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .save-success-indicator {
+    align-self: flex-start;
+  }
+  
+  .save-button {
+    width: 100%;
+    padding: 12px;
+  }
 }
