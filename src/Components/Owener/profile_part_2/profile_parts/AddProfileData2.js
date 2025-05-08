@@ -22,7 +22,8 @@ function AddProfileData({ onInputChange }) {
     email: user.user_email,
     gender: user.gender,
     location: user.business_address,
-    socialMedia: user.social_media
+    socialMedia: user.social_media,
+    skill: user.skill
   });
 
 
@@ -45,7 +46,7 @@ function AddProfileData({ onInputChange }) {
   });
 
 
- 
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,7 +58,8 @@ function AddProfileData({ onInputChange }) {
         first_name: formData.firstName,
         last_name: formData.lastName,
         gender: formData.gender,
-        social_media: formData.socialMedia
+        social_media: formData.socialMedia,
+        skill: formData.skill
       }
 
       try {
@@ -80,7 +82,8 @@ function AddProfileData({ onInputChange }) {
               first_name: formData.firstName,
               last_name: formData.lastName,
               gender: formData.gender,
-              social_media: formData.socialMedia
+              social_media: formData.socialMedia,
+              skill: formData.skill
             }
           });
           showAcceptToast({ message: "Profile updated successfully" });
@@ -142,10 +145,10 @@ function AddProfileData({ onInputChange }) {
       // Create a temporary URL for the file to show immediate feedback
       const tempURL = URL.createObjectURL(file);
       setProfileImage(tempURL);
-      
+
       // Create XHR request to track upload progress
       const xhr = new XMLHttpRequest();
-      
+
       // Track upload progress
       xhr.upload.addEventListener('progress', (event) => {
         if (event.lengthComputable) {
@@ -159,8 +162,8 @@ function AddProfileData({ onInputChange }) {
         xhr.open('POST', `${Server_url}/owner/update-user-profile-image`, true);
         xhr.setRequestHeader('x-user-email', user.user_email);
         xhr.setRequestHeader('Content-Type', file.type);
-        
-        xhr.onload = function() {
+
+        xhr.onload = function () {
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
               const data = JSON.parse(xhr.responseText);
@@ -177,11 +180,11 @@ function AddProfileData({ onInputChange }) {
             }
           }
         };
-        
-        xhr.onerror = function() {
+
+        xhr.onerror = function () {
           reject(new Error('Network error occurred'));
         };
-        
+
         // Send the file
         xhr.send(file);
       });
@@ -191,12 +194,12 @@ function AddProfileData({ onInputChange }) {
       if (data.message === "User profile image updated successfully.") {
         // Update Redux with the image path instead of base64
         dispatch({
-          type: "SET_USER_Owner", 
+          type: "SET_USER_Owner",
           payload: {
             user_profile_image_base64: data.imagePath || true
           }
         });
-        
+
         // Force image refresh by updating the key
         setImageKey(Date.now());
       }
@@ -230,11 +233,11 @@ function AddProfileData({ onInputChange }) {
         throw new Error('Failed to delete profile image');
       }
 
-      let data = await response.json();  
+      let data = await response.json();
       if (data.message === "user profile image removed successfully.") {
         // Update UI
         setProfileImage(null);
-        
+
         // Update Redux store
         dispatch({
           type: "SET_USER_Owner",
@@ -242,10 +245,10 @@ function AddProfileData({ onInputChange }) {
             user_profile_image_base64: null
           }
         });
-        
+
         // Force refresh by updating key
         setImageKey(Date.now());
-        
+
       }
     } catch (error) {
       console.error('Error deleting profile image:', error);
@@ -358,7 +361,7 @@ function AddProfileData({ onInputChange }) {
   };
 
   return (
-    <div className="profile-container" id='AddProfileDataPopup'>      
+    <div className="profile-container" id='AddProfileDataPopup'>
       <div className="profile-header">
         <h2>Personal Information</h2>
       </div>
@@ -367,11 +370,11 @@ function AddProfileData({ onInputChange }) {
         <div className="profile-avatar">
           {profileImage ? (
             <>
-              <img 
-                src={typeof profileImage === 'string' && profileImage.startsWith('data:') 
-                  ? profileImage 
-                  : `${Server_url}/owner/profile-image/${user.user_email}?t=${imageKey}`} 
-                alt="Profile" 
+              <img
+                src={typeof profileImage === 'string' && profileImage.startsWith('data:')
+                  ? profileImage
+                  : `${Server_url}/owner/profile-image/${user.user_email}?t=${imageKey}`}
+                alt="Profile"
               />
               <label htmlFor="profile-image-input" className="camera-overlay">
                 <FaCamera className="camera-icon" />
@@ -415,6 +418,18 @@ function AddProfileData({ onInputChange }) {
             value={formData.userName}
             onChange={handleInputChange}
             placeholder="User Name"
+          />
+          {errors.userName && <span className="error">{errors.userName}</span>}
+        </div>
+
+        <div className="form-group">
+          <label>Skill</label>
+          <input
+            type="text"
+            name="skill"
+            value={formData.skill}
+            onChange={handleInputChange}
+            placeholder="Add Your Skill"
           />
           {errors.userName && <span className="error">{errors.userName}</span>}
         </div>
