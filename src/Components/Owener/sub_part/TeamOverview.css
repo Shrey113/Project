@@ -2241,6 +2241,18 @@
   word-break: break-word;
 }
 
+.profile-section .member_role {
+  font-size: 0.8rem;
+  color: #555;
+  margin-top: 0;
+  margin-bottom: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+  text-align: center;
+  word-break: break-word;
+}
+
 /* Add styles for the rejected status */
 .rejected-member {
   border: 1px solid #ff6b6b;

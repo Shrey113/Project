@@ -655,7 +655,8 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
   const isDropdownActive = activeDropdown === member.member_id;
   const isPending = member.member_status === "Pending";
   const isRejected = member.member_status === "Rejected";
-  const emailDisplay = member.member_email || member.team_member_email || "";
+  // const emailDisplay = member.member_email || member.team_member_email || "";
+
 
   function getTeamMemberProfilePic(value) {
     if (value.includes("1")) {
@@ -683,7 +684,7 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
   }, [isDropdownActive, setActiveDropdown]);
   const [showConfirmation, setShowConfirmation] = useState(false);
   return (
-    <div className={`member-card ${isPending ? 'pending-member' : ''} ${isRejected ? 'rejected-member' : ''}`}>
+    <div className={`member-card ${isPending ? 'pending-member' : ''} ${isRejected ? 'rejected-member' : ''}`} >
       <div className="status-indicator">
         {isPending ? (
           <span className="pending"></span>
@@ -757,7 +758,8 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
           )}
         </div>
         <h3>{member.member_name}</h3>
-        <p className="email" style={{ maxWidth: "100%", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{emailDisplay || "No email provided"}</p>
+        {/* <p className="email" style={{ maxWidth: "100%", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{emailDisplay || "No email provided"}</p> */}
+        <p className="member_role" style={{ maxWidth: "100%", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{member.member_role || "No email provided"}</p>
         {isPending && <div className="pending-badge">Invitation Pending</div>}
         {isRejected && <div className="rejected-badge">Invitation Rejected</div>}
       </div>
