@@ -92,7 +92,7 @@ const TeamMember = ({ member, onAction, actionIcon: ActionIcon, isDisabled, acti
         ) : ''}
 
       </div>
-      {!member.isEventOwner && !member.isEventHandler && (
+      {!member.isEventOwner && !member.isEventHandler && !member.isMemberBusyPending && (
         <button
           className={actionButtonClass}
           onClick={() => onAction(member)}
