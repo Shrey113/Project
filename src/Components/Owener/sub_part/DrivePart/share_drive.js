@@ -559,7 +559,7 @@ router.get('/public-access/:accessToken', async (req, res) => {
             const [subfolders] = await db.promise().query(
                 `SELECT folder_id, folder_name, created_date, modified_date
                  FROM drive_folders 
-                 WHERE parent_id = ?`,
+                 WHERE folder_id = ?`,
                 [accessLink.folder_id]
             );
             
@@ -791,7 +791,7 @@ router.get('/public-access/:accessToken', async (req, res) => {
             const [subfolders] = await db.promise().query(
                 `SELECT folder_id, folder_name, created_date, modified_date
                  FROM drive_folders 
-                 WHERE parent_id = ?`,
+                 WHERE folder_id = ?`,
                 [accessLink.folder_id]
             );
             
@@ -915,9 +915,24 @@ router.post('/get-current-shares', async (req, res) => {
         const [publicResult] = await db.promise().query(publicSql, [item_id]);
         const isPublic = publicResult.length > 0 && publicResult[0].shared_public === 1;
         
+        // If public, get the current public permission
+        let publicPermission = null;
+        if (isPublic) {
+            const publicPermSql = `
+                SELECT permission FROM drive_file_access
+                WHERE ${item_type === 'folder' ? 'folder_id' : 'file_id'} = ?
+                AND shared_public = 1`;
+                
+            const [publicPermResult] = await db.promise().query(publicPermSql, [item_id]);
+            if (publicPermResult.length > 0) {
+                publicPermission = publicPermResult[0].permission;
+            }
+        }
+        
         res.json({
             current_shares: currentShares,
-            is_public: isPublic
+            is_public: isPublic,
+            public_permission: publicPermission
         });
         
     } catch (error) {
@@ -1178,6 +1193,7 @@ router.post('/revoke-public-access', (req, res) => {
 });
 
 // Endpoint to get public link for an item
+// Endpoint to get public link for an item
 router.post('/get-public-link', (req, res) => {
     const { item_id, item_type } = req.body;
 
@@ -1208,7 +1224,7 @@ router.post('/get-public-link', (req, res) => {
             SELECT * FROM public_access_links 
             WHERE ${item_type === 'folder' ? 'folder_id' : 'file_id'} = ? 
             AND is_active = 1
-            ORDER BY created_date DESC
+            ORDER BY id DESC
             LIMIT 1
         `;
 
@@ -1233,7 +1249,6 @@ router.post('/get-public-link', (req, res) => {
                         return res.status(500).json({ error: "Error creating public link" });
                     }
                     
-                    // Check for permission
                     const permissionSql = `
                         SELECT permission FROM drive_file_access
                         WHERE ${item_type === 'folder' ? 'folder_id' : 'file_id'} = ?
@@ -1262,7 +1277,6 @@ router.post('/get-public-link', (req, res) => {
                 // Return existing link
                 const accessToken = linkResult[0].access_token;
                 
-                // Check for permission
                 const permissionSql = `
                     SELECT permission FROM drive_file_access
                     WHERE ${item_type === 'folder' ? 'folder_id' : 'file_id'} = ?
@@ -1284,13 +1298,14 @@ router.post('/get-public-link', (req, res) => {
                         public_link: `${process.env.APP_URL}/share/${accessToken}`,
                         permission: permission,
                         is_new: false,
-                        created_date: linkResult[0].created_date
+                        created_date: linkResult[0].created_date || null // fallback if column missing
                     });
                 });
             }
         });
     });
 });
+
 
 // New endpoint to revoke all restricted users at once
 router.post('/revoke-all-restricted-access', (req, res) => {
@@ -1433,14 +1448,9 @@ router.post('/validate-external-user', async (req, res) => {
         }
         
         // Compare passwords
-        const match = await bcrypt.compare(password, user.password);
+        const match = password === user.password;
         
         if (!match) {
-            // Log failed login attempt
-            await db.promise().query(
-                "INSERT INTO external_user_login_attempts (user_id, email, status, ip_address) VALUES (?, ?, ?, ?)",
-                [user.id, email, 'failed', req.ip || 'unknown']
-            ).catch(err => console.error("Error logging failed login:", err));
             
             return res.status(401).json({ error: "Invalid email or password" });
         }
@@ -1460,16 +1470,6 @@ router.post('/validate-external-user', async (req, res) => {
             [user.id]
         );
         
-        // Log successful login
-        try {
-            await db.promise().query(
-                "INSERT INTO external_user_login_attempts (user_id, email, status, ip_address) VALUES (?, ?, ?, ?)",
-                [user.id, email, 'success', req.ip || 'unknown']
-            );
-        } catch (logErr) {
-            console.error("Error logging successful login:", logErr);
-            // Continue even if logging fails
-        }
         
         res.status(200).json({
             message: "Login successful",

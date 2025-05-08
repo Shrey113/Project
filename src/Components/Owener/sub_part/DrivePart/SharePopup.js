@@ -38,6 +38,8 @@ const SharePopup = ({ item, onClose, onShare }) => {
     // State for current shares
     const [currentShares, setCurrentShares] = useState([]);
     const [isPublic, setIsPublic] = useState(false);
+    const [originalAnyonePermission, setOriginalAnyonePermission] = useState(null); // Track original permission
+    const [isPermissionChanged, setIsPermissionChanged] = useState(false); // Track if permission changed
     
     // New state for revocation functionality
     const [isRevoking, setIsRevoking] = useState(false);
@@ -118,6 +120,12 @@ const SharePopup = ({ item, onClose, onShare }) => {
                 if (data.is_public) {
                     setIsPublic(true);
                     setAccessMode("anyone");
+                    
+                    // Store original anyone permission if available
+                    if (data.public_permission) {
+                        setAnyonePermission(data.public_permission);
+                        setOriginalAnyonePermission(data.public_permission);
+                    }
                 }
                 
                 // Initialize already shared internal users
@@ -164,6 +172,15 @@ const SharePopup = ({ item, onClose, onShare }) => {
 
         fetchCurrentShares();
     }, [item]);
+
+    // Add effect to check if permission has changed
+    useEffect(() => {
+        if (originalAnyonePermission && originalAnyonePermission !== anyonePermission) {
+            setIsPermissionChanged(true);
+        } else {
+            setIsPermissionChanged(false);
+        }
+    }, [anyonePermission, originalAnyonePermission]);
 
     // Add another useEffect to fetch public link when isPublic changes
     useEffect(() => {
@@ -415,6 +432,13 @@ const SharePopup = ({ item, onClose, onShare }) => {
             return;
         }
 
+        // If already public and permission didn't change, just close the dialog
+        if (isPublic && accessMode === "anyone" && !isPermissionChanged) {
+            onShare();
+            onClose();
+            return;
+        }
+
         setIsSharing(true);
 
         try {
@@ -512,20 +536,38 @@ const SharePopup = ({ item, onClose, onShare }) => {
                 publicLinkData = await response.json();
             }
 
-            const successMessage = isPublic && accessMode === "anyone" 
-                ? "Link sharing permissions updated successfully" 
-                : "Item shared successfully";
+            // Set appropriate success message based on context
+            let successMessage;
+            if (isPublic && accessMode === "anyone") {
+                successMessage = isPermissionChanged ? 
+                    "Link sharing permissions updated successfully" : 
+                    "Link sharing is already active";
+            } else {
+                successMessage = "Item shared successfully";
+            }
             
             if (accessMode === "anyone") {
-                // Show success popup with the link
-                setShareSuccessInfo({
-                    title: isPublic ? "Sharing permissions updated" : "Link sharing enabled",
-                    message: isPublic 
-                        ? `The permissions for "${item.name || item.file_name || item.folder_name}" have been updated to ${getPermissionLabel(anyonePermission)}.`
-                        : `Anyone with the link can now ${anyonePermission === 'read' ? 'view' : anyonePermission === 'write' ? 'edit' : 'manage'} "${item.name || item.file_name || item.folder_name}".`,
-                    link: publicLinkData?.public_link || get_link_for_anyone(),
-                    access_token: publicLinkData?.access_token
-                });
+                // Only show success popup for new sharing or permission updates
+                if (!isPublic || isPermissionChanged) {
+                    // Show success popup with the link
+                    setShareSuccessInfo({
+                        title: isPublic ? "Sharing permissions updated" : "Link sharing enabled",
+                        message: isPublic 
+                            ? `The permissions for "${item.name || item.file_name || item.folder_name}" have been updated to ${getPermissionLabel(anyonePermission)}.`
+                            : `Anyone with the link can now ${anyonePermission === 'read' ? 'view' : anyonePermission === 'write' ? 'edit' : 'manage'} "${item.name || item.file_name || item.folder_name}".`,
+                        link: publicLinkData?.public_link || get_link_for_anyone(),
+                        access_token: publicLinkData?.access_token
+                    });
+                    
+                    // Update original permission to reflect the new setting
+                    setOriginalAnyonePermission(anyonePermission);
+                    setIsPermissionChanged(false);
+                } else {
+                    // If no change, just close
+                    showAcceptToast({ message: successMessage });
+                    onShare();
+                    onClose();
+                }
             } else {
                 showAcceptToast({ message: successMessage });
                 onShare();
@@ -736,32 +778,34 @@ const SharePopup = ({ item, onClose, onShare }) => {
                     </div>
                 ) : (
                     <>
-                        <div className="copylink-input-container">
-                            <input
-                                type="text"
-                                value={get_link_for_anyone()}
-                                readOnly
-                                className="copylink-input"
-                                id={`copyInput-${item.type === 'file' ? item.file_id : item.folder_id}`}
-                            />
-                            <button
-                                className={`copylink-button ${linkCopied ? 'copied' : ''}`}
-                                onClick={handleCopyLink}
-                            >
-                                {linkCopied ? (
-                                    <>
-                                        <span className="copy-icon">✓</span>
-                                        Copied!
-                                    </>
-                                ) : (
-                                    <>
-                                        <span className="copy-icon">📋</span>
-                                        Copy link
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                        
+                        {/* Only show copy link input if already public */}
+                        {isPublic && (
+                            <div className="copylink-input-container">
+                                <input
+                                    type="text"
+                                    value={get_link_for_anyone()}
+                                    readOnly
+                                    className="copylink-input"
+                                    id={`copyInput-${item.type === 'file' ? item.file_id : item.folder_id}`}
+                                />
+                                <button
+                                    className={`copylink-button ${linkCopied ? 'copied' : ''}`}
+                                    onClick={handleCopyLink}
+                                >
+                                    {linkCopied ? (
+                                        <>
+                                            <span className="copy-icon">✓</span>
+                                            Copied!
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="copy-icon"></span>
+                                            Copy link
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        )}
                     </>
                 )}
             </div>
@@ -939,7 +983,7 @@ const SharePopup = ({ item, onClose, onShare }) => {
                             />
                             <span className="radio-custom"></span>
                             <div className="radio-text">
-                                <span className="radio-title">Anyone with the link &nbsp; {isPublic && <span className="already-shared-badge">Already shared</span>}</span>
+                                <span className="radio-title">Anyone with the link</span>
                                 <span className="radio-desc">Anyone on the internet with the link can access</span>
                                 {restricedUsersCount > 0 && !isPublic && (
                                     <span className="radio-restriction">
@@ -953,7 +997,6 @@ const SharePopup = ({ item, onClose, onShare }) => {
                             <div className="permission-options">
                                 <div className="permission-options-title">
                                     Permission level:
-                                    {isPublic && <span className="update-permission-note">Updating existing link permissions</span>}
                                 </div>
                                 <div className="permission-radio-group">
                                     <label className="permission-radio-label">
@@ -1221,7 +1264,7 @@ const SharePopup = ({ item, onClose, onShare }) => {
                                             onClick={() => confirmDeleteAccess(owner, false)}
                                             title="Revoke access"
                                         >
-                                            🗑️
+                                            𐄂
                                         </button>
                                     ) : (
                                         <button
@@ -1305,7 +1348,7 @@ const SharePopup = ({ item, onClose, onShare }) => {
                                                 onClick={() => confirmDeleteAccess(extUser, true)}
                                                 title="Revoke access"
                                             >
-                                                🗑️
+                                                𐄂
                                             </button>
                                         ) : (
                                             <button
@@ -1482,10 +1525,12 @@ const SharePopup = ({ item, onClose, onShare }) => {
                     
                     {currentStep === 1 ? (
                         <button
-                            className="btn btn-next"
+                            className={`btn btn-next ${isPublic && isPermissionChanged ? 'update' : ''}`}
                             onClick={goToNextStep}
                         >
-                            {accessMode === "anyone" ? "Share" : "Add People"}
+                            {accessMode === "anyone" ? (
+                                isPublic ? (isPermissionChanged ? "Update Share" : "Done") : "Share"
+                            ) : "Add People"}
                         </button>
                     ) : (
                         <button
