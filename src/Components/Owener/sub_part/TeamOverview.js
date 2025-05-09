@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./TeamOverview.css";
-import { FaInfoCircle } from "react-icons/fa";
+import { FaInfoCircle, FaRegCalendarAlt, FaMapMarkerAlt, FaCheckCircle, FaCalendarDay, FaUserClock, FaTrophy } from "react-icons/fa";
 import socket from "./../../../redux/socket";
 import { useSelector } from "react-redux";
 // import add_icon from "./Team_overview/plus.png";
@@ -620,13 +620,207 @@ const DetailPopup = ({ member, onClose }) => {
   );
 };
 
+// Add new BusinessDetailsPopup component
+const BusinessDetailsPopup = ({ member, onClose }) => {
+  const [loading, setLoading] = useState(true);
+  const [businessData, setBusinessData] = useState(null);
+  const [activeTab, setActiveTab] = useState('upcoming');
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchBusinessData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${Server_url}/team_members/business_related_details`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ member_id: member.member_id })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setBusinessData(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching business data:", error);
+        setError("Failed to load business data. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    fetchBusinessData();
+  }, [member.member_id]);
+
+  // Handler for overlay clicks
+  const handleOverlayClick = (e) => {
+    if (e.target.className === "business-details-overlay") {
+      onClose();
+    }
+  };
+
+  // Render stats cards
+  const renderStatsCards = () => {
+    if (!businessData || !businessData.stats) return null;
+    
+    const { stats } = businessData;
+    
+    return (
+      <div className="business-stats-cards">
+        <div className="business-stat-card">
+          <div className="stat-icon"><FaCalendarDay /></div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.total_events}</div>
+            <div className="stat-label">Total Events</div>
+          </div>
+        </div>
+        
+        <div className="business-stat-card">
+          <div className="stat-icon"><FaCheckCircle /></div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.completed_events}</div>
+            <div className="stat-label">Completed</div>
+          </div>
+        </div>
+        
+        <div className="business-stat-card">
+          <div className="stat-icon"><FaRegCalendarAlt /></div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.upcoming_events}</div>
+            <div className="stat-label">Upcoming</div>
+          </div>
+        </div>
+        
+        <div className="business-stat-card">
+          <div className="stat-icon"><FaUserClock /></div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.days_as_team_member}</div>
+            <div className="stat-label">Days Active</div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Render event cards
+  const renderEventsList = (events) => {
+    if (!events || events.length === 0) {
+      return (
+        <div className="no-events-message">
+          <FaTrophy />
+          <p>No events found in this category</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="events-list">
+        {events.map(event => (
+          <div className="event-card" key={event.event_id}>
+            <div className="event-header">
+              <h4 className="event-title">{event.title}</h4>
+              <span className={`event-status status-${event.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                {event.status}
+              </span>
+            </div>
+            
+            <div className="event-details">
+              <div className="event-detail">
+                <FaRegCalendarAlt />
+                <span>{event.formatted_start}</span>
+              </div>
+              
+              {event.location && (
+                <div className="event-detail">
+                  <FaMapMarkerAlt />
+                  <span>{event.location}</span>
+                </div>
+              )}
+              
+              <div className="event-client">
+                <strong>Client:</strong> {event.client_name || "Not specified"}
+              </div>
+              
+              {event.role_in_event && (
+                <div className="event-role">
+                  <strong>Role:</strong> {event.role_in_event}
+                </div>
+              )}
+              
+              {event.requirements && (
+                <div className="event-requirements">
+                  <strong>Requirements:</strong> {event.requirements}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="business-details-overlay" onClick={handleOverlayClick}>
+      <div className="business-details-content">
+        <div className="business-details-header">
+          <h2>Business Activity for {member.member_name}</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+
+        {loading ? (
+          <div className="business-loading">
+            <div className="loading-spinner"></div>
+            <p>Loading business data...</p>
+          </div>
+        ) : error ? (
+          <div className="business-error-message">
+            <p>{error}</p>
+            <button className="retry-button" onClick={() => window.location.reload()}>Retry</button>
+          </div>
+        ) : businessData ? (
+          <>
+            {renderStatsCards()}
+            
+            <div className="events-tabs">
+              <div 
+                className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`}
+                onClick={() => setActiveTab('upcoming')}
+              >
+                Upcoming Events ({businessData.upcoming_events.length})
+              </div>
+              <div 
+                className={`tab ${activeTab === 'past' ? 'active' : ''}`}
+                onClick={() => setActiveTab('past')}
+              >
+                Past Events ({businessData.past_events.length})
+              </div>
+            </div>
+            
+            <div className="events-container">
+              {activeTab === 'upcoming' && renderEventsList(businessData.upcoming_events)}
+              {activeTab === 'past' && renderEventsList(businessData.past_events)}
+            </div>
+          </>
+        ) : (
+          <div className="no-data-message">
+            <p>No business data available for this team member.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdown }) => {
   const [showDetailPopup, setShowDetailPopup] = useState(false);
+  const [showBusinessDetails, setShowBusinessDetails] = useState(false);
   const isDropdownActive = activeDropdown === member.member_id;
   const isPending = member.member_status === "Pending";
   const isRejected = member.member_status === "Rejected";
-  // const emailDisplay = member.member_email || member.team_member_email || "";
-
 
   function getTeamMemberProfilePic(value) {
     if (value.includes("1")) {
@@ -640,18 +834,6 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
     } else {
       return profile_pic_user1;
     }
-  }
-  const fetchTeamMemberBusinessData = async (member) => {
-    const member_id = member.member_id;
-    const response = await fetch(`${Server_url}/team_members/business_related_details`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ member_id })
-    })
-    const data = await response.json();
-    console.log("data from server", data);
   }
 
   useEffect(() => {
@@ -693,11 +875,12 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
                 <>
                   <button className="dropdown-item info-btn"
                     onClick={() => {
-                      fetchTeamMemberBusinessData(member)
+                      setShowBusinessDetails(true);
+                      setActiveDropdown(null);
                     }}
                   >
                     <FaInfoCircle />
-                    <span>showInfo</span>
+                    <span>Business Activity</span>
                   </button>
                   <button
                     className="dropdown-item edit-btn"
@@ -748,7 +931,6 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
           )}
         </div>
         <h3>{member.member_name}</h3>
-        {/* <p className="email" style={{ maxWidth: "100%", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{emailDisplay || "No email provided"}</p> */}
         <p className="member_role" style={{ maxWidth: "100%", overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>{member.member_role || "No email provided"}</p>
         {isPending && <div className="pending-badge">Invitation Pending</div>}
         {isRejected && <div className="rejected-badge">Invitation Rejected</div>}
@@ -781,6 +963,14 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
           onClose={() => setShowDetailPopup(false)}
         />
       )}
+      
+      {showBusinessDetails && (
+        <BusinessDetailsPopup
+          member={member}
+          onClose={() => setShowBusinessDetails(false)}
+        />
+      )}
+      
       {showConfirmation && (
         <ConfirmMessage
           message_title="Remove Member"
