@@ -143,7 +143,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   const [teamMembers, setTeamMembers] = useState([]);
   const [assignedMembers, setAssignedMembers] = useState([]);
   const [DisabledTeamMembers, setDisabledTeamMembers] = useState([]);
-  const [teamResponseStatus] = useState(null);
   const [isLoading] = useState(false);
 
   // New state for multi-day event handling
@@ -164,17 +163,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
   });
 
   useEffect(() => {
-    console.log("newEvent", newEvent);
-    console.log("set_receiver_service_data", set_receiver_service_data);
-    console.log("profile_data", profile_data);
-    console.log("teamMembers", teamMembers);
-    console.log("assignedMembers", assignedMembers);
-    console.log("DisabledTeamMembers", DisabledTeamMembers);
-    console.log("teamResponseStatus", teamResponseStatus);
-    console.log("isLoading", isLoading);
-  }, [newEvent, set_receiver_service_data, profile_data, teamMembers, assignedMembers, DisabledTeamMembers, teamResponseStatus, isLoading]);
-
-  useEffect(() => {
     const defaultColor = COLOR_OPTIONS.find(color => color.default).value;
     setNewEvent(prev => ({ ...prev, backgroundColor: defaultColor }));
 
@@ -182,14 +170,12 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
     if (Array.isArray(newEvent.multi_day_data) && newEvent.multi_day_data.length > 1) {
       setIsMultiDayEvent(true);
       setEventDays(newEvent.multi_day_data);
-      console.log("Multi-day event detected with days:", newEvent.multi_day_data.length);
     }
   }, [setNewEvent, newEvent.multi_day_data]);
 
   // Function to update day assignments for multi-day events
   const updateDayAssignments = (assignments) => {
     setDayAssignments(assignments);
-    console.log("Updated day assignments:", assignments);
   };
 
   // Helper function to assign team members - updated for multi-day support
@@ -460,7 +446,7 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
                 onChange={(e) => setAssignmentDetails({ ...assignmentDetails, role: e.target.value })}
               />
             </div>
-
+ 
             <div className="form-field">
               <label>Payment Amount (per day)</label>
               <div className="payment-input">
@@ -539,16 +525,6 @@ const AddDetailsPop = ({ setShowEventModal, newEvent, setNewEvent, set_receiver_
       }
     }
 
-    // Log the event data with the new format
-    console.log("Event Data:", {
-      title: newEvent.title,
-      start: newEvent.start,
-      end: newEvent.end,
-      description: newEvent.description,
-      backgroundColor: newEvent.backgroundColor,
-      isMultiDayEvent,
-      teamAssignments: formattedTeamAssignments
-    });
     const eventData = {
       user_email: user.user_email,
       title: newEvent.title,
