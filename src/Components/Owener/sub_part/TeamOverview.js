@@ -733,6 +733,10 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
                 <FaRegCalendarAlt />
                 <span>{event.formatted_start}</span>
               </div>
+              <div className="event-detail">
+                <FaRegCalendarAlt />
+                <span>{event.formatted_end}</span>
+              </div>
               
               {event.location && (
                 <div className="event-detail">
