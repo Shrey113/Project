@@ -963,6 +963,7 @@
   padding: 3rem 1rem;
   text-align: center;
   color: var(--text-secondary);
+  grid-column: 1 /-1;
 }
 
 .empty-state p:first-child {
