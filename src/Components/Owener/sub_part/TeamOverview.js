@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./TeamOverview.css";
-import { FaInfoCircle, FaRegCalendarAlt, FaMapMarkerAlt, FaCheckCircle, FaCalendarDay, FaUserClock, FaTrophy, FaMoneyBillAlt, FaDollarSign, FaWallet } from "react-icons/fa";
+import { FaInfoCircle, FaRegCalendarAlt, FaMapMarkerAlt, FaCheckCircle, FaCalendarDay, FaUserClock, FaTrophy, FaMoneyBillAlt, FaDollarSign } from "react-icons/fa";
 import socket from "./../../../redux/socket";
 import { useSelector } from "react-redux";
 // import add_icon from "./Team_overview/plus.png";
