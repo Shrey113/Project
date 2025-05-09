@@ -880,7 +880,6 @@
 .file-item-grid:hover,
 .file-item-grid:focus-within {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
 }
 
 .file-item-grid.selected {
@@ -1440,7 +1439,6 @@
 }
 
 .file-item-grid:hover {
-  transform: translateY(-4px);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: var(--shadow-md);
 }
@@ -2441,4 +2439,166 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-primary);
+}
+
+/* Improved thumbnail styles */
+.file-thumbnail {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    position: relative;
+}
+
+.file-thumbnail.large {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 10px;
+}
+
+.file-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: relative;
+    z-index: 2;
+}
+
+.file-thumbnail img.loading {
+    opacity: 0;
+}
+
+.file-thumbnail img.loaded {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.thumbnail-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #f0f0f0, #f8f8f8, #f0f0f0);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    z-index: 1;
+}
+
+.thumbnail-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Grid view styles */
+.grid-view .file-card {
+    position: relative;
+    margin: 10px;
+    padding: 15px;
+    width: 180px;
+    height: 180px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    transition: all 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.grid-view .file-card:hover {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.grid-view .file-card.selected {
+    background-color: #e8f0fe;
+    box-shadow: 0 0 0 2px #1a73e8;
+}
+
+.grid-view .file-card-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* List view styles */
+.list-view .file-item {
+    display: table-row;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.list-view .file-item:hover {
+    background-color: #f5f5f5;
+}
+
+.list-view .file-item.selected {
+    background-color: #e8f0fe;
+}
+
+.list-view .file-item td {
+    padding: 10px 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.list-view .name-cell {
+    width: 40%;
+}
+
+.list-view .shared-cell,
+.list-view .date-cell,
+.list-view .size-cell {
+    width: 15%;
+}
+
+.list-view .actions-cell {
+    width: 50px;
+    text-align: right;
+}
+
+.list-view .file-name-container {
+    display: flex;
+    align-items: center;
+}
+
+.list-view .file-icon,
+.list-view .file-thumbnail {
+    margin-right: 12px;
+    color: #5f6368;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }

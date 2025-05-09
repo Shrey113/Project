@@ -27,6 +27,12 @@ import {
 } from 'react-icons/bs';
 import './DriveStyles.css';
 import { Server_url } from '../../../../redux/AllData';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faEllipsisV, faFolder, faFile, faFileAlt, faFilePdf,
+    faFileWord, faFileExcel, faFilePowerpoint, faFileImage,
+    faFileVideo, faFileAudio, faFileArchive, faFileCode
+} from '@fortawesome/free-solid-svg-icons';
 
 
 const FileItem = ({
@@ -58,9 +64,39 @@ const FileItem = ({
     const itemRef = useRef(null);
     const infoBoxRef = useRef(null);
     const [sharedWithProfiles, setSharedWithProfiles] = useState([]);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [thumbnailUrl, setThumbnailUrl] = useState('');
+    const [thumbnailLoaded, setThumbnailLoaded] = useState(false);
+    const [thumbnailError, setThumbnailError] = useState(false);
+    const popupRef = useRef(null);
 
     // Generate a unique ID for this item
     const itemId = type === 'file' ? `file-${item.file_id}` : `folder-${item.folder_id}`;
+
+    // Determine item details based on type
+    const itemIdValue = type === 'file' ? item.file_id : item.folder_id;
+    const itemName = type === 'file' ? item.file_name : item.folder_name;
+    const createdDate = formatDate ? formatDate(item.created_at || item.created_date) : new Date(item.created_at || item.created_date).toLocaleDateString();
+    const isStarred = item.is_starred;
+    const itemSize = type === 'file'
+        ? formatFileSize(item.file_size)
+        : formatFileSize(item);
+    const sharedWith = item.shared_with || [];
+    
+    // Get file extension
+    const getFileExtension = (filename) => {
+        if (!filename) return '';
+        return filename.split('.').pop().toLowerCase();
+    };
+    
+    // Define fileType variable
+    const fileType = type === 'file' ? getFileExtension(itemName) : '';
+
+    // Check if file is an image
+    const isImageFile = (extension) => {
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+        return imageExtensions.includes(extension);
+    };
 
     // Close options popup when clicking outside
     useEffect(() => {
@@ -274,16 +310,76 @@ const FileItem = ({
         onSelect(itemId, type);
     };
 
+    // Load thumbnail for image files
+    useEffect(() => {
+        if (type === 'file' && isImageFile(fileType)) {
+            // Set thumbnail URL based on server endpoint
+            const thumbUrl = `${Server_url}/drive/thumbnail/${itemIdValue}?width=150&height=150`;
+            setThumbnailUrl(thumbUrl);
+        } else if (type === 'file') {
+            // For non-image files, use file type icon
+            setThumbnailUrl(`${Server_url}/drive/file-icon/${fileType || 'default'}`);
+        }
+    }, [type, itemIdValue, fileType, Server_url, isImageFile]);
 
-    // Determine item details based on type
-    const itemIdValue = type === 'file' ? item.file_id : item.folder_id;
-    const itemName = type === 'file' ? item.file_name : item.folder_name;
-    const createdDate = formatDate ? formatDate(item.created_at || item.created_date) : new Date(item.created_at || item.created_date).toLocaleDateString();
-    const isStarred = item.is_starred;
-    const itemSize = type === 'file'
-        ? formatFileSize(item.file_size)
-        : formatFileSize(item);
-    const sharedWith = item.shared_with || [];
+    // Handle thumbnail load error
+    const handleThumbnailError = () => {
+        setThumbnailError(true);
+        // Fall back to file type icon
+        setThumbnailUrl(`${Server_url}/drive/file-icon/${fileType || 'default'}`);
+    };
+
+    // Toggle popup menu
+    const togglePopup = (e) => {
+        e.stopPropagation();
+        const newState = !isPopupOpen;
+        setIsPopupOpen(newState);
+        
+        // Set global active popup to this popup when opening
+        if (newState) {
+            setGlobalActivePopup(itemId);
+        } else {
+            setGlobalActivePopup(null);
+        }
+    };
+
+    // Get appropriate icon for the file type
+    const getFileIcon = () => {
+        if (!fileType) return faFile;
+
+        switch (fileType.toLowerCase()) {
+            case 'pdf': return faFilePdf;
+            case 'doc':
+            case 'docx': return faFileWord;
+            case 'xls':
+            case 'xlsx': return faFileExcel;
+            case 'ppt':
+            case 'pptx': return faFilePowerpoint;
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+            case 'gif':
+            case 'bmp':
+            case 'svg': return faFileImage;
+            case 'mp4':
+            case 'avi':
+            case 'mov':
+            case 'wmv': return faFileVideo;
+            case 'mp3':
+            case 'wav':
+            case 'ogg': return faFileAudio;
+            case 'zip':
+            case 'rar':
+            case '7z': return faFileArchive;
+            case 'html':
+            case 'css':
+            case 'js':
+            case 'json':
+            case 'php':
+            case 'py': return faFileCode;
+            default: return faFileAlt;
+        }
+    };
 
     // Render shared avatars
     const renderSharedAvatars = () => {
@@ -487,7 +583,31 @@ const FileItem = ({
                 </div>
 
                 <div className="file-icon-container">
-                    {getIcon()}
+                    {type === 'folder' ? (
+                        <div className="file-icon large folder-icon">
+                            <FontAwesomeIcon icon={faFolder} size="3x" />
+                        </div>
+                    ) : thumbnailUrl && !thumbnailError ? (
+                        <div className="file-thumbnail large">
+                            {!thumbnailLoaded && <div className="thumbnail-loader"></div>}
+                            <img 
+                                src={thumbnailUrl} 
+                                alt={itemName}
+                                className={thumbnailLoaded ? 'loaded' : 'loading'}
+                                onLoad={() => setThumbnailLoaded(true)}
+                                onError={handleThumbnailError}
+                            />
+                            {!thumbnailLoaded && (
+                                <div className="file-icon large thumbnail-fallback">
+                                    <FontAwesomeIcon icon={getFileIcon()} size="3x" />
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="file-icon large">
+                            <FontAwesomeIcon icon={getFileIcon()} size="3x" />
+                        </div>
+                    )}
                 </div>
 
                 <div className="file-details">
@@ -506,14 +626,14 @@ const FileItem = ({
                 <div className="file-actions-grid">
                     <button
                         className="action-more"
-                        onClick={toggleOptions}
+                        onClick={togglePopup}
                         title="More options"
                     >
-                        <FiMoreVertical />
+                        <FontAwesomeIcon icon={faEllipsisV} />
                     </button>
 
-                    {showOptions && (
-                        <div className="options-popup" ref={optionsRef}>
+                    {isPopupOpen && (
+                        <div className="options-popup" ref={popupRef}>
                             {type === 'file' && onDownload && (
                                 <button
                                     onClick={handleDownload}
@@ -529,7 +649,7 @@ const FileItem = ({
                                     if (onStar) {
                                         onStar(itemIdValue, type, isStarred);
                                     }
-                                    setShowOptions(false);
+                                    setIsPopupOpen(false);
                                     setGlobalActivePopup(null);
                                 }}
                                 className="option-item"
@@ -542,7 +662,7 @@ const FileItem = ({
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onEdit(itemIdValue, type, itemName);
-                                        setShowOptions(false);
+                                        setIsPopupOpen(false);
                                         setGlobalActivePopup(null);
                                     }}
                                     className="option-item"
@@ -556,7 +676,7 @@ const FileItem = ({
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onShare(itemIdValue, type, itemName);
-                                        setShowOptions(false);
+                                        setIsPopupOpen(false);
                                         setGlobalActivePopup(null);
                                     }}
                                     className="option-item"
@@ -577,7 +697,7 @@ const FileItem = ({
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onDelete(itemIdValue, itemName);
-                                        setShowOptions(false);
+                                        setIsPopupOpen(false);
                                         setGlobalActivePopup(null);
                                     }}
                                     className="option-item warning"
@@ -614,7 +734,31 @@ const FileItem = ({
             <td className="name-cell">
                 <div className="name-wrapper">
                     <div className="file-icon-container">
-                        {getIcon()}
+                        {type === 'folder' ? (
+                            <div className="file-icon large folder-icon">
+                                <FontAwesomeIcon icon={faFolder} size="3x" />
+                            </div>
+                        ) : thumbnailUrl && !thumbnailError ? (
+                            <div className="file-thumbnail">
+                                {!thumbnailLoaded && <div className="thumbnail-loader"></div>}
+                                <img 
+                                    src={thumbnailUrl} 
+                                    alt={itemName}
+                                    className={thumbnailLoaded ? 'loaded' : 'loading'}
+                                    onLoad={() => setThumbnailLoaded(true)}
+                                    onError={handleThumbnailError}
+                                />
+                                {!thumbnailLoaded && (
+                                    <div className="file-icon thumbnail-fallback">
+                                        <FontAwesomeIcon icon={getFileIcon()} />
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="file-icon">
+                                <FontAwesomeIcon icon={getFileIcon()} />
+                            </div>
+                        )}
                     </div>
                     <span title={itemName} className="file-name-span">{itemName}</span>
                     {isStarred && (
@@ -663,14 +807,14 @@ const FileItem = ({
             <td className="actions-cell">
                 <button
                     className="action-more"
-                    onClick={toggleOptions}
+                    onClick={togglePopup}
                     title="More options"
                 >
-                    <FiMoreVertical />
+                    <FontAwesomeIcon icon={faEllipsisV} />
                 </button>
 
-                {showOptions && (
-                    <div className="options-popup" ref={optionsRef}>
+                {isPopupOpen && (
+                    <div className="options-popup" ref={popupRef}>
                         {type === 'file' && onDownload && (
                             <button
                                 onClick={handleDownload}
@@ -686,7 +830,7 @@ const FileItem = ({
                                 if (onStar) {
                                     onStar(itemIdValue, type, isStarred);
                                 }
-                                setShowOptions(false);
+                                setIsPopupOpen(false);
                                 setGlobalActivePopup(null);
                             }}
                             className="option-item"
@@ -699,7 +843,7 @@ const FileItem = ({
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onEdit(itemIdValue, type, itemName);
-                                    setShowOptions(false);
+                                    setIsPopupOpen(false);
                                     setGlobalActivePopup(null);
                                 }}
                                 className="option-item"
@@ -713,7 +857,7 @@ const FileItem = ({
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onShare(itemIdValue, type, itemName);
-                                    setShowOptions(false);
+                                    setIsPopupOpen(false);
                                     setGlobalActivePopup(null);
                                 }}
                                 className="option-item"
@@ -734,7 +878,7 @@ const FileItem = ({
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onDelete(itemIdValue, itemName);
-                                    setShowOptions(false);
+                                    setIsPopupOpen(false);
                                     setGlobalActivePopup(null);
                                 }}
                                 className="option-item warning"

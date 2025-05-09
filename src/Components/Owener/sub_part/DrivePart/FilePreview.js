@@ -61,6 +61,13 @@ const FilePreview = ({ file, onClose }) => {
         const category = getFileCategory(fileType, fileName);
         return category !== 'other' && category !== 'archive';
     };
+    useEffect(() => {
+        if (skeletonVisible) {
+            document.documentElement.style.overflow = 'hidden';
+        } else {
+            document.documentElement.style.overflow = 'auto';
+        }
+    }, [skeletonVisible]);
 
     useEffect(() => {
         const preCheckAndFetchFile = async () => {

@@ -6,6 +6,7 @@ const path = require('path');
 const util = require('util');
 const crypto = require('crypto');
 const busboy = require('busboy');
+const sharp = require('sharp');
 
 require('dotenv').config();
 
@@ -16,6 +17,12 @@ const rootDirectory = path.join(__dirname, "..", "root");
 // Create root directory if it doesn't exist
 if (!fs.existsSync(rootDirectory)) {
     fs.mkdirSync(rootDirectory, { recursive: true });
+}
+
+// Create thumbnail directory if it doesn't exist
+const thumbnailDir = path.join(rootDirectory, 'thumbnails');
+if (!fs.existsSync(thumbnailDir)) {
+    fs.mkdirSync(thumbnailDir, { recursive: true });
 }
 
 const db = mysql.createConnection({
@@ -351,8 +358,6 @@ router.get('/folder/:folderId/contents', (req, res) => {
         return res.status(400).json({ error: 'Missing required parameters: folderId, user_email, or created_by' });
     }
 
-    console.log(`Getting contents for folder ID: ${folderId} for user: ${user_email}`);
-
     // Step 1: Get child folder IDs from drive_folder_structure
     const childFolderQuery = `SELECT child_folder_id FROM drive_folder_structure WHERE parent_folder_id = ?`;
 
@@ -369,11 +374,9 @@ router.get('/folder/:folderId/contents', (req, res) => {
 
         const childFolderIds = childFolderIdsResult.map(row => row.child_folder_id);
 
-        // Step 2: Get folder details for child folder IDs
         const folderQuery = `SELECT * FROM drive_folders WHERE folder_id IN (?) AND created_by = ?`;
         const fileQuery = `SELECT * FROM drive_files WHERE parent_folder_id = ? AND user_email = ?`;
 
-        // Execute both queries in parallel
         Promise.all([
             new Promise((resolve, reject) => {
                 if (childFolderIds.length === 0) {
@@ -388,12 +391,11 @@ router.get('/folder/:folderId/contents', (req, res) => {
             new Promise((resolve, reject) => {
                 db.query(fileQuery, [folderId, user_email], (err, files) => {
                     if (err) reject(err);
-                    else resolve(files);
+                    else resolve(files);    
                 });
             })
         ])
             .then(([folders, files]) => {
-                // Return both folders and files
                 res.status(200).json({
                     success: true,
                     folders: folders,
@@ -1182,28 +1184,24 @@ function getFilesAndFolders(parent_folder_id, created_by, res) {
 // Get file by ID
 router.get('/files/:id', (req, res) => {
     const file_id = req.params.id;
-    const { created_by, download } = req.query;
+    const { created_by, download, download_source } = req.query;
+    const email = req.query.user_email || created_by;
 
     // Validate input
     if (!created_by) {
         return res.status(400).send('User email is required');
     }
 
-    // Check permissions through parent folder
-    const permCheck = `SELECT f.*, fold.folder_name, fold.created_by AS folder_owner 
-                      FROM drive_files f
-                      JOIN drive_folders fold ON f.parent_folder_id = fold.folder_id
-                      WHERE f.file_id = ? AND (fold.created_by = ? OR fold.folder_id IN 
-                      (SELECT folder_id FROM drive_folder_access WHERE created_by = ?) OR
-                      f.file_id IN (SELECT file_id FROM drive_file_access WHERE created_by = ?))`;
+    // Simplified query - just get the file by ID
+    const fileQuery = `SELECT * FROM drive_files WHERE file_id = ?`;
 
-    db.query(permCheck, [file_id, created_by, created_by, created_by], (err, results) => {
+    db.query(fileQuery, [file_id], (err, results) => {
         if (err) {
-            return res.status(500).send('Error checking permissions: ' + err.message);
+            return res.status(500).send('Error retrieving file: ' + err.message);
         }
 
         if (results.length === 0) {
-            return res.status(403).send('No permission to access this file');
+            return res.status(404).send('File not found');
         }
 
         const fileData = results[0];
@@ -1211,26 +1209,35 @@ router.get('/files/:id', (req, res) => {
         // If download is requested, send the file
         if (download === 'true') {
             if (!fileData.file_path || !fs.existsSync(fileData.file_path)) {
-                // Try the default path if file_path is not set
-                const userFolder = getUserFolderPath(fileData.folder_owner);
-                const defaultPath = path.join(userFolder, fileData.folder_name, fileData.file_name);
+                // Try to find the file using folder information
+                const folderQuery = `SELECT * FROM drive_folders WHERE folder_id = ?`;
 
-                if (!fs.existsSync(defaultPath)) {
-                    return res.status(404).send('File not found on server');
-                }
+                db.query(folderQuery, [fileData.parent_folder_id], (err, folderResults) => {
+                    if (err || folderResults.length === 0) {
+                        return res.status(404).send('File not found on server');
+                    }
 
-                return res.download(defaultPath, fileData.file_name, (err) => {
+                    const folder = folderResults[0];
+                    const userFolder = getUserFolderPath(folder.created_by);
+                    const defaultPath = path.join(userFolder, folder.folder_name, fileData.file_name);
+
+                    if (!fs.existsSync(defaultPath)) {
+                        return res.status(404).send('File not found on server');
+                    }
+
+                    return res.download(defaultPath, fileData.file_name, (err) => {
+                        if (err) {
+                            return res.status(500).send('Error downloading file: ' + err.message);
+                        }
+                    });
+                });
+            } else {
+                return res.download(fileData.file_path, fileData.file_name, (err) => {
                     if (err) {
                         return res.status(500).send('Error downloading file: ' + err.message);
                     }
                 });
             }
-
-            return res.download(fileData.file_path, fileData.file_name, (err) => {
-                if (err) {
-                    return res.status(500).send('Error downloading file: ' + err.message);
-                }
-            });
         } else {
             // Otherwise just return metadata
             delete fileData.file_path; // Don't expose server file path
@@ -1989,6 +1996,261 @@ router.post('/get_storage_stats', (req, res) => {
     } catch (error) {
         console.error('Error in get_storage_stats:', error);
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+function categorizeFilesByType(files) {
+    const categories = {
+        images: { size: 0, percentage: 0, extensions: ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.bmp', '.tiff'] },
+        documents: { size: 0, percentage: 0, extensions: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.odt'] },
+        videos: { size: 0, percentage: 0, extensions: ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.mkv', '.webm', '.m4v', '.3gp'] },
+        others: { size: 0, percentage: 0, extensions: [] }
+    };
+
+    let totalSize = 0;
+
+    files.forEach(file => {
+        const fileExt = '.' + file.file_name.split('.').pop().toLowerCase();
+        const fileSize = parseInt(file.file_size) || 0;
+        totalSize += fileSize;
+
+        let categorized = false;
+
+        // Check which category this file belongs to
+        for (const [category, data] of Object.entries(categories)) {
+            if (category !== 'others' && data.extensions.includes(fileExt)) {
+                categories[category].size += fileSize;
+                categorized = true;
+                break;
+            }
+        }
+
+        // If not categorized, put in others
+        if (!categorized) {
+            categories.others.size += fileSize;
+        }
+    });
+
+    // Calculate percentages if total size is not zero
+    if (totalSize > 0) {
+        for (const category in categories) {
+            categories[category].percentage = Math.round((categories[category].size / totalSize) * 100);
+        }
+    }
+
+    // Remove the extensions array from the result
+    for (const category in categories) {
+        delete categories[category].extensions;
+    }
+
+    return categories;
+}
+
+// Add this new route handler after an existing route
+router.post('/get_storage_stats', (req, res) => {
+    try {
+        const { user_email, created_by } = req.body;
+
+        if (!user_email) {
+            return res.status(400).json({ error: 'User email is required' });
+        }
+
+        // Query all files for this user
+        const query = 'SELECT file_name, file_size FROM drive_files WHERE user_email = ?';
+
+        db.query(query, [user_email], (err, results) => {
+            if (err) {
+                console.error('Error fetching files for storage stats:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            // Calculate total used storage
+            let usedStorage = 0;
+            results.forEach(file => {
+                usedStorage += parseInt(file.file_size) || 0;
+            });
+
+            // Categorize files and calculate stats
+            const stats = categorizeFilesByType(results);
+
+            // Add total used storage to the response
+            const response = {
+                ...stats,
+                usedStorage,
+                totalFiles: results.length
+            };
+
+            // If FULL_DRIVE_LIMIT is defined and not unlimited, calculate percentage used
+            const fullDriveLimit = process.env.FULL_DRIVE_LIMIT || '5GB';
+            const isUnlimited = fullDriveLimit.toLowerCase() === 'unlimited';
+
+            if (!isUnlimited) {
+                let maxStorage = 0;
+                if (fullDriveLimit.endsWith('GB')) {
+                    maxStorage = parseFloat(fullDriveLimit) * 1024 * 1024 * 1024;
+                } else if (fullDriveLimit.endsWith('MB')) {
+                    maxStorage = parseFloat(fullDriveLimit) * 1024 * 1024;
+                } else if (fullDriveLimit.endsWith('TB')) {
+                    maxStorage = parseFloat(fullDriveLimit) * 1024 * 1024 * 1024 * 1024;
+                }
+
+                response.totalStorage = maxStorage;
+                response.percentageUsed = maxStorage > 0 ? (usedStorage / maxStorage) * 100 : 0;
+                response.remainingStorage = maxStorage - usedStorage;
+            }
+
+            res.json(response);
+        });
+    } catch (error) {
+        console.error('Error in get_storage_stats:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+router.post("/get_file_folder_details", (req, res) => {
+    const { type,id } = req.body;
+    let query = "";
+    if(type == "folder"){
+        query = `SELECT * FROM drive_folders WHERE folder_id = ?`;
+    }else if(type == "file"){
+        query = `SELECT * FROM drive_files WHERE file_id = ?`;
+    }
+    db.query(query, [id], (err, results) => {
+        res.json(results);
+    });
+});
+
+
+router.post("/get_drive_limit", (req, res) => {
+    const { user_email } = req.body;
+    const query = `SELECT drive_limit FROM owner WHERE user_email = ?`;
+    db.query(query, [user_email], (err, results) => {
+        if(err){
+            return res.status(500).json({ error: 'Database error' });
+        }
+        if (results && results.length > 0 && results[0].drive_limit) {
+            res.json({
+                drive_limit: results[0].drive_limit,
+                source: 'database'
+            });
+        } else {
+            const defaultLimit = process.env.DRIVE_limit;
+            res.json({
+                drive_limit: defaultLimit,
+                source: 'default'
+            });
+        }
+    });
+});
+
+
+router.post("/set_drive_limit_by_admin", (req, res) => {
+    const { user_email, drive_limit } = req.body;
+    //set - "1GB", "1TB", "unlimited"
+    const query = `UPDATE owner SET drive_limit = ? WHERE user_email = ?`;
+    db.query(query, [drive_limit, user_email], (err, results) => {
+        if(err){
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json({ message: 'Drive limit updated successfully' });
+    });
+});
+
+// Add thumbnail generation functionality
+router.get('/thumbnail/:fileId', async (req, res) => {
+    const { fileId } = req.params;
+    const { width = 200, height = 200 } = req.query;
+    const { user_email } = req.query;
+    
+    if (!fileId) {
+        return res.status(400).send('File ID is required');
+    }
+
+    try {
+        // Get file info from database
+        const query = `SELECT * FROM drive_files WHERE file_id = ?`;
+        
+        db.query(query, [fileId], async (err, results) => {
+            if (err) {
+                console.error('Error fetching file info:', err);
+                return res.status(500).send('Database error');
+            }
+            
+            if (results.length === 0) {
+                return res.status(404).send('File not found');
+            }
+            
+            const fileData = results[0];
+            const filePath = fileData.file_path;
+            const fileType = path.extname(fileData.file_name).toLowerCase();
+            
+            // Only process image files
+            const supportedTypes = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
+            if (!supportedTypes.includes(fileType)) {
+                // For non-image files, return a generic icon based on file type
+                return res.redirect('/icons/file-icon.png'); // Adjust path to your file icons
+            }
+            
+            // Create a unique thumbnail filename
+            const thumbFilename = `thumb_${fileId}_${width}x${height}${fileType}`;
+            const thumbPath = path.join(thumbnailDir, thumbFilename);
+            
+            // Check if thumbnail already exists
+            if (fs.existsSync(thumbPath)) {
+                return res.sendFile(thumbPath);
+            }
+            
+            // Check if source file exists
+            if (!fs.existsSync(filePath)) {
+                console.error(`Source file not found: ${filePath}`);
+                return res.status(404).send('Source file not found');
+            }
+            
+            // Generate thumbnail
+            await sharp(filePath)
+                .resize(parseInt(width), parseInt(height), {
+                    fit: 'cover',
+                    position: 'center'
+                })
+                .toFile(thumbPath);
+                
+            // Send the thumbnail
+            res.sendFile(thumbPath);
+        });
+    } catch (error) {
+        console.error('Error generating thumbnail:', error);
+        res.status(500).send(`Error generating thumbnail: ${error.message}`);
+    }
+});
+
+// Get file type icon for non-image files
+router.get('/file-icon/:type', (req, res) => {
+    const { type } = req.params;
+    
+    // Map file extensions to icon files
+    const iconMap = {
+        pdf: 'pdf-icon.png',
+        doc: 'doc-icon.png',
+        docx: 'doc-icon.png',
+        xls: 'excel-icon.png',
+        xlsx: 'excel-icon.png',
+        ppt: 'ppt-icon.png',
+        pptx: 'ppt-icon.png',
+        txt: 'text-icon.png',
+        zip: 'zip-icon.png',
+        rar: 'zip-icon.png',
+        // Add more mappings as needed
+        default: 'file-icon.png'
+    };
+    
+    const iconFile = iconMap[type] || iconMap.default;
+    const iconPath = path.join(__dirname, '..', 'public', 'icons', iconFile);
+    
+    // Check if icon exists, otherwise send default
+    if (fs.existsSync(iconPath)) {
+        res.sendFile(iconPath);
+    } else {
+        res.sendFile(path.join(__dirname, '..', 'public', 'icons', 'file-icon.png'));
     }
 });
 
