@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./TeamOverview.css";
-import { FaInfoCircle, FaRegCalendarAlt, FaMapMarkerAlt, FaCheckCircle, FaCalendarDay, FaUserClock, FaTrophy } from "react-icons/fa";
+import { FaInfoCircle, FaRegCalendarAlt, FaMapMarkerAlt, FaCheckCircle, FaCalendarDay, FaUserClock, FaTrophy, FaMoneyBillAlt, FaDollarSign, FaWallet } from "react-icons/fa";
 import socket from "./../../../redux/socket";
 import { useSelector } from "react-redux";
 // import add_icon from "./Team_overview/plus.png";
@@ -663,6 +663,15 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
     }
   };
 
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2
+    }).format(amount);
+  };
+
   // Render stats cards
   const renderStatsCards = () => {
     if (!businessData || !businessData.stats) return null;
@@ -670,39 +679,70 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
     const { stats } = businessData;
     
     return (
-      <div className="business-stats-cards">
-        <div className="business-stat-card">
-          <div className="stat-icon"><FaCalendarDay /></div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.total_events}</div>
-            <div className="stat-label">Total Events</div>
+      <>
+        <div className="business-stats-cards">
+          <div className="business-stat-card">
+            <div className="stat-icon"><FaCalendarDay /></div>
+            <div className="stat-content">
+              <div className="stat-value">{stats.total_events}</div>
+              <div className="stat-label">Total Events</div>
+            </div>
+          </div>
+          
+          <div className="business-stat-card">
+            <div className="stat-icon"><FaCheckCircle /></div>
+            <div className="stat-content">
+              <div className="stat-value">{stats.completed_events}</div>
+              <div className="stat-label">Completed</div>
+            </div>
+          </div>
+          
+          <div className="business-stat-card">
+            <div className="stat-icon"><FaRegCalendarAlt /></div>
+            <div className="stat-content">
+              <div className="stat-value">{stats.upcoming_events}</div>
+              <div className="stat-label">Upcoming</div>
+            </div>
+          </div>
+          
+          <div className="business-stat-card">
+            <div className="stat-icon"><FaUserClock /></div>
+            <div className="stat-content">
+              <div className="stat-value">{stats.days_as_team_member}</div>
+              <div className="stat-label">Days Active</div>
+            </div>
           </div>
         </div>
         
-        <div className="business-stat-card">
-          <div className="stat-icon"><FaCheckCircle /></div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.completed_events}</div>
-            <div className="stat-label">Completed</div>
+        <div className="earnings-section">
+          <h3>Financial Overview</h3>
+          <div className="earnings-cards">
+            <div className="earnings-card total">
+              <div className="earnings-icon"><FaMoneyBillAlt /></div>
+              <div className="earnings-content">
+                <div className="earnings-label">Total Earnings</div>
+                <div className="earnings-value">{formatCurrency(stats.total_earnings || 0)}</div>
+              </div>
+            </div>
+            
+            <div className="earnings-card completed">
+              <div className="earnings-icon"><FaDollarSign /></div>
+              <div className="earnings-content">
+                <div className="earnings-label">Earned from Completed Jobs</div>
+                <div className="earnings-value">{formatCurrency(stats.completed_earnings || 0)}</div>
+              </div>
+            </div>
+            
+            <div className="earnings-card upcoming">
+              <div className="earnings-icon"><FaDollarSign /></div>
+              <div className="earnings-content">
+                <div className="earnings-label">Expected from Upcoming Jobs</div>
+                <div className="earnings-value">{formatCurrency(stats.upcoming_earnings || 0)}</div>
+              </div>
+            </div>
           </div>
         </div>
-        
-        <div className="business-stat-card">
-          <div className="stat-icon"><FaRegCalendarAlt /></div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.upcoming_events}</div>
-            <div className="stat-label">Upcoming</div>
-          </div>
-        </div>
-        
-        <div className="business-stat-card">
-          <div className="stat-icon"><FaUserClock /></div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.days_as_team_member}</div>
-            <div className="stat-label">Days Active</div>
-          </div>
-        </div>
-      </div>
+      </>
     );
   };
 
@@ -733,6 +773,7 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
                 <FaRegCalendarAlt />
                 <span>{event.formatted_start}</span>
               </div>
+              
               <div className="event-detail">
                 <FaRegCalendarAlt />
                 <span>{event.formatted_end}</span>
@@ -744,6 +785,11 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
                   <span>{event.location}</span>
                 </div>
               )}
+              
+              <div className="event-detail payment-detail">
+                <FaMoneyBillAlt />
+                <span>Payment: {formatCurrency(event.payment || 0)}</span>
+              </div>
               
               <div className="event-client">
                 <strong>Client:</strong> {event.client_name || "Not specified"}

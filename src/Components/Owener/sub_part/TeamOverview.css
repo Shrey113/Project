@@ -2620,3 +2620,162 @@
     font-size: 14px;
   }
 }
+
+/* Earnings Section Styles */
+.earnings-section {
+  padding: 0 30px 30px;
+  background-color: #f9f9f9;
+}
+
+.earnings-section h3 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 600;
+  padding-top: 10px;
+}
+
+.earnings-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.earnings-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.earnings-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.earnings-card.total {
+  border-left: 4px solid #4caf50;
+}
+
+.earnings-card.completed {
+  border-left: 4px solid #2196f3;
+}
+
+.earnings-card.upcoming {
+  border-left: 4px solid #ff9800;
+}
+
+.earnings-icon {
+  font-size: 28px;
+  color: #4a6cf7;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(74, 108, 247, 0.1);
+  border-radius: 50%;
+}
+
+.earnings-content {
+  flex: 1;
+}
+
+.earnings-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.earnings-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+}
+
+.earnings-card.total .earnings-icon {
+  color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.earnings-card.completed .earnings-icon {
+  color: #2196f3;
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.earnings-card.upcoming .earnings-icon {
+  color: #ff9800;
+  background-color: rgba(255, 152, 0, 0.1);
+}
+
+/* Add payment detail styles */
+.payment-detail {
+  background-color: #f5f9ff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  color: #34495e;
+  font-weight: 500;
+}
+
+.payment-detail svg {
+  color: #2c3e50;
+}
+
+/* Responsive adjustments for earnings section */
+@media (max-width: 768px) {
+  .earnings-section {
+    padding: 0 20px 20px;
+  }
+  
+  .earnings-section h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+  
+  .earnings-cards {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .earnings-value {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .earnings-section {
+    padding: 0 15px 15px;
+  }
+  
+  .earnings-section h3 {
+    font-size: 16px;
+  }
+  
+  .earnings-card {
+    padding: 15px;
+  }
+  
+  .earnings-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+  }
+  
+  .earnings-label {
+    font-size: 12px;
+  }
+  
+  .earnings-value {
+    font-size: 18px;
+  }
+  
+  .payment-detail {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
