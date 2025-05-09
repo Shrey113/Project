@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./TeamOverview.css";
+import { FaInfoCircle } from "react-icons/fa";
 import socket from "./../../../redux/socket";
 import { useSelector } from "react-redux";
 // import add_icon from "./Team_overview/plus.png";
@@ -127,37 +128,6 @@ const PopUp = ({ action, member, onClose, onSave }) => {
     });
   };
 
-  // const sendInvitation = async (email) => {
-  //   try {
-  //     const response = await fetch(`${Server_url}/team_members/send_invitation`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         owner_email: user.user_email,
-  //         member_email: email,
-  //         member_role: formData.member_role,
-  //         member_name: formData.member_name,
-  //         member_profile_img: formData.member_profile_img,
-  //         member_phone: formData.member_phone,
-  //       }),
-  //     });
-
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       console.log("this is the data invitation link/////........", data);
-  //       console.log("this is the data invitation link/////........", data.invitationLink);
-  //       return data.invitationLink;
-  //     } else {
-  //       console.error("Failed to send invitation");
-  //       return false;
-  //     }
-  //   } catch (error) {
-  //     console.error("Error sending invitation:", error);
-  //     return false;
-  //   }
-  // };
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
@@ -671,6 +641,18 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
       return profile_pic_user1;
     }
   }
+  const fetchTeamMemberBusinessData = async (member) => {
+    const member_id = member.member_id;
+    const response = await fetch(`${Server_url}/team_members/business_related_details`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ member_id })
+    })
+    const data = await response.json();
+    console.log("data from server", data);
+  }
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -709,6 +691,14 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
               {/* Conditionally render Edit button only if status is not Pending or Rejected */}
               {!isPending && !isRejected && (
                 <>
+                  <button className="dropdown-item info-btn"
+                    onClick={() => {
+                      fetchTeamMemberBusinessData(member)
+                    }}
+                  >
+                    <FaInfoCircle />
+                    <span>showInfo</span>
+                  </button>
                   <button
                     className="dropdown-item edit-btn"
                     onClick={() => {

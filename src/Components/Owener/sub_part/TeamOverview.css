@@ -1261,6 +1261,11 @@
   font-weight: 500;
 }
 
+.dropdown-item.info-btn:hover {
+  background-color: #e6f4ff;
+  color: #3399ff;
+}
+
 .dropdown-item.edit-btn:hover {
   background-color: #f0f7ff;
   color: #0066ff;
