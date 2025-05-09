@@ -667,7 +667,7 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       minimumFractionDigits: 2
     }).format(amount);
   };
@@ -675,9 +675,9 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
   // Render stats cards
   const renderStatsCards = () => {
     if (!businessData || !businessData.stats) return null;
-    
+
     const { stats } = businessData;
-    
+
     return (
       <>
         <div className="business-stats-cards">
@@ -688,7 +688,7 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
               <div className="stat-label">Total Events</div>
             </div>
           </div>
-          
+
           <div className="business-stat-card">
             <div className="stat-icon"><FaCheckCircle /></div>
             <div className="stat-content">
@@ -696,7 +696,7 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
               <div className="stat-label">Completed</div>
             </div>
           </div>
-          
+
           <div className="business-stat-card">
             <div className="stat-icon"><FaRegCalendarAlt /></div>
             <div className="stat-content">
@@ -704,7 +704,7 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
               <div className="stat-label">Upcoming</div>
             </div>
           </div>
-          
+
           <div className="business-stat-card">
             <div className="stat-icon"><FaUserClock /></div>
             <div className="stat-content">
@@ -713,7 +713,7 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
             </div>
           </div>
         </div>
-        
+
         <div className="earnings-section">
           <h3>Financial Overview</h3>
           <div className="earnings-cards">
@@ -724,7 +724,7 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
                 <div className="earnings-value">{formatCurrency(stats.total_earnings || 0)}</div>
               </div>
             </div>
-            
+
             <div className="earnings-card completed">
               <div className="earnings-icon"><FaDollarSign /></div>
               <div className="earnings-content">
@@ -732,7 +732,7 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
                 <div className="earnings-value">{formatCurrency(stats.completed_earnings || 0)}</div>
               </div>
             </div>
-            
+
             <div className="earnings-card upcoming">
               <div className="earnings-icon"><FaDollarSign /></div>
               <div className="earnings-content">
@@ -767,40 +767,40 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
                 {event.status}
               </span>
             </div>
-            
+
             <div className="event-details">
               <div className="event-detail">
                 <FaRegCalendarAlt />
                 <span>{event.formatted_start}</span>
               </div>
-              
+
               <div className="event-detail">
                 <FaRegCalendarAlt />
                 <span>{event.formatted_end}</span>
               </div>
-              
+
               {event.location && (
                 <div className="event-detail">
                   <FaMapMarkerAlt />
                   <span>{event.location}</span>
                 </div>
               )}
-              
+
               <div className="event-detail payment-detail">
                 <FaMoneyBillAlt />
                 <span>Payment: {formatCurrency(event.payment || 0)}</span>
               </div>
-              
+
               <div className="event-client">
                 <strong>Client:</strong> {event.client_name || "Not specified"}
               </div>
-              
+
               {event.role_in_event && (
                 <div className="event-role">
                   <strong>Role:</strong> {event.role_in_event}
                 </div>
               )}
-              
+
               {event.requirements && (
                 <div className="event-requirements">
                   <strong>Requirements:</strong> {event.requirements}
@@ -834,22 +834,22 @@ const BusinessDetailsPopup = ({ member, onClose }) => {
         ) : businessData ? (
           <>
             {renderStatsCards()}
-            
+
             <div className="events-tabs">
-              <div 
+              <div
                 className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`}
                 onClick={() => setActiveTab('upcoming')}
               >
                 Upcoming Events ({businessData.upcoming_events.length})
               </div>
-              <div 
+              <div
                 className={`tab ${activeTab === 'past' ? 'active' : ''}`}
                 onClick={() => setActiveTab('past')}
               >
                 Past Events ({businessData.past_events.length})
               </div>
             </div>
-            
+
             <div className="events-container">
               {activeTab === 'upcoming' && renderEventsList(businessData.upcoming_events)}
               {activeTab === 'past' && renderEventsList(businessData.past_events)}
@@ -1013,14 +1013,14 @@ const MemberCard = ({ member, onEdit, onRemove, activeDropdown, setActiveDropdow
           onClose={() => setShowDetailPopup(false)}
         />
       )}
-      
+
       {showBusinessDetails && (
         <BusinessDetailsPopup
           member={member}
           onClose={() => setShowBusinessDetails(false)}
         />
       )}
-      
+
       {showConfirmation && (
         <ConfirmMessage
           message_title="Remove Member"
