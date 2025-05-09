@@ -13,8 +13,8 @@ export const localstorage_key_for_admin_login =
   "localstorage_key_for_admin_login";
 
 // localhost  ---------------------------------------------------
-// export const Server_url = "http://localhost:4000";
-// export const Socket_url = 'ws://localhost:4000';
+export const Server_url = "http://localhost:4000";
+export const Socket_url = 'ws://localhost:4000';
 export const APP_URL = "http://localhost:3000";
 
 // praharsh  ---------------------------------------------------
@@ -22,8 +22,8 @@ export const APP_URL = "http://localhost:3000";
 // export const Socket_url = 'ws://192.168.29.34:4000';
 
 // Shrey11_ ---------------------------------------------------
-export const Server_url = 'http://192.168.29.193:4000';
-export const Socket_url = 'ws://192.168.29.193:4000';
+// export const Server_url = 'http://192.168.29.193:4000';
+// export const Socket_url = 'ws://192.168.29.193:4000';
 
 
 // Server at a build time   ---------------------------------------------------
@@ -167,7 +167,7 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
       updated[index].location_link !== updated[index].original_location_link;
 
     updated[index].isModified = isModified;
-    
+
     // Reset success state when field is modified again
     if (isModified && successStates[updated[index].id]) {
       setSuccessStates(prev => ({
@@ -175,7 +175,7 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
         [updated[index].id]: false
       }));
     }
-    
+
     setFormData(updated);
   };
 
@@ -186,7 +186,7 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
       location: item.location,
       location_link: item.location_link
     };
-    
+
     // Set loading state for this item
     setIsLoading(prev => ({
       ...prev,
@@ -211,19 +211,19 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
         updated[index].original_location_link = item.location_link;
         updated[index].isModified = false;
         setFormData(updated);
-        
+
         // Set success state for this item
         setSuccessStates(prev => ({
           ...prev,
           [item.id]: true
         }));
-        
+
         // Clear loading state
         setIsLoading(prev => ({
           ...prev,
           [item.id]: false
         }));
-        
+
         // Clear success state after 3 seconds
         setTimeout(() => {
           setSuccessStates(prev => ({
@@ -234,7 +234,7 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
       })
       .catch(err => {
         console.error('Error saving data:', err);
-        
+
         // Clear loading state
         setIsLoading(prev => ({
           ...prev,
@@ -256,7 +256,7 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
             <IoCloseOutline size={24} />
           </button>
         </div>
-        
+
         <div className="editable-service-content">
           {formData.length === 0 ? (
             <div className="editable-service-empty">
@@ -265,8 +265,8 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
           ) : (
             <div className="editable-service-grid">
               {formData.map((item, index) => (
-                <div 
-                  key={item.id} 
+                <div
+                  key={item.id}
                   className={`editable-service-card ${item.isModified ? 'modified' : ''} ${successStates[item.id] ? 'success' : ''}`}
                 >
                   <div className="editable-service-card-header">
@@ -275,12 +275,12 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
                       <span className="save-success-indicator">Updated successfully</span>
                     )}
                   </div>
-                  
+
                   <div className="editable-service-details">
                     <p className="service-owner">
                       <strong>Owner:</strong> {item.receiver_email}
                     </p>
-                    
+
                     <div className="form-group">
                       <label htmlFor={`location-${item.id}`}>
                         Location:
@@ -293,7 +293,7 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
                         placeholder="Enter location"
                       />
                     </div>
-                    
+
                     <div className="form-group">
                       <label htmlFor={`location-link-${item.id}`}>
                         Location Link:
@@ -307,7 +307,7 @@ export const EditableService = ({ editableData, set_boolean_edit_service }) => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="editable-service-actions">
                     <button
                       className={`save-button ${!item.isModified ? 'disabled' : ''} ${isLoading[item.id] ? 'loading' : ''}`}
