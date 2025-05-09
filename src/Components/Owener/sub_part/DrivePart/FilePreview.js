@@ -10,6 +10,15 @@ const FilePreview = ({ file, onClose }) => {
     const [error, setError] = useState(null);
     const [skeletonVisible, setSkeletonVisible] = useState(true);
 
+        useEffect(() => {
+        if (skeletonVisible) {
+            document.documentElement.style.overflow = 'hidden';
+        } else {
+            document.documentElement.style.overflow = 'auto';
+        }
+    }, [skeletonVisible]);
+
+
     useEffect(() => {
         console.log('FilePreview component mounted');
         console.log('File:', file);
@@ -61,13 +70,7 @@ const FilePreview = ({ file, onClose }) => {
         const category = getFileCategory(fileType, fileName);
         return category !== 'other' && category !== 'archive';
     };
-    useEffect(() => {
-        if (skeletonVisible) {
-            document.documentElement.style.overflow = 'hidden';
-        } else {
-            document.documentElement.style.overflow = 'auto';
-        }
-    }, [skeletonVisible]);
+
 
     useEffect(() => {
         const preCheckAndFetchFile = async () => {
@@ -81,6 +84,26 @@ const FilePreview = ({ file, onClose }) => {
                 setSkeletonVisible(false);
                 return;
             }
+                const getFileCategory = (fileType, fileName) => {
+        const extension = getFileExtension(fileName, fileType);
+
+            const supportedFormats = {
+        image: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'],
+        video: ['mp4', 'webm', 'ogg', 'mov', 'avi', 'wmv', 'mkv'],
+        audio: ['mp3', 'wav', 'ogg', 'flac', 'aac'],
+        pdf: ['pdf'],
+        text: ['txt', 'rtf', 'md', 'csv'],
+        code: ['js', 'jsx', 'ts', 'tsx', 'html', 'css', 'java', 'py', 'c', 'cpp', 'php'],
+        archive: ['zip', 'rar', '7z', 'tar', 'gz']
+    };
+
+        for (const [category, extensions] of Object.entries(supportedFormats)) {
+            if (extensions.includes(extension)) {
+                return category;
+            }
+        }
+        return 'other';
+    };
 
             // Pre-check file format
             const fileExtension = getFileExtension(file.file_name, file.file_type);
@@ -122,7 +145,7 @@ const FilePreview = ({ file, onClose }) => {
                 URL.revokeObjectURL(fileUrl);
             }
         };
-    }, [file]);
+    }, [file, fileUrl]);
 
     const handleDownload = () => {
         const link = document.createElement('a');
